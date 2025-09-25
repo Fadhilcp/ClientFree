@@ -1,7 +1,6 @@
 import { Document } from "mongoose";
 
 export interface IUserBase{
-    _id : string;
     username : string;
     email : string
     password : string;
@@ -85,4 +84,6 @@ export interface IUserProfile{
 }
 
 
-export type IUser = IUserBase & IUserProfile & Document;
+export interface IUser extends IUserBase, IUserProfile {};
+
+export interface IUserDocument extends IUser, Document {}

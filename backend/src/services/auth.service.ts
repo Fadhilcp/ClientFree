@@ -7,30 +7,43 @@ import { IPendingUser, IPendingUserRepository } from "../interfaces/repositories
 import { sendOtpEmail } from "../utils/mailer.js";
 
 
-export class authService implements IAuthService {
+export class AuthService implements IAuthService {
 
     constructor(private userRepository : IUserRepository, private pendingUserRepoitory : IPendingUserRepository){};
 
     async signUp(data : IPendingUser) : Promise<void>{
 
+        console.log("🚀 ~ AuthService ~ signUp ~ otp:")
 
         const existingUser = await this.userRepository.findByEmail(data.email);
+        const pendingUser = await this.pendingUserRepoitory.findByEmail(data.email);
 
         if(existingUser){
             throw new Error("Email is already is use");
         }
 
+        
         const otp = generateOtp();
+
+        if(pendingUser){
+            await this.pendingUserRepoitory.updateOne({email : data.email},{otp , expiresAt : new Date(Date.now() + 1 * 60 * 1000)});
+            return;
+        }
+
+        console.log("🚀 ~ AuthService ~ signUp ~ otp:", otp)
         const hashPassword = await bcrypt.hash(data.password , 10)
 
+        
         await this.pendingUserRepoitory.create({
             username : data.username,
             email : data.email,
             password : hashPassword,
             role : data.role,
             otp,
-            expiresAt : new Date(Date.now() + 1 + 60 + 1000)
+            expiresAt : new Date(Date.now() + 1 * 60 * 1000)
         })
+
+        console.log('helloo')
 
         await sendOtpEmail(data.email, otp)
     }

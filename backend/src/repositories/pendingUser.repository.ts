@@ -1,8 +1,8 @@
-import { baseRepository } from "./base.repository.js";
+import { BaseRepository } from "./base.repository.js";
 import pendingUserModel from "../models/pendingUser.model.js";
-import { IPendingUser, IPendingUserDocument, IPendingUserRepository } from "../interfaces/repositories/IPendingUserRepository.js";
+import { IPendingUserDocument, IPendingUserRepository } from "../interfaces/repositories/IPendingUserRepository.js";
 
-export class pendingUserRepository extends baseRepository<IPendingUserDocument>{
+export class PendingUserRepository extends BaseRepository<IPendingUserDocument>{
     constructor(){
         super(pendingUserModel)
     }

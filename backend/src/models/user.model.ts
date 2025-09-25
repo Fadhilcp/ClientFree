@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { IUser } from "../types/user.type.js";
+import { IUserDocument } from "../types/user.type.js";
 
 const userSchema = new Schema({
 
@@ -124,4 +124,4 @@ const userSchema = new Schema({
 
 
 
-export default model<IUser>("User",userSchema)
+export default model<IUserDocument>("User",userSchema)

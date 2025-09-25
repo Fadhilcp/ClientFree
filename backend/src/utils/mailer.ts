@@ -1,11 +1,12 @@
-import nodemailer from 'nodemailer';
+
 import { transporter } from '../config/mail.config.js';
+import { env } from '../config/env.config.js';
 
 
 export const sendOtpEmail = async(to : string, otp : string) : Promise<void> =>{
     
         const mailOptions = {
-        from: `"FreelanceHub" <${process.env.EMAIL_USER}>`,
+        from: `"ClientFree" <${env.SENDER_EMAIL}>`,
         to,
         subject: 'Your OTP Code',
         html: `

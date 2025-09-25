@@ -2,18 +2,18 @@
 import { 
     Model, 
     Document,
-    Types,
     FilterQuery,
     UpdateQuery,
     UpdateResult,
-    DeleteResult
+    DeleteResult,
+    ObjectId
 } from "mongoose";
 
-export abstract class baseRepository<T extends Document>{
+export abstract class BaseRepository<T extends Document>{
 
     constructor(protected model : Model<T>){}
 
-    async findById(id : Types.ObjectId) : Promise<T | null>{
+    async findById(id : ObjectId) : Promise<T | null>{
         return this.model.findById(id);
     }
 
@@ -22,10 +22,11 @@ export abstract class baseRepository<T extends Document>{
     }
 
     async create(data : Partial<T>) : Promise<T> {
+        console.log("🚀 ~ BaseRepository ~ create ~ data:", data)
         return this.model.create(data);
     }
 
-    async findByIdAndUpdate(id : Types.ObjectId , data : Partial<T>) : Promise<T | null>{
+    async findByIdAndUpdate(id : ObjectId , data : Partial<T>) : Promise<T | null>{
         return this.model.findByIdAndUpdate(id , data , { upsert : true , new : true});
     } 
 
@@ -33,7 +34,7 @@ export abstract class baseRepository<T extends Document>{
         return this.model.updateOne(filter, data);
     }
 
-    async delete(id : Types.ObjectId) : Promise<T | null>{
+    async delete(id : ObjectId) : Promise<T | null>{
         return this.model.findByIdAndDelete(id);
     }
 

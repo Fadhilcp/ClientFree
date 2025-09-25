@@ -1,4 +1,5 @@
 import express from 'express';
+import process from 'process';
 import { connectDB } from './config/mongo.config.js';
 import { env } from './config/env.config.js';
 const app = express();
@@ -6,12 +7,16 @@ const app = express();
 import dotenv from 'dotenv';
 dotenv.config();
 
+import authRouter from './routes/auth.route.js';
+
 
 connectDB();
 
 app.use(express.json());
 app.use(express.urlencoded({extended : true}));
 
+
+app.use("/auth",authRouter)
 
 
 app.listen(env.PORT || 3000,()=>{

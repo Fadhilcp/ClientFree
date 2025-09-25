@@ -1,8 +1,9 @@
-import { baseRepository } from "./base.repository.js";
-import { IUser } from "../types/user.type.js";
+import { BaseRepository } from "./base.repository.js";
+import { IUser, IUserDocument } from "../types/user.type.js";
 import userModel from "./../models/user.model.js"
 
- export class userRepository extends baseRepository<IUser>{
+
+ export class UserRepository extends BaseRepository<IUserDocument>{
     constructor(){
         super(userModel);
     }
