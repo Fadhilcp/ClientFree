@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 
 export interface IUserBase{
     username : string;
@@ -86,4 +86,6 @@ export interface IUserProfile{
 
 export interface IUser extends IUserBase, IUserProfile {};
 
-export interface IUserDocument extends IUser, Document {}
+export interface IUserDocument extends IUser, Document {
+  _id : Types.ObjectId
+}

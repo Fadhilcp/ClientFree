@@ -4,6 +4,8 @@ import { env } from '../config/env.config.js';
 
 
 export const sendOtpEmail = async(to : string, otp : string) : Promise<void> =>{
+
+    console.log(env.SENDER_EMAIL)
     
         const mailOptions = {
         from: `"ClientFree" <${env.SENDER_EMAIL}>`,
@@ -16,10 +18,14 @@ export const sendOtpEmail = async(to : string, otp : string) : Promise<void> =>{
             <h1 style="color: #2e86de;">${otp}</h1>
             <p>This code will expire in 1 minutes. Please do not share it with anyone.</p>
             <br/>
-            <p>Thanks,<br/>The FreelanceHub Team</p>
+            <p>Thanks,<br/>The ClientFree Team</p>
         </div>
         `,
     };
 
-    await transporter.sendMail(mailOptions);
+    try {
+        await transporter.sendMail(mailOptions);
+    } catch (error) {
+        console.error('Failed to sent email',error)
+    }
 }

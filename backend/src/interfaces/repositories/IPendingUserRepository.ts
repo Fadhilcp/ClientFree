@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import { Document, ObjectId } from "mongoose";
 import { IBaseRepository } from "./IBaseRepository.js";
 
 export interface IPendingUser{
@@ -10,7 +10,9 @@ export interface IPendingUser{
     expiresAt : Date;
 }
 
-export interface IPendingUserDocument extends IPendingUser, Document {}
+export interface IPendingUserDocument extends IPendingUser, Document {
+    _id : ObjectId
+}
 
 export interface IPendingUserRepository extends IBaseRepository<IPendingUserDocument>{
     findByEmail(email : string) : Promise<IPendingUserDocument | null>;

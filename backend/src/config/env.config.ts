@@ -1,4 +1,5 @@
-
+import dotenv from 'dotenv'
+dotenv.config()
 
 export const env = {
 
@@ -16,6 +17,14 @@ export const env = {
 
     get PASSKEY(){
         return process.env.PASSKEY;
+    },
+
+    get ACCESS_SECRET(){
+        return process.env.JWT_ACCESS_SECRET
+    },
+
+    get REFRESH_SECRET(){
+        return process.env.JWT_ACCESS_SECRET
     }
 
 }

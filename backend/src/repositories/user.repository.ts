@@ -8,19 +8,19 @@ import userModel from "./../models/user.model.js"
         super(userModel);
     }
 
-    async findByEmail(email : string) : Promise<IUser | null>{
+    async findByEmail(email : string) : Promise<IUserDocument | null>{
         return this.model.findOne({ email });
     }
 
-    async findFreelancers() : Promise<IUser[]>{
+    async findFreelancers() : Promise<IUserDocument[]>{
         return this.model.find({ role : "freelancer" });
     }
 
-    async findClients() : Promise<IUser[]>{
+    async findClients() : Promise<IUserDocument[]>{
         return this.model.find({ role : "client" });
     }
 
-    async findByLocation(city ?: string, country ?: string, state ?: string) : Promise<IUser[]>{
+    async findByLocation(city ?: string, country ?: string, state ?: string) : Promise<IUserDocument[]>{
 
         const filter : Record<string, any> = {};
         

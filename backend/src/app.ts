@@ -4,9 +4,6 @@ import { connectDB } from './config/mongo.config.js';
 import { env } from './config/env.config.js';
 const app = express();
 
-import dotenv from 'dotenv';
-dotenv.config();
-
 import authRouter from './routes/auth.route.js';
 
 

@@ -15,5 +15,7 @@ const authController = new AuthController(authService);
 
 
 authRouter.post('/signUp',authController.signUp.bind(authController))
+authRouter.post('/verifyOtp',authController.verifyOtp.bind(authController))
+authRouter.post('/login',authController.login.bind(authController))
 
 export default authRouter
