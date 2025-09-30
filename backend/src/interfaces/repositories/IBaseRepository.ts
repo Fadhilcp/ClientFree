@@ -2,7 +2,7 @@ import { DeleteResult, Document, FilterQuery, ObjectId, UpdateQuery, UpdateResul
 
 
 export interface IBaseRepository<TDocument extends Document> {
-  findById(id: ObjectId): Promise<TDocument | null>;
+  findById(id: ObjectId | string): Promise<TDocument | null>;
   findAll(): Promise<TDocument[]>;
   create(data: Partial<TDocument>): Promise<TDocument>;
   findByIdAndUpdate(id: ObjectId, data: Partial<TDocument>): Promise<TDocument | null>;

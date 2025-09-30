@@ -25,7 +25,7 @@ const userSchema = new Schema({
         enum : ["active", "inactive", "banned"],
         default : "active"
     },
-    lastLoginAt : { type : Date },
+    lastLoginAt : { type : Date , default : Date.now },
 
     name : { type : String },
     phone : { type : String },

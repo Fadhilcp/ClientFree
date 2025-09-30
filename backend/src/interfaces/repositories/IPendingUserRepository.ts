@@ -5,7 +5,7 @@ export interface IPendingUser{
     username : string,
     email : string;
     password : string;
-    role : "freelancer" | "client" | "admin";
+    role : "freelancer" | "client";
     otp : string;
     expiresAt : Date;
 }

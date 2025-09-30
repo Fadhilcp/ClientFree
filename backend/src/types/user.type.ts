@@ -1,15 +1,15 @@
-import { Document, Types } from "mongoose";
+import { Document, Types } from "mongoose"; 
 
 export interface IUserBase{
     username : string;
     email : string
     password : string;
+    role : "freelancer" | "client" | "admin";
+    status : "active" | "inactive" | "banned";
+    lastLoginAt ?: Date;
 }
 
 export interface IUserProfile{
-    role ?: "freelancer" | "client" | "admin";
-    status ?: "active" | "inactive" | "banned";
-    lastLoginAt ?: Date;
 
     name ?: string;
     phone ?: string;
@@ -83,9 +83,10 @@ export interface IUserProfile{
   updatedAt ?: Date;
 }
 
+export type IUser = IUserBase & IUserProfile;
 
-export interface IUser extends IUserBase, IUserProfile {};
+export type IUserDocument = IUser & Document & {
+  _id: Types.ObjectId;
+};
 
-export interface IUserDocument extends IUser, Document {
-  _id : Types.ObjectId
-}
+

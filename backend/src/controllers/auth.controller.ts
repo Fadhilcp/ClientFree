@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { IAuthService } from "../interfaces/services/IAuthService.js";
+import { setCookie } from "../utils/refreshCookie.util.js";
+import { success } from "zod";
 
 export class AuthController {
     constructor(private service : IAuthService){}
@@ -22,13 +24,16 @@ export class AuthController {
     async verifyOtp(req : Request, res : Response) : Promise<void> {
         try {
             const { email, otp } = req.body;
+            console.log(email,otp)
+
             const { user, accessToken, refreshToken } = await this.service.verifyOtp(email, otp);
+
+            setCookie(res, refreshToken);
 
             res.status(200).json({
                 success : true,
                 messsage : "SignUp complete",
-                accessToken,
-                refreshToken,
+                token : accessToken,
                 user : {
                     _id : user._id,
                     username : user.username,
@@ -41,6 +46,21 @@ export class AuthController {
         }
     };
 
+    async accessRefreshToken(req : Request, res : Response) : Promise<void> {
+        try {
+            const refreshToken = req.cookies.refreshToken;
+
+            const { accessToken, newRefreshToken } = await this.service.accessRefreshToken(refreshToken);
+
+            setCookie(res, newRefreshToken);
+
+            res.status(200).json({ success : true, token : accessToken})
+                
+        } catch (error : any) {
+            res.status(400).json({ error : error.message })
+        }
+    }
+
 
     async login(req : Request, res : Response) : Promise<void> {
         try {
@@ -48,11 +68,12 @@ export class AuthController {
 
             const { user, accessToken, refreshToken } = await this.service.login(email, password);
 
+            setCookie(res, refreshToken);
+
             res.status(200).json({
                 success : true,
                 messsage : "login complete",
-                accessToken,
-                refreshToken,
+                token : accessToken,
                 user : {
                     _id : user._id,
                     username : user.username,

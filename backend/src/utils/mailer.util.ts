@@ -4,8 +4,6 @@ import { env } from '../config/env.config.js';
 
 
 export const sendOtpEmail = async(to : string, otp : string) : Promise<void> =>{
-
-    console.log(env.SENDER_EMAIL)
     
         const mailOptions = {
         from: `"ClientFree" <${env.SENDER_EMAIL}>`,
