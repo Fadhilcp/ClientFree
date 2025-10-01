@@ -22,7 +22,6 @@ export abstract class BaseRepository<T extends Document>{
     }
 
     async create(data : Partial<T>) : Promise<T> {
-        console.log("🚀 ~ BaseRepository ~ create ~ data:", data)
         return this.model.create(data);
     }
 

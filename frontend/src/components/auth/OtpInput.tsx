@@ -38,7 +38,7 @@ const OTPInput : React.FC<InputProps> = ({ length = 4, onComplete }) => {
             value={OTP[index]}
             onChange={(e) => handleTextChange(e.target.value, index)}
             ref={(ref) => {inputRef.current[index] = ref as HTMLInputElement}}
-            className="border border-slate-500 focus:border-blue-600 p-5 outline-none text-center text-lg font-semibold rounded-md"
+            className="border border-slate-500 focus:border-blue-600 p-5 outline-none text-center text-lg font-semibold rounded-md text-indigo-500"
             />
         ))}
         </div>

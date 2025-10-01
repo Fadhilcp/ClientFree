@@ -13,7 +13,6 @@ import { notify } from "../../utils/toastService";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "../../features/authSlice";
 
-
 const Login: React.FC = () => {
 
   const navigate = useNavigate();
@@ -50,16 +49,18 @@ const Login: React.FC = () => {
     if(!validateAll()) return;
 
     try {
+      console.log('hello',values)
       const response = await authService.login(values);
-      console.log(response.data)
-      const { user, token } = response.data;
-      localStorage.setItem('token',token)
-      dispatch(setCredentials({user,token}))
-      navigate('/home');
+        const { user, token } = response.data;
+        localStorage.setItem('token',token)
+        dispatch(setCredentials({user,token}))
+
+        notify.success('User logged')
+        navigate('/home');
       
     } catch (error : any) {
-      notify.error(error.message || 'login failed');
-    }
+      notify.error(error.response?.data?.error || 'Login failed')
+    } 
   }
 
 
@@ -110,9 +111,24 @@ const Login: React.FC = () => {
                       error={errors.password}
                     />
 
-                    <PrimaryButton onClick={handleSubmit}/>
+                    <div className="text-right mt-2 mb-4">
+                      <a
+                        href="/forgot-password"
+                        className="text-sm text-indigo-600 hover:underline font-medium"
+                      >
+                        Forgot Password?
+                      </a>
+                    </div>
 
-                <AuthRedirectNotice/>
+
+
+                    <PrimaryButton onClick={handleSubmit} children='Login'/>
+
+                <AuthRedirectNotice 
+                message="Don't you have an account?" 
+                linkText="Sign Up"
+                linkTo="/roleselect"
+                />
 
               </div>
             </div>

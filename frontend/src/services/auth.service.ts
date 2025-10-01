@@ -17,8 +17,24 @@ class AuthService {
         return axios.post(endPoints.AUTH.LOGIN, data);
     }
 
-    verifyOtp(email : string, otp : string){
-        return axios.post(endPoints.AUTH.VERIFY_OTP, {email, otp});
+    verifySignupOtp(email : string, otp : string, purpose : string){
+        return axios.post(endPoints.AUTH.VERIFY_SIGNUP_OTP, {email, otp, purpose});
+    }
+
+    verifyOtp(email : string, otp : string, purpose : string){
+        return axios.post(endPoints.AUTH.VERIFY_OTP, {email, otp, purpose});
+    }
+
+    forgotPassword(email : string) {
+        return axios.post(endPoints.AUTH.FORGOT_PASSWORD, {email});
+    }
+
+    resetPassword(email : string, password : string){
+        return axios.post(endPoints.AUTH.RESET_PASSWORD, {email, password});
+    }
+
+    resendOtp(email : string, purpose : string) {
+        return axios.post(endPoints.AUTH.RESEND_OTP, {email, purpose})
     }
 
     refreshToken(){

@@ -74,11 +74,15 @@ const SignUp: React.FC = () => {
       const response = await authService.signUp(values);
       console.log(response.data)
       const { email } = response.data;
+
+      //for conditional handling in the verify otp page
+      sessionStorage.setItem('otpPurpose', 'signup')
+      
       sessionStorage.setItem('signUpEmail',email);
       navigate('/verifyOtp');
       
     } catch (error : any) {
-      notify.error(error.message || 'Signup failed');
+      notify.error(error.response.data.error || 'Signup failed');
     }
   }
 

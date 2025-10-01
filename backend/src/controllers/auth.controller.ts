@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { IAuthService } from "../interfaces/services/IAuthService.js";
 import { setCookie } from "../utils/refreshCookie.util.js";
-import { success } from "zod";
+
 
 export class AuthController {
     constructor(private service : IAuthService){}
@@ -21,12 +21,12 @@ export class AuthController {
         }
     };
 
-    async verifyOtp(req : Request, res : Response) : Promise<void> {
+    async verifySignupOtp(req : Request, res : Response) : Promise<void> {
         try {
-            const { email, otp } = req.body;
+            const { email, otp, purpose } = req.body;
             console.log(email,otp)
 
-            const { user, accessToken, refreshToken } = await this.service.verifyOtp(email, otp);
+            const { user, accessToken, refreshToken } = await this.service.verifySignupOtp(email, otp, purpose);
 
             setCookie(res, refreshToken);
 
@@ -82,7 +82,87 @@ export class AuthController {
                 },
             });
         } catch (error : any) {
-            res.status(400).json({ error : error.message })
+            console.log(error.message)
+            res.status(400).json({ error : error.message });
         }
     };
+
+    async forgotPassword(req : Request, res : Response) : Promise<void> {
+        try {
+
+            const { email } = req.body;
+            console.log("🚀 ~ AuthController ~ forgotPassword ~ email:", email)
+
+            if(!email || typeof email !== 'string') {
+            res.status(400).json({ error : 'Valid email is required' });
+            return;
+            }
+
+            console.log('auth controller - forgotpassword --')
+
+            await this.service.forgotPassword(email);
+
+            res.status(200).json({ message : 'OTP sent to your email'});
+            
+        } catch (error : any) {
+            res.status(500).json({ error : error.message })
+        }
+    }
+
+    async resendOtp(req : Request, res : Response) : Promise<void> {
+        try {
+            const { email, purpose } = req.body;
+
+            if(!email){
+                res.status(400).json({ error : 'Valid email is required' });
+            }
+
+            if(!['signup','forgot-password','email-change', 'phone-change'].includes(purpose)){
+                res.status(400).json({ error : 'Invalid OTP purpose' });
+            }
+
+            await this.service.resendOtp(email, purpose);
+            res.status(200).json({ message : 'OTP resent successfully'});  
+        } catch (error : any) {
+            res.status(400).json({ error : error.message });
+        }
+    }
+
+    async verifyOtp(req : Request, res : Response) : Promise<void> {
+        try {
+            const { email, otp, purpose } = req.body;
+
+            if (!email || !otp || !purpose) {
+               res.status(400).json({ error: 'Email, OTP, and purpose are required' });
+               return;
+            }
+
+        
+            await this.service.verifyOtp(email, otp, purpose);
+
+            res.status(200).json({ message : 'OTP verified' })
+            
+        } catch (error : any) {
+            res.status(400).json({ error : error.message })
+        }
+    }
+
+    async resetPassword(req : Request, res : Response) : Promise<void> {
+        try {
+
+            const { email , password } = req.body;
+
+            if (!email || !password) {
+               res.status(400).json({ error: 'Email and valid new password are required' });
+               return;
+            }
+
+            await this.service.resetPassword(email, password);
+
+            res.status(200).json({ message : 'Password updated successfully' })
+            
+        } catch (error : any) {
+            res.status(400).json({ error : error.message })
+        }
+    }
 };

@@ -6,76 +6,115 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { notify } from '../../utils/toastService';
 import { setCredentials } from '../../features/authSlice';
+import OtpResendTimer from '../../components/auth/OtpResendTimer';
 
 const VerifyOtp : React.FC = () => {
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
     
-    
+    //handleSumbit function - handling both forgot-password and signup email verification
     const handleSubmit = async (otp : string) => {
-      const email = sessionStorage.getItem('signUpEmail');
+      const email = sessionStorage.getItem('signUpEmail') || sessionStorage.getItem('forgotEmail');
+      const purpose = sessionStorage.getItem('otpPurpose');
   
-          if(!email){
-              notify.error('Email not found. Please restart signup')
-              navigate('/roleselect');
+          if(!email || !purpose){
+              notify.error('Missing email or purpose. Please restart the flow.')
+              purpose === 'signup' ? navigate('/roleselect') : navigate('/login');
               return;
           }
 
         try {
-            const response = await authService.verifyOtp(email, otp);
 
+          //checking the purpose of otp
+          if(purpose === 'signup'){
+            const response = await authService.verifySignupOtp(email, otp, purpose);
             const { user, token } = response.data;
+            
+              localStorage.setItem('token',token);
+              dispatch(setCredentials({user, token}));
+              sessionStorage.removeItem('signUpEmail');
+              sessionStorage.removeItem('otpPurpose');
 
-            localStorage.setItem('token',token);
-            dispatch(setCredentials({user, token}));
-            sessionStorage.removeItem('signUpEmail');
+              notify.success('User verified')
+              navigate('/home')
+            }else if(purpose === 'forgot-password'){
 
-            navigate('/home')
+              await authService.verifyOtp(email, otp, purpose);
+
+              sessionStorage.setItem('verifiedForgotEmail',email);
+              notify.success('OTP verfied. Please reset your password');
+              navigate('/reset-password')
+            }
+
         } catch (error : any) {
-            notify.error(error.response?.data?.message || 'OTP verification failed')
+            notify.error(error.response?.data?.error || 'OTP verification failed')
         }
     }
 
 
+    //resend otp function
+    const resendOtp = async() => {
+      const email = sessionStorage.getItem('signUpEmail') || sessionStorage.getItem('forgotEmail');
+      const purpose = sessionStorage.getItem('otpPurpose');
+
+      if(!email || !purpose){
+        notify.error('Missing email or purpose. Please restart the flow.');
+        purpose === 'signup' ? navigate('/roleselect') : navigate('/login');
+        return;
+      }
+
+      try {
+        await authService.resendOtp(email, purpose);
+        notify.success('OTP resent to your email');
+      } catch (error : any) {
+        notify.error(error.response?.data?.error || 'Failed to resend OTP');
+      }
+    };
+
+
   return (
     <div className="min-h-screen bg-gray-100 text-gray-00 flex justify-center">
-  <div className="max-w-screen-xl m-0 sm:m-10 bg-white shadow sm:rounded-lg flex justify-center flex-1">
-    <div className="lg:w-1/2 xl:w-5/12 p-6 sm:p-1">
-      <div className="mt-12 flex flex-col items-center">
-        <h1 className="text-indigo-600 text-2xl xl:text-3xl font-bold">Verify Your Account</h1>
+      <div className="max-w-screen-xl m-0 sm:m-10 bg-white shadow sm:rounded-lg flex justify-center flex-1">
+        <div className="lg:w-1/2 xl:w-5/12 p-6 sm:p-1">
+          <div className="mt-12 flex flex-col items-center">
+            <h1 className="text-indigo-600 text-2xl xl:text-3xl font-bold">Verify Your Account</h1>
 
-        <div className="w-full flex-1 mt-7">
-          <div className="mx-auto w-full max-w-115">
-            <h2 className="text-center text-lg font-semibold text-gray-700 mb-4">
-              Enter OTP
-            </h2>
+            <div className="w-full flex-1 mt-7">
+              <div className="mx-auto w-full max-w-115">
+                <h2 className="text-center text-lg font-semibold text-gray-700 mb-4">
+                  Enter OTP
+                </h2>
 
-            <p className="text-sm text-gray-600 text-center mb-6">
-              An OTP has been sent to your email address. Please enter it below to verify your account.
-            </p>
+                <p className="text-sm text-gray-600 text-center mb-6">
+                  An OTP has been sent to your email address. Please enter it below to verify your account.
+                </p>
 
-            <div className="flex justify-center mb-6">
-              <OTPInput length={6} onComplete={handleSubmit} />
+                <div className="flex justify-center mb-6">
+                  <OTPInput length={6} onComplete={handleSubmit} />
+                </div>
+
+                <OtpResendTimer
+                onResend={resendOtp}
+                />
+
+                <AuthRedirectNotice />
+              </div>
             </div>
-
-            <AuthRedirectNotice />
           </div>
+        </div>
+
+        <div className="flex-1 bg-indigo-100 text-center hidden lg:flex">
+          <div
+            className="m-12 xl:m-16 w-full bg-contain bg-center bg-no-repeat"
+            style={{
+              backgroundImage:
+                "url('https://storage.googleapis.com/devitary-image-host.appspot.com/15848031292911696601-undraw_designer_life_w96d.svg')",
+            }}
+          />
         </div>
       </div>
     </div>
-
-    <div className="flex-1 bg-indigo-100 text-center hidden lg:flex">
-      <div
-        className="m-12 xl:m-16 w-full bg-contain bg-center bg-no-repeat"
-        style={{
-          backgroundImage:
-            "url('https://storage.googleapis.com/devitary-image-host.appspot.com/15848031292911696601-undraw_designer_life_w96d.svg')",
-        }}
-      />
-    </div>
-  </div>
-</div>
   )
 }
 

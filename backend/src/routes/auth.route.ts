@@ -3,20 +3,24 @@ import { Router } from "express";
 import { AuthService } from "../services/auth.service.js";
 import { AuthController } from "../controllers/auth.controller.js";
 import { UserRepository } from "../repositories/user.repository.js";
-import { PendingUserRepository } from "../repositories/pendingUser.repository.js";
+import { OtpUserStoreRepository } from "../repositories/otpUserStore.repository.js";
 
 const authRouter = Router()
 
 const userRepository = new UserRepository();
-const pendingUserRespository = new PendingUserRepository();
+const pendingUserRespository = new OtpUserStoreRepository();
 const authService = new AuthService(userRepository, pendingUserRespository);
 const authController = new AuthController(authService);
  
 
 
-authRouter.post('/signUp',authController.signUp.bind(authController))
-authRouter.post('/verifyOtp',authController.verifyOtp.bind(authController))
-authRouter.get('/refresh',authController.accessRefreshToken.bind(authController))
-authRouter.post('/login',authController.login.bind(authController))
+authRouter.post('/signUp',authController.signUp.bind(authController));
+authRouter.post('/verifySignupOtp',authController.verifySignupOtp.bind(authController));
+authRouter.get('/refresh',authController.accessRefreshToken.bind(authController));
+authRouter.post('/login',authController.login.bind(authController));
+authRouter.post('/forgotPassword',authController.forgotPassword.bind(authController));
+authRouter.post('/resendOtp',authController.resendOtp.bind(authController));
+authRouter.post('/verifyOtp',authController.verifyOtp.bind(authController));
+authRouter.post('/resetPassword',authController.resetPassword.bind(authController));
 
 export default authRouter
