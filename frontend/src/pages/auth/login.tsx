@@ -12,6 +12,7 @@ import { authService } from "../../services/auth.service";
 import { notify } from "../../utils/toastService";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "../../features/authSlice";
+import AuthImage from "../../components/auth/AuthImage";
 
 const Login: React.FC = () => {
 
@@ -49,7 +50,6 @@ const Login: React.FC = () => {
     if(!validateAll()) return;
 
     try {
-      console.log('hello',values)
       const response = await authService.login(values);
         const { user, token } = response.data;
         localStorage.setItem('token',token)
@@ -136,15 +136,7 @@ const Login: React.FC = () => {
         </div>
 
 
-        <div className="flex-1 bg-indigo-100 text-center hidden lg:flex">
-          <div
-            className="m-12 xl:m-16 w-full bg-contain bg-center bg-no-repeat"
-            style={{
-              backgroundImage:
-                "url('https://storage.googleapis.com/devitary-image-host.appspot.com/15848031292911696601-undraw_designer_life_w96d.svg')",
-            }}
-          />
-        </div>
+        <AuthImage/>
       </div>
     </div>
   );

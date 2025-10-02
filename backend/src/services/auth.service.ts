@@ -11,6 +11,10 @@ import { Types } from "mongoose";
 import { AuthPayload, OtpPurpose } from "../types/auth.type.js";
 import { IOtpUserStore } from "../types/otpUserStore.type.js";
 
+import { HttpStatus } from "../constants/status.constants.js";
+import { HttpResponse } from "../constants/responseMessage.constant.js";
+import { createHttpError } from "../utils/httpError.util.js";
+
 
 export class AuthService implements IAuthService {
 
@@ -24,7 +28,7 @@ export class AuthService implements IAuthService {
         const pendingUser = await this.otpUserStoreRepository.findByEmail(data.email);
 
         if(existingUser){
-            throw new Error("Email is already is use");
+            throw createHttpError(HttpStatus.CONFLICT, HttpResponse.EMAIL_EXIST)
         }
         const otp = generateOtp();
         console.log("🚀 ~ AuthService ~ signUp ~ otp:", otp)
@@ -35,7 +39,7 @@ export class AuthService implements IAuthService {
             return;
         }
 
-        if(!data.password) throw new Error('Password is required for signUp');
+        if(!data.password) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.PASSWORD_REQUIRED)
         const hashPassword = await bcrypt.hash(data.password , 10);
 
         await this.otpUserStoreRepository.create({
@@ -52,12 +56,13 @@ export class AuthService implements IAuthService {
     }
 
     async verifySignupOtp(email: string, otp: string, purpose : string): Promise<{ accessToken : string, refreshToken : string, user : SanitizedUser}> {
+        console.log("🚀 ~ AuthService ~ verifySignupOtp ~ purpose:", purpose)
         console.log("🚀 ~ AuthService ~ verifySignupOtp ~ otp:", otp)
         
         const pendingUser = await this.otpUserStoreRepository.findByEmailAndOtp(email,otp);
         console.log("🚀 ~ AuthService ~ verifyOtp ~ pendingUser:", pendingUser)
-        if(!pendingUser || pendingUser.purpose === purpose) throw new Error('Invalid OTP or email');
-        if(pendingUser.expiresAt < new Date()) throw new Error('OTP has expired');
+        if(!pendingUser || pendingUser.purpose !== purpose) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.OTP_INCORRECT);
+        if(pendingUser.expiresAt < new Date()) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.OTP_EXPIRED);
 
         const createdUser = await this.userRepository.create({
             username : pendingUser.username,
@@ -91,7 +96,7 @@ export class AuthService implements IAuthService {
 
         const user = await this.userRepository.findOne({email});
         console.log("🚀 ~ AuthService ~ forgotPassword ~ user:", user)
-        if(!user) throw new Error('User not found');
+        if(!user) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
 
         const otp = generateOtp();
         console.log("🚀 ~ AuthService ~ forgotPassword ~ otp:", otp)
@@ -130,7 +135,7 @@ export class AuthService implements IAuthService {
     async accessRefreshToken(token : string) {
         
         if(!token){
-            throw new Error('Token not provided')
+            throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.NO_TOKEN);
         }
 
         const decoded = verifyRefreshToken(token);
@@ -138,13 +143,13 @@ export class AuthService implements IAuthService {
         
         const userId = decoded._id;
         if (!userId) {
-            throw new Error('Token payload missing user ID');
+            throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.NO_PAYLOAD);
         }
 
         const user = await this.userRepository.findById(userId);
 
         if (!user) {
-            throw new Error('User not found');
+            throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
         }
 
         const payload : AuthPayload = {
@@ -165,12 +170,12 @@ export class AuthService implements IAuthService {
         
         const user = await this.userRepository.findByEmail(email);
 
-        if(!user) throw new Error('User not existing!');
+        if(!user) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
 
         const passwordMatch = await bcrypt.compare(password,user.password);
         console.log("🚀 ~ AuthService ~ login ~ passwordMatch:", passwordMatch)
 
-        if(!passwordMatch) throw new Error('Incorrect password!');
+        if(!passwordMatch) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.PASSWORD_INCORRECT);
 
         user.lastLoginAt = new Date();
         await user.save();
@@ -197,12 +202,12 @@ export class AuthService implements IAuthService {
         ]);
 
         if (purpose === 'signup' && user) {
-            throw new Error('User already exists');
+            throw createHttpError(HttpStatus.CONFLICT, HttpResponse.USER_EXIST);
         }
         if (purpose === 'forgot-password' && !user) {
-            throw new Error('User not found');
+            throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
         }
-        if(!pendingUser) throw new Error('No pending OTP request found');
+        if(!pendingUser) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.OTP_NOT_FOUND);
 
         const otp = generateOtp();
         const expiresAt = new Date(Date.now() + 1 * 60 * 1000);
@@ -222,23 +227,23 @@ export class AuthService implements IAuthService {
         console.log("🚀 ~ AuthService ~ verifyOtp ~ record:", record)
 
         if(!record || record.otp !== otp){
-            throw new Error('Invalid or expired OTP');
+            throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.OTP_INCORRECT);
         }
 
         const now = new Date();
         if(record.expiresAt < now){
-            throw new Error('OTP has expired');
+            throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.TOKEN_EXPIRED);
         }
 
         switch (purpose) {
             case 'email-change':
-            if (!record.newEmail) throw new Error('Missing new email');
+            if (!record.newEmail) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.EMAIL_REQUIRED);
             await this.userRepository.updateOne({ email }, { email: record.newEmail });
             await this.otpUserStoreRepository.deleteOne({ email, purpose });
             break;
 
             case 'phone-change':
-            if (!record.newPhone) throw new Error('Missing new phone number');
+            if (!record.newPhone) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.PHONE_REQUIRED);
             await this.userRepository.updateOne({ email }, { phone: record.newPhone });
             await this.otpUserStoreRepository.deleteOne({ email, purpose });
             break;
@@ -252,7 +257,7 @@ export class AuthService implements IAuthService {
             break;
 
             default:
-            throw new Error('Unsupported OTP purpose');
+            createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.UNEXPECTED_KEY_FOUND);
         }
         
     }
@@ -263,15 +268,15 @@ export class AuthService implements IAuthService {
             this.otpUserStoreRepository.findOne({email, isVerified: true })
         ]);
 
-        if(!user) throw new Error('User not found');
-        if(!otpRecord) throw new Error('OTP verification required before password reset');
+        if(!user) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
+        if(!otpRecord) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.OTP_VERIFICATION_REQUIRED);
 
         const now = new Date();
         const maxWindow = 5 * 60 * 1000;
 
         if(!otpRecord.verifiedAt || now.getTime() - otpRecord.verifiedAt.getTime() > maxWindow){
             await this.otpUserStoreRepository.deleteOne({email, purpose : 'forgot-password'});
-            throw new Error('Password reset window expird. Please verify OTP again.')
+            throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.PASSWORD_RESET_EXPIRED);
         }
 
         const hashPassword = await bcrypt.hash(newPassword, 10)

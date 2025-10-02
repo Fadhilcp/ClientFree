@@ -12,6 +12,9 @@ import {
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { authService } from "../../services/auth.service";
 import { notify } from "../../utils/toastService";
+import AuthImage from "../../components/auth/AuthImage";
+import { useDispatch } from "react-redux";
+import { setOtpInfo } from "../../features/authSlice";
 
 export interface FormValues {
   username : string;
@@ -23,6 +26,8 @@ export interface FormValues {
 }
 
 const SignUp: React.FC = () => {
+
+  const dispatch = useDispatch();
 
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -72,13 +77,9 @@ const SignUp: React.FC = () => {
 
     try {
       const response = await authService.signUp(values);
-      console.log(response.data)
       const { email } = response.data;
 
-      //for conditional handling in the verify otp page
-      sessionStorage.setItem('otpPurpose', 'signup')
-      
-      sessionStorage.setItem('signUpEmail',email);
+      dispatch(setOtpInfo({ email, purpose : 'signup'}))
       navigate('/verifyOtp');
       
     } catch (error : any) {
@@ -163,15 +164,7 @@ const SignUp: React.FC = () => {
         </div>
 
 
-        <div className="flex-1 bg-indigo-100 text-center hidden lg:flex">
-          <div
-            className="m-12 xl:m-16 w-full bg-contain bg-center bg-no-repeat"
-            style={{
-              backgroundImage:
-                "url('https://storage.googleapis.com/devitary-image-host.appspot.com/15848031292911696601-undraw_designer_life_w96d.svg')",
-            }}
-          />
-        </div>
+        <AuthImage/>
       </div>
     </div>
   );

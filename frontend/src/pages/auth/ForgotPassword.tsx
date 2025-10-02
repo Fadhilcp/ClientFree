@@ -8,8 +8,13 @@ import {
 import { useNavigate } from "react-router-dom";
 import { authService } from "../../services/auth.service";
 import { notify } from "../../utils/toastService";
+import AuthImage from "../../components/auth/AuthImage";
+import { useDispatch } from "react-redux";
+import { setOtpInfo } from "../../features/authSlice";
 
 const ForgotPassword : React.FC = () => {
+
+    const dispatch = useDispatch();
 
     const navigate = useNavigate();
 
@@ -40,9 +45,10 @@ const ForgotPassword : React.FC = () => {
         }
 
         try {
-        await authService.forgotPassword(email); 
-        sessionStorage.setItem('forgotEmail', email);
-        sessionStorage.setItem('otpPurpose', 'forgot-password');
+        await authService.forgotPassword(email);
+
+        dispatch(setOtpInfo({ email, purpose: 'forgot-password'}))
+
         notify.success('OTP sent to your email');
         navigate('/verifyOtp');
         } catch (err: any) {
@@ -89,21 +95,10 @@ const ForgotPassword : React.FC = () => {
             </div>
         </div>
 
-        <div className="flex-1 bg-indigo-100 text-center hidden lg:flex">
-            <div
-            className="m-12 xl:m-16 w-full bg-contain bg-center bg-no-repeat"
-            style={{
-                backgroundImage:
-                "url('https://storage.googleapis.com/devitary-image-host.appspot.com/15848031292911696601-undraw_designer_life_w96d.svg')",
-            }}
-            />
-        </div>
+        <AuthImage/>
         </div>
     </div>
     );
 };
 
 export default ForgotPassword;
-
-
-

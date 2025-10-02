@@ -1,5 +1,4 @@
 import { JwtPayload } from "jsonwebtoken";
-import { StringLiteral } from "typescript";
 
 declare global {
     namespace Express {

@@ -1,5 +1,5 @@
 import { BaseRepository } from "./base.repository.js";
-import { IUser, IUserDocument } from "../types/user.type.js";
+import { IUserDocument } from "../types/user.type.js";
 import userModel from "./../models/user.model.js"
 
 
@@ -22,7 +22,7 @@ import userModel from "./../models/user.model.js"
 
     async findByLocation(city ?: string, country ?: string, state ?: string) : Promise<IUserDocument[]>{
 
-        const filter : Record<string, any> = {};
+        const filter : Record<string, string> = {};
         
         if(city) filter["location.city"] = city;
         if(country) filter["location.country"] = country;

@@ -3,46 +3,46 @@ import OTPInput from '../../components/auth/OtpInput';
 import AuthRedirectNotice from '../../components/auth/AuthRedirectNotice';
 import { authService } from '../../services/auth.service';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { notify } from '../../utils/toastService';
-import { setCredentials } from '../../features/authSlice';
+import { clearOtpInfo, setCredentials } from '../../features/authSlice';
 import OtpResendTimer from '../../components/auth/OtpResendTimer';
+import AuthImage from '../../components/auth/AuthImage';
+import type { RootState } from '../../store/store';
 
 const VerifyOtp : React.FC = () => {
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
+
+    const { otpEmail, otpPurpose } = useSelector((state : RootState) => state.auth)
     
     //handleSumbit function - handling both forgot-password and signup email verification
     const handleSubmit = async (otp : string) => {
-      const email = sessionStorage.getItem('signUpEmail') || sessionStorage.getItem('forgotEmail');
-      const purpose = sessionStorage.getItem('otpPurpose');
   
-          if(!email || !purpose){
+          if(!otpEmail || !otpPurpose){
               notify.error('Missing email or purpose. Please restart the flow.')
-              purpose === 'signup' ? navigate('/roleselect') : navigate('/login');
+              otpPurpose === 'signup' ? navigate('/roleselect') : navigate('/login');
               return;
           }
 
         try {
 
           //checking the purpose of otp
-          if(purpose === 'signup'){
-            const response = await authService.verifySignupOtp(email, otp, purpose);
+          if(otpPurpose === 'signup'){
+            const response = await authService.verifySignupOtp(otpEmail, otp, otpPurpose);
             const { user, token } = response.data;
             
               localStorage.setItem('token',token);
               dispatch(setCredentials({user, token}));
-              sessionStorage.removeItem('signUpEmail');
-              sessionStorage.removeItem('otpPurpose');
 
               notify.success('User verified')
+              dispatch(clearOtpInfo())
               navigate('/home')
-            }else if(purpose === 'forgot-password'){
+            }else if(otpPurpose === 'forgot-password'){
 
-              await authService.verifyOtp(email, otp, purpose);
+              await authService.verifyOtp(otpEmail, otp, otpPurpose);
 
-              sessionStorage.setItem('verifiedForgotEmail',email);
               notify.success('OTP verfied. Please reset your password');
               navigate('/reset-password')
             }
@@ -55,8 +55,8 @@ const VerifyOtp : React.FC = () => {
 
     //resend otp function
     const resendOtp = async() => {
-      const email = sessionStorage.getItem('signUpEmail') || sessionStorage.getItem('forgotEmail');
-      const purpose = sessionStorage.getItem('otpPurpose');
+      const email = otpEmail;
+      const purpose = otpPurpose;
 
       if(!email || !purpose){
         notify.error('Missing email or purpose. Please restart the flow.');
@@ -104,15 +104,7 @@ const VerifyOtp : React.FC = () => {
           </div>
         </div>
 
-        <div className="flex-1 bg-indigo-100 text-center hidden lg:flex">
-          <div
-            className="m-12 xl:m-16 w-full bg-contain bg-center bg-no-repeat"
-            style={{
-              backgroundImage:
-                "url('https://storage.googleapis.com/devitary-image-host.appspot.com/15848031292911696601-undraw_designer_life_w96d.svg')",
-            }}
-          />
-        </div>
+        <AuthImage/>
       </div>
     </div>
   )

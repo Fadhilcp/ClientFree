@@ -78,10 +78,15 @@ const userSchema = new Schema({
 
     skills : [{ type : Schema.Types.ObjectId , ref : "Skills" }],
     professionalTitle : { type : String },
-    portfolio : {
-        links : [{ type : String }],
-        portfolioFile : { type : String },
-        resume : { type : String }
+    externalLinks: [
+        {
+            type: { type: String, enum: ["github", "linkedin", "website", "dribbble", "behance", "twitter"] },
+            url: { type: String }
+        }
+    ],
+    portfolio: {
+        portfolioFile: { type: String },
+        resume: { type: String }
     },
 
     hourlyRate : { type : String },
@@ -94,7 +99,7 @@ const userSchema = new Schema({
         website : { type : String }
     },
 
-    interests : [{
+    interests : [{ 
 
         type : {
             type : String,

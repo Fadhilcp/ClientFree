@@ -9,57 +9,63 @@ import {
 import { useNavigate } from "react-router-dom";
 import { authService } from "../../services/auth.service";
 import { notify } from "../../utils/toastService";
+import AuthImage from "../../components/auth/AuthImage";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState } from "../../store/store";
+import { clearOtpInfo } from "../../features/authSlice";
 
 const ResetPassword: React.FC = () => {
 
-  const navigate = useNavigate();
+    const dispatch = useDispatch();
+    
+    const navigate = useNavigate();
 
-  const [values, setValues] = useState<{password : string, confirmPassword : string}>({
-    password : '',
-    confirmPassword : '',
-  });
+    const [values, setValues] = useState<{password : string, confirmPassword : string}>({
+        password : '',
+        confirmPassword : '',
+    });
 
-  //using Record utility to create object<key, value>
-  const [errors, setErrors] = useState<Record<string, string>>({})
+    //using Record utility to create object<key, value>
+    const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const handleChange = (field : keyof typeof values, value : string) => {
-    setValues((prev) => ({
-      ...prev,
-      [field] : value
-    }))
-  }
-
-  const validateAll = () => {
-    const newErrors : Record<string, string> = {
-      password : validatePassword(values.password),
-      confirmPassword : validateConfirmPassword(values.password,values.confirmPassword),
+    const handleChange = (field : keyof typeof values, value : string) => {
+        setValues((prev) => ({
+        ...prev,
+        [field] : value
+        }))
     }
 
-    setErrors(newErrors);
-    return Object.values(newErrors).every((msg) => msg === '')
-  }
+    const validateAll = () => {
+        const newErrors : Record<string, string> = {
+        password : validatePassword(values.password),
+        confirmPassword : validateConfirmPassword(values.password,values.confirmPassword),
+        }
 
-  const email = sessionStorage.getItem('verifiedForgotEmail');
-
-  const handleSubmit = async () => {
-
-    if(!email){
-        notify.error('Session expired. Please restart the forgot password flow.');
-        navigate('/login')
-        return;
+        setErrors(newErrors);
+        return Object.values(newErrors).every((msg) => msg === '')
     }
 
-    if(!validateAll()) return;
+    const email = useSelector((state : RootState) => state.auth.otpEmail)
 
-    try {
-        await authService.resetPassword(email,values.password);
-        sessionStorage.removeItem('verifiedForgotEmail');
-        navigate('/home');
-      
-    } catch (error : any) {
-      notify.error(error.response?.data?.error || 'Password reset faild. Try again later')
-    } 
-  }
+    const handleSubmit = async () => {
+
+        if(!email){
+            notify.error('Please restart the forgot password flow.');
+            navigate('/login')
+            return;
+        }
+
+        if(!validateAll()) return;
+
+        try {
+            await authService.resetPassword(email,values.password);
+            dispatch(clearOtpInfo())
+            navigate('/login');
+        
+        } catch (error : any) {
+        notify.error(error.response?.data?.error || 'Password reset failed. Try again later')
+        } 
+    }
 
 
 
@@ -107,15 +113,7 @@ const ResetPassword: React.FC = () => {
             </div>
         </div>
 
-        <div className="flex-1 bg-indigo-100 text-center hidden lg:flex">
-            <div
-            className="m-12 xl:m-16 w-full bg-contain bg-center bg-no-repeat"
-            style={{
-                backgroundImage:
-                "url('https://storage.googleapis.com/devitary-image-host.appspot.com/15848031292911696601-undraw_designer_life_w96d.svg')",
-            }}
-            />
-        </div>
+        <AuthImage/>
         </div>
     </div>
     );

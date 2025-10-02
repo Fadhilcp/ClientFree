@@ -6,12 +6,14 @@ import SignUp from "./pages/auth/signUp";
 import RoleSelect from "./pages/auth/roleSelect";
 import VerifyOtp from "./pages/auth/verifyOtp";
 import Login from "./pages/auth/login";
-import ResetPassword from "./pages/auth/resetPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
 
 import { Provider } from "react-redux";
 import { store } from "./store/store";
 import { Routes, Route } from "react-router-dom";
 import ForgotPassword from "./pages/auth/ForgotPassword";
+import Profile from "./pages/user/profile/Profile";
+import ProfileModal from "./pages/user/profile/ProfileModal";
 
 const App: React.FC = () => {
   return (
@@ -27,6 +29,11 @@ const App: React.FC = () => {
             <Route path="/verifyotp" element={<VerifyOtp/>}/>
             <Route path="/reset-password" element={<ResetPassword/>}/>
             <Route path="/forgot-password" element={<ForgotPassword/>}/>
+
+            <Route path="/editProfile" element={<ProfileModal open={true}/>}/>
+
+
+            <Route path="/profile" element={<Profile/>}/>
 
           </Routes>
             <ToastContainer position="top-right" autoClose={3000} theme="colored"/>
