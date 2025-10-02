@@ -15,6 +15,7 @@ interface AuthState {
     isAuthenticated: boolean;
     otpEmail: string | null;
     otpPurpose: OtpPurpose | null;
+    isNewUser: boolean;
 }
 
 const initialState: AuthState = {
@@ -22,7 +23,8 @@ const initialState: AuthState = {
     token: null,
     isAuthenticated: false,
     otpEmail: null,
-    otpPurpose: null
+    otpPurpose: null,
+    isNewUser: false,
 }
 
 const authSlice = createSlice({
@@ -30,10 +32,13 @@ const authSlice = createSlice({
     initialState,
     reducers: {
 
-        setCredentials: (state, action: PayloadAction<{ user: User; token: string }>) => {
+        setCredentials: (state, action: PayloadAction<{ user: User; token: string, isNewUser ?: boolean  }>) => {
             state.user = action.payload.user;
             state.token = action.payload.token;
             state.isAuthenticated = true;
+            if(action.payload.isNewUser !== undefined){
+                state.isNewUser = action.payload.isNewUser;
+            }
         },
 
         logout: (state) => {
@@ -42,6 +47,7 @@ const authSlice = createSlice({
             state.isAuthenticated = false;
             state.otpEmail = null;
             state.otpPurpose = null;
+            state.isNewUser = false;
         },
 
         setOtpInfo: (state, action: PayloadAction<{ email: string; purpose: OtpPurpose }>) => {
@@ -52,9 +58,13 @@ const authSlice = createSlice({
         clearOtpInfo: (state) => {
             state.otpEmail = null;
             state.otpPurpose = null;
+        },
+
+        resetNewUser: (state) => {
+            state.isNewUser = false;
         }
     }
 });
 
-export const { setCredentials, logout, setOtpInfo, clearOtpInfo } = authSlice.actions;
+export const { setCredentials, logout, setOtpInfo, clearOtpInfo, resetNewUser } = authSlice.actions;
 export default authSlice.reducer;

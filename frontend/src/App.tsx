@@ -13,7 +13,7 @@ import { store } from "./store/store";
 import { Routes, Route } from "react-router-dom";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import Profile from "./pages/user/profile/Profile";
-import ProfileModal from "./pages/user/profile/ProfileModal";
+import Home from "./pages/user/Home";
 
 const App: React.FC = () => {
   return (
@@ -30,7 +30,7 @@ const App: React.FC = () => {
             <Route path="/reset-password" element={<ResetPassword/>}/>
             <Route path="/forgot-password" element={<ForgotPassword/>}/>
 
-            <Route path="/editProfile" element={<ProfileModal open={true}/>}/>
+            <Route path="/home" element={<Home/>}/>
 
 
             <Route path="/profile" element={<Profile/>}/>

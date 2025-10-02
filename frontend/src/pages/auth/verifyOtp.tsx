@@ -34,7 +34,7 @@ const VerifyOtp : React.FC = () => {
             const { user, token } = response.data;
             
               localStorage.setItem('token',token);
-              dispatch(setCredentials({user, token}));
+              dispatch(setCredentials({user, token, isNewUser: true}));
 
               notify.success('User verified')
               dispatch(clearOtpInfo())
