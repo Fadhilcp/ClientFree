@@ -5,6 +5,7 @@ import { TextareaSection } from "../../../components/user/profileModal/TextareaS
 import { SelectSection } from "../../../components/user/profileModal/SelectSection";
 import { ExternalLinks } from "../../../components/user/profileModal/ExternalLinks";
 import Button from "../../../components/ui/Button";
+import SkillsSelect from "../../../components/user/profileModal/SkillSelect";
 
 interface ProfileModalProps {
   open: boolean;
@@ -43,6 +44,18 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
     // Client fields
     company: { name: "", industry: "", website: "" },
   });
+
+    const availableSkills = [
+          "React",
+          "TypeScript",
+          "Tailwind CSS",
+          "Node.js",
+          "Express",
+          "MongoDB",
+          "JWT",
+          "Figma",
+      ];
+
 
   useEffect(() => {
     if (defaultValues) {
@@ -115,10 +128,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
               rows={3}
             />
 
-          {/* Location */}
-          <InputSection label="City" name="location.city" value={formData.location.city} onChange={handleChange}/>
-          <InputSection label="State" name="location.city" value={formData.location.state} onChange={handleChange}/>
-          <InputSection label="Country" name="location.city" value={formData.location.country} onChange={handleChange}/>
 
           {/* Freelancer Only */}
           {role === "freelancer" && (
@@ -138,6 +147,15 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
                   { label: "Expert", value: "expert" },
                 ]}
               />
+
+              
+            
+              <SkillsSelect
+                value={formData.skills}
+                onChange={(skills) => setFormData({ ...formData, skills })}
+                options={availableSkills}
+              />
+
 
               <TextareaSection 
                 label="About"
@@ -180,6 +198,10 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
             </>
           )}
         </div>
+          {/* Location */}
+          <InputSection label="City" name="location.city" value={formData.location.city} onChange={handleChange}/>
+          <InputSection label="State" name="location.state" value={formData.location.state} onChange={handleChange}/>
+          <InputSection label="Country" name="location.country" value={formData.location.country} onChange={handleChange}/>
 
         {/* Actions */}
         <div className="flex justify-end gap-3 mt-8">

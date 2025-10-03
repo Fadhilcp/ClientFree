@@ -10,7 +10,7 @@ export const generateAccessToken = (payload : AuthPayload) : string => {
     return jwt.sign(payload, ACCESS_SECRET, { expiresIn : '15m'} );
 };
 
-export const generateRefreshToken = (payload : AuthPayload) : string => {
+export const generateRefreshToken = (payload :Pick<AuthPayload, '_id'>) : string => {
     return jwt.sign(
         { _id : payload._id },
         REFRESH_SECRET,
@@ -19,19 +19,12 @@ export const generateRefreshToken = (payload : AuthPayload) : string => {
 }; 
 
 
-export function verifyAccessToken(token : string) : AuthPayload | null {
-    try {
-        return jwt.verify(token, ACCESS_SECRET) as AuthPayload
-    } catch (error) {
-        console.error(error);
-        return null;
-    };
+export function verifyAccessToken(token : string) : AuthPayload {
+    return jwt.verify(token, ACCESS_SECRET) as AuthPayload
 };
 
 
-type RefreshPayload = JwtPayload & {
-    _id : string;
-}
+type RefreshPayload = { _id : string };
 
 export function verifyRefreshToken(token: string): RefreshPayload {
 

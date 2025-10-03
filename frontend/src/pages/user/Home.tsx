@@ -3,6 +3,8 @@ import ProfileModal from './profile/ProfileModal'
 import { useDispatch, useSelector } from 'react-redux'
 import type { RootState } from '../../store/store';
 import { resetNewUser } from '../../features/authSlice';
+import { notify } from '../../utils/toastService';
+import { profileService } from '../../services/profile.service';
 
 const Home : React.FC = () => {
 
@@ -10,27 +12,44 @@ const Home : React.FC = () => {
     const isNewUser = useSelector((state: RootState) => state.auth.isNewUser);
     const user = useSelector((state: RootState) => state.auth.user);
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(true);
+    const [availableSkills, setAvailableSkills] = useState<string[]>([]);
 
     useEffect(() => {
+        // const fetchSkills = async () => {
+        //     try {
+        //         const skills = await skillService.getSkills()
+        //         setAvailableSkills(skills);
+        //     } catch (error : any) {
+        //         notify.error(error.response?.data?.error || 'Failed to load Skills')
+        //     }
+        // };
+
         if(isNewUser) {
+            // fetchSkills();
             setIsModalOpen(true);
             dispatch(resetNewUser());
         }
-    }, [isNewUser, dispatch])
+    }, [isNewUser, dispatch]);
+
+    const handleCreateProfile = async (formData : any) => {
+        try {
+            await profileService.updateProfile(formData);
+            setIsModalOpen(false);
+        } catch (error : any) {
+            notify.error(error.response?.data?.error || 'Failed to create profile');
+        }
+    }
 
 
   return (
 
 
     <div>
-
+        {/* Profile creation modal */}
         <ProfileModal open={isModalOpen}
-        role={user?.role || "client"}
-        onSave={(data) => {
-            console.log("Saved profile data:", data);
-            setIsModalOpen(false);
-        }}  
+        role={user?.role || "freelancer"}
+        onSave={handleCreateProfile}  
         onClose={()=> setIsModalOpen(false)}
         defaultValues={user}
         />

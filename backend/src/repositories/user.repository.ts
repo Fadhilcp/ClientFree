@@ -30,6 +30,5 @@ import userModel from "./../models/user.model.js"
 
         return this.model.find(filter)
     }
-
     
  }

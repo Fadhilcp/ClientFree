@@ -8,8 +8,8 @@ import { OtpUserStoreRepository } from "../repositories/otpUserStore.repository.
 const authRouter = Router()
 
 const userRepository = new UserRepository();
-const pendingUserRespository = new OtpUserStoreRepository();
-const authService = new AuthService(userRepository, pendingUserRespository);
+const otpUserRespository = new OtpUserStoreRepository();
+const authService = new AuthService(userRepository, otpUserRespository);
 const authController = new AuthController(authService);
  
 
@@ -23,4 +23,4 @@ authRouter.post('/resendOtp',authController.resendOtp.bind(authController));
 authRouter.post('/verifyOtp',authController.verifyOtp.bind(authController));
 authRouter.post('/resetPassword',authController.resetPassword.bind(authController));
 
-export default authRouter
+export default authRouter;

@@ -8,5 +8,12 @@ export const endPoints = {
         RESET_PASSWORD : '/auth/resetPassword',
         FORGOT_PASSWORD : '/auth/forgotPassword',
         RESEND_OTP : '/auth/resendOtp'
+    },
+    PROFILE : {
+        GET_ME : '/profile/me',
+        GET_BY_ID : (userId: string) => `/profile/${userId}`,
+        CREATE : '/profile',
+        UPDATE_ME : '/profile/me',
+        LIST : '/profiles'
     }
 }
