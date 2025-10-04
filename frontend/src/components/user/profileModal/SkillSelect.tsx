@@ -2,22 +2,30 @@ import React from "react";
 import type { StylesConfig } from "react-select";
 import Select from "react-select";
 
+export interface ISkillOption {
+  _id: string;
+  name: string;
+}
+
 interface SkillsSelectProps {
   value: string[];
   onChange: (skills: string[]) => void;
-  options: string[];
+  options: ISkillOption[];
 }
 
 const SkillsSelect: React.FC<SkillsSelectProps> = ({ value, onChange, options }) => {
   const skillOptions = options.map((skill) => ({
-    label: skill,
-    value: skill,
+    label: skill.name,
+    value: skill._id,
   }));
 
-  const selectedOptions = value.map((skill) => ({
-    label: skill,
-    value: skill,
+  const selectedOptions = options
+  .filter((skill) => value.includes(skill._id))
+  .map((skill) => ({
+    label: skill.name,
+    value: skill._id,
   }));
+
 
   
   const style : StylesConfig<any, true> = {

@@ -1,9 +1,9 @@
-import { HttpResponse } from "../constants/responseMessage.constant.js";
-import { HttpStatus } from "../constants/status.constants.js";
-import { IUserRepository } from "../interfaces/repositories/IUserRepository.js";
-import { IProfileService } from "../interfaces/services/IProfileService.js";
-import { IUserDocument } from "../types/user.type.js";
-import { createHttpError } from "../utils/httpError.util.js";
+import { HttpResponse } from "../constants/responseMessage.constant";
+import { HttpStatus } from "../constants/status.constants";
+import { IUserRepository } from "../interfaces/repositories/IUserRepository";
+import { IProfileService } from "../interfaces/services/IProfileService";
+import { IUserDocument } from "../types/user.type";
+import { createHttpError } from "../utils/httpError.util";
 
 export class ProfileService implements IProfileService {
 

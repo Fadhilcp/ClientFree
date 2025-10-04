@@ -1,6 +1,6 @@
-import { BaseRepository } from "./base.repository.js";
-import otpUserStore from "../models/otpUserStore.js";
-import { IOtpUserStoreDocument } from "../types/otpUserStore.type.js";
+import { BaseRepository } from "./base.repository";
+import otpUserStore from "../models/otpUserStore";
+import { IOtpUserStoreDocument } from "../types/otpUserStore.type";
 
 export class OtpUserStoreRepository extends BaseRepository<IOtpUserStoreDocument>{
     constructor(){

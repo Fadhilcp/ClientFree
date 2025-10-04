@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import { IProfileService } from "../interfaces/services/IProfileService.js";
-import { HttpStatus } from "../constants/status.constants.js";
-import { createHttpError } from "../utils/httpError.util.js";
-import { HttpResponse } from "../constants/responseMessage.constant.js";
+import { IProfileService } from "../interfaces/services/IProfileService";
+import { HttpStatus } from "../constants/status.constants";
+import { createHttpError } from "../utils/httpError.util";
+import { HttpResponse } from "../constants/responseMessage.constant";
+import { clientUpdateSchema, freelancerUpdateSchema } from "schema/profile.schema";
 
 
 export class ProfileController {
@@ -16,21 +17,8 @@ export class ProfileController {
             }
 
             const userId = req.user._id;
-            const userHeader = req.headers['x-user-payload'];
-
-            console.log("🚀 ~ ProfileController ~ getMe ~ userHeader:", userHeader)
-
-        if (!userHeader) {
-             res.status(401).json({ success: false, message: 'User info missing' });
-            return
-        }
-
-        const user = JSON.parse(userHeader as string) as {
-            _id: string;
-            email: string;
-            role: 'freelancer' | 'client' | 'admin';
-        };
-            const profile = await this.service.getMyProfile(user._id)
+   
+            const profile = await this.service.getMyProfile(userId);
             
             res.status(HttpStatus.OK).json({ success : true, profile })
         } catch (error) {
@@ -40,34 +28,19 @@ export class ProfileController {
 
     async update(req: Request, res: Response, next: NextFunction ) : Promise<void> {
         try {
-    
-            console.log("🚀 ~ ProfileController ~ update ~ body:", req.body)
-            
             if(!req.user || !req.user._id){
                 throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.USER_NOT_FOUND);
             }
-
-            //not using here
             const userId = req.user?._id;
-
-              const userHeader = req.headers['x-user-payload'];
-              console.log("🚀 ~ ProfileController ~ update ~ userHeader:", userHeader)
+            const schema = req.user.role === 'freelancer' ? freelancerUpdateSchema : clientUpdateSchema;
+    
+            console.log(req.body) 
+            const result = schema.safeParse(req.body)
+            if(!result.success){
+                throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.INVALID_CREDENTIALS);
+            }
             
-
-        if (!userHeader) {
-             res.status(401).json({ success: false, message: 'User info missing' });
-            return
-        }
-
-        const user = JSON.parse(userHeader as string) as {
-            _id: string;
-            email: string;
-            role: 'freelancer' | 'client' | 'admin';
-        };
-            console.log("🚀 ~ ProfileController ~ update ~ user:", user)
-            
-            const profile = await this.service.updateProfile(user._id, req.body);
-
+            const profile = await this.service.updateProfile(userId, result.data);
             res.status(HttpStatus.OK).json({ success : true, profile });
         } catch (error) {
             next(error);

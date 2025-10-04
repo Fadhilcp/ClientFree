@@ -1,4 +1,4 @@
-import SingleCard from '../../components/auth/roleCard';
+import SingleCard from '../../components/auth/RoleCard';
 import { useNavigate } from 'react-router-dom';
 
 const RoleSelect = () => {

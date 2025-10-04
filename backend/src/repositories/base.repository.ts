@@ -9,7 +9,7 @@ import {
     ObjectId
 } from "mongoose";
 
-export abstract class BaseRepository<T extends Document>{
+export class BaseRepository<T extends Document>{
 
     constructor(protected model : Model<T>){}
 
@@ -27,14 +27,22 @@ export abstract class BaseRepository<T extends Document>{
 
     async findByIdAndUpdate(id : ObjectId , data : Partial<T>) : Promise<T | null>{
         return this.model.findByIdAndUpdate(id , data , { upsert : true , new : true});
-    } 
+    }
 
+    async updateMany(filter: FilterQuery<T>, data: UpdateQuery<T>): Promise<UpdateResult> {
+        return this.model.updateMany(filter, data);
+    }
+    
     async updateOne(filter : FilterQuery<T>, data : UpdateQuery<T>) : Promise<UpdateResult>{
         return this.model.updateOne(filter, data);
     }
-
+    
     async delete(id : ObjectId) : Promise<T | null>{
         return this.model.findByIdAndDelete(id);
+    }
+    
+    async deleteMany(filter: FilterQuery<T>): Promise<DeleteResult> {
+        return this.model.deleteMany(filter);
     }
 
     async deleteOne(filter : FilterQuery<T>) : Promise<DeleteResult>{

@@ -1,5 +1,5 @@
-import { IUser, IUserDocument } from "../../types/user.type.js";
-import { IBaseRepository } from "./IBaseRepository.js";
+import { IUser, IUserDocument } from "../../types/user.type";
+import { IBaseRepository } from "./IBaseRepository";
 
 export interface IUserRepository extends IBaseRepository<IUserDocument>{
     findByEmail(email : string) : Promise<IUserDocument | null>;

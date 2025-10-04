@@ -1,4 +1,4 @@
-import { IUserDocument } from "../../types/user.type.js";
+import { IUserDocument } from "../../types/user.type";
 
 
 export interface IProfileService {

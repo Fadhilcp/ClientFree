@@ -1,9 +1,9 @@
 import { Router } from "express";
 
-import { ProfileController } from "../controllers/profile.controller.js";
-import { UserRepository } from "../repositories/user.repository.js";
-import { ProfileService } from "../services/profile.service.js";
-import { authMiddleware } from "../middlewares/verifyToken.js";
+import { ProfileController } from "../controllers/profile.controller";
+import { UserRepository } from "../repositories/user.repository";
+import { ProfileService } from "../services/profile.service";
+import { authMiddleware } from "middlewares/authMiddleware";
 
 
 const profileRouter = Router();

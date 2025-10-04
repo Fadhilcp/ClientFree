@@ -2,11 +2,11 @@
   "name": "backend",
   "version": "1.0.0",
   "main": "src/app.ts",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
-    "dev": "nodemon --watch src --ext ts --exec \"node --no-warnings --loader ts-node/esm src/app.ts\"",
+    "dev": "nodemon",
     "build": "tsc",
-    "start": "node ./dist/app.js"
+    "start": "node dist/app.js"
   },
   "author": "",
   "license": "ISC",
@@ -25,7 +25,7 @@
     "eslint": "^9.36.0",
     "nodemon": "^3.1.10",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.3"
   },
   "dependencies": {
     "@types/cookie-parser": "^1.4.9",

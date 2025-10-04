@@ -1,8 +1,5 @@
-import { IOtpUserStoreDocument } from "../../types/otpUserStore.type.js";
-import { IBaseRepository } from "./IBaseRepository.js";
-
-
-
+import { IOtpUserStoreDocument } from "../../types/otpUserStore.type";
+import { IBaseRepository } from "./IBaseRepository";
 
 export interface IOtpUserStoreRepository extends IBaseRepository<IOtpUserStoreDocument>{
     findByEmail(email : string) : Promise<IOtpUserStoreDocument | null>;

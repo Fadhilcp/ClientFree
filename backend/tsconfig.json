@@ -1,17 +1,19 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "NodeNext",
+    "module": "commonjs",
     "rootDir": "./src",
     "outDir": "./dist",
     "strict": true,
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "node",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "typeRoots": ["./node_modules/@types", "./src/types"]
+    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "types": ["node", "express"],
+     "baseUrl": "./src",
   },
-  "include": ["src"],   // ✅ this covers src/** including src/types
-  "exclude": ["node_modules", "dist"]
-}  
+  "include": ["src/**/*", "src/types/**/*.d.ts"],
+  "exclude": ["node_modules", "dist"],
+}

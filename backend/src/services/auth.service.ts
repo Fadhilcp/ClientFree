@@ -1,19 +1,19 @@
-import { IUserDocument } from "../types/user.type.js";
-import { IUserRepository } from "../interfaces/repositories/IUserRepository.js";
-import { IAuthService } from "../interfaces/services/IAuthService.js";
-import { generateOtp } from "../utils/generateOtp.js";
+import { IUserDocument } from "../types/user.type";
+import { IUserRepository } from "../interfaces/repositories/IUserRepository";
+import { IAuthService } from "../interfaces/services/IAuthService";
+import { generateOtp } from "../utils/generateOtp";
 import bcrypt from 'bcrypt'
-import { IOtpUserStoreRepository } from "../interfaces/repositories/IOtpUserStoreRepository.js";
-import { sendOtpEmail } from "../utils/mailer.util.js";
-import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../utils/jwt.util.js";
-import { SanitizedUser } from "../types/user.dto.js";
+import { IOtpUserStoreRepository } from "../interfaces/repositories/IOtpUserStoreRepository";
+import { sendOtpEmail } from "../utils/mailer.util";
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../utils/jwt.util";
+import { SanitizedUser } from "../types/user.dto";
 import { Types } from "mongoose";
-import { AuthPayload, OtpPurpose } from "../types/auth.type.js";
-import { IOtpUserStore } from "../types/otpUserStore.type.js";
+import { AuthPayload, OtpPurpose } from "../types/auth.type";
+import { IOtpUserStore } from "../types/otpUserStore.type";
 
-import { HttpStatus } from "../constants/status.constants.js";
-import { HttpResponse } from "../constants/responseMessage.constant.js";
-import { createHttpError } from "../utils/httpError.util.js";
+import { HttpStatus } from "../constants/status.constants";
+import { HttpResponse } from "../constants/responseMessage.constant";
+import { createHttpError } from "../utils/httpError.util";
 
 
 export class AuthService implements IAuthService {
@@ -139,6 +139,7 @@ export class AuthService implements IAuthService {
         }
 
         const decoded = verifyRefreshToken(token);
+        console.log("🚀 ~ AuthService ~ accessRefreshToken ~ decoded:", decoded)
 
         
         const userId = decoded._id;

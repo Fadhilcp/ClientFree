@@ -15,5 +15,10 @@ export const endPoints = {
         CREATE : '/profile',
         UPDATE_ME : '/profile/me',
         LIST : '/profiles'
+    },
+    SKILL: {
+        ROOT: '/skills',
+        BY_CATEGORY: (category: string) => `/skills?category=${category}`,
+        BY_ID: (skillId: string) => `/skills/${skillId}`,
     }
 }

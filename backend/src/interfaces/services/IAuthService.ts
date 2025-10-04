@@ -1,6 +1,6 @@
-import { SanitizedUser } from "../../types/user.dto.js";
-import { IUserDocument } from "../../types/user.type.js";
-import { IOtpUserStore } from "../../types/otpUserStore.type.js";
+import { SanitizedUser } from "../../types/user.dto";
+import { IUserDocument } from "../../types/user.type";
+import { IOtpUserStore } from "../../types/otpUserStore.type";
 
 export interface IAuthService{
     signUp(data : IOtpUserStore) : Promise<void>;

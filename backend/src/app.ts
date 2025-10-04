@@ -1,15 +1,15 @@
 import express from 'express';
 const app = express();
-import { connectDB } from './config/mongo.config.js';
-import { env } from './config/env.config.js';
+import { connectDB } from './config/mongo.config';
+import { env } from './config/env.config';
 
-import authRouter from './routes/auth.route.js';
+import authRouter from './routes/auth.route';
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 
-import { errorHandler } from './middlewares/errorHandler.js';
-import profileRouter from './routes/profile.route.js';
-
+import { errorHandler } from './middlewares/errorHandler';
+import profileRouter from './routes/profile.route';
+import skillRouter from 'routes/skill.route';
 
 connectDB();
 
@@ -20,15 +20,15 @@ app.use(cors({
     credentials : true
 }))
 
-app.use(cookieParser())
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({extended : true}));
 
+app.use("/api/auth",authRouter);
+app.use("/api/profile",profileRouter);
+app.use("/api/skills",skillRouter);
 
-app.use("/api/auth",authRouter)
-app.use("/api/profile",profileRouter)
-
-app.use(errorHandler)
+app.use(errorHandler);
 
 app.listen(env.PORT || 3000,()=>{
     console.log(`server is running at ${env.PORT} port`);

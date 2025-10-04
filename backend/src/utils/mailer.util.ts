@@ -1,6 +1,6 @@
 
-import { transporter } from '../config/mail.config.js';
-import { env } from '../config/env.config.js';
+import { transporter } from '../config/mail.config';
+import { env } from '../config/env.config';
 
 
 export const sendOtpEmail = async(to : string, otp : string, msg ?: string) : Promise<void> =>{

@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
-import { IAuthService } from "../interfaces/services/IAuthService.js";
-import { setCookie } from "../utils/refreshCookie.util.js";
-import { HttpStatus } from "../constants/status.constants.js";
-import { HttpResponse } from "../constants/responseMessage.constant.js";
-import { createHttpError } from "../utils/httpError.util.js";
+import { IAuthService } from "../interfaces/services/IAuthService";
+import { setCookie } from "../utils/refreshCookie.util";
+import { HttpStatus } from "../constants/status.constants";
+import { HttpResponse } from "../constants/responseMessage.constant";
+import { createHttpError } from "../utils/httpError.util";
 
 
 export class AuthController {
@@ -49,30 +49,14 @@ export class AuthController {
         }
     };
 
-    async accessRefreshToken(req : Request, res : Response, next : NextFunction) : Promise<void> {
-        try {
-            const refreshToken = req.cookies.refreshToken;
-
-            const { accessToken, newRefreshToken } = await this.service.accessRefreshToken(refreshToken);
-
-            setCookie(res, newRefreshToken);
-
-            res.status(HttpStatus.OK).json({ success : true, token : accessToken})
-                
-        } catch (error : any) {
-            next(error)
-        }
-    }
-
-
     async login(req : Request, res : Response, next : NextFunction) : Promise<void> {
         try {
             const { email, password } = req.body;
 
             const { user, accessToken, refreshToken } = await this.service.login(email, password);
-
+            
             setCookie(res, refreshToken);
-
+            
             res.status(200).json({
                 success : true,
                 messsage : "login complete",
@@ -159,6 +143,22 @@ export class AuthController {
 
             res.status(HttpStatus.OK).json({ message : HttpResponse.PASSWORD_CHANGE_SUCCESS })
             
+        } catch (error : any) {
+            next(error)
+        }
+    }
+
+    async accessRefreshToken(req : Request, res : Response, next : NextFunction) : Promise<void> {
+        try {
+            const refreshToken = req.cookies.refreshToken;
+            console.log("🚀 ~ AuthController ~ accessRefreshToken ~ refreshToken:", refreshToken)
+
+            const { accessToken, newRefreshToken } = await this.service.accessRefreshToken(refreshToken);
+
+            setCookie(res, newRefreshToken);
+
+            res.status(HttpStatus.OK).json({ success : true, token : accessToken})
+                
         } catch (error : any) {
             next(error)
         }

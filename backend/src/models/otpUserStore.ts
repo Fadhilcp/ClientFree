@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { IOtpUserStoreDocument } from '../types/otpUserStore.type.js';
+import { IOtpUserStoreDocument } from '../types/otpUserStore.type';
 
 const otpUserStoreSchema = new Schema(
   {

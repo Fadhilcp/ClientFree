@@ -21,10 +21,14 @@ instance.interceptors.request.use((config) => {
 
 instance.interceptors.response.use((response) => response,
    async (error) => {
-
     const originalRequest = error.config;
 
-    if(error.response?.status === 401 && !originalRequest._retry) {
+    if(
+        error.response?.status === 401 && 
+        error.response.data?.code === "TOKEN_EXPIRED" && 
+        !originalRequest._retry
+    ) {
+        //to prevent infinte loop of request
         originalRequest._retry = true
 
         try {

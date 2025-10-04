@@ -13,6 +13,7 @@ interface ProfileModalProps {
   onSave: (data: any) => void;
   role: "freelancer" | "client";
   defaultValues?: any; 
+  availableSkills: []
 }
 
 const ProfileModal: React.FC<ProfileModalProps> = ({
@@ -21,6 +22,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
   onSave,
   role,
   defaultValues,
+  availableSkills
 }) => {
   const emptyExternalLink = { type: "website", url: "" };
 
@@ -33,7 +35,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
     location: { city: "", state: "", country: "" },
 
     // Freelancer fields
-    skills: [],
+    skills: [] as string[],
     professionalTitle: "",
     portfolio: { portfolioFile: "", resume: "" },
     hourlyRate: "",
@@ -44,17 +46,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
     // Client fields
     company: { name: "", industry: "", website: "" },
   });
-
-    const availableSkills = [
-          "React",
-          "TypeScript",
-          "Tailwind CSS",
-          "Node.js",
-          "Express",
-          "MongoDB",
-          "JWT",
-          "Figma",
-      ];
 
 
   useEffect(() => {
@@ -95,7 +86,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
 
   const handleSave = () => {
     onSave(formData);
-    onClose();
   };
 
   return (
