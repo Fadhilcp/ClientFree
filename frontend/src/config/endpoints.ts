@@ -4,10 +4,12 @@ export const endPoints = {
         SIGNUP : '/auth/signUp',
         VERIFY_SIGNUP_OTP : '/auth/verifySignupOtp',
         VERIFY_OTP : '/auth/verifyOtp',
+        VERIFY : '/auth/verify',
         REFRESH_TOKEN : '/auth/refresh',
         RESET_PASSWORD : '/auth/resetPassword',
         FORGOT_PASSWORD : '/auth/forgotPassword',
-        RESEND_OTP : '/auth/resendOtp'
+        RESEND_OTP : '/auth/resendOtp',
+        GOOGLE: '/auth/google'
     },
     PROFILE : {
         GET_ME : '/profile/me',

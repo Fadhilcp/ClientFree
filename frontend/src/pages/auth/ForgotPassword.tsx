@@ -11,6 +11,7 @@ import { notify } from "../../utils/toastService";
 import AuthImage from "../../components/auth/AuthImage";
 import { useDispatch } from "react-redux";
 import { setOtpInfo } from "../../features/authSlice";
+import Loader from "../../components/ui/Loader/Loader";
 
 const ForgotPassword : React.FC = () => {
 
@@ -18,6 +19,7 @@ const ForgotPassword : React.FC = () => {
 
     const navigate = useNavigate();
 
+    const [loading, setLoading] = useState(false);
     const [email, setEmail] = useState('');
     const [error, setError] = useState('');
 
@@ -43,7 +45,7 @@ const ForgotPassword : React.FC = () => {
             setError(checkEmail)
             return;
         }
-
+        setLoading(true);
         try {
         await authService.forgotPassword(email);
 
@@ -53,6 +55,8 @@ const ForgotPassword : React.FC = () => {
         navigate('/verifyOtp');
         } catch (err: any) {
         notify.error(err.response?.data?.error || 'Failed to send OTP');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -60,44 +64,48 @@ const ForgotPassword : React.FC = () => {
 
 
 
-  return (
-    <div className="min-h-screen bg-gray-100 text-gray-00 flex justify-center">
-        <div className="max-w-screen-xl m-0 sm:m-10 bg-white shadow sm:rounded-lg flex justify-center flex-1">
-        <div className="lg:w-1/2 xl:w-5/12 p-6 sm:p-1">
+    return (
+    <>
+        {loading && <Loader />}
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex justify-center">
+        <div className="max-w-screen-xl m-0 sm:m-10 bg-white dark:bg-gray-800 shadow sm:rounded-lg flex justify-center flex-1">
+            <div className="lg:w-1/2 xl:w-5/12 p-6 sm:p-1">
             <div className="mt-12 flex flex-col items-center">
-            <h1 className="text-indigo-600 text-2xl xl:text-3xl font-bold">Forgot Your Password</h1>
+                <h1 className="text-indigo-600 dark:text-indigo-400 text-2xl xl:text-3xl font-bold">
+                Forgot Your Password
+                </h1>
 
-            <p className="text-sm text-gray-600 text-center mt-2 mb-6">
+                <p className="text-sm text-gray-600 dark:text-gray-400 text-center mt-2 mb-6">
                 Enter your registered email to receive a verification code.
-            </p>
+                </p>
 
-            <div className="w-full flex-1 mt-4">
+                <div className="w-full flex-1 mt-4">
                 <div className="mx-auto w-full max-w-115">
-                <InputSection
+                    <InputSection
                     name="email"
                     type="email"
                     value={email}
                     onChange={handleEmail}
                     placeholder="Enter your email"
                     error={error}
-                />
+                    />
 
+                    <PrimaryButton onClick={handleSubmit} children="Send OTP" />
 
-                <PrimaryButton onClick={handleSubmit} children="Send OTP" />
-
-                <AuthRedirectNotice
+                    <AuthRedirectNotice
                     message="Remembered your password?"
                     linkText="Log In"
                     linkTo="/login"
-                />
+                    />
+                </div>
                 </div>
             </div>
             </div>
-        </div>
 
-        <AuthImage/>
+            <AuthImage />
         </div>
-    </div>
+        </div>
+    </>
     );
 };
 

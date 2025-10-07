@@ -9,11 +9,12 @@ export interface ISkillOption {
 
 interface SkillsSelectProps {
   value: string[];
+  error?: string;
   onChange: (skills: string[]) => void;
   options: ISkillOption[];
 }
 
-const SkillsSelect: React.FC<SkillsSelectProps> = ({ value, onChange, options }) => {
+const SkillsSelect: React.FC<SkillsSelectProps> = ({ value, error, onChange, options }) => {
   const skillOptions = options.map((skill) => ({
     label: skill.name,
     value: skill._id,
@@ -71,6 +72,8 @@ const SkillsSelect: React.FC<SkillsSelectProps> = ({ value, onChange, options })
         classNamePrefix="react-select"
         placeholder="Search and select skills..."
       />
+
+      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
     </div>
   );
 };

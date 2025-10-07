@@ -6,15 +6,21 @@ import { SelectSection } from "../../../components/user/profileModal/SelectSecti
 import { ExternalLinks } from "../../../components/user/profileModal/ExternalLinks";
 import Button from "../../../components/ui/Button";
 import SkillsSelect from "../../../components/user/profileModal/SkillSelect";
+import { notify } from "../../../utils/toastService";
+import { validateProfileForm } from "../../../utils/validators";
+import type { FormData, FormErrors } from "../../../types/profileModal.types";
 
 interface ProfileModalProps {
   open: boolean;
   onClose: () => void;
   onSave: (data: any) => void;
   role: "freelancer" | "client";
-  defaultValues?: any; 
-  availableSkills: []
+  defaultValues?: Partial<FormData>; 
+  availableSkills: [];
+  email?: string;
+  username?: string;
 }
+
 
 const ProfileModal: React.FC<ProfileModalProps> = ({
   open,
@@ -22,46 +28,49 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
   onSave,
   role,
   defaultValues,
-  availableSkills
+  availableSkills,
 }) => {
   const emptyExternalLink = { type: "website", url: "" };
 
-  const [formData, setFormData] = useState<any>({
-    // Common fields
-    name: "",
-    phone: "",
-    description: "",
-    profileImage: "",
-    location: { city: "", state: "", country: "" },
-
-    // Freelancer fields
-    skills: [] as string[],
-    professionalTitle: "",
-    portfolio: { portfolioFile: "", resume: "" },
-    hourlyRate: "",
-    about: "",
-    experienceLevel: "beginner",
-    externalLinks: [emptyExternalLink],
-
-    // Client fields
-    company: { name: "", industry: "", website: "" },
-  });
+  const [formData, setFormData] = useState<FormData>({
+  name: "",
+  phone: "",
+  description: "",
+  profileImage: "",
+  location: { city: "", state: "", country: "" },
+  portfolio: { portfolioFile: "", resume: "" },
+  skills: [],
+  professionalTitle: "",
+  hourlyRate: "",
+  about: "",
+  experienceLevel: "beginner",
+  externalLinks: [{ type: "website", url: "" }],
+  company: { name: "", industry: "", website: "" },
+});
 
 
-  useEffect(() => {
-    if (defaultValues) {
-      setFormData({
-        ...formData,
-        ...defaultValues,
-        location: { ...formData.location, ...defaultValues.location },
-        portfolio: { ...formData.portfolio, ...defaultValues.portfolio },
-        company: { ...formData.company, ...defaultValues.company },
-        externalLinks: defaultValues.externalLinks?.length
-          ? defaultValues.externalLinks
-          : [emptyExternalLink],
-      });
-    }
-  }, [defaultValues]);
+  const [errors, setErrors] = useState<FormErrors>({});
+
+
+
+
+useEffect(() => {
+  if (defaultValues) {
+    setFormData((prev) => ({
+      ...prev,
+      ...defaultValues,
+      location: { ...prev.location, ...defaultValues.location },
+      portfolio: {
+        portfolioFile: defaultValues?.portfolio?.portfolioFile || prev.portfolio.portfolioFile,
+        resume: defaultValues?.portfolio?.resume || prev.portfolio.resume,
+      },
+      company: { ...prev.company, ...defaultValues.company },
+      externalLinks: defaultValues.externalLinks?.length
+        ? defaultValues.externalLinks
+        : [emptyExternalLink],
+    }));
+  }
+}, [defaultValues]);
 
   if (!open) return null;
 
@@ -84,9 +93,25 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
     }
   };
 
-  const handleSave = () => {
-    onSave(formData);
-  };
+
+const handleSave = () => {
+  const validationErrors = validateProfileForm(formData, role);
+  const hasErrors = Object.values(validationErrors).some((val) => {
+    if (Array.isArray(val)) return val.some((e) => Object.keys(e).length > 0);
+    if (typeof val === 'object') return Object.keys(val).length > 0;
+    return Boolean(val);
+  });
+
+  if (hasErrors) {
+    setErrors(validationErrors);
+    console.log(errors)
+    notify.error('Please fix the highlighted errors');
+    return;
+  }
+
+  setErrors({});
+  onSave(formData);
+};
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -106,14 +131,15 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Common Fields */}
-          <InputSection label="Name" name="name" value={formData.name} onChange={handleChange}/>
+          <InputSection label="Name" name="name" value={formData.name} error={errors.name} onChange={handleChange}/>
 
-          <InputSection label="Phone" name="phone" value={formData.phone} onChange={handleChange}/>
+          <InputSection label="Phone" name="phone" value={formData.phone}  error={errors.phone} onChange={handleChange}/>
 
           <TextareaSection 
               label="Description"
               name="description"
               value={formData.description}
+              error={errors.description}
               onChange={handleChange}
               rows={3}
             />
@@ -122,14 +148,15 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
           {/* Freelancer Only */}
           {role === "freelancer" && (
             <>
-              <InputSection label="Professional Title" name="professionalTitle" value={formData.professionalTitle} onChange={handleChange}/>
+              <InputSection label="Professional Title" name="professionalTitle" value={formData.professionalTitle} error={errors.professionalTitle} onChange={handleChange}/>
 
-              <InputSection label="Hourly Rate" name="hourlyRate" value={formData.hourlyRate} onChange={handleChange}/>
+              <InputSection label="Hourly Rate" name="hourlyRate" value={formData.hourlyRate} error={errors.hourlyRate} onChange={handleChange}/>
 
               <SelectSection
                 label="Experience Level"
                 name="experienceLevel"
                 value={formData.experienceLevel}
+                error={errors.experienceLevel}
                 onChange={handleChange}
                 options={[
                   { label: "Beginner", value: "beginner" },
@@ -142,6 +169,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
             
               <SkillsSelect
                 value={formData.skills}
+                error={errors.skills}
                 onChange={(skills) => setFormData({ ...formData, skills })}
                 options={availableSkills}
               />
@@ -151,6 +179,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
                 label="About"
                 name="about"
                 value={formData.about}
+                error={errors.about}
                 onChange={handleChange}
                 rows={3}
               />
@@ -159,6 +188,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
 
               <ExternalLinks
                 links={formData.externalLinks}
+                error={errors}
                 onChange={(i, updated) => {
                   const newLinks = [...formData.externalLinks];
                   newLinks[i] = updated;
@@ -170,9 +200,14 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
               />
 
               {/* Portfolio & Resume */}
-              <InputSection label="Portfolio File" name="portfolio.portfolioFile" value={formData.portfolio.portfolioFile} onChange={handleChange}/>
+              <InputSection label="Portfolio File" name="portfolio.portfolioFile" 
+              value={formData.portfolio.portfolioFile} error={errors.portfolio?.portfolioFile} onChange={handleChange}
+              />
 
-              <InputSection label="Resume" name="portfolio.resume" value={formData.portfolio.resume} onChange={handleChange}/>
+              <InputSection label="Resume" name="portfolio.resume" 
+              value={formData.portfolio.resume} error={errors.portfolio?.resume} onChange={handleChange}
+              />
+
             </>
           )}
 
@@ -180,18 +215,24 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
           {role === "client" && (
             <>
               
-              <InputSection label="Company Name" name="company.name" value={formData.company.name} onChange={handleChange}/>
+              <InputSection label="Company Name" name="company.name" value={formData.company.name}
+              error={errors.company?.name} onChange={handleChange}/>
               
-              <InputSection label="Industry" name="company.industry" value={formData.company.industry} onChange={handleChange}/>
+              <InputSection label="Industry" name="company.industry" value={formData.company.industry}
+              error={errors.company?.industry} onChange={handleChange}/>
               
-              <InputSection label="Website" name="company.website" value={formData.company.website} onChange={handleChange}/>
+              <InputSection label="Website" name="company.website" value={formData.company.website}
+              error={errors.company?.website} onChange={handleChange}/>
             </>
           )}
         </div>
           {/* Location */}
-          <InputSection label="City" name="location.city" value={formData.location.city} onChange={handleChange}/>
-          <InputSection label="State" name="location.state" value={formData.location.state} onChange={handleChange}/>
-          <InputSection label="Country" name="location.country" value={formData.location.country} onChange={handleChange}/>
+          <InputSection label="City" name="location.city" value={formData.location.city}
+          error={errors.location?.city} onChange={handleChange}/>
+          <InputSection label="State" name="location.state" value={formData.location.state}
+          error={errors.location?.state} onChange={handleChange}/>
+          <InputSection label="Country" name="location.country" value={formData.location.country}
+          error={errors.location?.country} onChange={handleChange}/>
 
         {/* Actions */}
         <div className="flex justify-end gap-3 mt-8">

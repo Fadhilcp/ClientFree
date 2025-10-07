@@ -3,9 +3,10 @@ import { Document, Types } from "mongoose";
 export interface IUserBase{
     username : string;
     email : string
-    password : string;
+    password ?: string;
     role : "freelancer" | "client" | "admin";
     status : "active" | "inactive" | "banned";
+    provider: "local" | "google";
     lastLoginAt ?: Date;
 }
 

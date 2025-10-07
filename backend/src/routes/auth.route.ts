@@ -4,6 +4,7 @@ import { AuthService } from "../services/auth.service";
 import { AuthController } from "../controllers/auth.controller";
 import { UserRepository } from "../repositories/user.repository";
 import { OtpUserStoreRepository } from "../repositories/otpUserStore.repository";
+import { authMiddleware } from "middlewares/authMiddleware";
 
 const authRouter = Router()
 
@@ -22,5 +23,7 @@ authRouter.post('/forgotPassword',authController.forgotPassword.bind(authControl
 authRouter.post('/resendOtp',authController.resendOtp.bind(authController));
 authRouter.post('/verifyOtp',authController.verifyOtp.bind(authController));
 authRouter.post('/resetPassword',authController.resetPassword.bind(authController));
+authRouter.post('/google',authController.googleAuth.bind(authController));
+authRouter.get('/verfiy',authMiddleware,authController.verifyUser.bind(authController));
 
 export default authRouter;

@@ -43,12 +43,14 @@ const OtpResendTimer: React.FC<OtpResendTimerProps> = ({
   return (
     <div className={`text-center mt-4 ${className}`}>
       {seconds > 0 ? (
-        <p className="text-sm text-gray-500">{cooldownMessage(seconds)}</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          {cooldownMessage(seconds)}
+        </p>
       ) : (
         <button
           onClick={handleResend}
           disabled={loading}
-          className="text-indigo-600 text-sm font-medium hover:underline"
+          className="text-indigo-600 dark:text-indigo-400 text-sm font-medium hover:underline"
         >
           {loading ? 'Resending...' : label}
         </button>

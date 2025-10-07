@@ -4,6 +4,8 @@ import { setCookie } from "../utils/refreshCookie.util";
 import { HttpStatus } from "../constants/status.constants";
 import { HttpResponse } from "../constants/responseMessage.constant";
 import { createHttpError } from "../utils/httpError.util";
+import { success } from "zod";
+import { AuthPayload } from "types/auth.type";
 
 
 export class AuthController {
@@ -116,6 +118,9 @@ export class AuthController {
     async verifyOtp(req : Request, res : Response, next : NextFunction) : Promise<void> {
         try {
             const { email, otp, purpose } = req.body;
+            console.log("🚀 ~ AuthController ~ verifyOtp ~ purpose:", purpose)
+            console.log("🚀 ~ AuthController ~ verifyOtp ~ otp:", otp)
+            console.log("🚀 ~ AuthController ~ verifyOtp ~ email:", email)
 
             if (!email || !otp || !purpose) {
                throw createHttpError(HttpStatus.BAD_REQUEST, 'Email, OTP, and purpose are required');
@@ -161,6 +166,74 @@ export class AuthController {
                 
         } catch (error : any) {
             next(error)
+        }
+    }
+
+    async googleAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+
+            const { token, role } = req.body;
+            console.log("🚀 ~ AuthController ~ googleAuth ~ access_token:", token)
+
+            if(!token) {
+                throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.NO_TOKEN);
+            }
+
+            const result = await this.service.googleAuth(token, role);
+
+             if(result.needsRole){
+                res.status(HttpStatus.OK).json({
+                    success:true,
+                    message: 'New user needs to select role',
+                    needsRole: result.needsRole
+                })
+                return;
+             }
+
+
+            if(result.refreshToken) setCookie(res, result.refreshToken);
+
+            res.status(HttpStatus.OK).json({ 
+                success: true, 
+                message: 'Google authentication successful',
+                user: result.user,
+                token: result.accessToken,
+                isNewUser: result.isNewUser
+            });
+            
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async verifyUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+             const userPayload = req.user as AuthPayload | undefined;
+             console.log("🚀 ~ AuthController ~ verifyUser ~ userPayload:", userPayload)
+
+            if (!userPayload?._id) {
+                throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.USER_NOT_FOUND);
+            }
+
+
+            const user = await this.service.verifyUser(userPayload._id);
+            console.log("🚀 ~ AuthController ~ verifyUser ~ user:", user)
+            if (!user) {
+                throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
+            }
+
+        // const accessToken = await this.service.generateAccessToken(user);
+        // const refreshToken = await this.service.generateRefreshToken(user);
+        // setCookie(res, refreshToken);
+
+            res.status(HttpStatus.OK).json({
+                success: true,
+                message: "Token verified successfully",
+                user,
+                token: req.headers.authorization?.split(" ")[1] || null,
+            });
+        } catch (error) {
+            next(error);
         }
     }
 };

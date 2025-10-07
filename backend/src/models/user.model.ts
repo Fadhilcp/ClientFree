@@ -12,13 +12,20 @@ const userSchema = new Schema({
         required : true,
         unique : true
     },
-    password : {
-        type : String,
-        required : true
+    password: {
+        type: String,
+        required: function (this: IUserDocument) {
+            return this.provider === "local";
+        },
     },
     role : {
         type : String,
         enum : ["freelancer", "client", "banned"]
+    },
+    provider: {
+        type: String,
+        enum: ["local", "google"],
+        required: true,
     },
     status : {
         type : String,

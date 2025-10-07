@@ -33,8 +33,7 @@ export class ProfileController {
             }
             const userId = req.user?._id;
             const schema = req.user.role === 'freelancer' ? freelancerUpdateSchema : clientUpdateSchema;
-    
-            console.log(req.body) 
+
             const result = schema.safeParse(req.body)
             if(!result.success){
                 throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.INVALID_CREDENTIALS);

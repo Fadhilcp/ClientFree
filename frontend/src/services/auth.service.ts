@@ -34,11 +34,19 @@ class AuthService {
     }
 
     resendOtp(email : string, purpose : string) {
-        return axios.post(endPoints.AUTH.RESEND_OTP, {email, purpose})
+        return axios.post(endPoints.AUTH.RESEND_OTP, {email, purpose});
     }
 
     refreshToken(){
         return axios.get(endPoints.AUTH.REFRESH_TOKEN);
+    }
+
+    googleAuth(token: string,role: string){
+        return axios.post(endPoints.AUTH.GOOGLE, {token, role});
+    }
+
+    verifyUser() {
+        return axios.post(endPoints.AUTH.VERIFY);
     }
 }
 

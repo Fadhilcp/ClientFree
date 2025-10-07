@@ -14,6 +14,7 @@ import { IOtpUserStore } from "../types/otpUserStore.type";
 import { HttpStatus } from "../constants/status.constants";
 import { HttpResponse } from "../constants/responseMessage.constant";
 import { createHttpError } from "../utils/httpError.util";
+import axios from "axios";
 
 
 export class AuthService implements IAuthService {
@@ -60,7 +61,8 @@ export class AuthService implements IAuthService {
         console.log("🚀 ~ AuthService ~ verifySignupOtp ~ otp:", otp)
         
         const pendingUser = await this.otpUserStoreRepository.findByEmailAndOtp(email,otp);
-        console.log("🚀 ~ AuthService ~ verifyOtp ~ pendingUser:", pendingUser)
+        console.log("🚀 ~ AuthService ~ verifySignupOtp ~ pendingUser:", pendingUser)
+        
         if(!pendingUser || pendingUser.purpose !== purpose) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.OTP_INCORRECT);
         if(pendingUser.expiresAt < new Date()) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.OTP_EXPIRED);
 
@@ -68,7 +70,8 @@ export class AuthService implements IAuthService {
             username : pendingUser.username,
             email : pendingUser.email,
             password : pendingUser.password,
-            role : pendingUser.role
+            role : pendingUser.role,
+            provider : 'local'
         })
 
         await this.otpUserStoreRepository.delete(pendingUser._id);
@@ -167,11 +170,15 @@ export class AuthService implements IAuthService {
     }
 
 
-    async login(email: string, password: string): Promise<{ accessToken: string; refreshToken: string; user: IUserDocument }>  {
+    async login(email: string, password: string): Promise<{ accessToken: string; refreshToken: string; user: SanitizedUser }>  {
         
         const user = await this.userRepository.findByEmail(email);
 
         if(!user) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
+
+        if (!user.password || user.provider === 'google') {
+            throw createHttpError(HttpStatus.BAD_REQUEST, "Password login not allowed for Google account");
+        }
 
         const passwordMatch = await bcrypt.compare(password,user.password);
         console.log("🚀 ~ AuthService ~ login ~ passwordMatch:", passwordMatch)
@@ -190,7 +197,14 @@ export class AuthService implements IAuthService {
         const accessToken = generateAccessToken(payload);
         const refreshToken = generateRefreshToken(payload);
 
-        return { accessToken, refreshToken , user};
+        const sanitizedUser = {
+            _id : user._id as Types.ObjectId,
+            username : user.username,
+            email : user.email,
+            role : user.role,
+        }
+
+        return { accessToken, refreshToken , user: sanitizedUser };
     }
 
 
@@ -220,7 +234,7 @@ export class AuthService implements IAuthService {
 
         console.log('resend otp service has been done')
 
-        await sendOtpEmail(email, otp, purpose)
+        await sendOtpEmail(email, otp, purpose);
     }
 
     async verifyOtp(email : string, otp : string, purpose : OtpPurpose) : Promise<void> {
@@ -264,6 +278,8 @@ export class AuthService implements IAuthService {
     }
 
     async resetPassword(email : string, newPassword : string): Promise<void> {
+        console.log("🚀 ~ AuthService ~ resetPassword ~ email:", email)
+        console.log("🚀 ~ AuthService ~ resetPassword ~ newPassword:", newPassword)
         const [user, otpRecord] = await Promise.all([
             this.userRepository.findOne({email}),
             this.otpUserStoreRepository.findOne({email, isVerified: true })
@@ -285,4 +301,81 @@ export class AuthService implements IAuthService {
         await this.userRepository.updateOne({email},{ password : hashPassword });
         await this.otpUserStoreRepository.deleteOne({email, purpose : 'forgot-password'});
     } 
+
+    async googleAuth(access_token: string, role: 'freelancer' | 'client') :Promise<{
+         accessToken ?: string, refreshToken ?: string, user ?: SanitizedUser, isNewUser?: Boolean, needsRole?: Boolean,
+        }>{
+        console.log("🚀 ~ AuthService ~ googleAuth ~ role:", role)
+        try {
+
+            const { data } = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+                headers: { Authorization: `Bearer ${access_token}`},
+            });
+            console.log("🚀 ~ AuthService ~ googleAuth ~ data:", data)
+
+            const { email, name, picture } = data;
+            console.log("🚀 ~ AuthService ~ googleAuth ~ email:", email)
+
+            if(!email) throw createHttpError(HttpStatus.BAD_REQUEST,HttpResponse.EMAIL_REQUIRED);
+
+            let user = await this.userRepository.findOne({email});
+            console.log("🚀 ~ AuthService ~ googleAuth ~ user:", user)
+
+            //to identify user is new or not
+            let isNewUser = false;
+            if(!user) {
+
+                if (!role) return { needsRole: true };
+
+                user = await this.userRepository.create({
+                    username: name,
+                    email,
+                    profileImage: picture,
+                    role,
+                    provider: 'google'
+                });
+                isNewUser = true;
+            }
+
+            const payload: AuthPayload = {
+                _id: user._id.toString(),
+                email: user.email,
+                role: user.role,
+            };
+
+            const refreshToken = generateRefreshToken(payload);
+            const accessToken = generateAccessToken(payload);
+
+            const sanitizedUser = {
+                _id : user._id as Types.ObjectId,
+                username : user.username,
+                email : user.email,
+                role : user.role,
+            }
+
+            return { user: sanitizedUser, refreshToken, accessToken, isNewUser };
+            
+        } catch (error: any) {
+            console.error('googleAuth service error',error.message)
+            throw error;
+        }
+    }
+
+    async verifyUser(userId: string): Promise<{ user: SanitizedUser; accessToken?: string; refreshToken?: string; }> {
+        
+        const user = await this.userRepository.findById(userId);
+
+        if(!user) {
+            throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
+        }
+
+        const sanitizedUser = {
+            _id: user._id,
+            email: user.email,
+            username: user.username,
+            role: user.role,
+        };
+
+        return { user: sanitizedUser };
+    }
 } 
