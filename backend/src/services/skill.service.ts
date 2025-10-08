@@ -1,7 +1,7 @@
 import { HttpResponse } from "constants/responseMessage.constant";
 import { HttpStatus } from "constants/status.constants";
-import { ISkillRepository } from "interfaces/repositories/ISkillRepository";
-import { ISkillService } from "interfaces/services/ISkillService";
+import { ISkillRepository } from "repositories/interfaces/ISkillRepository";
+import { ISkillService } from "services/interface/ISkillService";
 import { DeleteResult, FilterQuery } from "mongoose";
 import { ISkill, ISkillDocument } from "types/skill.type";
 import { createHttpError } from "utils/httpError.util";

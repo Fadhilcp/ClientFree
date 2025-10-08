@@ -46,7 +46,7 @@ class AuthService {
     }
 
     verifyUser() {
-        return axios.post(endPoints.AUTH.VERIFY);
+        return axios.get(endPoints.AUTH.VERIFY);
     }
 }
 

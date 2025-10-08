@@ -1,11 +1,12 @@
 import { NextFunction, Request, Response } from "express";
-import { IAuthService } from "../interfaces/services/IAuthService";
+import { IAuthService } from "../services/interface/IAuthService";
 import { setCookie } from "../utils/refreshCookie.util";
 import { HttpStatus } from "../constants/status.constants";
 import { HttpResponse } from "../constants/responseMessage.constant";
 import { createHttpError } from "../utils/httpError.util";
 import { success } from "zod";
 import { AuthPayload } from "types/auth.type";
+import { sendResponse } from "utils/response.util";
 
 
 export class AuthController {
@@ -17,10 +18,9 @@ export class AuthController {
 
             await this.service.signUp({ username, email, password, role} as any);
 
-            res.status(HttpStatus.CREATED).json({ 
-                message : "OTP sent to your email. Please verify to complete signup",
-                email
-            });
+            sendResponse(res, HttpStatus.CREATED, {
+                email 
+            },'OTP sent to your email. Please verify to complete signup')
         } catch (error : any) {
             next(error)
         }
@@ -35,17 +35,15 @@ export class AuthController {
 
             setCookie(res, refreshToken);
 
-            res.status(HttpStatus.OK).json({
-                success : true,
-                messsage : "SignUp complete",
-                token : accessToken,
-                user : {
-                    _id : user._id,
-                    username : user.username,
-                    email : user.email,
-                    role : user.role
+            sendResponse(res, HttpStatus.OK, {
+                token: accessToken,
+                user: {
+                    _id: user._id,
+                    username: user.username,
+                    email: user.email,
+                    role: user.role,
                 },
-            });
+            }, "SignUp complete");
         } catch (error : any) {
             next(error)
         }
@@ -59,17 +57,15 @@ export class AuthController {
             
             setCookie(res, refreshToken);
             
-            res.status(200).json({
-                success : true,
-                messsage : "login complete",
-                token : accessToken,
-                user : {
-                    _id : user._id,
-                    username : user.username,
-                    email : user.email,
-                    role : user.role
+            sendResponse(res, HttpStatus.OK, {
+                token: accessToken,
+                user: {
+                    _id: user._id,
+                    username: user.username,
+                    email: user.email,
+                    role: user.role,
                 },
-            });
+            }, "Login complete");
         } catch (error : any) {
             next(error)
         }
@@ -89,7 +85,7 @@ export class AuthController {
 
             await this.service.forgotPassword(email);
 
-            res.status(HttpStatus.OK).json({ message : 'OTP sent to your email'});
+            sendResponse(res, HttpStatus.OK, {}, "OTP sent to your email");
             
         } catch (error : any) {
             next(error)
@@ -109,7 +105,10 @@ export class AuthController {
             }
 
             await this.service.resendOtp(email, purpose);
-            res.status(HttpStatus.OK).json({ message : HttpResponse.OTP_RESENT_SUCCESS });  
+
+            sendResponse(res, HttpStatus.OK, {},
+                HttpResponse.OTP_RESENT_SUCCESS,
+            );
         } catch (error : any) {
             next(error)
         }
@@ -128,7 +127,9 @@ export class AuthController {
         
             await this.service.verifyOtp(email, otp, purpose);
 
-            res.status(HttpStatus.OK).json({ message : HttpResponse.OTP_VERIFIED_SUCCESS });
+            sendResponse(res, HttpStatus.OK, {},
+                HttpResponse.OTP_VERIFIED_SUCCESS,
+            );
             
         } catch (error : any) {
             next(error)
@@ -146,7 +147,9 @@ export class AuthController {
 
             await this.service.resetPassword(email, password);
 
-            res.status(HttpStatus.OK).json({ message : HttpResponse.PASSWORD_CHANGE_SUCCESS })
+            sendResponse(res, HttpStatus.OK, {},
+                HttpResponse.PASSWORD_CHANGE_SUCCESS,
+            );
             
         } catch (error : any) {
             next(error)
@@ -162,7 +165,9 @@ export class AuthController {
 
             setCookie(res, newRefreshToken);
 
-            res.status(HttpStatus.OK).json({ success : true, token : accessToken})
+            sendResponse(res, HttpStatus.OK, {
+                token: accessToken 
+            }, "Access token generated successfully");
                 
         } catch (error : any) {
             next(error)
@@ -173,7 +178,6 @@ export class AuthController {
         try {
 
             const { token, role } = req.body;
-            console.log("🚀 ~ AuthController ~ googleAuth ~ access_token:", token)
 
             if(!token) {
                 throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.NO_TOKEN);
@@ -182,24 +186,21 @@ export class AuthController {
             const result = await this.service.googleAuth(token, role);
 
              if(result.needsRole){
-                res.status(HttpStatus.OK).json({
-                    success:true,
-                    message: 'New user needs to select role',
+
+                sendResponse(res, HttpStatus.OK, {
                     needsRole: result.needsRole
-                })
+                }, "New user needs to select role");
+
                 return;
              }
 
-
             if(result.refreshToken) setCookie(res, result.refreshToken);
 
-            res.status(HttpStatus.OK).json({ 
-                success: true, 
-                message: 'Google authentication successful',
-                user: result.user,
-                token: result.accessToken,
-                isNewUser: result.isNewUser
-            });
+            sendResponse(res, HttpStatus.OK, {
+                    user: result.user,
+                    token: result.accessToken,
+                    isNewUser: result.isNewUser,
+            }, "Google authentication successful");
             
         } catch (error) {
             next(error);
@@ -222,16 +223,12 @@ export class AuthController {
                 throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
             }
 
-        // const accessToken = await this.service.generateAccessToken(user);
-        // const refreshToken = await this.service.generateRefreshToken(user);
         // setCookie(res, refreshToken);
 
-            res.status(HttpStatus.OK).json({
-                success: true,
-                message: "Token verified successfully",
-                user,
-                token: req.headers.authorization?.split(" ")[1] || null,
-            });
+            sendResponse(res, HttpStatus.OK, {
+                    user,
+                    token: req.headers.authorization?.split(" ")[1] || null,
+            }, "Token verified successfully");
         } catch (error) {
             next(error);
         }

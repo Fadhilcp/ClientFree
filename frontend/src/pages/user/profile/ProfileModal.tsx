@@ -114,28 +114,26 @@ const handleSave = () => {
 };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black opacity-50" onClick={onClose}></div>
+      <div className="fixed inset-0 z-50 flex items-center justify-center">
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-black opacity-50" onClick={onClose}></div>
 
-      {/* Modal */}
-      <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-5xl h-[90vh] overflow-y-auto p-6 md:p-10 z-10">
-        <h2 className="text-2xl font-semibold mb-6">
-          {defaultValues ? "Edit" : "Create"} {role === "freelancer" ? "Freelancer" : "Client"} Profile
-        </h2>
+        {/* Modal */}
+        <div className="relative bg-white dark:bg-gray-900 text-black dark:text-white rounded-2xl shadow-xl dark:shadow-2xl w-full max-w-5xl h-[90vh] overflow-y-auto p-6 md:p-10 scrollbar-thin">
+          <h2 className="text-2xl font-semibold mb-6">
+            {defaultValues ? "Edit" : "Create"} {role === "freelancer" ? "Freelancer" : "Client"} Profile
+          </h2>
 
-        {/* Profile Image */}
-        <div className="mb-6 bg-gradient-to-r from-indigo-500 to-indigo-600 animate-gradient text-white p-6 md:p-10 rounded-lg">
-          <ProfileImage />
-        </div>
+          {/* Profile Image */}
+          <div className="mb-6 bg-gradient-to-r from-indigo-500 to-indigo-600 animate-gradient text-white p-6 md:p-10 rounded-lg">
+            <ProfileImage />
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Common Fields */}
-          <InputSection label="Name" name="name" value={formData.name} error={errors.name} onChange={handleChange}/>
-
-          <InputSection label="Phone" name="phone" value={formData.phone}  error={errors.phone} onChange={handleChange}/>
-
-          <TextareaSection 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Common Fields */}
+            <InputSection label="Name" name="name" value={formData.name} error={errors.name} onChange={handleChange} />
+            <InputSection label="Phone" name="phone" value={formData.phone} error={errors.phone} onChange={handleChange} />
+            <TextareaSection
               label="Description"
               name="description"
               value={formData.description}
@@ -144,107 +142,87 @@ const handleSave = () => {
               rows={3}
             />
 
+            {/* Freelancer Only */}
+            {role === "freelancer" && (
+              <>
+                <InputSection label="Professional Title" name="professionalTitle" value={formData.professionalTitle} error={errors.professionalTitle} onChange={handleChange} />
+                <InputSection label="Hourly Rate" name="hourlyRate" value={formData.hourlyRate} error={errors.hourlyRate} onChange={handleChange} />
+                <SelectSection
+                  label="Experience Level"
+                  name="experienceLevel"
+                  value={formData.experienceLevel}
+                  error={errors.experienceLevel}
+                  onChange={handleChange}
+                  options={[
+                    { label: "Beginner", value: "beginner" },
+                    { label: "Intermediate", value: "intermediate" },
+                    { label: "Expert", value: "expert" },
+                  ]}
+                />
+                <SkillsSelect
+                  value={formData.skills}
+                  error={errors.skills}
+                  onChange={(skills) => setFormData({ ...formData, skills })}
+                  options={availableSkills}
+                />
+                <TextareaSection
+                  label="About"
+                  name="about"
+                  value={formData.about}
+                  error={errors.about}
+                  onChange={handleChange}
+                  rows={3}
+                />
+                <ExternalLinks
+                  links={formData.externalLinks}
+                  error={errors}
+                  onChange={(i, updated) => {
+                    const newLinks = [...formData.externalLinks];
+                    newLinks[i] = updated;
+                    setFormData({ ...formData, externalLinks: newLinks });
+                  }}
+                  onRemove={(i) => {
+                    setFormData({
+                      ...formData,
+                      externalLinks: formData.externalLinks.filter((_, idx) => idx !== i),
+                    });
+                  }}
+                  onAdd={() => {
+                    setFormData({
+                      ...formData,
+                      externalLinks: [...formData.externalLinks, { type: "website", url: "" }],
+                    });
+                  }} 
+                />
 
-          {/* Freelancer Only */}
-          {role === "freelancer" && (
-            <>
-              <InputSection label="Professional Title" name="professionalTitle" value={formData.professionalTitle} error={errors.professionalTitle} onChange={handleChange}/>
+                <InputSection label="Portfolio File" name="portfolio.portfolioFile" value={formData.portfolio.portfolioFile} error={errors.portfolio?.portfolioFile} onChange={handleChange} />
+                <InputSection label="Resume" name="portfolio.resume" value={formData.portfolio.resume} error={errors.portfolio?.resume} onChange={handleChange} />
+              </>
+            )}
 
-              <InputSection label="Hourly Rate" name="hourlyRate" value={formData.hourlyRate} error={errors.hourlyRate} onChange={handleChange}/>
+            {/* Client Only */}
+            {role === "client" && (
+              <>
+                <InputSection label="Company Name" name="company.name" value={formData.company.name} error={errors.company?.name} onChange={handleChange} />
+                <InputSection label="Industry" name="company.industry" value={formData.company.industry} error={errors.company?.industry} onChange={handleChange} />
+                <InputSection label="Website" name="company.website" value={formData.company.website} error={errors.company?.website} onChange={handleChange} />
+              </>
+            )}
+          </div>
 
-              <SelectSection
-                label="Experience Level"
-                name="experienceLevel"
-                value={formData.experienceLevel}
-                error={errors.experienceLevel}
-                onChange={handleChange}
-                options={[
-                  { label: "Beginner", value: "beginner" },
-                  { label: "Intermediate", value: "intermediate" },
-                  { label: "Expert", value: "expert" },
-                ]}
-              />
-
-              
-            
-              <SkillsSelect
-                value={formData.skills}
-                error={errors.skills}
-                onChange={(skills) => setFormData({ ...formData, skills })}
-                options={availableSkills}
-              />
-
-
-              <TextareaSection 
-                label="About"
-                name="about"
-                value={formData.about}
-                error={errors.about}
-                onChange={handleChange}
-                rows={3}
-              />
-
-              {/* External Links */}
-
-              <ExternalLinks
-                links={formData.externalLinks}
-                error={errors}
-                onChange={(i, updated) => {
-                  const newLinks = [...formData.externalLinks];
-                  newLinks[i] = updated;
-                  setFormData({ ...formData, externalLinks: newLinks });
-                }}
-                onRemove={(i) => {
-                  setFormData({ ...formData, externalLinks: formData.externalLinks.filter((_: any, idx: number) => idx !== i) });
-                }}
-              />
-
-              {/* Portfolio & Resume */}
-              <InputSection label="Portfolio File" name="portfolio.portfolioFile" 
-              value={formData.portfolio.portfolioFile} error={errors.portfolio?.portfolioFile} onChange={handleChange}
-              />
-
-              <InputSection label="Resume" name="portfolio.resume" 
-              value={formData.portfolio.resume} error={errors.portfolio?.resume} onChange={handleChange}
-              />
-
-            </>
-          )}
-
-          {/* Client Only */}
-          {role === "client" && (
-            <>
-              
-              <InputSection label="Company Name" name="company.name" value={formData.company.name}
-              error={errors.company?.name} onChange={handleChange}/>
-              
-              <InputSection label="Industry" name="company.industry" value={formData.company.industry}
-              error={errors.company?.industry} onChange={handleChange}/>
-              
-              <InputSection label="Website" name="company.website" value={formData.company.website}
-              error={errors.company?.website} onChange={handleChange}/>
-            </>
-          )}
-        </div>
           {/* Location */}
-          <InputSection label="City" name="location.city" value={formData.location.city}
-          error={errors.location?.city} onChange={handleChange}/>
-          <InputSection label="State" name="location.state" value={formData.location.state}
-          error={errors.location?.state} onChange={handleChange}/>
-          <InputSection label="Country" name="location.country" value={formData.location.country}
-          error={errors.location?.country} onChange={handleChange}/>
+          <InputSection label="City" name="location.city" value={formData.location.city} error={errors.location?.city} onChange={handleChange} />
+          <InputSection label="State" name="location.state" value={formData.location.state} error={errors.location?.state} onChange={handleChange} />
+          <InputSection label="Country" name="location.country" value={formData.location.country} error={errors.location?.country} onChange={handleChange} />
 
-        {/* Actions */}
-        <div className="flex justify-end gap-3 mt-8">
-          <Button label="Cancel" onClick={onClose} variant="secondary" />
-
-          <Button label="Save" onClick={handleSave} variant="primary" />
-
+          {/* Actions */}
+          <div className="flex justify-end gap-3 mt-8">
+            <Button label="Cancel" onClick={onClose} variant="secondary" />
+            <Button label="Save" onClick={handleSave} variant="primary" />
+          </div>
         </div>
-
       </div>
-    </div>
-  );
+    );
 };
 
 export default ProfileModal;

@@ -1,4 +1,3 @@
-// router/AppRoutes.tsx
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import AppLayout from "../layout/AppLayout";
@@ -13,20 +12,43 @@ import Home from "../pages/user/Home";
 import Profile from "../pages/user/profile/Profile";
 import ProtectedRoute from "./ProtectedRoute";
 import AuthProtectedRoute from "./AuthProtectedRoute";
-// import useAuthVerifier from "../hooks/useAuthVerifier";
+import useAuthVerifier from "../hooks/useAuthVerifier";
+import NoAuthProtectedRoute from "./NoAuthProtectedRoute";
+import Loader from "../components/ui/Loader/Loader";
 
 const AppRoutes: React.FC = () => {
 
-    // useAuthVerifier();
+    const { loading } = useAuthVerifier();
+    console.log("🚀 ~ AppRoutes ~ loading:", loading)
+
+    if(loading){
+        return <Loader/>
+    }
 
     return (
 
         <Routes>
             <Route element={<AppLayout />}>
-            <Route path="/" element={<HeroSection />} />
-            <Route path="/roleselect" element={<RoleSelect />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/login" element={<Login />} />
+            <Route path="/" element={
+                <NoAuthProtectedRoute>
+                    <HeroSection />
+                </NoAuthProtectedRoute>
+            } />
+            <Route path="/roleselect" element={
+                <NoAuthProtectedRoute>
+                    <RoleSelect />
+                </NoAuthProtectedRoute>
+            } />
+            <Route path="/signup" element={
+                <NoAuthProtectedRoute>
+                    <SignUp />
+                </NoAuthProtectedRoute>
+            } />
+            <Route path="/login" element={
+                <NoAuthProtectedRoute>
+                    <Login />
+                </NoAuthProtectedRoute>
+            } />
             <Route
                 path="/verifyotp"
                 element={

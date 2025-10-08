@@ -1,16 +1,14 @@
-import { IUserDocument } from "../types/user.type";
-import { IUserRepository } from "../interfaces/repositories/IUserRepository";
-import { IAuthService } from "../interfaces/services/IAuthService";
+import { IUserRepository } from "repositories/interfaces/IUserRepository";
+import { IAuthService } from "./interface/IAuthService";
 import { generateOtp } from "../utils/generateOtp";
 import bcrypt from 'bcrypt'
-import { IOtpUserStoreRepository } from "../interfaces/repositories/IOtpUserStoreRepository";
+import { IOtpUserStoreRepository } from "repositories/interfaces/IOtpUserStoreRepository";
 import { sendOtpEmail } from "../utils/mailer.util";
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../utils/jwt.util";
 import { SanitizedUser } from "../types/user.dto";
 import { Types } from "mongoose";
 import { AuthPayload, OtpPurpose } from "../types/auth.type";
 import { IOtpUserStore } from "../types/otpUserStore.type";
-
 import { HttpStatus } from "../constants/status.constants";
 import { HttpResponse } from "../constants/responseMessage.constant";
 import { createHttpError } from "../utils/httpError.util";
@@ -188,7 +186,7 @@ export class AuthService implements IAuthService {
         user.lastLoginAt = new Date();
         await user.save();
 
-         const payload: AuthPayload = {
+        const payload: AuthPayload = {
             _id: user._id.toString(),
             email: user.email,
             role: user.role,
@@ -368,6 +366,16 @@ export class AuthService implements IAuthService {
         if(!user) {
             throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
         }
+
+        // to generate new token for each request when verifying user
+        // const payload: AuthPayload = {
+        //     _id: user._id.toString(),
+        //     email: user.email,
+        //     role: user.role,
+        // };
+
+        // const accessToken = generateAccessToken(payload);
+        // const refreshToken = generateRefreshToken(payload);
 
         const sanitizedUser = {
             _id: user._id,

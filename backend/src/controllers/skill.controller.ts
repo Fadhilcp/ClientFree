@@ -1,9 +1,10 @@
 import { HttpResponse } from "constants/responseMessage.constant";
 import { HttpStatus } from "constants/status.constants";
 import { NextFunction, Request, Response } from "express";
-import { ISkillService } from "interfaces/services/ISkillService";
+import { ISkillService } from "services/interface/ISkillService";
 import { ISkill } from "types/skill.type";
 import { createHttpError } from "utils/httpError.util";
+import { sendResponse } from "utils/response.util";
 
 
 
@@ -15,7 +16,7 @@ export class SkillController {
             const data: ISkill = req.body;
             const skill = await this.service.createSkill(data);
 
-            res.status(HttpStatus.CREATED).json({ success: true, skill });
+            sendResponse(res, HttpStatus.OK, { skill });
         } catch (error) {
             next(error);
         }
@@ -30,7 +31,7 @@ export class SkillController {
             if (status) filters.status = status;
 
             const skills = await this.service.getAllSkills(filters);
-            res.status(HttpStatus.OK).json({ success: true, skills });
+            sendResponse(res, HttpStatus.OK, { skills });
         } catch (error) {
             next(error);
         }
@@ -44,7 +45,7 @@ export class SkillController {
             if(!skillId) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.SKILL_ID_REQUIRED)
 
             const updated = await this.service.updateSkill(skillId, data);
-            res.status(HttpStatus.OK).json({ success: true, updated });
+            sendResponse(res, HttpStatus.OK, { updated });
         } catch (error) {
             next(error);
         }
@@ -57,7 +58,7 @@ export class SkillController {
             if(!skillId) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.SKILL_ID_REQUIRED)
 
             const result = await this.service.deleteSkill(skillId);
-            res.status(HttpStatus.OK).json({ success: true, result });
+            sendResponse(res, HttpStatus.OK, { result });
         } catch (error) {
             next(error);
         }

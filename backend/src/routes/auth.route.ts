@@ -24,6 +24,6 @@ authRouter.post('/resendOtp',authController.resendOtp.bind(authController));
 authRouter.post('/verifyOtp',authController.verifyOtp.bind(authController));
 authRouter.post('/resetPassword',authController.resetPassword.bind(authController));
 authRouter.post('/google',authController.googleAuth.bind(authController));
-authRouter.get('/verfiy',authMiddleware,authController.verifyUser.bind(authController));
+authRouter.get('/verify',authMiddleware,authController.verifyUser.bind(authController));
 
 export default authRouter;

@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from "express";
-import { IProfileService } from "../interfaces/services/IProfileService";
+import { IProfileService } from "../services/interface/IProfileService";
 import { HttpStatus } from "../constants/status.constants";
 import { createHttpError } from "../utils/httpError.util";
 import { HttpResponse } from "../constants/responseMessage.constant";
 import { clientUpdateSchema, freelancerUpdateSchema } from "schema/profile.schema";
+import { sendResponse } from "utils/response.util";
 
 
 export class ProfileController {
@@ -20,7 +21,7 @@ export class ProfileController {
    
             const profile = await this.service.getMyProfile(userId);
             
-            res.status(HttpStatus.OK).json({ success : true, profile })
+            sendResponse(res, HttpStatus.OK, { profile });
         } catch (error) {
             next(error);
         }
@@ -40,7 +41,8 @@ export class ProfileController {
             }
             
             const profile = await this.service.updateProfile(userId, result.data);
-            res.status(HttpStatus.OK).json({ success : true, profile });
+            
+            sendResponse(res, HttpStatus.OK, { profile });
         } catch (error) {
             next(error);
         }
@@ -52,7 +54,7 @@ export class ProfileController {
 
             const profile = await this.service.getUserProfileById(id);
             
-            res.status(HttpStatus.OK).json({ success : true, profile });
+            sendResponse(res, HttpStatus.OK, { profile });
         } catch (error) {
             next(error);
         }
@@ -61,7 +63,7 @@ export class ProfileController {
     async getAll(req: Request, res:Response, next:NextFunction) : Promise<void> {
         try {
             const users = await this.service.getAllUsers();
-            res.status(HttpStatus.OK).json({ success: true, users });
+            sendResponse(res, HttpStatus.OK, { users });
         } catch (error) {
             next(error);
         }

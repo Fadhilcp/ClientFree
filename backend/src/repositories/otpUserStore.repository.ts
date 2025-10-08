@@ -1,8 +1,12 @@
 import { BaseRepository } from "./base.repository";
 import otpUserStore from "../models/otpUserStore";
 import { IOtpUserStoreDocument } from "../types/otpUserStore.type";
+import { IOtpUserStoreRepository } from "./interfaces/IOtpUserStoreRepository";
 
-export class OtpUserStoreRepository extends BaseRepository<IOtpUserStoreDocument>{
+export class OtpUserStoreRepository 
+   extends BaseRepository<IOtpUserStoreDocument>
+      implements IOtpUserStoreRepository {
+        
     constructor(){
         super(otpUserStore);
     }

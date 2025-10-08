@@ -3,7 +3,7 @@ import type { ExternalLinkErrors, FormData, FormErrors } from "../types/profileM
 export const validateUsername = (username : string) : string => {
     if(!username.trim()) return 'Username is required';
     if(username.length < 3) return 'Username must be least 3 characters';
-    if (!/^[a-zA-Z0-9_]+$/.test(username)) return 'Only letters, numbers, and underscores allowed';
+    if (!/^[a-zA-Z0-9_]+$/.test(username.trim())) return 'Only letters, numbers, and underscores allowed';
     return '';
 };
 

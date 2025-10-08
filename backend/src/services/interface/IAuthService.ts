@@ -15,5 +15,4 @@ export interface IAuthService{
          accessToken?: string, refreshToken?: string, user?: SanitizedUser, isNewUser?: Boolean, needsRole?: Boolean
         }>;
     verifyUser(userId: string) : Promise<{ user: SanitizedUser, accessToken ?: string, refreshToken?: string }>;
-
 }

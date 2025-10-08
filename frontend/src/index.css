@@ -3,4 +3,31 @@
 body {
   font-family: "DM Sans", sans-serif;
 }
- 
+
+/* Add after Tailwind import */
+@layer utilities {
+  /* Webkit browsers (Chrome, Edge, Safari) */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: rgba(229,231,235,0.6);
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(100,116,139,0.85);
+    border-radius: 9999px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(79,70,229,0.92);
+  }
+
+  /* Firefox */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100,116,139,0.85) rgba(229,231,235,0.6);
+  }
+}

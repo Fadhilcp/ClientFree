@@ -8,8 +8,9 @@ import {
     DeleteResult,
     ObjectId
 } from "mongoose";
+import { IBaseRepository } from "./interfaces/IBaseRepository";
 
-export class BaseRepository<T extends Document>{
+export class BaseRepository<T extends Document> implements IBaseRepository<T>{
 
     constructor(protected model : Model<T>){}
 

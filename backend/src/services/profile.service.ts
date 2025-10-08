@@ -1,7 +1,7 @@
 import { HttpResponse } from "../constants/responseMessage.constant";
 import { HttpStatus } from "../constants/status.constants";
-import { IUserRepository } from "../interfaces/repositories/IUserRepository";
-import { IProfileService } from "../interfaces/services/IProfileService";
+import { IUserRepository } from "repositories/interfaces/IUserRepository";
+import { IProfileService } from "./interface/IProfileService";
 import { IUserDocument } from "../types/user.type";
 import { createHttpError } from "../utils/httpError.util";
 

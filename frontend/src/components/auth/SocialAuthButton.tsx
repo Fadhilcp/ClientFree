@@ -36,6 +36,7 @@ const SocialAuthButton : React.FC = () => {
 
         localStorage.setItem('token', response.data.token);
         dispatch(setCredentials(response.data));
+        if(response.data.isNewUser) notify.success('User verified');
         navigate('/home');
       } catch (error) {
         notify.error('Google login failed');

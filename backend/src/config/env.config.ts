@@ -26,5 +26,4 @@ export const env = {
     get REFRESH_SECRET(){
         return process.env.JWT_ACCESS_SECRET
     }
-
 }
