@@ -13,7 +13,7 @@ const useAuthVerifier = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      console.log('there is no token in the localstorage')
+      console.log('there is no token in the localstorage');
       setLoading(false);
       return;
     }

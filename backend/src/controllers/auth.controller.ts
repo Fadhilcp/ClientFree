@@ -217,7 +217,7 @@ export class AuthController {
             }
 
 
-            const user = await this.service.verifyUser(userPayload._id);
+            const { user } = await this.service.verifyUser(userPayload._id);
             console.log("🚀 ~ AuthController ~ verifyUser ~ user:", user)
             if (!user) {
                 throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);

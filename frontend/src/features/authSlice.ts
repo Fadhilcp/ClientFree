@@ -16,6 +16,7 @@ interface AuthState {
     otpEmail: string | null;
     otpPurpose: OtpPurpose | null;
     isNewUser: boolean;
+    loading: boolean;
 }
 
 const initialState: AuthState = {
@@ -25,6 +26,7 @@ const initialState: AuthState = {
     otpEmail: null,
     otpPurpose: null,
     isNewUser: false,
+    loading: true
 }
 
 const authSlice = createSlice({
@@ -62,9 +64,12 @@ const authSlice = createSlice({
 
         resetNewUser: (state) => {
             state.isNewUser = false;
-        }
+        },
+        finishLoading: (state) => {
+            state.loading = false;
+        },
     }
 });
 
-export const { setCredentials, logout, setOtpInfo, clearOtpInfo, resetNewUser } = authSlice.actions;
+export const { setCredentials, logout, setOtpInfo, clearOtpInfo, resetNewUser, finishLoading } = authSlice.actions;
 export default authSlice.reducer;
