@@ -18,11 +18,11 @@ app.use(cors({
     methods : ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders : ['Content-Type', 'Authorization'],
     credentials : true
-}))
+}));
 
 app.use(cookieParser());
 app.use(express.json());
-app.use(express.urlencoded({extended : true}));
+app.use(express.urlencoded({extended: true}));
 
 app.use("/api/auth",authRouter);
 app.use("/api/profile",profileRouter);

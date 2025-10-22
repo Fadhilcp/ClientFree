@@ -1,6 +1,6 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import AppLayout from "../layout/AppLayout";
+import UserLayout from "../layout/UserLayout";
 import HeroSection from "../pages/user/landingPage/HeroSection";
 import RoleSelect from "../pages/auth/roleSelect";
 import SignUp from "../pages/auth/signUp";
@@ -16,10 +16,9 @@ import useAuthVerifier from "../hooks/useAuthVerifier";
 import NoAuthProtectedRoute from "./NoAuthProtectedRoute";
 import Loader from "../components/ui/Loader/Loader";
 
-const AppRoutes: React.FC = () => {
+const UserRoutes: React.FC = () => {
 
     const { loading } = useAuthVerifier();
-    console.log("🚀 ~ AppRoutes ~ loading:", loading)
 
     if(loading){
         return <Loader/>
@@ -28,7 +27,8 @@ const AppRoutes: React.FC = () => {
     return (
 
         <Routes>
-            <Route element={<AppLayout />}>
+        
+            <Route element={<UserLayout />}>
             <Route path="/" element={
                 <NoAuthProtectedRoute>
                     <HeroSection />
@@ -80,4 +80,4 @@ const AppRoutes: React.FC = () => {
     )
 }
 
-export default AppRoutes;
+export default UserRoutes;

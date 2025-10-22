@@ -4,6 +4,7 @@ import { IUserRepository } from "repositories/interfaces/IUserRepository";
 import { IProfileService } from "./interface/IProfileService";
 import { IUserDocument } from "../types/user.type";
 import { createHttpError } from "../utils/httpError.util";
+import { mapUserToListingDto } from "mappers/user.mapper";
 
 export class ProfileService implements IProfileService {
 
@@ -34,6 +35,7 @@ export class ProfileService implements IProfileService {
     }
 
     async getAllUsers() {
-        return this.userRepository.find({});
+        const users = await this.userRepository.find({});
+        return users.map(mapUserToListingDto);
     }
 }

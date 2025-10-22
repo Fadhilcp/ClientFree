@@ -4,7 +4,7 @@ import { Outlet } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import type { RootState } from '../store/store'
 
-const AppLayout: React.FC = () => {
+const UserLayout: React.FC = () => {
 
   const role  = useSelector((state: RootState) => state.auth.user?.role) ?? 'landing';
   
@@ -19,4 +19,4 @@ const AppLayout: React.FC = () => {
   )
 }
 
-export default AppLayout
+export default UserLayout

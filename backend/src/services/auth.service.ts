@@ -179,11 +179,11 @@ export class AuthService implements IAuthService {
         }
 
         const passwordMatch = await bcrypt.compare(password,user.password);
-        console.log("🚀 ~ AuthService ~ login ~ passwordMatch:", passwordMatch)
 
         if(!passwordMatch) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.PASSWORD_INCORRECT);
 
         user.lastLoginAt = new Date();
+        
         await user.save();
 
         const payload: AuthPayload = {
@@ -271,8 +271,7 @@ export class AuthService implements IAuthService {
 
             default:
             createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.UNEXPECTED_KEY_FOUND);
-        }
-        
+        } 
     }
 
     async resetPassword(email : string, newPassword : string): Promise<void> {
@@ -386,4 +385,4 @@ export class AuthService implements IAuthService {
 
         return { user: sanitizedUser };
     }
-} 
+}

@@ -16,7 +16,7 @@ export const endPoints = {
         GET_BY_ID : (userId: string) => `/profile/${userId}`,
         CREATE : '/profile',
         UPDATE_ME : '/profile/me',
-        LIST : '/profiles'
+        LIST : '/profile'
     },
     SKILL: {
         ROOT: '/skills',

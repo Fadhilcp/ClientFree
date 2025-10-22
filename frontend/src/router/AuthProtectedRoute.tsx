@@ -10,7 +10,7 @@ interface AuthProtectedRouteProps {
 
 const AuthProtectedRoute: React.FC<AuthProtectedRouteProps> = ({ children }) => {
   const navigate = useNavigate();
-  // const token = localStorage.getItem('token');
+
   const token = useSelector((state: RootState) => state.auth.token);
 
   useEffect(() => {
@@ -20,7 +20,6 @@ const AuthProtectedRoute: React.FC<AuthProtectedRouteProps> = ({ children }) => 
     }
   }, [token, navigate]);
 
-  // const token = localStorage.getItem('token');
   if (!token) return <Loader />;
 
   return <>{children}</>;

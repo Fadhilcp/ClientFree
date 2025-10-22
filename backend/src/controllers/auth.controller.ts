@@ -4,7 +4,6 @@ import { setCookie } from "../utils/refreshCookie.util";
 import { HttpStatus } from "../constants/status.constants";
 import { HttpResponse } from "../constants/responseMessage.constant";
 import { createHttpError } from "../utils/httpError.util";
-import { success } from "zod";
 import { AuthPayload } from "types/auth.type";
 import { sendResponse } from "utils/response.util";
 
@@ -19,7 +18,7 @@ export class AuthController {
             await this.service.signUp({ username, email, password, role} as any);
 
             sendResponse(res, HttpStatus.CREATED, {
-                email 
+                email
             },'OTP sent to your email. Please verify to complete signup')
         } catch (error : any) {
             next(error)
@@ -215,7 +214,6 @@ export class AuthController {
             if (!userPayload?._id) {
                 throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.USER_NOT_FOUND);
             }
-
 
             const { user } = await this.service.verifyUser(userPayload._id);
             console.log("🚀 ~ AuthController ~ verifyUser ~ user:", user)

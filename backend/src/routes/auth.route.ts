@@ -12,7 +12,7 @@ const userRepository = new UserRepository();
 const otpUserRespository = new OtpUserStoreRepository();
 const authService = new AuthService(userRepository, otpUserRespository);
 const authController = new AuthController(authService);
- 
+
 
 
 authRouter.post('/signUp',authController.signUp.bind(authController));
