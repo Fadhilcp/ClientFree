@@ -4,5 +4,4 @@ export type AuthPayload = {
   role: "freelancer" | "client" | "admin";
 };
 
-
 export type OtpPurpose = 'signup' | 'forgot-password' | 'email-change' | 'phone-change';

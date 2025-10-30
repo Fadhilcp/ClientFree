@@ -11,6 +11,7 @@ import { errorHandler } from './middlewares/errorHandler';
 import profileRouter from './routes/profile.route';
 import skillRouter from 'routes/skill.route';
 
+
 connectDB();
 
 app.use(cors({
@@ -30,6 +31,6 @@ app.use("/api/skills",skillRouter);
 
 app.use(errorHandler);
 
-app.listen(env.PORT || 3000,()=>{
+app.listen(env.PORT || 3000,() => {
     console.log(`server is running at ${env.PORT} port`);
 })

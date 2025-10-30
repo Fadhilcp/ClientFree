@@ -7,7 +7,6 @@ import type { RootState } from '../store/store'
 const UserLayout: React.FC = () => {
 
   const role  = useSelector((state: RootState) => state.auth.user?.role) ?? 'landing';
-  
 
   return (
     <>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import InputSection from "../../components/auth/InputSection";
+import InputSection from "../../components/ui/InputSection";
 import PrimaryButton from "../../components/auth/PrimaryButton";
 import AuthRedirectNotice from "../../components/auth/AuthRedirectNotice";
 import { 

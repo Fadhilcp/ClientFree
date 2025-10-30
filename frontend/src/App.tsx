@@ -4,13 +4,15 @@ import { store } from "./store/store";
 import UserRoutes from "./router/UserRoutes";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import AdminRoutes from "./router/AdminRoutes";
+// import AdminRoutes from "./router/AdminRoutes";
+// import { PayPalScriptProvider } from "@paypal/react-paypal-js";
+
 
 const App: React.FC = () => (
   <Provider store={store}>
 
-      <AdminRoutes/>
-      {/* <UserRoutes /> */}
+      {/* <AdminRoutes/> */}
+      <UserRoutes />
       <ToastContainer position="top-right" autoClose={3000} theme="colored" />
 
   </Provider>

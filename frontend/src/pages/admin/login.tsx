@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Button from "../../components/ui/Button";
-import InputSection from "../../components/auth/InputSection";
+import InputSection from "../../components/ui/InputSection";
 import { notify } from "../../utils/toastService";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../../services/auth.service";
@@ -53,7 +53,7 @@ const AdminLogin: React.FC = () => {
             dispatch(setCredentials({user,token}))
     
             notify.success('Admin logged')
-            navigate('/admin/dashboard');
+            navigate('/admin/users');
           
         } catch (error : any) {
           notify.error(error.response?.data?.error || 'Login failed')
@@ -106,23 +106,14 @@ const AdminLogin: React.FC = () => {
                         />
                     </div>
 
-                    <div className="flex items-center justify-between">
-                        <label className="flex items-center text-sm text-gray-500 dark:text-gray-300">
-                        <input
-                            type="checkbox"
-                            id="remember"
-                            className="w-4 h-4 mr-2 border border-gray-300 rounded bg-gray-50 focus:ring-indigo-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-indigo-600"
-                        />
-                        Remember me
-                        </label>
-
+                    {/* <div className="flex items-center justify-between">
                         <a
                         href="#"
                         className="text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-500"
                         >
                         Forgot password?
                         </a>
-                    </div>
+                    </div> */}
                     
                     <Button label="Sign in" onClick={handleSubmit}
                     className="w-full text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none 

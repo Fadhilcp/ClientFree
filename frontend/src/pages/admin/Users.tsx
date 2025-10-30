@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import UserTabs, { type Tab } from '../../components/admin/UserTabs';
+import FilterTabs from '../../components/admin/FilterTabs';
 import SearchFilter from '../../components/admin/SearchFilter';
 import ReusableTable from '../../components/ui/Table';
 import { profileService } from '../../services/profile.service';
 import { capitalize, mapStatus, formatDate } from '../../utils/formatters';
+import { notify } from '../../utils/toastService';
 
 type User = {
   id: string;
@@ -74,9 +75,21 @@ const columns: Column<User>[] = [
   },
 ];
 
+
+const userTabs: string[] = [
+  'All',
+  'Active',
+  'Inactive',
+  'Suspended',
+  'Admin',
+  'Client',
+  'Freelancer',
+  'Premium',
+];
+
 const Users = () => {
   const [users, setUsers] = useState<User[]>([]);
-  const [activeTab, setActiveTab] = useState<Tab>('All');
+  const [activeTab, setActiveTab] = useState('All');
   const [search, setSearch] = useState('');
 
   useEffect(() => {
@@ -99,8 +112,8 @@ const Users = () => {
         }));
 
         setUsers(mappedUsers);
-      } catch (error) {
-        console.error('Failed to fetch users:', error);
+      } catch (error: any) {
+        notify.error(error.response?.data?.error || 'Failed to fetch users');
       }
     };
 
@@ -136,7 +149,7 @@ const Users = () => {
         onSearchChange={setSearch}
       />
 
-      <UserTabs activeTab={activeTab} onChange={setActiveTab} />
+      <FilterTabs tabs={userTabs} activeTab={activeTab} onChange={setActiveTab} />
 
       <ReusableTable
         title="User Listing"

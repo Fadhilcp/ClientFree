@@ -5,6 +5,8 @@ import { ISkillService } from "services/interface/ISkillService";
 import { DeleteResult, FilterQuery } from "mongoose";
 import { ISkill, ISkillDocument } from "types/skill.type";
 import { createHttpError } from "utils/httpError.util";
+import { mapSkill } from "mappers/skill.mapper";
+import { skillDto } from "dtos/skill.dto";
 
 
 export class SkillService implements ISkillService {
@@ -19,13 +21,12 @@ export class SkillService implements ISkillService {
         if (existing) {
             throw createHttpError(HttpStatus.CONFLICT, `Skill "${data.name}" already exists`);
         }
-
         return this.skillRepository.create(data);
     }
 
-
-    async getAllSkills(filter: FilterQuery<ISkillDocument>): Promise<ISkillDocument[]> {
-        return this.skillRepository.find(filter);
+    async getAllSkills(filter: FilterQuery<ISkillDocument>): Promise<skillDto[]> {
+        const skills = await this.skillRepository.find(filter);
+        return skills.map(mapSkill)
     }
 
     async getSkillsByCategory(category: string): Promise<ISkillDocument[]> {
@@ -49,5 +50,4 @@ export class SkillService implements ISkillService {
         }
         return result;
     }
-
 }

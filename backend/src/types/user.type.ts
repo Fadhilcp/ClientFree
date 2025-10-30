@@ -35,16 +35,16 @@ export interface IUserProfile{
     };
 
     stats ?: {
-    earningTotal ?: number;
-    jobsCompleted ?: number;
-    reviewsCount ?: number;
-    skillRatings ?: {
-      skillId : string;
-      avgRating ?: number;
-      count ?: number;
-    }[];
-    totalProjectsPosted ?: number;
-    totalSpent ?: number;
+      earningTotal ?: number;
+      jobsCompleted ?: number;
+      reviewsCount ?: number;
+      skillRatings ?: {
+        skillId : string;
+        avgRating ?: number;
+        count ?: number;
+      }[];
+      totalProjectsPosted ?: number;
+      totalSpent ?: number;
   };
 
   ratings ?: {

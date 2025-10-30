@@ -49,14 +49,27 @@ const userSchema = new Schema({
         type : Boolean,
         default : false
     },
-    isPremium : { 
-        type : Boolean,
-        default : false
+    // ====
+    // isPremium : { 
+    //     type : Boolean,
+    //     default : false
+    // },
+    // activeSubscriptionId : {
+    //     type : Schema.Types.ObjectId,
+    //     ref : "Subscription"
+    // },
+    subscription: { 
+        type: Schema.Types.ObjectId, 
+        ref: "Subscription", 
+        default: null 
     },
-    activeSubscriptionId : {
-        type : Schema.Types.ObjectId,
-        ref : "Subscription"
+    limits: {
+        invitesRemaining: { type: Number, default: 10 },     
+        proposalsRemaining: { type: Number, default: 5 }       
     },
+
+    stripeCustomerId: { type: String, default: null },
+    // ====
     notificationSettings : {
         app : { type : Boolean, default : true },
         email : { type : Boolean, default : true },

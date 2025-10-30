@@ -1,6 +1,6 @@
 import type React from "react";
 
-interface InputSectionProps<T extends Record<string, string>> {
+interface InputSectionProps<T> {
   name: keyof T;
   value: string;
   onChange: ((field: keyof T, value: string) => void) | ((value : string) => void);
@@ -11,7 +11,7 @@ interface InputSectionProps<T extends Record<string, string>> {
   className?: string;
 }
 
-function InputSection<T extends Record<string, string>>({
+function InputSection<T>({
   type = 'text',
   name,
   value,

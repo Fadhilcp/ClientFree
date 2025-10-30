@@ -14,6 +14,7 @@ export class SkillController {
     async create(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const data: ISkill = req.body;
+            console.log("🚀 ~ SkillController ~ create ~ data:", data)
             const skill = await this.service.createSkill(data);
 
             sendResponse(res, HttpStatus.OK, { skill });

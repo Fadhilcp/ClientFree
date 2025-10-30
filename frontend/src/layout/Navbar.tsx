@@ -37,7 +37,7 @@ const Navbar: React.FC<NavbarProps> = ({ role }) => {
     };
 
 
-  const links = Object.keys(navRoutes[role]) || {};
+  const links = Object.keys(navRoutes[role] || {});
 
   return ( 
     <>

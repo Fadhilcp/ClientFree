@@ -51,26 +51,23 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
 
   const [errors, setErrors] = useState<FormErrors>({});
 
-
-
-
-useEffect(() => {
-  if (defaultValues) {
-    setFormData((prev) => ({
-      ...prev,
-      ...defaultValues,
-      location: { ...prev.location, ...defaultValues.location },
-      portfolio: {
-        portfolioFile: defaultValues?.portfolio?.portfolioFile || prev.portfolio.portfolioFile,
-        resume: defaultValues?.portfolio?.resume || prev.portfolio.resume,
-      },
-      company: { ...prev.company, ...defaultValues.company },
-      externalLinks: defaultValues.externalLinks?.length
-        ? defaultValues.externalLinks
-        : [emptyExternalLink],
-    }));
-  }
-}, [defaultValues]);
+  useEffect(() => {
+    if (defaultValues) {
+      setFormData((prev) => ({
+        ...prev,
+        ...defaultValues,
+        location: { ...prev.location, ...defaultValues.location },
+        portfolio: {
+          portfolioFile: defaultValues?.portfolio?.portfolioFile || prev.portfolio.portfolioFile,
+          resume: defaultValues?.portfolio?.resume || prev.portfolio.resume,
+        },
+        company: { ...prev.company, ...defaultValues.company },
+        externalLinks: defaultValues.externalLinks?.length
+          ? defaultValues.externalLinks
+          : [emptyExternalLink],
+      }));
+    }
+  }, [defaultValues]);
 
   if (!open) return null;
 
@@ -104,7 +101,6 @@ const handleSave = () => {
 
   if (hasErrors) {
     setErrors(validationErrors);
-    console.log(errors)
     notify.error('Please fix the highlighted errors');
     return;
   }

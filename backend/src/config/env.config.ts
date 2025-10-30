@@ -25,5 +25,21 @@ export const env = {
 
     get REFRESH_SECRET(){
         return process.env.JWT_ACCESS_SECRET
+    },
+
+    get PAYPAL_CLIENT_ID(){
+        return process.env.PAYPAL_CLIENT_ID
+    },
+
+    get PAYPAL_SECRET(){
+        return process.env.PAYPAL_SECRET
+    },
+
+    get RAZORPAY_KEY_ID(){
+        return process.env.RAZORPAY_KEY_ID
+    },
+
+    get RAZORPAY_SECRET(){
+        return process.env.RAZORPAY_SECRET
     }
 }

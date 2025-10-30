@@ -13,13 +13,9 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
         if(!token){
             throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.NO_TOKEN)
         }
-
         
         const decoded = verifyAccessToken(token);
         console.log("🚀 ~ authMiddleware ~ decoded:", decoded)
-
-        
-        
         req.user = decoded;
         next();
     } catch (error : any) {

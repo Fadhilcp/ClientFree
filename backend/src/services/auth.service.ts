@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt'
 import { IOtpUserStoreRepository } from "repositories/interfaces/IOtpUserStoreRepository";
 import { sendOtpEmail } from "../utils/mailer.util";
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../utils/jwt.util";
-import { SanitizedUser } from "../types/user.dto";
+import { SanitizedUser } from "../dtos/user.dto";
 import { Types } from "mongoose";
 import { AuthPayload, OtpPurpose } from "../types/auth.type";
 import { IOtpUserStore } from "../types/otpUserStore.type";
@@ -102,7 +102,7 @@ export class AuthService implements IAuthService {
         const otp = generateOtp();
         console.log("🚀 ~ AuthService ~ forgotPassword ~ otp:", otp)
         
-        const expiresAt = new Date(Date.now() + 1 * 60 * 1000); // 1 minute
+        const expiresAt = new Date(Date.now() + 1 * 60 * 1000);
 
         const existingRecord = await this.otpUserStoreRepository.findOne({
             email,

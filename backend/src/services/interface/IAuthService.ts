@@ -1,4 +1,4 @@
-import { SanitizedUser } from "../../types/user.dto";
+import { SanitizedUser } from "../../dtos/user.dto";
 import { IUserDocument } from "../../types/user.type";
 import { IOtpUserStore } from "../../types/otpUserStore.type";
 

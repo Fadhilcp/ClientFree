@@ -12,7 +12,7 @@ const skillService = new SkillService(skillRepository);
 const skillController = new SkillController(skillService);
 
 skillRouter.post('/',skillController.create.bind(skillController));
-skillRouter.get('/',authMiddleware,skillController.getAll.bind(skillController));
+skillRouter.get('/',skillController.getAll.bind(skillController));
 skillRouter.patch('/:id',authMiddleware,skillController.update.bind(skillController));
 skillRouter.delete('/:id',authMiddleware,skillController.delete.bind(skillController));
 

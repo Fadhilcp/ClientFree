@@ -2,7 +2,7 @@ import React from "react";
 
 interface ButtonProps {
   label: string;
-  onClick: () => void;
+  onClick?: () => void;
   variant?: "primary" | "secondary";
   type?: "button" | "submit" | "reset";
   className?: string
