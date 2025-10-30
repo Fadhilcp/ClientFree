@@ -10,7 +10,8 @@ import cors from 'cors'
 import { errorHandler } from './middlewares/errorHandler';
 import profileRouter from './routes/profile.route';
 import skillRouter from 'routes/skill.route';
-
+import subscriptionRouter from 'routes/subscription.route';
+import planRouter from 'routes/plan.route';
 
 connectDB();
 
@@ -28,6 +29,8 @@ app.use(express.urlencoded({extended: true}));
 app.use("/api/auth",authRouter);
 app.use("/api/profile",profileRouter);
 app.use("/api/skills",skillRouter);
+app.use("/api/plan",planRouter);
+app.use("/api/subscription",subscriptionRouter);
 
 app.use(errorHandler);
 

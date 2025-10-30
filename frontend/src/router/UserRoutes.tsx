@@ -15,7 +15,7 @@ import AuthProtectedRoute from "./AuthProtectedRoute";
 import useAuthVerifier from "../hooks/useAuthVerifier";
 import NoAuthProtectedRoute from "./NoAuthProtectedRoute";
 import Loader from "../components/ui/Loader/Loader";
-// import Subscriptions from "../pages/user/Subscriptions";
+import Subscriptions from "../pages/user/Subscriptions";
 
 const UserRoutes: React.FC = () => {
 
@@ -75,14 +75,14 @@ const UserRoutes: React.FC = () => {
                 </AuthProtectedRoute>
                 }
             />
-            {/* <Route
+            <Route
                 path="/premium"
                 element={
                 <AuthProtectedRoute>
                     <Subscriptions />
                 </AuthProtectedRoute>
                 }
-            /> */}
+            />
             <Route path="/profile" element={<Profile />} />
             </Route>
         </Routes>
