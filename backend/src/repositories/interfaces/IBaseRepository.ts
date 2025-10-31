@@ -11,6 +11,6 @@ export interface IBaseRepository<TDocument extends Document> {
   delete(id: ObjectId | string): Promise<TDocument | null>;
   deleteMany(filter: FilterQuery<TDocument>): Promise<DeleteResult>;
   deleteOne(filter: FilterQuery<TDocument>): Promise<DeleteResult>;
-  findOne(filter: FilterQuery<TDocument>): Promise<TDocument | null>;
+  findOne(filter: FilterQuery<TDocument>, options?: { sort?: any }): Promise<TDocument | null>;
   find(filter: FilterQuery<TDocument>): Promise<TDocument[]>;
 }

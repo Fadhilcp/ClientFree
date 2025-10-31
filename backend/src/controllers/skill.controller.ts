@@ -64,5 +64,4 @@ export class SkillController {
             next(error);
         }
     }
-
 }

@@ -7,7 +7,7 @@ export interface ISubscription {
   expiryDate: Date;
   autoRenew: boolean;
   billingInterval: "monthly" | "yearly";
-  status: "active" | "expired" | "cancelled";
+  status: "pending" | "active" | "expired" | "cancelled";
   gateway: "razorpay" | "stripe" | "manual";
   customerId?: string;
   subscriptionId?: string;

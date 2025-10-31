@@ -381,6 +381,7 @@ export class AuthService implements IAuthService {
             email: user.email,
             username: user.username,
             role: user.role,
+            phone: user.phone
         };
 
         return { user: sanitizedUser };

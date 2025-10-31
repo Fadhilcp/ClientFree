@@ -5,7 +5,6 @@ import UserRoutes from "./router/UserRoutes";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 // import AdminRoutes from "./router/AdminRoutes";
-// import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 
 
 const App: React.FC = () => (

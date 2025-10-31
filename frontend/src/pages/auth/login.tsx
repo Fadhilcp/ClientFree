@@ -56,6 +56,7 @@ const Login: React.FC = () => {
     try {
       const response = await authService.login(values);
         const { user, token } = response.data;
+        console.log("🚀 ~ handleSubmit ~ user:", user)
         localStorage.setItem('token',token)
         dispatch(setCredentials({user,token}))
 

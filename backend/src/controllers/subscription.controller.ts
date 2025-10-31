@@ -1,3 +1,4 @@
+import { HttpResponse } from "constants/responseMessage.constant";
 import { HttpStatus } from "constants/status.constants";
 import { NextFunction, Request, Response } from "express";
 import { ISubscriptionService } from "services/interface/ISubscriptionService";
@@ -14,24 +15,17 @@ export class SubscriptionController {
             const { userId, email, contact, planId, billingInterval } = req.body;
 
             if (!userId || !planId || !billingInterval) {
-                throw createHttpError(HttpStatus.BAD_REQUEST, 'Missing required fields');
+                throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.MISSING_REQUIRED_FIELDS);
             }
-
-            const startDate = new Date();
-            const expiryDate = new Date(startDate);
-            if (billingInterval === 'monthly') expiryDate.setMonth(expiryDate.getMonth() + 1);
-            else expiryDate.setFullYear(expiryDate.getFullYear() + 1);
 
             const subscription = await this.service.createSubscription({
                 userId,
                 planId,
-                startDate,
-                expiryDate,
                 billingInterval,
                 gateway: 'razorpay',
                 status: 'active',
                 autoRenew: true,
-                email,       
+                email,
                 contact,
             });
             sendResponse(res, HttpStatus.CREATED, { subscription });
@@ -40,9 +34,43 @@ export class SubscriptionController {
         }
     }
 
+    async verifySubscription(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const { razorpay_subscription_id, razorpay_payment_id, razorpay_signature } = req.body;
+            
+            if (!razorpay_subscription_id || !razorpay_payment_id) {
+                throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.MISSING_REQUIRED_FIELDS)
+            }
+
+            const result = await this.service.verifyPayment({
+                razorpay_subscription_id,
+                razorpay_payment_id,
+                razorpay_signature
+            });
+            sendResponse(res, HttpStatus.OK, {}, result?.message );
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async cancelSubscription(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { subscriptionId } = req.body;
+            const userId = req.user?._id;
+
+            if(!userId) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.USER_NOT_FOUND);
+
+            const result = await this.service.cancelSubscription(userId, subscriptionId);
+
+            sendResponse(res, HttpStatus.OK, {}, result.message);
+        } catch (error) {
+            next(error);
+        }
+    }
+
     async getCurrentPlan(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const  _id  = req.user?._id;
+            const _id  = req.user?._id;
 
             if (!_id) {
                 throw createHttpError(HttpStatus.BAD_REQUEST, 'User ID is required');

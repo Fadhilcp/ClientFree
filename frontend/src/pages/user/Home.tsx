@@ -12,11 +12,11 @@ import Button from '../../components/ui/Button';
 const Home : React.FC = () => {
 
     const dispatch = useDispatch();
-    const isNewUser = useSelector((state: RootState) => state.auth.isNewUser);
-    useSelector((state: RootState) => {
-    console.log("🚀 ~ Home ~ state:", state)
-    return state.auth;
-});
+        const isNewUser = useSelector((state: RootState) => state.auth.isNewUser);
+        useSelector((state: RootState) => {
+        console.log("🚀 ~ Home ~ state:", state)
+        return state.auth;
+    });
     const user = useSelector((state: RootState) => state.auth.user);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -59,7 +59,6 @@ const Home : React.FC = () => {
         }
     }
 
-
   return (
       <>
         {loading && <Loader />}
@@ -81,7 +80,7 @@ const Home : React.FC = () => {
                 {/* Left Side - Headline and CTA */}
                 <div className="space-y-6 lg:w-2xl xl:w-3xl">
                     <h1 className="text-3xl md:text-4xl lg:text-5xl mb-20 font-extrabold text-gray-900 dark:text-white leading-tight">
-                    Let’s find the right <span className="text-indigo-600">freelancer</span> for your project
+                    Let’s find the right <span className="text-indigo-600 dark:text-indigo-500">freelancer</span> for your project
                     </h1>
 
                     <h2 className="text-base md:text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
@@ -124,7 +123,7 @@ const Home : React.FC = () => {
             </div>
         </section>
     </>
-  )
+  );
 }
 
 export default Home

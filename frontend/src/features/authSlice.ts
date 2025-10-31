@@ -2,9 +2,11 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
 
 interface User {
-    id: string;
+    _id: string;
     email: string;
     role: 'freelancer' | 'client';
+    username: string;
+    phone: string;
 }
 
 type OtpPurpose = 'signup' | 'forgot-password' | 'email-change' | 'phone-change';

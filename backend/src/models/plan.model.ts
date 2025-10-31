@@ -1,11 +1,17 @@
 import { Schema, model } from "mongoose";
 import { IPlanDocument } from "types/plan.type";
+import { required } from "zod/v4/core/util.cjs";
 
 const planSchema = new Schema({
   userType: { type: String, enum: ["client", "freelancer"], required: true },
   planName: { type: String, required: true },
   priceMonthly: { type: Number, required: true },
   priceYearly: { type: Number, required: true },
+
+  //  in testing code ========
+  razorPlanIdMonthly: { type: String, required: true }, 
+  razorPlanIdYearly: { type: String, required: true },
+  // =================
 
   features: {
     // Common features

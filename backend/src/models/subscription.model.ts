@@ -6,7 +6,7 @@ const subscriptionSchema = new Schema({
       type: Schema.Types.ObjectId,
       ref: "Users",
       required: true,
-    },
+    }, 
     planId: {
       type: Schema.Types.ObjectId,
       ref: "Plan",
@@ -18,7 +18,7 @@ const subscriptionSchema = new Schema({
     billingInterval: { type: String, enum: ["monthly", "yearly"], required: true },
     status: {
       type: String,
-      enum: ["active", "expired", "cancelled"],
+      enum: ["pending","active", "expired", "cancelled"],
       default: "active",
     },
     gateway: {

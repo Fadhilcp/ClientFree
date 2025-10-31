@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import SubscriptionCard from '../../components/user/premium/subscriptionCard';
-import axios from 'axios';
 import Loader from '../../components/ui/Loader/Loader';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../../store/store';
+import { env } from '../../config/env';
+import { notify } from '../../utils/toastService';
+import { planService } from '../../services/plan.service';
+import { subscriptionService } from '../../services/subscription.service';
 
 interface RawPlan {
   id: string;
@@ -23,9 +28,10 @@ interface FeatureItem {
 const Subscriptions: React.FC = () => {
   const [plans, setPlans] = useState<RawPlan[]>([]);
   const [loading, setLoading] = useState(true);
+  const user = useSelector((state: RootState) => state.auth.user)
 
   useEffect(() => {
-    axios.get('http://localhost:3000/api/plan/plans')
+    planService.getPlans()
       .then((res) => {
         if (res.data.success) {
           setPlans(res.data.plans.filter((p: RawPlan) => p.active));
@@ -33,14 +39,68 @@ const Subscriptions: React.FC = () => {
         setLoading(false);
       })
       .catch((err) => {
+        notify.error('Failed to fetch plans');
         console.error('Failed to fetch plans:', err);
         setLoading(false);
       });
   }, []);
 
-  const handleSubscribe = (planId: string, planName: string) => {
-    alert(`Subscribed to ${planName} (ID: ${planId})`);
-    // TODO: Call backend to create subscription
+  const handleSubscribe = async(planId: string, planName: string) => {
+
+    if (!user?._id || !user?.phone || !user?.email) {
+      notify.warn('Please complete your profile before subscribing');
+      return;
+    }
+    try {
+
+      const response = await subscriptionService.create({
+        userId: user._id,
+        email: user.email,
+        contact: user.phone,
+        planId,
+        billingInterval: 'monthly' // or 'yearly' — make this dynamic if needed
+      });
+
+      const razorpayKey = env.RAZORPAY_KEY_ID;
+      const { subscriptionId } = response.data.subscription;
+      
+      const options = {
+        key: razorpayKey,
+        name: 'ClientFree',
+        description: `Subscription for ${planName}`,
+        subscription_id: subscriptionId,
+        handler: async function (response: any) {
+          try {
+            const verifyResponse = await subscriptionService.verify({
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_subscription_id: subscriptionId,
+              razorpay_signature: response.razorpay_signature || '',
+            });
+
+            if(verifyResponse.data.success){
+              notify.success(verifyResponse.data.message || 'subscription activated successfully');
+            }
+            
+          } catch (error: any) {
+            notify.error(error.response?.data?.error || 'verification failed. Contact support');
+          }
+        },
+        prefill: {
+          name: user._id,
+          email: user.email,
+          contact: user.phone,
+        },
+        theme: {
+          color: '#6366f1'
+        }
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
+      
+    } catch (error: any) {
+      notify.error(error.response?.data?.error || 'Failed to create Subscription');
+    }
   };
 
   const mapFeatures = (features: string[]): FeatureItem[] => {

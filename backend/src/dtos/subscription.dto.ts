@@ -2,7 +2,7 @@ export interface subscriptionDto {
   id: string;
   userId: string | null;
   planId: string | null;
-  status: 'active' | 'expired' | 'cancelled';
+  status: 'pending' | 'active' | 'expired' | 'cancelled';
   startDate: Date | null;
   expiryDate: Date | null;
   autoRenew: boolean;

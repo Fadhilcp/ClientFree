@@ -89,5 +89,3 @@ export type IUser = IUserBase & IUserProfile;
 export type IUserDocument = IUser & Document & {
   _id: Types.ObjectId;
 };
-
-

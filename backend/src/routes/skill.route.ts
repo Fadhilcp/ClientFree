@@ -11,6 +11,7 @@ const skillRepository = new SkillRepository();
 const skillService = new SkillService(skillRepository);
 const skillController = new SkillController(skillService);
 
+// not forgot to apply auth middleware
 skillRouter.post('/',skillController.create.bind(skillController));
 skillRouter.get('/',skillController.getAll.bind(skillController));
 skillRouter.patch('/:id',authMiddleware,skillController.update.bind(skillController));

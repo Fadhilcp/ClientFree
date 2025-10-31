@@ -20,7 +20,18 @@ export const endPoints = {
     },
     SKILL: {
         ROOT: '/skills',
-        BY_CATEGORY: (category: string) => `/skills?category=${category}`,
-        BY_ID: (skillId: string) => `/skills/${skillId}`,
+        BY_CATEGORY: (category: string) => `/skills?category=${category}`, //GET
+        BY_ID: (skillId: string) => `/skills/${skillId}`, //PATCH/DELETE
+    },
+    PLAN: {
+        LIST: '/plans',
+        CREATE: '/plans',
+        BY_ID: (planId: string) => `/plans/${planId}` //GET/PUT/DELETE
+    },
+    SUBSCRIPTION: {
+        CREATE: '/subscription',
+        VERIFY: '/subscription/verify',
+        CANCEL: '/subscription/cancel',
+        CURRENT: '/subscription/current'
     }
 }

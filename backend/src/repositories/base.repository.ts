@@ -50,8 +50,10 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T>{
         return this.model.deleteOne(filter);
     }
 
-    async findOne(filter : FilterQuery<T>) : Promise<T | null>{
-        return this.model.findOne(filter);
+    async findOne(filter : FilterQuery<T>, options?: { sort?: any }) : Promise<T | null>{
+        let query = this.model.findOne(filter);
+        if(options?.sort) query = query.sort(options.sort);
+        return query;
     }
 
     async find(filter : FilterQuery<T>) : Promise<T[]>{

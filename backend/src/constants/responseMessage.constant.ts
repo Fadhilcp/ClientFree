@@ -6,6 +6,7 @@ export const HttpResponse = {
     PASSWORD_INCORRECT: "Incorrect password, try again",
     PASSWORD_REQUIRED: "Password is required",
     EMAIL_AND_PASSWORD_REQUIRED: "Email and password are required",
+    MISSING_REQUIRED_FIELDS: 'Missing required fields',
     NO_TOKEN: "Token not provided",
     OTP_VERIFIED_SUCCESS: "OTP verified",
     OTP_RESENT_SUCCESS: "OTP resent successfully",
