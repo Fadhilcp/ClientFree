@@ -33,5 +33,4 @@ export class UserRepository
 
         return this.model.find(filter)
     }
-    
- }
+}

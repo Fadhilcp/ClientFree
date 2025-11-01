@@ -7,6 +7,7 @@ import { env } from '../../config/env';
 import { notify } from '../../utils/toastService';
 import { planService } from '../../services/plan.service';
 import { subscriptionService } from '../../services/subscription.service';
+import Button from '../../components/ui/Button';
 
 interface RawPlan {
   id: string;
@@ -27,6 +28,7 @@ interface FeatureItem {
 
 const Subscriptions: React.FC = () => {
   const [plans, setPlans] = useState<RawPlan[]>([]);
+  const [billingInterval, setBillingInterval] = useState<'monthly' | 'yearly'>('monthly');
   const [loading, setLoading] = useState(true);
   const user = useSelector((state: RootState) => state.auth.user)
 
@@ -45,9 +47,9 @@ const Subscriptions: React.FC = () => {
       });
   }, []);
 
-  const handleSubscribe = async(planId: string, planName: string) => {
+  const handleSubscribe = async(planId: string, planName: string, billingInterval: 'monthly' | 'yearly') => {
 
-    if (!user?._id || !user?.phone || !user?.email) {
+    if (!user?._id  || !user?.email) {
       notify.warn('Please complete your profile before subscribing');
       return;
     }
@@ -56,9 +58,9 @@ const Subscriptions: React.FC = () => {
       const response = await subscriptionService.create({
         userId: user._id,
         email: user.email,
-        contact: user.phone,
+        contact: '9808878862',
         planId,
-        billingInterval: 'monthly' // or 'yearly' — make this dynamic if needed
+        billingInterval
       });
 
       const razorpayKey = env.RAZORPAY_KEY_ID;
@@ -119,6 +121,38 @@ return (
         Choose the plan that fits your goals
       </p>
 
+          <div className="mb-6 flex justify-center space-x-4">
+            <Button
+              className={`px-4 py-1 rounded-sm ${
+              billingInterval === 'monthly' 
+              ? '' 
+              : 'dark:bg-gray-700 dark:text-white text-gray-800 hover:text-white hover:bg-indigo-600'
+            }`}
+              variant={
+                  billingInterval === 'monthly'
+                    ? 'primary'
+                    : 'secondary'
+                }
+                onClick={() => setBillingInterval('monthly')}
+                label='Monthly'
+              />
+  
+            <Button
+            className={`px-4 py-1 rounded-sm ${
+              billingInterval === 'yearly' 
+              ? '' 
+              : 'dark:bg-gray-700 dark:text-white text-gray-800 hover:text-white hover:bg-indigo-600'
+            }`}
+              variant={
+                  billingInterval === 'yearly'
+                    ? 'primary'
+                    : 'secondary'
+                }
+              onClick={() => setBillingInterval('yearly')}
+              label='Yearly'
+            />
+          </div>
+          
       <div className="border border-gray-200 dark:border-gray-700 rounded-2xl shadow-lg p-6">
         {loading ? (
           <Loader/>
@@ -129,10 +163,10 @@ return (
               <SubscriptionCard
                 key={plan.id}
                 planType={plan.planName}
-                billingInterval="monthly"
-                price={plan.price.monthly}
+                billingInterval={billingInterval}
+                price={billingInterval === 'monthly' ? plan.price.monthly : plan.price.yearly}
                 features={mapFeatures(plan.features)}
-                onSubscribe={() => handleSubscribe(plan.id, plan.planName)}
+                onSubscribe={() => handleSubscribe(plan.id, plan.planName, billingInterval)}
               />
             ))}
           </div>

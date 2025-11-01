@@ -17,7 +17,7 @@ export class PlanService implements IPlanService {
         const plans = await this.planRepository.find(filter);
 
         if(!plans.length){
-            throw createHttpError(HttpStatus.NOT_FOUND, "No plans available");
+            throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.NO_PLANS);
         }
         return plans.map(mapPlan)
     }

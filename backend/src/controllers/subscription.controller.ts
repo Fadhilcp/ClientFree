@@ -37,6 +37,12 @@ export class SubscriptionController {
     async verifySubscription(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { razorpay_subscription_id, razorpay_payment_id, razorpay_signature } = req.body;
+            const role = req.user?.role;
+
+            if(!role) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.UNAUTHORIZED);
+            if (!["client", "freelancer"].includes(role)) {
+                throw createHttpError(HttpStatus.FORBIDDEN, "Invalid user role");
+            }
             
             if (!razorpay_subscription_id || !razorpay_payment_id) {
                 throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.MISSING_REQUIRED_FIELDS)
@@ -45,7 +51,8 @@ export class SubscriptionController {
             const result = await this.service.verifyPayment({
                 razorpay_subscription_id,
                 razorpay_payment_id,
-                razorpay_signature
+                razorpay_signature,
+                role
             });
             sendResponse(res, HttpStatus.OK, {}, result?.message );
         } catch (error) {
@@ -55,8 +62,8 @@ export class SubscriptionController {
 
     async cancelSubscription(req: Request, res: Response, next: NextFunction) {
         try {
-            const { subscriptionId } = req.body;
-            const userId = req.user?._id;
+            const { subscriptionId, userId } = req.body;
+            // const userId = req.user?._id;
 
             if(!userId) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.USER_NOT_FOUND);
 

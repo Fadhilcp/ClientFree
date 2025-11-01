@@ -10,17 +10,23 @@ import { ISubscriptionRepository } from "repositories/interfaces/ISubscriptionRe
 import { IPlanRepository } from "repositories/interfaces/IPlanRepository";
 import crypto from 'crypto';
 import { env } from "config/env.config";
+import { IPaymentRepository } from "repositories/interfaces/IPaymentRepository";
+import { IRevenueRepository } from "repositories/interfaces/IRevenueRepository";
+import { HttpResponse } from "constants/responseMessage.constant";
 
 
 export class SubscriptionService implements ISubscriptionService {
-    constructor(private subscriptionRepository: ISubscriptionRepository, private planRepostory: IPlanRepository) {}
+    constructor(
+        private subscriptionRepository: ISubscriptionRepository, private planRepostory: IPlanRepository,
+        private paymentRepository: IPaymentRepository, private revenueRepository: IRevenueRepository
+    ) {}
 
     async createSubscription(data: Partial<ISubscription> & { email: string; contact: string })
     : Promise<ISubscriptionDocument>{
 
         const existing = await this.subscriptionRepository.findOne({ userId: data.userId, status: 'active' });
 
-        if(existing) throw createHttpError(HttpStatus.CONFLICT, 'User already has an active Subscription');
+        if(existing) throw createHttpError(HttpStatus.CONFLICT, HttpResponse.USER_ALREADY_ACTIVE);
 
         const plan = await this.planRepostory.findById(String(data.planId));
         if (!plan) throw createHttpError(HttpStatus.NOT_FOUND, "Selected plan not found");
@@ -90,7 +96,7 @@ export class SubscriptionService implements ISubscriptionService {
     }
 
     async verifyPayment({
-        razorpay_subscription_id, razorpay_payment_id, razorpay_signature
+        razorpay_subscription_id, razorpay_payment_id, razorpay_signature, role
     }: Record<string, string>): Promise<{ message: string }>{
         
         const razorpay = getRazorpayInstance();
@@ -101,7 +107,7 @@ export class SubscriptionService implements ISubscriptionService {
             .digest("hex");
 
             if (generatedSignature !== razorpay_signature) {
-                throw createHttpError(HttpStatus.UNAUTHORIZED, "Payment verification failed");
+                throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.PAYMENT_VERIFICATION_FAILED);
             }
         } else {
             const subscription = await razorpay.subscriptions.fetch(razorpay_subscription_id);
@@ -115,15 +121,46 @@ export class SubscriptionService implements ISubscriptionService {
             }
         }
 
-        const updated = await this.subscriptionRepository.updateOne(
+        const subscription = await this.subscriptionRepository.updateOne(
             { subscriptionId: razorpay_subscription_id },
-            { 
-                status: 'active', 
-                updatedAt: new Date(),
-            }
+            { status: 'active', updatedAt: new Date() }
         );
 
-        if (!updated) throw createHttpError(HttpStatus.NOT_FOUND, "Subscription not found in database");
+        if (!subscription) throw createHttpError(HttpStatus.NOT_FOUND, "Local subscription not found");
+
+        const subData = await this.subscriptionRepository.findOne({
+            subscriptionId: razorpay_subscription_id,
+        });
+
+        if(!subData) throw createHttpError(HttpStatus.NOT_FOUND, "Subscription record missing after update");
+
+        const plan = await this.planRepostory.findById(String(subData.planId));
+        if(!plan) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.PLAN_NOT_FOUND);
+
+        const amount = subData.billingInterval === "monthly" ? plan.priceMonthly : plan.priceYearly;
+
+        const paymentRecord = await this.paymentRepository.create({
+            type: "subscription",
+            status: "completed",
+            amount,
+            currency: plan.currency,
+            provider: "razorpay",
+            providerPaymentId: razorpay_payment_id ?? null,
+            referenceId: razorpay_subscription_id,      
+            userId: subData.userId,
+            paymentDate: new Date(),
+        });
+          await this.revenueRepository.create({
+            type: "subscription",
+            source:"freelancer",
+            amount,
+            currency: plan.currency,
+            referencePaymentId: paymentRecord._id,
+            provider: "razorpay",
+            providerPaymentId: razorpay_payment_id ?? null,
+            status: "completed",
+            gatewayFee: 0,
+        });
   
         return { message: 'Subscription activated' };
     }
@@ -134,10 +171,10 @@ export class SubscriptionService implements ISubscriptionService {
             subscriptionId
         });
 
-        if(!subscription) throw createHttpError(HttpStatus.NOT_FOUND, 'Subscription not found');
+        if(!subscription) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.SUBSCRIPTION_NOT_FOUND);
 
         if(subscription.status !== 'active'){
-            throw createHttpError(HttpStatus.BAD_REQUEST, 'Subscription is not active');
+            throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.NO_ACTIVE_SUBSCRIPTION);
         }
 
         const razorpay = getRazorpayInstance();
@@ -159,7 +196,7 @@ export class SubscriptionService implements ISubscriptionService {
         const subscription = await this.subscriptionRepository.findOne({ userId });
 
         if (!subscription || subscription.status !== 'active') {
-            throw createHttpError(HttpStatus.NOT_FOUND, 'No active subscription found');
+            throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.NO_ACTIVE_SUBSCRIPTION);
         }
         return mapSubscription(subscription)
     }

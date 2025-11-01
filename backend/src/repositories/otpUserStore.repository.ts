@@ -1,5 +1,5 @@
 import { BaseRepository } from "./base.repository";
-import otpUserStore from "../models/otpUserStore";
+import otpUserStore from "../models/otpUserStore.model";
 import { IOtpUserStoreDocument } from "../types/otpUserStore.type";
 import { IOtpUserStoreRepository } from "./interfaces/IOtpUserStoreRepository";
 

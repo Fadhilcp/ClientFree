@@ -1,0 +1,49 @@
+import { Document, Types } from "mongoose";
+
+export interface IPayment {
+  type: 'escrow' | 'milestone' | 'fullPayment' | 'refund' | 'withdrawal' | 'subscription';
+  status: 'pending' | 'processing' | 'completed' | 'refunded' | 'cancelled' | 'onHold' | 'failed' | 'disputed';
+
+  amount: number;
+  currency?: string;
+
+  method?: string;
+  provider?: string;
+
+  providerPaymentId?: string;
+  providerOrderId?: string;
+  providerSignature?: string;
+
+  jobId?: Types.ObjectId;
+  milestoneId?: Types.ObjectId;
+
+  freelancerId?: Types.ObjectId;
+  clientId?: Types.ObjectId;
+  userId?: Types.ObjectId;
+
+  isDisputed?: boolean;
+  disputeReason?: string;
+  adminNotes?: string;
+
+  platformFee?: number;
+  paymentGatewayFee?: number;
+  taxAmount?: number;
+
+  refundReason?: string;
+
+  paymentDate?: Date;
+  escrowReleaseDate?: Date;
+  refundDate?: Date;
+  withdrawalDate?: Date;
+
+  referenceId?: string;
+
+  isDeleted?: boolean;
+  deletedAt?: Date;
+}
+
+export interface IPaymentDocument extends IPayment, Document {
+  _id: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
