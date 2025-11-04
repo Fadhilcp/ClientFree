@@ -6,7 +6,8 @@ import { DeleteResult, FilterQuery } from "mongoose";
 import { ISkill, ISkillDocument } from "types/skill.type";
 import { createHttpError } from "utils/httpError.util";
 import { mapSkill } from "mappers/skill.mapper";
-import { skillDto } from "dtos/skill.dto";
+import { SkillDto } from "dtos/skill.dto";
+import { PaginatedResult } from "types/pagination";
 
 
 export class SkillService implements ISkillService {
@@ -24,9 +25,17 @@ export class SkillService implements ISkillService {
         return this.skillRepository.create(data);
     }
 
-    async getAllSkills(filter: FilterQuery<ISkillDocument>): Promise<skillDto[]> {
-        const skills = await this.skillRepository.find(filter);
-        return skills.map(mapSkill)
+    async getAllSkills(filter: FilterQuery<ISkillDocument>, page=1, limit=10): Promise<PaginatedResult<SkillDto>> {
+        const result = await this.skillRepository.paginate(filter, { page, limit, sort: { createdAt: -1 } });
+        return {
+            ...result,
+            data: result.data.map(mapSkill)
+        };
+    }
+
+    async getActiveSkills(): Promise<SkillDto[]> {
+        const skills = await this.skillRepository.find({ status: 'active' });
+        return skills.map(mapSkill);
     }
 
     async getSkillsByCategory(category: string): Promise<ISkillDocument[]> {

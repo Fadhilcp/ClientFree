@@ -22,7 +22,7 @@ export interface IUserProfile{
         country ?: string;
         state ?: string;
     };
-
+    isProfileCompleted?: boolean;
     isVerified ?: boolean;
     isPremium ?: boolean;
     activeSubscriptionId ?: string;

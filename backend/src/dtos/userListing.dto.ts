@@ -24,3 +24,15 @@ export interface UserListingDto {
     website?: string;
   };
 }
+
+// export interface UserListingDto {
+//   id: string;
+//   username: string;
+//   email: string;
+//   role: "freelancer" | "client" | "admin";
+//   status: "active" | "inactive" | "banned";
+//   profileImage?: string;
+//   lastLoginAt: Date;
+//   isVerified: boolean;
+//   createdAt: Date;
+// }

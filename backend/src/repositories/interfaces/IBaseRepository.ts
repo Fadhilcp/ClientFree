@@ -13,4 +13,17 @@ export interface IBaseRepository<TDocument extends Document> {
   deleteOne(filter: FilterQuery<TDocument>): Promise<DeleteResult>;
   findOne(filter: FilterQuery<TDocument>, options?: { sort?: any }): Promise<TDocument | null>;
   find(filter: FilterQuery<TDocument>): Promise<TDocument[]>;
+  paginate(filter: FilterQuery<TDocument>,options: {
+        page?: number;
+        limit?: number;
+        sort?: any;
+        select?: any;
+        populate?: any;
+    }): Promise<{
+        data: TDocument[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    }>
 }

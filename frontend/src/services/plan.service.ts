@@ -4,7 +4,6 @@ import axios from '../lib/axios'
 interface IPlan {
   userType: "client" | "freelancer";
   planName: string;
-  planCode: "FREE" | "BASIC" | "PRO" | string;
   priceMonthly: number;
   priceYearly: number;
   currency: string;
@@ -13,8 +12,12 @@ interface IPlan {
 }
 
 class PlanService {
-    getPlans(){
-        return axios.get(endPoints.PLAN.LIST);
+    getPlans(page:number, limit: number){
+        return axios.get(endPoints.PLAN.LIST(page, limit));
+    }
+
+    getActivePlans(userType: string){
+        return axios.get(endPoints.PLAN.GET_ACTIVE(userType))
     }
 
     getPlan(planId: string){

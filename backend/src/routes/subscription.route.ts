@@ -17,9 +17,10 @@ const revenueRepository = new RevenueRepository();
 const subscriptionService = new SubscriptionService(subscriptionRepository, planRepository, paymentRepository, revenueRepository);
 const subscriptionController = new SubscriptionController(subscriptionService);
 
+subscriptionRouter.get('/', authMiddleware,subscriptionController.getAllSubscription.bind(subscriptionController))
 subscriptionRouter.post('/', authMiddleware,subscriptionController.createSubscription.bind(subscriptionController));
 subscriptionRouter.post('/verify', authMiddleware,subscriptionController.verifySubscription.bind(subscriptionController));
-subscriptionRouter.patch('/cancel',subscriptionController.cancelSubscription.bind(subscriptionController));
+subscriptionRouter.patch('/cancel', authMiddleware,subscriptionController.cancelSubscription.bind(subscriptionController));
 subscriptionRouter.get('/current', authMiddleware,subscriptionController.getCurrentPlan.bind(subscriptionController));
 
 export default subscriptionRouter;

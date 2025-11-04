@@ -20,7 +20,6 @@ const SkillsSelect: React.FC<SkillsSelectProps> = ({
   options,
 }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
-
   // ✅ Detect and react to OS/browser theme change
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
@@ -46,12 +45,12 @@ const SkillsSelect: React.FC<SkillsSelectProps> = ({
       ...base,
       backgroundColor: isDarkMode ? "#1f2937" : "#f9fafb", // gray-800 / gray-50
       borderColor: state.isFocused
-        ? isDarkMode
-          ? "#60a5fa"
-          : "#3b82f6"
-        : isDarkMode
-        ? "#374151"
-        : "#e5e7eb",
+      ? isDarkMode
+      ? "#60a5fa"
+      : "#3b82f6"
+      : isDarkMode
+      ? "#374151"
+      : "#e5e7eb",
       borderRadius: "0.5rem",
       padding: "0.5rem",
       fontSize: "0.875rem",
@@ -70,10 +69,10 @@ const SkillsSelect: React.FC<SkillsSelectProps> = ({
     option: (base, state) => ({
       ...base,
       backgroundColor: state.isFocused
-        ? isDarkMode
-          ? "#374151"
-          : "#eff6ff"
-        : isDarkMode
+      ? isDarkMode
+      ? "#374151"
+      : "#eff6ff"
+      : isDarkMode
         ? "#111827"
         : "#ffffff",
       color: isDarkMode ? "#f3f4f6" : "#111827",

@@ -22,6 +22,7 @@ interface AdminModalProps<T extends Record<string, string>> {
     label?: string;
     options: string[];
   }[];
+  children?: React.ReactNode;
 }
 
 const AdminModal = <T extends Record<string, string>>({
@@ -34,6 +35,7 @@ const AdminModal = <T extends Record<string, string>>({
   errors,
   fields,
   dropdowns,
+  children
 }: AdminModalProps<T>) => {
   if (!isOpen) return null;
 
@@ -76,6 +78,8 @@ const AdminModal = <T extends Record<string, string>>({
             )}
           </React.Fragment>
           ))}
+
+          {children && <div>{children}</div>}
 
           <div className="flex justify-end gap-3 pt-4">
 

@@ -8,11 +8,14 @@ interface ISkill {
 }
 
 class SkillService {
-    get(){
-        return axios.get(endPoints.SKILL.ROOT);
+    getActive(){
+        return axios.get(endPoints.SKILL.GET_ACTIVE);
+    }
+    getAll(page: number, limit: number){
+        return axios.get(endPoints.SKILL.GET_ALL(page, limit));
     }
     create(data : ISkill){
-        return axios.post(endPoints.SKILL.ROOT, data);
+        return axios.post(endPoints.SKILL.CREATE, data);
     }
     update(id: string,data: Partial<ISkill>){
         return axios.patch(endPoints.SKILL.BY_ID(id), data);

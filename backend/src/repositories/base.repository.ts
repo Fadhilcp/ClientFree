@@ -59,4 +59,45 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T>{
     async find(filter : FilterQuery<T>) : Promise<T[]>{
         return this.model.find(filter)
     }
+
+    async count() {
+        return this.model.countDocuments();
+    }
+
+    async paginate(filter: FilterQuery<T> = {},options: {
+        page?: number;
+        limit?: number;
+        sort?: any;
+        select?: any;
+        populate?: any;
+    } = {}): Promise<{
+        data: T[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    }> {
+        const page = options.page || 1;
+        const limit = options.limit || 10;
+        const skip = (page - 1) * limit;
+
+        let query = this.model.find(filter).skip(skip).limit(limit);
+
+        if (options.sort) query = query.sort(options.sort);
+        if (options.select) query = query.select(options.select);
+        if (options.populate) query = query.populate(options.populate);
+
+        const [data, total] = await Promise.all([
+            query.exec(),
+            this.model.countDocuments(filter)
+        ]);
+
+        return {
+            data,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit)
+        };
+    }
 }

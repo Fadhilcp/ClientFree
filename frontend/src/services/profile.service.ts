@@ -15,8 +15,8 @@ class ProfileService {
         return axios.get(endPoints.PROFILE.GET_BY_ID(userId));
     }
 
-    getProfiles() {
-        return axios.get(endPoints.PROFILE.LIST);
+    getProfiles(page: number, limit: number) {
+        return axios.get(endPoints.PROFILE.LIST(page, limit));
     }
 }
 

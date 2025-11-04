@@ -5,5 +5,6 @@ export interface IUserRepository extends IBaseRepository<IUserDocument>{
     findByEmail(email : string) : Promise<IUserDocument | null>;
     findFreelancers() : Promise<IUser[]>;
     findClients() : Promise<IUser[]>;
-    findByLocation(city ?: string, country ?: string, state ?: string) : Promise<IUser[]>
+    findByLocation(city ?: string, country ?: string, state ?: string) : Promise<IUser[]>;
+    findByIdWithSkills(userId: string) : Promise<IUserDocument | null>;
 }

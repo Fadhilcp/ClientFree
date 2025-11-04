@@ -3,7 +3,7 @@ import { ISubscriptionService } from "./interface/ISubscriptionService";
 import { createHttpError } from "utils/httpError.util";
 import { HttpStatus } from "constants/status.constants";
 import { getRazorpayInstance } from "config/razorpay.config";
-import { subscriptionDto } from "dtos/subscription.dto";
+import { SubscriptionDto } from "dtos/subscription.dto";
 import { mapSubscription } from "mappers/subscription.mapper";
 // import { getPlanId } from "utils/plan.util";
 import { ISubscriptionRepository } from "repositories/interfaces/ISubscriptionRepository";
@@ -13,6 +13,7 @@ import { env } from "config/env.config";
 import { IPaymentRepository } from "repositories/interfaces/IPaymentRepository";
 import { IRevenueRepository } from "repositories/interfaces/IRevenueRepository";
 import { HttpResponse } from "constants/responseMessage.constant";
+import { PaginatedResult } from "types/pagination";
 
 
 export class SubscriptionService implements ISubscriptionService {
@@ -20,6 +21,16 @@ export class SubscriptionService implements ISubscriptionService {
         private subscriptionRepository: ISubscriptionRepository, private planRepostory: IPlanRepository,
         private paymentRepository: IPaymentRepository, private revenueRepository: IRevenueRepository
     ) {}
+
+    async getAll(page=1, limit=10): Promise<PaginatedResult<SubscriptionDto>> {
+
+        const result = await this.subscriptionRepository.paginate({}, { page, limit, sort: { createdAt: -1 } });
+
+        return {
+            ...result,
+            data: result.data.map(mapSubscription)
+        };
+    }
 
     async createSubscription(data: Partial<ISubscription> & { email: string; contact: string })
     : Promise<ISubscriptionDocument>{
@@ -192,7 +203,7 @@ export class SubscriptionService implements ISubscriptionService {
         return { message: 'Subscription cancelled successfully' };
     }
 
-    async getCurrentPlan(userId: string): Promise<subscriptionDto>{
+    async getCurrentPlan(userId: string): Promise<SubscriptionDto>{
         const subscription = await this.subscriptionRepository.findOne({ userId });
 
         if (!subscription || subscription.status !== 'active') {

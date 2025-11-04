@@ -4,8 +4,9 @@ import { createSlice } from "@reduxjs/toolkit";
 interface User {
     _id: string;
     email: string;
-    role: 'freelancer' | 'client';
+    role: 'freelancer' | 'client' | 'admin';
     username: string;
+    profileImage: string;
     phone: string;
 }
 

@@ -20,3 +20,17 @@ export function mapUserToListingDto(user: any): UserListingDto {
     company: user.company,
   };
 }
+
+// export function mapUserToListingDto(user: any): UserListingDto {
+//   return {
+//     id: user._id.toString(),
+//     username: user.username,
+//     email: user.email,
+//     role: user.role,
+//     status: user.status,
+//     profileImage: user.profileImage,
+//     lastLoginAt: user.lastLoginAt,
+//     isVerified: user.isVerfied, 
+//     createdAt: user.createdAt
+//   };
+// }

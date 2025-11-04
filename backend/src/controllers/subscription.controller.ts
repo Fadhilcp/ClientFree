@@ -6,9 +6,21 @@ import { createHttpError } from "utils/httpError.util";
 import { sendResponse } from "utils/response.util";
 
 
-//need to test all 
 export class SubscriptionController {
     constructor(private service: ISubscriptionService){}
+
+    async getAllSubscription(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const page = parseInt(req.query.page as string) || 1;
+            const limit = parseInt(req.query.limit as string) || 10;
+
+            const subscriptions = await this.service.getAll(page, limit);
+
+            sendResponse(res, HttpStatus.OK, { subscriptions });
+        } catch (error) {
+            next(error);
+        }
+    }
 
     async createSubscription(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {

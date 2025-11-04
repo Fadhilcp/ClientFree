@@ -380,6 +380,7 @@ export class AuthService implements IAuthService {
             _id: user._id,
             email: user.email,
             username: user.username,
+            profileImage: user.profileImage,
             role: user.role,
             phone: user.phone
         };

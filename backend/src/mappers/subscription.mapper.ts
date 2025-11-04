@@ -1,7 +1,7 @@
-import { subscriptionDto } from "dtos/subscription.dto";
+import { SubscriptionDto } from "dtos/subscription.dto";
 import { ISubscriptionDocument } from "types/subscription.type";
 
-export const mapSubscription = (doc: ISubscriptionDocument): subscriptionDto => ({
+export const mapSubscription = (doc: ISubscriptionDocument): SubscriptionDto => ({
   id: doc._id.toString(),
   userId: doc.userId?.toString() ?? null,
   planId: doc.planId?.toString() ?? null,

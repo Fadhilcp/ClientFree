@@ -27,7 +27,7 @@ const Home : React.FC = () => {
         const fetchSkills = async () => {
             setLoading(true);
             try {
-                const response = await skillService.get()
+                const response = await skillService.getActive();
                 setAvailableSkills(response.data.skills);
             } catch (error : any) {
                 notify.error(error.response?.data?.error || 'Failed to load Skills')
@@ -65,7 +65,7 @@ const Home : React.FC = () => {
 
         {/* Profile creation modal */}
         <ProfileModal open={isModalOpen}
-        role={user?.role || "freelancer"}
+        role={user?.role === "freelancer" ? "freelancer" : "client" }
         onSave={handleCreateProfile}  
         onClose={()=> setIsModalOpen(false)}
         availableSkills={availableSkills}

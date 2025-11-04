@@ -62,7 +62,10 @@ export class ProfileController {
 
     async getAll(req: Request, res:Response, next:NextFunction) : Promise<void> {
         try {
-            const users = await this.service.getAllUsers();
+            const page = parseInt(req.query.page as string) || 1;
+            const limit = parseInt(req.query.limit as string) || 10;
+
+            const users = await this.service.getAllUsers(page, limit);
             sendResponse(res, HttpStatus.OK, { users });
         } catch (error) {
             next(error);

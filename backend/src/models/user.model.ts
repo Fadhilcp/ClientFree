@@ -33,10 +33,11 @@ const userSchema = new Schema({
         default : "active"
     },
     lastLoginAt : { type : Date , default : Date.now },
-
+    
     name : { type : String },
     phone : { type : String },
     description : { type : String },
+    about : { type : String },
     profileImage : { type : String },
 
     location : {
@@ -44,20 +45,12 @@ const userSchema = new Schema({
         country : { type : String },
         state : { type : String }
     },
+    isProfileCompleted: { type: Boolean, default: false },
 
-    isVerfied : {
+    isVerified : {
         type : Boolean,
         default : false
     },
-    // ====
-    // isPremium : { 
-    //     type : Boolean,
-    //     default : false
-    // },
-    // activeSubscriptionId : {
-    //     type : Schema.Types.ObjectId,
-    //     ref : "Subscription"
-    // },
     subscription: { 
         type: Schema.Types.ObjectId, 
         ref: "Subscription", 
@@ -82,7 +75,7 @@ const userSchema = new Schema({
         reviewsCount : { type : Number , default : 0 },
 
         skillRatings : [{
-            skillId : { type : Schema.Types.ObjectId , ref : "Skills" },
+            skillId : { type : Schema.Types.ObjectId , ref : "Skill" },
             avgRating : { type : Number , default : 0 },
             count : { type : Number , default : 0 }
         }],
@@ -96,7 +89,7 @@ const userSchema = new Schema({
         asFreelancer : { type : Number , default : 0 }
     },
 
-    skills : [{ type : Schema.Types.ObjectId , ref : "Skills" }],
+    skills : [{ type : Schema.Types.ObjectId , ref : "Skill" }],
     professionalTitle : { type : String },
     externalLinks: [
         {
@@ -110,7 +103,6 @@ const userSchema = new Schema({
     },
 
     hourlyRate : { type : String },
-    about : { type : String },
     experienceLevel : { type : String },
 
     company : {

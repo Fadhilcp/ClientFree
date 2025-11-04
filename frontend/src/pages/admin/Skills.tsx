@@ -8,6 +8,7 @@ import AdminModal from '../../components/ui/Modal/AdminModal';
 import { notify } from '../../utils/toastService';
 import type { Skill, SkillForm } from '../../types/skill.types';
 import { capitalize } from '../../utils/formatters';
+import Pagination from '../../components/ui/Pagination';
 
 export interface Column<T> {
   key: keyof T;
@@ -35,7 +36,7 @@ const columns: Column<Skill>[] = [
     ),
   },
   {
-    key: 'id',
+    key: '_id',
     header: 'Actions',
     render: () => (
       <div className=" gap-2">
@@ -125,6 +126,7 @@ const Skills = () => {
 
       if(response.data.success){
         notify.success('Skill added successfully')
+        await fetchSkills();
         resetForm(); 
       }
     } catch (error: any) {
@@ -136,20 +138,26 @@ const Skills = () => {
   const [activeTab, setActiveTab] = useState('All');
   const [search, setSearch] = useState('');
 
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10); // You can make this dynamic if needed
+  const [totalPages, setTotalPages] = useState(1);
+
   // ==== to fetch available skill to include in the table - start ==== 
-  useEffect(() => {
     const fetchSkills = async () => {
       try {
-        const response = await skillService.get();
-        const skills = response.data.skills;
-        setSkills(skills);
+        const response = await skillService.getAll(page, limit);
+        console.log("🚀 ~ fetchSkills ~ response:", response)
+        const { skills } = response.data;
+        setSkills(skills.data);
+        setTotalPages(skills.totalPages)
       } catch (error: any) {
-        notify.error( error.response?.data?.error || 'Failed to fetch skills')
-        console.error('Failed to fetch skills:', error);
+        notify.error(error.response?.data?.error || "Failed to fetch skills");
       }
     };
-    fetchSkills();
-  }, []);
+
+    useEffect(() => {
+      fetchSkills();
+    }, [page]);
   // ==== to fetch available skill to include in the table - end ==== 
 
   const filteredSkills = skills
@@ -191,6 +199,7 @@ const Skills = () => {
       <FilterTabs tabs={skillTabs} activeTab={activeTab} onChange={setActiveTab} />
 
       <ReusableTable title="Skill Listing" columns={columns} data={filteredSkills} />
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
     </div>
     </>
   );

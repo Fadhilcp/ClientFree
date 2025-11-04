@@ -5,6 +5,7 @@ import ReusableTable from '../../components/ui/Table';
 import { profileService } from '../../services/profile.service';
 import { capitalize, mapStatus, formatDate } from '../../utils/formatters';
 import { notify } from '../../utils/toastService';
+import Pagination from '../../components/ui/Pagination';
 
 type User = {
   id: string;
@@ -92,11 +93,16 @@ const Users = () => {
   const [activeTab, setActiveTab] = useState('All');
   const [search, setSearch] = useState('');
 
+  const [page, setPage] = useState(1);
+  const [limit] = useState(4); // You can make this dynamic if needed
+  const [totalPages, setTotalPages] = useState(1);
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await profileService.getProfiles();
-        const rawUsers = response.data.users;
+        const response = await profileService.getProfiles(page, limit);
+        const { users } = response.data
+        const rawUsers = users.data;
 
         const mappedUsers: User[] = rawUsers.map((user: any) => ({
           id: user._id,
@@ -112,13 +118,14 @@ const Users = () => {
         }));
 
         setUsers(mappedUsers);
+        setTotalPages(users.totalPages);
       } catch (error: any) {
         notify.error(error.response?.data?.error || 'Failed to fetch users');
       }
     };
 
     fetchUsers();
-  }, []);
+  }, [page]);
 
       const filteredUsers = users
       .filter((user) => {
@@ -136,7 +143,6 @@ const Users = () => {
           field?.toLowerCase().includes(search.toLowerCase())
         )
       );
-
 
   return (
     <div className="p-4 bg-white dark:bg-gray-900 min-h-screen">
@@ -156,6 +162,7 @@ const Users = () => {
         columns={columns}
         data={filteredUsers}
       />
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
     </div>
   );
 };

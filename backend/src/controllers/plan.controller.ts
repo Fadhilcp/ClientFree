@@ -6,10 +6,23 @@ import { sendResponse } from 'utils/response.util';
 export class PlanController {
     constructor(private service: IPlanService) {}
 
-    async getPlans(req: Request, res: Response, next: NextFunction): Promise<void> {
+    async getActivePlans(req: Request, res: Response, next: NextFunction): Promise<void> {
       try {
         const { userType } = req.query;
-        const plans = await this.service.getPlans(userType as string);
+        const plans = await this.service.getActive(userType as string);
+        sendResponse(res, HttpStatus.OK, { plans });
+      } catch (error) {
+        next(error);
+      }
+    }
+
+    async getAllPlans(req: Request, res: Response, next: NextFunction): Promise<void> {
+      try {
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+
+        const plans = await this.service.getPlans(page, limit);
+        
         sendResponse(res, HttpStatus.OK, { plans });
       } catch (error) {
         next(error);

@@ -70,20 +70,22 @@ const UserRoutes: React.FC = () => {
             <Route
                 path="/home"
                 element={
-                <AuthProtectedRoute>
+                <AuthProtectedRoute allowedRoles={['client','freelancer']}>
                     <Home />
                 </AuthProtectedRoute>
                 }
             />
             <Route
-                path="/premium"
-                element={
-                <AuthProtectedRoute>
+                path="/premium" element={
+                <AuthProtectedRoute allowedRoles={['client','freelancer']}>
                     <Subscriptions />
                 </AuthProtectedRoute>
                 }
             />
-            <Route path="/profile" element={<Profile />} />
+            <Route path="/profile" element={
+                <AuthProtectedRoute allowedRoles={['client','freelancer']}>
+                    <Profile />
+                </AuthProtectedRoute>} />
             </Route>
         </Routes>
     )

@@ -44,9 +44,9 @@ const paymentSchema = new Schema({
   jobId: { type: Schema.Types.ObjectId, ref: 'Jobs' },
   milestoneId: { type: Schema.Types.ObjectId, ref: 'Milestones' },
 
-  freelancerId: { type: Schema.Types.ObjectId, ref: 'Users' },
-  clientId: { type: Schema.Types.ObjectId, ref: 'Users' },
-  userId: { type: Schema.Types.ObjectId, ref: 'Users' }, // initiator
+  freelancerId: { type: Schema.Types.ObjectId, ref: 'User' },
+  clientId: { type: Schema.Types.ObjectId, ref: 'User' },
+  userId: { type: Schema.Types.ObjectId, ref: 'User' }, // initiator
 
   isDisputed: { type: Boolean, default: false },
   disputeReason: { type: String },

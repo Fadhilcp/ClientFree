@@ -6,13 +6,14 @@ import { HttpStatus } from "constants/status.constants";
 import { HttpResponse } from "constants/responseMessage.constant";
 import { DeleteResult, UpdateResult } from "mongoose";
 import { mapPlan } from "mappers/plan.mapper";
-import { planDTO } from "dtos/plan.dto";
+import { PlanDTO } from "dtos/plan.dto";
 import { getRazorpayInstance } from "config/razorpay.config";
+import { PaginatedResult } from "types/pagination";
 
 export class PlanService implements IPlanService {
     constructor(private planRepository: IPlanRepository) {}
 
-    async getPlans(userType?: string): Promise<planDTO[]> {
+    async getActive(userType?: string): Promise<PlanDTO[]> {
         const filter = userType ? { userType, active: true} : { active: true };
         const plans = await this.planRepository.find(filter);
 
@@ -22,7 +23,15 @@ export class PlanService implements IPlanService {
         return plans.map(mapPlan)
     }
 
-    async getPlanById(id: string): Promise<planDTO> {
+    async getPlans(page: number, limit: number): Promise<PaginatedResult<PlanDTO>> {
+        const result = await this.planRepository.paginate({}, { page, limit, sort: { createdAt: -1 } });
+        return {
+            ...result,
+            data: result.data.map(mapPlan)
+        };
+    }
+
+    async getPlanById(id: string): Promise<PlanDTO> {
         const plan = await this.planRepository.findById(id);
         if(!plan) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.PLAN_NOT_FOUND);
         return mapPlan(plan);

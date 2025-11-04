@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Loader from "../components/ui/Loader/Loader";
@@ -10,15 +10,22 @@ interface NoAuthProtectedRouteProps {
 
 const NoAuthProtectedRoute: React.FC<NoAuthProtectedRouteProps> = ({ children }) => {
   const navigate = useNavigate();
-  const token = useSelector((state: RootState) => state.auth.token);
+  const { token, user } = useSelector((state: RootState) => state.auth);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (token) {
-      navigate("/home");
+    if (token && user) {
+      if (user.role === "admin") {
+        navigate("/admin/users");
+      } else {
+        navigate("/home");
+      }
+    } else {
+      setLoading(false);
     }
-  }, [token, navigate]);
+  }, [token, user, navigate]);
 
-  if (token) return <Loader />; 
+  if (loading) return <Loader />;
 
   return <>{children}</>;
 };

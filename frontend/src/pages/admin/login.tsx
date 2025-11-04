@@ -45,8 +45,8 @@ const AdminLogin: React.FC = () => {
     
         setLoading(true);
         try {
-            console.log(values)
           const response = await authService.login(values);
+          console.log("🚀 ~ handleSubmit ~ response.data.user:", response.data.user)
           if(response.data.user.role !== 'admin') return notify.warn('Your are not a Admin') 
             const { user, token } = response.data;
             localStorage.setItem('token',token)

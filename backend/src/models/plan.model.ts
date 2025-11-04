@@ -1,6 +1,5 @@
 import { Schema, model } from "mongoose";
 import { IPlanDocument } from "types/plan.type";
-import { required } from "zod/v4/core/util.cjs";
 
 const planSchema = new Schema({
   userType: { type: String, enum: ["client", "freelancer"], required: true },

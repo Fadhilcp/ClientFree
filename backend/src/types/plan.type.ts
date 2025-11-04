@@ -3,7 +3,6 @@ import { Document, Types } from "mongoose";
 export interface IPlan {
   userType: "client" | "freelancer";
   planName: string;
-  planCode: "FREE" | "BASIC" | "PRO" | string;
   priceMonthly: number;
   priceYearly: number;
   currency: string;

@@ -1,8 +1,8 @@
-import { skillDto } from "dtos/skill.dto";
+import { SkillDto } from "dtos/skill.dto";
 
-export function mapSkill(skill: any): skillDto {
+export function mapSkill(skill: any): SkillDto {
     return {
-        id: skill._id,
+        _id: skill._id,
         name: skill.name,
         category: skill.category,
         status: skill.status,

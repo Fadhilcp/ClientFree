@@ -33,10 +33,10 @@ const Subscriptions: React.FC = () => {
   const user = useSelector((state: RootState) => state.auth.user)
 
   useEffect(() => {
-    planService.getPlans()
+    planService.getActivePlans(user?.role || '')
       .then((res) => {
         if (res.data.success) {
-          setPlans(res.data.plans.filter((p: RawPlan) => p.active));
+          setPlans(res.data.plans);
         }
         setLoading(false);
       })

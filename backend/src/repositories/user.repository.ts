@@ -33,4 +33,8 @@ export class UserRepository
 
         return this.model.find(filter)
     }
+
+    async findByIdWithSkills(userId: string) : Promise<IUserDocument | null> {
+        return this.model.findById(userId).populate("skills", "name _id");
+    }
 }
