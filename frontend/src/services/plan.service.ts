@@ -7,13 +7,13 @@ interface IPlan {
   priceMonthly: number;
   priceYearly: number;
   currency: string;
-  features: Record<string, boolean | number>;
+  features: Record<string, boolean>;
   active: boolean;
 }
 
 class PlanService {
-    getPlans(page:number, limit: number){
-        return axios.get(endPoints.PLAN.LIST(page, limit));
+    getPlans(search: string, status: string, page:number, limit: number){
+        return axios.get(endPoints.PLAN.LIST(search, status, page, limit));
     }
 
     getActivePlans(userType: string){

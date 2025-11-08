@@ -2,12 +2,13 @@ export interface ClientProfileDto {
   id: string;
   username: string;
   email: string;
-  profileImage?: string;
+  name?: string;
   role: string;
+  phone?: string;
+  profileImage?: string;
   
   description?: string;
 
-  name?: string;
   company?: {
     name?: string;
     industry?: string;

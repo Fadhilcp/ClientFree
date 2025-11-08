@@ -8,24 +8,36 @@ import { createHttpError } from "utils/httpError.util";
 import { mapSkill } from "mappers/skill.mapper";
 import { SkillDto } from "dtos/skill.dto";
 import { PaginatedResult } from "types/pagination";
+import { normalizeText } from "utils/normalizeText";
+import { IUserRepository } from "repositories/interfaces/IUserRepository";
 
 
 export class SkillService implements ISkillService {
-    constructor(private skillRepository : ISkillRepository){};
+    constructor(private skillRepository : ISkillRepository, private userRepository: IUserRepository){};
 
     async createSkill(data: ISkill): Promise<ISkillDocument> {
 
-        const existing = await this.skillRepository.findOne({
-            name: { $regex: `^${data.name}$`, $options: "i" }
-        });
+        const normalizedName = normalizeText(data.name);
+        const existing = await this.skillRepository.findOne({ normalizedName });
 
         if (existing) {
             throw createHttpError(HttpStatus.CONFLICT, `Skill "${data.name}" already exists`);
         }
-        return this.skillRepository.create(data);
+
+        return this.skillRepository.create({
+            ...data,
+            normalizedName,
+        });
     }
 
-    async getAllSkills(filter: FilterQuery<ISkillDocument>, page=1, limit=10): Promise<PaginatedResult<SkillDto>> {
+    async getAllSkills(filter: FilterQuery<ISkillDocument>, search: string, page=1, limit=10): Promise<PaginatedResult<SkillDto>> {
+
+        if(search){
+            filter.$or = [
+                { name: { $regex: search, $options: "i" } },
+                { category: { $regex: search, $options: "i" } }
+            ]
+        }
         const result = await this.skillRepository.paginate(filter, { page, limit, sort: { createdAt: -1 } });
         return {
             ...result,
@@ -42,8 +54,15 @@ export class SkillService implements ISkillService {
         return this.skillRepository.find({ category, status: 'active' });
     }
 
-    async updateSkill(id: string, data: Partial<ISkill>): Promise<ISkillDocument> {
-        const updated = await this.skillRepository.findByIdAndUpdate(id, data);
+    async updateSkill(id: string, data: ISkill): Promise<ISkillDocument> {
+
+        const normalizedName = normalizeText(data.name);
+        const existing = await this.skillRepository.findOne({ normalizedName, _id: { $ne: id } });
+
+        if (existing) {
+            throw createHttpError(HttpStatus.CONFLICT, `Skill "${data.name}" already exists`);
+        }
+        const updated = await this.skillRepository.findByIdAndUpdate(id, {...data, normalizedName});
 
         if(!updated) {
             throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.SKILL_NOT_FOUND);
@@ -54,9 +73,12 @@ export class SkillService implements ISkillService {
     async deleteSkill(id: string): Promise<DeleteResult> {
         const result = await this.skillRepository.deleteOne({ _id: id });
 
-        if(!result) {
+        if(result.deletedCount === 0) {
             throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.SKILL_NOT_FOUND);
         }
+        // to remove skill id from the user document
+        await this.userRepository.updateMany({ skills: id }, { $pull: { skills: id }});
+
         return result;
     }
 }

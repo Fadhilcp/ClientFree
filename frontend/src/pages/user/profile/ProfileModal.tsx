@@ -8,14 +8,14 @@ import Button from "../../../components/ui/Button";
 import SkillsSelect from "../../../components/user/profileModal/SkillSelect";
 import { notify } from "../../../utils/toastService";
 import { validateProfileForm } from "../../../utils/validators";
-import type { FormData, FormErrors } from "../../../types/profileModal.types";
+import type { ProfileFormData, FormErrors } from "../../../types/profileModal.types";
 
 interface ProfileModalProps {
   open: boolean;
   onClose: () => void;
   onSave: (data: any) => void;
   role: "freelancer" | "client";
-  defaultValues?: Partial<FormData>; 
+  defaultValues?: Partial<ProfileFormData>; 
   availableSkills: [];
   email?: string;
   username?: string;
@@ -30,52 +30,61 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
   defaultValues,
   availableSkills,
 }) => {
+  console.log("🚀 ~ ProfileModal ~ defaultValues:", defaultValues)
   const emptyExternalLink = { type: "website", url: "" };
 
-  const [formData, setFormData] = useState<FormData>({
-  name: "",
-  phone: "",
-  description: "",
-  profileImage: "",
-  location: { city: "", state: "", country: "" },
-  portfolio: { portfolioFile: "", resume: "" },
-  skills: [],
-  professionalTitle: "",
-  hourlyRate: "",
-  about: "",
-  experienceLevel: "beginner",
-  externalLinks: [{ type: "website", url: "" }],
-  company: { name: "", industry: "", website: "" },
-});
-
+  const [formData, setFormData] = useState<ProfileFormData>({
+    name: "",
+    phone: "",
+    description: "",
+    profileImage: "",
+    location: { city: "", state: "", country: "" },
+    portfolio: { portfolioFile: "", resume: "" },
+    skills: [],
+    professionalTitle: "",
+    hourlyRate: "",
+    about: "",
+    experienceLevel: "beginner",
+    externalLinks: [{ type: "website", url: "" }],
+    company: { name: "", industry: "", website: "" },
+  });
+  console.log("🚀 ~ ProfileModal ~ formData:", formData)
 
   const [errors, setErrors] = useState<FormErrors>({});
 
   useEffect(() => {
     if (defaultValues) {
-      setFormData((prev) => ({
-        ...prev,
-        ...defaultValues,
-        location: { ...prev.location, ...defaultValues.location },
-        portfolio: {
-          portfolioFile: defaultValues?.portfolio?.portfolioFile || prev.portfolio.portfolioFile,
-          resume: defaultValues?.portfolio?.resume || prev.portfolio.resume,
-        },
-        company: { ...prev.company, ...defaultValues.company },
-        externalLinks: defaultValues.externalLinks?.length
-          ? defaultValues.externalLinks
-          : [emptyExternalLink],
-      }));
-    }
+        setFormData((prev) => {
+
+          //to show the existing skill of freelancer
+          const normalizedSkills = (defaultValues.skills || []).map((skill: any) =>
+            typeof skill === "string" ? skill : skill._id
+          );
+
+          return {
+            ...prev,
+            ...defaultValues,
+            skills: normalizedSkills,
+            location: { ...prev.location, ...defaultValues.location },
+            portfolio: {
+              portfolioFile: defaultValues?.portfolio?.portfolioFile || prev.portfolio.portfolioFile,
+              resume: defaultValues?.portfolio?.resume || prev.portfolio.resume,
+            },
+            company: { ...prev.company, ...defaultValues.company },
+            externalLinks: defaultValues.externalLinks?.length
+              ? defaultValues.externalLinks
+              : [emptyExternalLink],
+          };
+        });
+      }
   }, [defaultValues]);
 
-  if (!open) return null;
-
+  
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-
+    
     if (name.startsWith("location.")) {
       const key = name.split(".")[1];
       setFormData({ ...formData, location: { ...formData.location, [key]: value } });
@@ -89,16 +98,16 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
       setFormData({ ...formData, [name]: value });
     }
   };
+  
 
-
-const handleSave = () => {
+  const handleSave = () => {
   const validationErrors = validateProfileForm(formData, role);
   const hasErrors = Object.values(validationErrors).some((val) => {
     if (Array.isArray(val)) return val.some((e) => Object.keys(e).length > 0);
     if (typeof val === 'object') return Object.keys(val).length > 0;
     return Boolean(val);
   });
-
+  
   if (hasErrors) {
     setErrors(validationErrors);
     notify.error('Please fix the highlighted errors');
@@ -109,7 +118,8 @@ const handleSave = () => {
   onSave(formData);
 };
 
-  return (
+if (!open) return null;
+return (
       <div className="fixed inset-0 z-50 flex items-center justify-center">
         {/* Overlay */}
         <div className="absolute inset-0 bg-black opacity-50" onClick={onClose}></div>

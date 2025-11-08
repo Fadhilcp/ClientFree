@@ -6,19 +6,10 @@ import { profileService } from '../../services/profile.service';
 import { capitalize, mapStatus, formatDate } from '../../utils/formatters';
 import { notify } from '../../utils/toastService';
 import Pagination from '../../components/ui/Pagination';
+import type { UserListingDto } from '../../types/user/userListing.dto';
+import type { UserListing } from '../../types/user/userListing.type';
+import Button from '../../components/ui/Button';
 
-type User = {
-  id: string;
-  profileImage?: string;
-  username: string;
-  name?: string;
-  email: string;
-  role: string;
-  status: 'Active' | 'Inactive' | 'Suspended';
-  joined: string;
-  lastLoginAt: string;
-  isPremium: boolean;
-};
 
 export interface Column<T> {
   key: keyof T;
@@ -26,7 +17,7 @@ export interface Column<T> {
   render?: (value: any, row: T) => React.ReactNode;
 }
 
-const columns: Column<User>[] = [
+const columns: Column<UserListing>[] = [
   {
     key: 'profileImage',
     header: 'Avatar',
@@ -65,17 +56,14 @@ const columns: Column<User>[] = [
     header: 'Actions',
     render: () => (
       <div className="flex gap-2">
-        <button className="px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 border border-blue-600 dark:border-blue-400 rounded hover:bg-blue-50 dark:hover:bg-blue-900">
-          View Detail
-        </button>
-        <button className="px-3 py-1 text-xs font-medium text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 rounded hover:bg-red-50 dark:hover:bg-red-900">
-          Ban User
-        </button>
+        <Button label='View Detail'
+        className="mx-1 px-3 py-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-transparent border border-indigo-600 dark:border-indigo-400 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900"/>
+        <Button label='Ban User'
+        className="mx-1 px-3 py-1 text-xs font-medium text-red-600 dark:text-red-400 border bg-transparent border-red-600 dark:border-red-400 rounded hover:bg-red-50 dark:hover:bg-red-900"/>
       </div>
     ),
   },
 ];
-
 
 const userTabs: string[] = [
   'All',
@@ -88,33 +76,29 @@ const userTabs: string[] = [
   'Premium',
 ];
 
-const Users = () => {
-  const [users, setUsers] = useState<User[]>([]);
+const Users: React.FC = () => {
+  const [users, setUsers] = useState<UserListing[]>([]);
   const [activeTab, setActiveTab] = useState('All');
   const [search, setSearch] = useState('');
 
   const [page, setPage] = useState(1);
-  const [limit] = useState(4); // You can make this dynamic if needed
+  const [limit] = useState(10); 
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await profileService.getProfiles(page, limit);
+        const response = await profileService.getProfiles(search ,page, limit);
         const { users } = response.data
         const rawUsers = users.data;
 
-        const mappedUsers: User[] = rawUsers.map((user: any) => ({
+        const mappedUsers: UserListing[] = rawUsers.map((user: UserListingDto) => ({
+          ...user,
           id: user._id,
-          profileImage: user.profileImage,
-          username: user.username,
-          name: user.name || '',
-          email: user.email,
           role: capitalize(user.role),
           status: mapStatus(user.status),
-          joined: formatDate(user.createdAt),
-          lastLoginAt: formatDate(user.lastLoginAt),
-          isPremium: user.isPremium,
+          joined: user.createdAt ? formatDate(user.createdAt) : "—",
+          lastLoginAt: user.lastLoginAt ? formatDate(user.lastLoginAt) : "—"
         }));
 
         setUsers(mappedUsers);
@@ -124,8 +108,12 @@ const Users = () => {
       }
     };
 
-    fetchUsers();
-  }, [page]);
+    const delay = setTimeout(() => {
+        fetchUsers();   
+      }, 500);
+
+      return () => clearTimeout(delay);
+    }, [page, search]);
 
       const filteredUsers = users
       .filter((user) => {
@@ -134,15 +122,10 @@ const Users = () => {
           return user.status === activeTab;
         }
         if (activeTab === 'Premium') {
-          return user.isPremium === true;
+          return user.subscription !== null;
         }
         return user.role === activeTab;
       })
-      .filter((user) =>
-        [user.name, user.email, user.role, user.username].some((field) =>
-          field?.toLowerCase().includes(search.toLowerCase())
-        )
-      );
 
   return (
     <div className="p-4 bg-white dark:bg-gray-900 min-h-screen">

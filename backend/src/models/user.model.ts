@@ -47,10 +47,7 @@ const userSchema = new Schema({
     },
     isProfileCompleted: { type: Boolean, default: false },
 
-    isVerified : {
-        type : Boolean,
-        default : false
-    },
+    isVerified : { type : Boolean, default : false },
     subscription: { 
         type: Schema.Types.ObjectId, 
         ref: "Subscription", 
@@ -61,8 +58,6 @@ const userSchema = new Schema({
         proposalsRemaining: { type: Number, default: 5 }       
     },
 
-    stripeCustomerId: { type: String, default: null },
-    // ====
     notificationSettings : {
         app : { type : Boolean, default : true },
         email : { type : Boolean, default : true },
@@ -134,9 +129,6 @@ const userSchema = new Schema({
         createdAt : { type : Date, default : Date.now },
         updatedAt : { type : Date, default : Date.now },
     }],
-
-    createdAt : { type : Date , default : Date.now },
-    updatedAt : { type : Date , default : Date.now },
-});
+}, { timestamps: true });
 
 export default model<IUserDocument>("User",userSchema)

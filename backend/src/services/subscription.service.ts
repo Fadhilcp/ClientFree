@@ -5,7 +5,6 @@ import { HttpStatus } from "constants/status.constants";
 import { getRazorpayInstance } from "config/razorpay.config";
 import { SubscriptionDto } from "dtos/subscription.dto";
 import { mapSubscription } from "mappers/subscription.mapper";
-// import { getPlanId } from "utils/plan.util";
 import { ISubscriptionRepository } from "repositories/interfaces/ISubscriptionRepository";
 import { IPlanRepository } from "repositories/interfaces/IPlanRepository";
 import crypto from 'crypto';
@@ -14,17 +13,33 @@ import { IPaymentRepository } from "repositories/interfaces/IPaymentRepository";
 import { IRevenueRepository } from "repositories/interfaces/IRevenueRepository";
 import { HttpResponse } from "constants/responseMessage.constant";
 import { PaginatedResult } from "types/pagination";
+import { IUserRepository } from "repositories/interfaces/IUserRepository";
+import { FilterQuery } from "mongoose";
 
 
 export class SubscriptionService implements ISubscriptionService {
     constructor(
         private subscriptionRepository: ISubscriptionRepository, private planRepostory: IPlanRepository,
-        private paymentRepository: IPaymentRepository, private revenueRepository: IRevenueRepository
+        private userRepository: IUserRepository,private paymentRepository: IPaymentRepository, 
+        private revenueRepository: IRevenueRepository
     ) {}
 
-    async getAll(page=1, limit=10): Promise<PaginatedResult<SubscriptionDto>> {
+    async getAll(search: string, status: string, page=1, limit=10): Promise<PaginatedResult<SubscriptionDto>> {
+        const filter: FilterQuery<ISubscriptionDocument> = {}
 
-        const result = await this.subscriptionRepository.paginate({}, { page, limit, sort: { createdAt: -1 } });
+        const normalizedStatus = status?.toLowerCase();
+        if(status && ["pending","active", "expired", "cancelled"].includes(normalizedStatus)){
+            filter.status = normalizedStatus;
+        }
+
+        if(search){
+            filter.$or = [
+                { subscriptionId: { $regex: search, $options: "i" } },
+                { gateway: { $regex: search, $options: "i" } },
+            ]
+        }
+
+        const result = await this.subscriptionRepository.paginate(filter, { page, limit, sort: { createdAt: -1 } });
 
         return {
             ...result,
@@ -32,8 +47,9 @@ export class SubscriptionService implements ISubscriptionService {
         };
     }
 
-    async createSubscription(data: Partial<ISubscription> & { email: string; contact: string })
-    : Promise<ISubscriptionDocument>{
+    async createSubscription(data: Partial<ISubscription> & { 
+        userId: string; email: string; contact: string 
+    }): Promise<ISubscriptionDocument>{
 
         const existing = await this.subscriptionRepository.findOne({ userId: data.userId, status: 'active' });
 
@@ -103,6 +119,7 @@ export class SubscriptionService implements ISubscriptionService {
             customerId: razorpayCustomerId,
             subscriptionId: razorSub.id
         });
+        await this.userRepository.findByIdAndUpdate(data.userId, { subscription: subscription._id });
         return subscription;
     }
 

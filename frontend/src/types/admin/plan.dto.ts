@@ -1,14 +1,22 @@
-export interface PlanDTO {
+
+interface BasePlanDTO {
   id: string;
-  userType: "client" | "freelancer";
   planName: string;
+  userType: 'client' | 'freelancer';
   price: {
     monthly: number;
     yearly: number;
     currency: string;
   };
-  features: string[];
   active: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
+}
+
+export interface PlanTableDTO extends BasePlanDTO {
+  createdAt?: string;
+}
+
+export interface PlanDetailDTO extends BasePlanDTO {
+  features: string[];
+  createdAt: string;
+  updatedAt: string;
 }

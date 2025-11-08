@@ -64,6 +64,7 @@ const Login: React.FC = () => {
         navigate('/home');
       
     } catch (error : any) {
+      console.log(error)
       notify.error(error.response?.data?.error || 'Login failed')
     } finally {
       setLoading(false);

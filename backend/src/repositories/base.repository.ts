@@ -26,7 +26,7 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T>{
         return this.model.create(data);
     }
 
-    async findByIdAndUpdate(id : ObjectId , data : Partial<T>) : Promise<T | null>{
+    async findByIdAndUpdate(id : ObjectId, data : Partial<T>) : Promise<T | null>{
         return this.model.findByIdAndUpdate(id , data , { upsert : true , new : true});
     }
 
@@ -34,8 +34,8 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T>{
         return this.model.updateMany(filter, data);
     }
     
-    async updateOne(filter : FilterQuery<T>, data : UpdateQuery<T>) : Promise<UpdateResult>{
-        return this.model.updateOne(filter, data);
+    async updateOne(filter : FilterQuery<T>, data : UpdateQuery<T>) : Promise<T | null>{
+        return this.model.findOneAndUpdate(filter, data, {new: true});
     }
     
     async delete(id : ObjectId) : Promise<T | null>{

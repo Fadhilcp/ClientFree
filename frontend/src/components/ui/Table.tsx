@@ -10,14 +10,12 @@ interface ReusableTableProps<T> {
   columns: Column<T>[];
   data: T[];
   title?: string;
-  onEdit?: (row: T) => void;
 }
 
 const ReusableTable = <T extends object>({
   columns,
   data,
   title,
-  onEdit,
 }: ReusableTableProps<T>) => {
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
@@ -34,7 +32,6 @@ const ReusableTable = <T extends object>({
             {col.header}
           </th>
         ))}
-        {onEdit && <th scope="col" className="px-3 py-3">Action</th>}
       </tr>
     </thead>
     <tbody>
@@ -57,16 +54,6 @@ const ReusableTable = <T extends object>({
                 : (row as any)[col.key]}
             </td>
           ))}
-          {onEdit && (
-            <td className="px-6 py-4">
-              <button
-                onClick={() => onEdit(row)}
-                className="font-medium text-blue-600 dark:text-blue-400 hover:underline"
-              >
-                Edit
-              </button>
-            </td>
-          )}
         </tr>
       ))}
     </tbody>

@@ -11,8 +11,8 @@ class SkillService {
     getActive(){
         return axios.get(endPoints.SKILL.GET_ACTIVE);
     }
-    getAll(page: number, limit: number){
-        return axios.get(endPoints.SKILL.GET_ALL(page, limit));
+    getAll(search: string, page: number, limit: number){
+        return axios.get(endPoints.SKILL.GET_ALL(search, page, limit));
     }
     create(data : ISkill){
         return axios.post(endPoints.SKILL.CREATE, data);

@@ -1,14 +1,16 @@
 import { Router } from "express";
 
 import { SkillRepository } from "repositories/skillRepository";
+import { UserRepository } from "repositories/user.repository";
 import { SkillService } from "services/skill.service";
 import { SkillController } from "controllers/skill.controller";
 import { authMiddleware } from "middlewares/authMiddleware";
 
 const skillRouter = Router()
 
+const userRepository = new UserRepository();
 const skillRepository = new SkillRepository();
-const skillService = new SkillService(skillRepository);
+const skillService = new SkillService(skillRepository, userRepository);
 const skillController = new SkillController(skillService);
 
 // not forgot to apply auth middleware

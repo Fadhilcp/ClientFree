@@ -6,7 +6,7 @@ export interface IBaseRepository<TDocument extends Document> {
   findAll(): Promise<TDocument[]>;
   create(data: Partial<TDocument>): Promise<TDocument>;
   findByIdAndUpdate(id: ObjectId | string, data: Partial<TDocument>): Promise<TDocument | null>;
-  updateOne(filter: FilterQuery<TDocument>, data: UpdateQuery<TDocument>): Promise<UpdateResult>;
+  updateOne(filter: FilterQuery<TDocument>, data: UpdateQuery<TDocument>): Promise<TDocument | null>;
   updateMany(filter: FilterQuery<TDocument>, data: UpdateQuery<TDocument>): Promise<UpdateResult>;
   delete(id: ObjectId | string): Promise<TDocument | null>;
   deleteMany(filter: FilterQuery<TDocument>): Promise<DeleteResult>;

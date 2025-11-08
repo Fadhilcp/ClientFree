@@ -16,71 +16,44 @@ export interface Column<T> {
   render?: (value: any, row: T) => React.ReactNode;
 }
 
-// ====== Columns for table - start ===================
-const columns: Column<Skill>[] = [
-  { key: 'name', header: 'Skill Name' },
-  { key: 'category', header: 'Category' },
-  {
-    key: 'status',
-    header: 'Status',
-    render: (value: string) => (
-      <span
-        className={`px-2 py-1 rounded-full text-xs font-semibold ${
-          value === 'Active'
-            ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
-            : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
-        }`}
-      >
-        {value}
-      </span>
-    ),
-  },
-  {
-    key: '_id',
-    header: 'Actions',
-    render: () => (
-      <div className=" gap-2">
-        <button className="mx-1 px-3 py-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 border border-indigo-600 dark:border-indigo-400 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900">
-          Edit
-        </button>
-        <button className="mx-1 px-3 py-1 text-xs font-medium text-red-600 dark:text-red-400 border border-red-600 dark:border-red-400 rounded hover:bg-red-50 dark:hover:bg-red-900">
-          Delete
-        </button>
-      </div>
-    ),
-  },
-];
-// ====== Columns for table - end ===================
-
 const skillTabs: string[] = ['All', 'Active', 'Inactive'];
-
 // ===== Add skill modal dropdowns & fields - start =================
 
 const modalFields: { name: keyof SkillForm; label: string; placeholder: string; }[] = [
-        { name: 'name', label: 'Skill Name', placeholder: 'Enter skill name' },
-      ]
+  { name: 'name', label: 'Skill Name', placeholder: 'Enter skill name' },
+]
 
 const modalDropdowns: {
   name: keyof SkillForm; label?: string; options: string[];
 }[] = [
-      { name: 'category', label: 'Category', options: ['Frontend', 'Backend', 'DevOps', 'Design'] },
-      { name: 'status', label: 'Status', options: ['acitve', 'inactive'] },
+  { name: 'category', label: 'Category', options: [
+    "Frontend",
+    "Backend",
+    "Full-Stack",
+    "Mobile Development",
+    "DevOps",
+    "Data & AI",
+  "Cybersecurity",
+  "Blockchain",
+  "Design",
+  "QA & Testing",
+  "Game Development",
+  "Product & Management"
+] },
+      { name: 'status', label: 'Status', options: ['active', 'inactive'] },
     ]
-// ===== Add skill modal dropdown fields - end =================
-
-const Skills = () => {
-
+    // ===== Add skill modal dropdown fields - end =================
+    const Skills = () => {
   // ====== Add skill modal - start =============================
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
-
   const [formData, setFormData] = useState<SkillForm>({
     name: '',
     category: '',
     status: 'active'
   })
-
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
-
+  
   const validateAll = () => {
     const newErrors: Record<string, string> = {};
 
@@ -101,19 +74,19 @@ const Skills = () => {
     setErrors(newErrors);
     return Object.values(newErrors).every((msg) => msg === '');
   };
-
+  
   const resetForm = () => {
     setFormData((prev) => ({...prev, name: '', category: ''}));
+    
     setErrors({});
     setModalOpen(false);
   };
-
 
   const handleChange = (field: keyof SkillForm, value: string) => {
     setFormData((prev) => ({...prev, [field]: value}));
   }
 
-  // create skill submiting
+  // create and edit skill submiting
   const handleSubmit = async() => {
     if(!validateAll()) return;
 
@@ -122,42 +95,81 @@ const Skills = () => {
       name: capitalize(formData.name.trim()),
     };
     try {
-      const response = await skillService.create(payload)
-
-      if(response.data.success){
-        notify.success('Skill added successfully')
-        await fetchSkills();
-        resetForm(); 
+      if (editingId) {
+        // to edit
+        const response = await skillService.update(editingId, payload);
+        if (response.data.success) {
+          notify.success("Skill updated successfully");
+        }
+      } else {
+        // to create
+        const response = await skillService.create(payload);
+        if (response.data.success) {
+          notify.success("Skill added successfully");
+        }
       }
+
+      await fetchSkills();
+      resetForm();
     } catch (error: any) {
       notify.error( error.response?.data?.error || 'Skill adding Failed, try again later' ) 
     }
   }
+  // to delete skill
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this skill?")) return;
+
+    try {
+      const response = await skillService.delete(id);
+      if (response.data.success) {
+        notify.success("Skill deleted successfully");
+        await fetchSkills(); 
+      }
+    } catch (error: any) {
+      notify.error(error.response?.data?.error || "Failed to delete skill");
+    }
+  };
+
+  // to edit skill ========= 
+  const handleEdit = (row: Skill) => {
+    setEditingId(row._id);
+    setFormData({
+      name: row.name,
+      category: row.category,
+      status: row.status,
+    });
+    setModalOpen(true); 
+  };
+
   // ====== Add skill modal - end =============================
   const [skills, setSkills] = useState<Skill[]>([]);
   const [activeTab, setActiveTab] = useState('All');
   const [search, setSearch] = useState('');
-
+  
   const [page, setPage] = useState(1);
-  const [limit] = useState(10); // You can make this dynamic if needed
+  const [limit] = useState(10); 
   const [totalPages, setTotalPages] = useState(1);
-
+  
   // ==== to fetch available skill to include in the table - start ==== 
-    const fetchSkills = async () => {
-      try {
-        const response = await skillService.getAll(page, limit);
-        console.log("🚀 ~ fetchSkills ~ response:", response)
-        const { skills } = response.data;
-        setSkills(skills.data);
-        setTotalPages(skills.totalPages)
-      } catch (error: any) {
+  const fetchSkills = async () => {
+    try {
+      const response = await skillService.getAll(search, page, limit);
+      console.log("🚀 ~ fetchSkills ~ response:", response)
+      const { skills } = response.data;
+      setSkills(skills.data);
+      setTotalPages(skills.totalPages)
+    } catch (error: any) {
         notify.error(error.response?.data?.error || "Failed to fetch skills");
-      }
-    };
+    }
+  };
 
     useEffect(() => {
-      fetchSkills();
-    }, [page]);
+      const delay = setTimeout(() => {
+        fetchSkills();
+      }, 500);
+      
+      return () => clearTimeout(delay);
+    }, [page, search]);
   // ==== to fetch available skill to include in the table - end ==== 
 
   const filteredSkills = skills
@@ -165,12 +177,40 @@ const Skills = () => {
       if (activeTab === 'All') return true;
       return skill.status === activeTab.toLowerCase();
     })
-    .filter((skill) =>
-      [skill.name, skill.category].some((field) =>
-        field.toLowerCase().includes(search.toLowerCase())
-      )
-    );
 
+    // ====== Columns for table - start ===================
+    const columns: Column<Skill>[] = [
+      { key: 'name', header: 'Skill Name' },
+      { key: 'category', header: 'Category' },
+      {
+        key: 'status',
+        header: 'Status',
+        render: (value: string) => (
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-semibold ${
+              value === 'Active'
+                ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+            }`}
+          >
+            {value}
+          </span>
+        ),
+      },
+      {
+        key: '_id',
+        header: 'Actions',
+        render: (_, row) => (
+          <div className=" gap-2">
+            <Button label='Edit' onClick={() => handleEdit(row)}
+            className="mx-1 px-3 py-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-transparent border border-indigo-600 dark:border-indigo-400 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900"/>
+            <Button label='Delete' onClick={() => handleDelete(row._id)}
+            className="mx-1 px-3 py-1 text-xs font-medium text-red-600 dark:text-red-400 border bg-transparent border-red-600 dark:border-red-400 rounded hover:bg-red-50 dark:hover:bg-red-900"/>
+          </div>
+        ),
+      },
+    ];
+    // ====== Columns for table - end ===================
   return (
     <>
     {/* Add skill modal - start */}

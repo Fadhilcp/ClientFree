@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ProfileImage from "../../../components/user/profile/ProfileImage";
 import ProfileInfoItem from "../../../components/user/profile/ProfileInfoItem";
 import ProfileHeader from "../../../components/user/profile/ProfileHeader";
@@ -12,31 +12,69 @@ import Loader from "../../../components/ui/Loader/Loader";
 import type { ClientProfileDto } from "../../../types/user/clientProfile.dto";
 import type { FreelancerProfileDto } from "../../../types/user/freelancerProfile.dto";
 import type { SkillItem } from "../../../types/skill.types";
-// import { PencilSquareIcon } from '@heroicons/react/24/outline';
+import ProfileModal from "./ProfileModal";
+import { skillService } from "../../../services/skill.service";
+import type { ProfileFormData } from "../../../types/profileModal.types";
 
 const Profile: React.FC = () => {
   const [profileData, setProfileData] = useState<UserProfileDto | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [availableSkills, setAvailableSkills] = useState<[]>([]);
+  
+  const fetchProfile = async () => {
+    try {
+      const response = await profileService.getMyProfile();
+      if (response.data.success) {
+        setProfileData(response.data.profile);
+      }
+    } catch (error: any) {
+      notify.error(error.response?.data?.error || "Failed to load profile");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    fetchProfile();
+  }, []);
+
+  const didFetchRef = useRef(false);
+  useEffect(() => {
+    if (!isModalOpen || didFetchRef.current) return;
+    didFetchRef.current = true;
+
+    const fetchSkills = async () => {
+      setLoading(true);
       try {
-        const response = await profileService.getMyProfile();
-        if (response.data.success) {
-          console.log(response.data.profile)
-          setProfileData(response.data.profile);
-        }
-      } catch (error: any) {
-        notify.error(error.response?.data?.error || "Failed to load profile");
-        console.error(error);
+        const res = await skillService.getActive();
+        setAvailableSkills(res.data.skills);
+      } catch(error: any) {
+        notify.error(error.response?.data?.error || "Failed to load skills");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProfile();
-  }, []);
+    fetchSkills();
+  }, [isModalOpen]);
+
+  const handleCreateProfile = async (formData : FormData) => {
+      setLoading(true);
+      try {
+          const response = await profileService.updateProfile(formData);
+          if(response.data){
+            fetchProfile();
+            notify.success('Profile updated successfully')
+            setIsModalOpen(false);
+          }
+      } catch (error : any) {
+          notify.error(error.response?.data?.error || 'Failed to create profile');
+      } finally {
+          setLoading(false);
+      }
+  }
 
   if (loading || !profileData) return <Loader />;
 
@@ -44,10 +82,9 @@ const Profile: React.FC = () => {
   const isFreelancer = role === "freelancer";
   const isClient = role === "client";
 
-  // Shared fallback
   let name = username;
 
-  // Role-specific fields
+  // role specific fields
   let professionalTitle = "";
   let hourlyRate = "";
   let experienceLevel = "";
@@ -84,13 +121,22 @@ const Profile: React.FC = () => {
   }
 
   return (
+  <>
+   {/* Profile creation modal */}
+        <ProfileModal open={isModalOpen}
+          role={role === "freelancer" ? "freelancer" : "client" }
+          onSave={handleCreateProfile}  
+          onClose={()=> setIsModalOpen(false)}
+          availableSkills={availableSkills}
+          defaultValues={profileData as Partial<ProfileFormData>}
+        />
     <div className="bg-gray-50 dark:bg-gray-900 min-h-screen p-4">
       <div className="max-w-10xl mx-auto my-8">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
           <div className="relative bg-gradient-to-r from-indigo-500 to-indigo-600 animate-gradient text-white p-6 md:p-10">
             {/* Edit Button in Top Right */}
             <button
-              onClick={() => setIsEditModalOpen(true)}
+              onClick={() => setIsModalOpen(true)}
               className="absolute top-4 right-4 bg-white text-indigo-600 font-semibold px-2 py-1 rounded-lg shadow hover:bg-indigo-50 transition"
             >
               <i className="fa-regular fa-pen-to-square"></i>
@@ -179,6 +225,7 @@ const Profile: React.FC = () => {
         </div>
       </div>
     </div>
+  </>
   );
 };
 

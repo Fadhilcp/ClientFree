@@ -20,7 +20,7 @@ export interface ExternalLink {
   url: string;
 }
 
-export interface FormData {
+export interface ProfileFormData {
   name: string;
   phone: string;
   description: string;

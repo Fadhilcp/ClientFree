@@ -2,13 +2,15 @@ import { HttpResponse } from "../constants/responseMessage.constant";
 import { HttpStatus } from "../constants/status.constants";
 import { IUserRepository } from "repositories/interfaces/IUserRepository";
 import { IProfileService } from "./interface/IProfileService";
-import { IUserDocument } from "../types/user.type";
+import { IUser, IUserDocument } from "../types/user.type";
 import { createHttpError } from "../utils/httpError.util";
 import { mapUserToListingDto } from "mappers/userListing.mapper";
 import { mapUserProfile } from "mappers/mapUserProfile";
 import { UserProfileDto } from "dtos/profile.dto.types";
 import { UserListingDto } from "dtos/userListing.dto";
 import { PaginatedResult } from "types/pagination";
+import { calculateProfileCompletion } from "utils/profileCompletion";
+import { FilterQuery } from "mongoose";
 
 export class ProfileService implements IProfileService {
 
@@ -23,10 +25,16 @@ export class ProfileService implements IProfileService {
         return mapUserProfile(user);
     }
 
-    async updateProfile(userId: string, data: Partial<IUserDocument>): Promise<UserProfileDto> {
+    async updateProfile(userId: string, data: Partial<IUser>): Promise<UserProfileDto> {
         const updatedUser = await this.userRepository.findByIdAndUpdate(userId, data);
 
         if(!updatedUser) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
+        //to check the user is completed profile or not 
+        const isCompeleted = calculateProfileCompletion(updatedUser);
+        if(updatedUser.isProfileCompleted !== isCompeleted){
+            updatedUser.isProfileCompleted = isCompeleted;
+            await updatedUser.save();
+        }
 
         return mapUserProfile(updatedUser);
     }
@@ -39,8 +47,16 @@ export class ProfileService implements IProfileService {
         return mapUserProfile(user);
     }
 
-    async getAllUsers(page=1, limit=10): Promise<PaginatedResult<UserListingDto>> {
-        const result = await this.userRepository.paginate({}, { page, limit, sort: { createdAt: -1 } });
+    async getAllUsers(search: string, page=1, limit=10): Promise<PaginatedResult<UserListingDto>> {
+        const filter: FilterQuery<IUserDocument> = {};
+        if(search){
+           filter.$or = [
+                { username: { $regex: search, $options: "i" } },
+                { email: { $regex: search, $options: "i" } },
+                { role: { $regex: search, $options: "i" } }
+            ]
+        }
+        const result = await this.userRepository.paginate(filter, { page, limit, sort: { createdAt: -1 } });
         return {
             ...result,
             data: result.data.map(mapUserToListingDto)

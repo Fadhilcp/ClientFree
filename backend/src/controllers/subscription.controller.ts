@@ -11,10 +11,12 @@ export class SubscriptionController {
 
     async getAllSubscription(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
+            const search = req.query.search as string || '';
+            const status = req.query.status as string || '';
             const page = parseInt(req.query.page as string) || 1;
             const limit = parseInt(req.query.limit as string) || 10;
 
-            const subscriptions = await this.service.getAll(page, limit);
+            const subscriptions = await this.service.getAll(search, status, page, limit);
 
             sendResponse(res, HttpStatus.OK, { subscriptions });
         } catch (error) {

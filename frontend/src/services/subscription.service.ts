@@ -17,8 +17,8 @@ interface IRazoryResponse {
 
 class SubscriptionService {
 
-    getAll(page:number, limit: number){
-        return axios.get(endPoints.SUBSCRIPTION.GET_LIST(page, limit));
+    getAll(search: string, status:string, page:number, limit: number){
+        return axios.get(endPoints.SUBSCRIPTION.GET_LIST(search, status, page, limit));
     }
 
     create(data: IData){

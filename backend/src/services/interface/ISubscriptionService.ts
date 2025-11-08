@@ -4,7 +4,7 @@ import { ISubscription, ISubscriptionDocument } from "types/subscription.type";
 
 
 export interface ISubscriptionService {
-    getAll(page: number, limit: number): Promise<PaginatedResult<SubscriptionDto>>;
+    getAll(search: string, status: string, page: number, limit: number): Promise<PaginatedResult<SubscriptionDto>>;
     createSubscription(data: Partial<ISubscription> & { email: string; contact: string }): Promise<ISubscriptionDocument>;
     verifyPayment({}: Record<string, string>): Promise<{ message: string }>;
     cancelSubscription(userId: string, subscriptionId: string): Promise<{ message: string }>;

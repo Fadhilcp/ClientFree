@@ -17,6 +17,7 @@ function InputSection<T>({
   value,
   onChange,
   placeholder,
+  label,
   error,
   className
 }: InputSectionProps<T>) {
@@ -47,6 +48,14 @@ function InputSection<T>({
 
   return (
     <div className="mt-3 w-full">
+      {label && (
+        <label
+          htmlFor={String(name)}
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+        >
+          {label}
+        </label>
+      )}
       <input
         id={String(name)}
         name={String(name)}

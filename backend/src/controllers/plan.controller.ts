@@ -1,6 +1,8 @@
+import { HttpResponse } from 'constants/responseMessage.constant';
 import { HttpStatus } from 'constants/status.constants';
 import { NextFunction, Request, Response } from 'express';
 import { IPlanService } from 'services/interface/IPlanService';
+import { createHttpError } from 'utils/httpError.util';
 import { sendResponse } from 'utils/response.util';
 
 export class PlanController {
@@ -18,10 +20,12 @@ export class PlanController {
 
     async getAllPlans(req: Request, res: Response, next: NextFunction): Promise<void> {
       try {
+        const search = req.query.search as string || '';
+        const status = req.query.status as string || '';
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
 
-        const plans = await this.service.getPlans(page, limit);
+        const plans = await this.service.getPlans(search, status, page, limit);
         
         sendResponse(res, HttpStatus.OK, { plans });
       } catch (error) {
@@ -32,7 +36,11 @@ export class PlanController {
     async getPlan(req: Request, res: Response, next: NextFunction): Promise<void> {
       try {
         const { id } = req.params;
-        const plan = await this.service.getPlanById(id);
+        const role = req.user?.role;
+        if(!role){
+          throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.ROLE_NOT_FOUND);
+        }
+        const plan = await this.service.getPlanById(id, role);
         sendResponse(res, HttpStatus.OK, { plan });
       } catch (error) {
         next(error);

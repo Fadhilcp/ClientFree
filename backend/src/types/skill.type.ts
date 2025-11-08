@@ -2,6 +2,7 @@ import { Document, Types } from "mongoose";
 
 export interface ISkill {
     name: string;
+    normalizedName: string;
     category: string;
     status?: 'active' | 'inactive';
 }

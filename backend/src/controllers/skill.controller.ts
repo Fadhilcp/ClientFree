@@ -25,6 +25,7 @@ export class SkillController {
 
     async getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
+            const search = req.query.search as string || '';
             const { category, status } = req.query;
             const page = parseInt(req.query.page as string) || 1;
             const limit = parseInt(req.query.limit as string) || 10;
@@ -33,7 +34,7 @@ export class SkillController {
             if (category) filters.category = category;
             if (status) filters.status = status;
 
-            const skills = await this.service.getAllSkills(filters, page, limit);
+            const skills = await this.service.getAllSkills(filters, search, page, limit);
             sendResponse(res, HttpStatus.OK, { skills });
         } catch (error) {
             next(error);
@@ -51,7 +52,7 @@ export class SkillController {
 
     async update(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const skillId = req.user?._id;
+            const skillId = req.params.id
             const data = req.body;
 
             if(!skillId) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.SKILL_ID_REQUIRED)
@@ -65,7 +66,7 @@ export class SkillController {
 
     async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const skillId = req.user?._id;
+            const skillId = req.params.id;
 
             if(!skillId) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.SKILL_ID_REQUIRED)
 

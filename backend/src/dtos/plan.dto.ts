@@ -1,16 +1,28 @@
 import { IPlan } from "types/plan.type";
 
-export interface PlanDTO {
+interface BasePlanDTO {
   id: string;
-  userType: IPlan["userType"];
   planName: string;
+  userType: IPlan["userType"];
   price: {
     monthly: number;
     yearly: number;
     currency: string;
   };
-  features: string[];
   active: boolean;
+}
+
+export interface PlanTableDTO extends BasePlanDTO {
   createdAt?: Date;
-  updatedAt?: Date;
+}
+
+export interface PlanDetailUserDTO extends BasePlanDTO {
+  features: Record<string, boolean> | string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface PlanDetailAdminDTO extends PlanTableDTO {
+  features: Record<string, boolean>; 
+  updatedAt: Date;
 }

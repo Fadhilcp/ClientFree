@@ -5,6 +5,7 @@ import { createHttpError } from "../utils/httpError.util";
 import { HttpResponse } from "../constants/responseMessage.constant";
 import { clientUpdateSchema, freelancerUpdateSchema } from "schema/profile.schema";
 import { sendResponse } from "utils/response.util";
+import { IUser } from "types/user.type";
 
 
 export class ProfileController {
@@ -40,7 +41,7 @@ export class ProfileController {
                 throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.INVALID_CREDENTIALS);
             }
             
-            const profile = await this.service.updateProfile(userId, result.data);
+            const profile = await this.service.updateProfile(userId, result.data as Partial<IUser>);
             
             sendResponse(res, HttpStatus.OK, { profile });
         } catch (error) {
@@ -62,10 +63,11 @@ export class ProfileController {
 
     async getAll(req: Request, res:Response, next:NextFunction) : Promise<void> {
         try {
+            const search = req.query.search as string || '';
             const page = parseInt(req.query.page as string) || 1;
             const limit = parseInt(req.query.limit as string) || 10;
 
-            const users = await this.service.getAllUsers(page, limit);
+            const users = await this.service.getAllUsers(search, page, limit);
             sendResponse(res, HttpStatus.OK, { users });
         } catch (error) {
             next(error);

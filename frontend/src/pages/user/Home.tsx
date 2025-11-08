@@ -44,7 +44,7 @@ const Home : React.FC = () => {
         }
     }, [isNewUser, dispatch]);
 
-    const handleCreateProfile = async (formData : any) => {
+    const handleCreateProfile = async (formData : FormData) => {
         setLoading(true);
         try {
             const response = await profileService.updateProfile(formData);

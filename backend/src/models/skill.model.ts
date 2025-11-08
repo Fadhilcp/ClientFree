@@ -9,6 +9,12 @@ const skillSchema = new Schema({
         minlength: 2,
         maxlength: 50,
     },
+    normalizedName: {
+        type: String,
+        required: true,
+        unique: true,
+        index: true,
+    },
     category: {
         type: String,
         required: true,

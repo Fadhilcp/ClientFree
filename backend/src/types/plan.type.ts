@@ -8,7 +8,7 @@ export interface IPlan {
   currency: string;
   razorPlanIdMonthly: string;
   razorPlanIdYearly: string;
-  features: Record<string, boolean | number>;
+  features: Record<string, boolean>;
   active: boolean;
 }
 

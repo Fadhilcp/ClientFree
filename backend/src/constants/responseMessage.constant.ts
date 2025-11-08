@@ -48,4 +48,5 @@ export const HttpResponse = {
     PAYMENT_VERIFICATION_FAILED: "Payment verification failed",
     SUBSCRIPTION_NOT_FOUND: "Subscription not found",
     NO_ACTIVE_SUBSCRIPTION: "No active subscription found",
+    ROLE_NOT_FOUND: "Role not found",
 };

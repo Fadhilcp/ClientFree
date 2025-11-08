@@ -2,7 +2,7 @@ export type Skill = {
   _id: string;
   name: string;
   category: string;
-  status: 'Active' | 'Inactive';
+  status: 'active' | 'inactive';
 };
 
 export type SkillForm = {

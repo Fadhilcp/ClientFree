@@ -20,7 +20,7 @@ const SkillsSelect: React.FC<SkillsSelectProps> = ({
   options,
 }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
-  // ✅ Detect and react to OS/browser theme change
+  // for dark mode
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     setIsDarkMode(mediaQuery.matches);

@@ -1,36 +1,17 @@
 import { UserListingDto } from "dtos/userListing.dto";
+import { IUserDocument } from "types/user.type";
 
-export function mapUserToListingDto(user: any): UserListingDto {
+export function mapUserToListingDto(user: IUserDocument): UserListingDto {
   return {
-    id: user._id.toString(),
+    _id: user._id.toString(),
     username: user.username,
-    name: user.name,
     email: user.email,
     role: user.role,
     status: user.status,
-    lastLoginAt: user.lastLoginAt,
     profileImage: user.profileImage,
-    location: user.location,
-    isVerified: user.isVerfied, 
-    isPremium: user.isPremium,
-    createdAt: user.createdAt,
-    experienceLevel: user.experienceLevel,
-    professionalTitle: user.professionalTitle,
-    hourlyRate: user.hourlyRate,
-    company: user.company,
+    lastLoginAt: user.lastLoginAt,
+    isVerified: user.isVerified, 
+    subscription: user.subscription,
+    createdAt: user.createdAt
   };
 }
-
-// export function mapUserToListingDto(user: any): UserListingDto {
-//   return {
-//     id: user._id.toString(),
-//     username: user.username,
-//     email: user.email,
-//     role: user.role,
-//     status: user.status,
-//     profileImage: user.profileImage,
-//     lastLoginAt: user.lastLoginAt,
-//     isVerified: user.isVerfied, 
-//     createdAt: user.createdAt
-//   };
-// }

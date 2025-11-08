@@ -6,6 +6,7 @@ export interface FreelancerProfileDto {
   role: string;
 
   name?: string;
+  phone?: string;
   professionalTitle?: string;
   hourlyRate?: string;
   experienceLevel?: string;

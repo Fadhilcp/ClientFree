@@ -1,4 +1,4 @@
-import type { ExternalLinkErrors, FormData, FormErrors } from "../types/profileModal.types";
+import type { ExternalLinkErrors, ProfileFormData, FormErrors, ExternalLink } from "../types/profileModal.types";
 
 export const validateUsername = (username : string) : string => {
     if(!username.trim()) return 'Username is required';
@@ -30,7 +30,7 @@ export const validateConfirmPassword = (password : string, confirmPassword : str
 
 
 // to validate the profile modal - create and update
-export const validateProfileForm = (formData: FormData, role: 'freelancer' | 'client'): FormErrors => {
+export const validateProfileForm = (formData: ProfileFormData, role: 'freelancer' | 'client'): FormErrors => {
   const errors: FormErrors = {};
 
   // Common fields
@@ -54,7 +54,7 @@ export const validateProfileForm = (formData: FormData, role: 'freelancer' | 'cl
     if (!formData.portfolio.resume.trim()) errors.portfolio.resume = 'Resume is required';
 
     if (Array.isArray(formData.externalLinks)) {
-      errors.externalLinks = formData.externalLinks.map<ExternalLinkErrors>((link) => {
+      errors.externalLinks = formData.externalLinks.map<ExternalLinkErrors>((link: ExternalLink) => {
         const linkErrors: ExternalLinkErrors = {};
         if (!link.type?.trim()) linkErrors.type = 'Label is required';
         if (!link.url?.trim()) {

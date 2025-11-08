@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import type { PlanDTO } from '../../types/admin/plan.dto';
+import type { PlanTableDTO } from '../../types/admin/plan.dto';
 import type { SubscriptionDto } from '../../types/admin/subscription.dto';
 import { notify } from '../../utils/toastService';
 import ReusableTable from '../../components/ui/Table';
@@ -10,7 +10,9 @@ import { subscriptionService } from '../../services/subscription.service';
 import Pagination from '../../components/ui/Pagination';
 import AdminModal from '../../components/ui/Modal/AdminModal';
 import Button from '../../components/ui/Button';
-import {type FeatureKey, commonFeatures, clientFeatures, freelancerFeatures } from '../../constants/planFeatures';
+import type { FeatureKey } from '../../constants/planFeatures';
+import FeatureToggles from '../../components/admin/features/FeatureToggle';
+import { formatDate } from '../../utils/formatters';
 
 export interface Column<T> {
   key: keyof T;
@@ -18,24 +20,6 @@ export interface Column<T> {
   render?: (value: any, row: T) => React.ReactNode;
 }
 
-const planColumns: Column<PlanDTO>[] = [
-  { key: 'planName', header: 'Plan Name' },
-  { key: 'userType', header: 'User Type' },
-  {
-    key: 'price',
-    header: 'Price',
-    render: (value) => `₹${value.monthly}/mo • ₹${value.yearly}/yr`,
-  },
-  {
-    key: 'active',
-    header: 'Status',
-    render: (value) => (
-      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${value ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
-        {value ? 'Active' : 'Inactive'}
-      </span>
-    ),
-  },
-];
 
 interface PlanForm {
   userType: 'client' | 'freelancer';
@@ -53,46 +37,14 @@ const modalFields: { name: keyof PlanForm; label: string; placeholder: string; t
         { name: 'priceYearly', label: 'Yearly Price', placeholder: 'e.g. 4999', type: 'number' },
       ]
 
-const modalDropdowns: {
+      const modalDropdowns: {
   name: keyof PlanForm; label?: string; options: string[];
 }[] = [
       { name: 'userType', label: 'User Type', options: ['freelancer','client'] },
-      { name: 'status', label: 'Status', options: ['acitve', 'inactive'] },
+      { name: 'status', label: 'Status', options: ['active', 'inactive'] },
     ]
 
-interface Props {
-  features: Record<FeatureKey, boolean>;
-  userType: 'client' | 'freelancer';
-  onChange: (key: FeatureKey, value: boolean) => void;
-}
-
-const FeatureToggles: React.FC<Props> = ({ features, userType, onChange }) => {
-  const visibleFeatures: FeatureKey[] = [
-    ...commonFeatures,
-    ...(userType === 'client' ? clientFeatures : freelancerFeatures),
-  ];
-
-  return (
-    <div className="grid grid-cols-2 gap-2">
-      {visibleFeatures.map((key) => (
-        <label key={key} className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={features[key]}
-            onChange={(e) => onChange(key, e.target.checked)}
-            className="form-checkbox"
-          />
-          <span className="text-sm capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
-        </label>
-      ))}
-    </div>
-  );
-};
-
-    
-    
-
-const subscriptionColumns: Column<SubscriptionDto>[] = [
+    const subscriptionColumns: Column<SubscriptionDto>[] = [
   { key: 'subscriptionId', header: 'Subscription ID' },
   { key: 'gateway', header: 'Gateway' },
   {
@@ -125,42 +77,55 @@ const subscriptionColumns: Column<SubscriptionDto>[] = [
     render: (value) => value ? 'Yes' : 'No',
   },
 ];
-const Subscriptions = () => {
+const Subscriptions: React.FC = () => {
   const [mainTab, setMainTab] = useState<'Plans' | 'Subscriptions'>('Plans');
-  const [statusTab, setStatusTab] = useState<string>('Active');
-  const [plans, setPlans] = useState<PlanDTO[]>([]);
+  const [statusTab, setStatusTab] = useState<string>('All');
+  const [plans, setPlans] = useState<PlanTableDTO[]>([]);
   const [subscriptions, setSubscriptions] = useState<SubscriptionDto[]>([]);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
 
   const [page, setPage] = useState(1);
-  const [limit] = useState(10); // You can make this dynamic if needed
+  const [limit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
-
+  
+  // for debouncing
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500); 
+    
+    return () => clearTimeout(handler);
+  }, [search]);
   
   useEffect(() => {
     if (mainTab === 'Plans') fetchPlans();
     else fetchSubscriptions();
-  }, [mainTab, page]);
+  }, [mainTab, page, debouncedSearch, statusTab]);
   
   const fetchPlans = async () => {
     try {
-      const response = await planService.getPlans(page, limit);
+      const response = await planService.getPlans(search, statusTab, page, limit);
       const { plans } = response.data;
-      setPlans(plans.data);
+      const mappedPlans: PlanTableDTO[] = plans.data.map((plan: PlanTableDTO) => ({
+        ...plan,
+        createdAt: plan.createdAt ? formatDate(plan.createdAt) : "—",
+      }));
+      setPlans(mappedPlans);
       setTotalPages(plans.totalPages);
-    } catch (err) {
-      notify.error('Failed to fetch plans');
+    } catch (error: any) {
+      notify.error(error.response?.data?.message || 'Failed to fetch plans');
     }
   };
 
   const fetchSubscriptions = async () => {
     try {
-      const response = await subscriptionService.getAll(page, limit);
+      const response = await subscriptionService.getAll(search, statusTab, page, limit);
       const { subscriptions } = response.data;
       setSubscriptions(subscriptions.data);
       setTotalPages(subscriptions.totalPages);
-    } catch (err) {
-      notify.error('Failed to fetch subscriptions');
+    } catch (error: any) {
+      notify.error(error.response?.data?.message || 'Failed to fetch subscriptions');
     }
   };
   
@@ -168,22 +133,10 @@ const Subscriptions = () => {
     setMainTab(tab);
     setPage(1);
   }
-  
-  const filteredPlans = plans.filter(p =>
-    (statusTab === 'All' || (statusTab === 'Active') === p.active) &&
-    p.planName.toLowerCase().includes(search.toLowerCase())
-  );
-  
-  const filteredSubscriptions = subscriptions.filter(s =>
-    (statusTab === 'All' || s.status === statusTab.toLowerCase()) &&
-    s.gateway.toLowerCase().includes(search.toLowerCase())
-  );
-  // ===============================
-  // ================================
-  // ====================================
-  const [isModalOpen, setModalOpen] = useState<boolean>(false);
-
-  const [formData, setFormData] = useState<PlanForm>({
+// == Create Plan modal - start ====================
+const [isModalOpen, setModalOpen] = useState<boolean>(false);
+const [editingId, setEditingId] = useState<string | null>(null);
+const [formData, setFormData] = useState<PlanForm>({
     userType: 'client',
     planName: '',
     priceMonthly: '',
@@ -203,24 +156,21 @@ const Subscriptions = () => {
       PriorityNotifications: false,
     },
   });
-
-
+  
   const [errors, setErrors] = useState<Record<string, string>>({});
-
+  
   const validateAll = () => {
     const newErrors: Record<string, string> = {};
-
+    
     if (!formData.planName.trim()) newErrors.planName = 'Plan name is required.';
     if (!formData.priceMonthly || isNaN(Number(formData.priceMonthly))) newErrors.priceMonthly = 'Monthly price must be a number.';
     if (!formData.priceYearly || isNaN(Number(formData.priceYearly))) newErrors.priceYearly = 'Yearly price must be a number.';
-    if (!formData.currency.trim()) newErrors.currency = 'Currency is required.';
     if (!['active', 'inactive'].includes(formData.status)) newErrors.status = 'Invalid status.';
     if (!['client', 'freelancer'].includes(formData.userType)) newErrors.userType = 'Invalid user type.';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
 
   const resetForm = () => {
     setFormData({
@@ -246,8 +196,7 @@ const Subscriptions = () => {
     setErrors({});
     setModalOpen(false);
   };
-
-
+  
   const handleChange = (field: string, value: string) => {
     if (field in formData.features) return;
 
@@ -257,26 +206,55 @@ const Subscriptions = () => {
     }));
   };
 
- const handleSubmit = async () => {
-    if (!validateAll()) return;
+  // to fetch exisiting plan for edit
+  const handleEdit = async (row: PlanTableDTO) => {
+    const response = await planService.getPlan(row.id)
+    console.log("🚀 ~ handleEdit ~ response:", response)
+    const { plan } = response.data
+    setFormData({
+      ...plan,
+      priceMonthly: plan.price.monthly,
+      priceYearly: plan.price.yearly,
+      status: plan.active ? 'active' : 'inactive',
+    })
+    setEditingId(row.id);
+    setModalOpen(true); 
+  };
 
+ const handleSubmit = async () => {
+   const { status, ...data } = formData;
+   if (!validateAll()) return;
+
+   
     const payload = {
-      ...formData,
+      ...data,
       priceMonthly: Number(formData.priceMonthly),
       priceYearly: Number(formData.priceYearly),
+      active: status === 'active'
     };
 
     try {
-      await planService.createPlan(payload as any);
-      notify.success('Plan created successfully');
+      if (editingId) {
+        // to edit
+        const response = await planService.updatePlan(editingId, payload);
+        if (response.data.success) {
+          notify.success("Plan updated successfully");
+        }
+      } else {
+        // to create
+        const response = await planService.createPlan(payload);
+        if (response.data.success) {
+          notify.success("Plan added successfully");
+        }
+      }
+      await fetchPlans();
       resetForm();
-    } catch (err: unknown) {
-      const error = err as { response?: { data?: { message?: string } } };
+    } catch (error: any) {
       notify.error(error.response?.data?.message || 'Failed to create plan');
     }
   };
 
-
+  
   const stringFormData: Record<string, string> = {
     userType: formData.userType,
     planName: formData.planName,
@@ -285,38 +263,68 @@ const Subscriptions = () => {
     currency: formData.currency,
     status: formData.status,
   };
-
-// ===========================
-// ==============================
-
-
+  // == Create Plan modal - end ====================
+  // === plan table columns - start ====================
+  const planColumns: Column<PlanTableDTO>[] = [
+    { key: 'planName', header: 'Plan Name' },
+    { key: 'userType', header: 'User Type' },
+    { key: 'createdAt', header: 'Created' },
+    {
+      key: 'price',
+      header: 'Price',
+      render: (value) => `₹${value.monthly}/mo • ₹${value.yearly}/yr`,
+    },
+    {
+      key: 'active',
+      header: 'Status',
+      render: (value) => (
+        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${value ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+          {value ? 'Active' : 'Inactive'}
+        </span>
+      ),
+    },
+    {
+      key: 'id',
+      header: 'Actions',
+      render: (_, row) => (
+        <div className=" gap-2">
+          <Button label='Edit' onClick={() => handleEdit(row)}
+          className="mx-1 px-3 py-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-transparent border border-indigo-600 dark:border-indigo-400 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900"/>
+        </div>
+      ),
+    },
+  ];
+  // === plan table columns - start ====================
   return (
   <div className="p-4 bg-white dark:bg-gray-900 min-h-screen">
-<AdminModal
-  isOpen={isModalOpen}
-  onClose={resetForm}
-  onSubmit={handleSubmit}
-  formData={stringFormData}
-  onChange={handleChange}
-  title="Create Plan"
-  fields={modalFields}
-  dropdowns={modalDropdowns}
-  errors={errors}
->
-  <div className="mt-4">
-    <h3 className="text-sm font-semibold mb-2 text-gray-700 dark:text-gray-200">Features</h3>
-    <FeatureToggles
-      features={formData.features}
-      userType={formData.userType}
-      onChange={(key, value) =>
-        setFormData((prev) => ({
-          ...prev,
-          features: { ...prev.features, [key]: value },
-        }))
-      }
-    />
-  </div>
-</AdminModal>
+    {/* create plan modal - start */}
+    <AdminModal
+      isOpen={isModalOpen}
+      onClose={resetForm}
+      onSubmit={handleSubmit}
+      formData={stringFormData}
+      onChange={handleChange}
+      title="Create Plan"
+      fields={modalFields}
+      dropdowns={modalDropdowns}
+      errors={errors}
+    >
+    <div className="mt-4">
+      <h3 className="text-sm font-semibold mb-2 text-gray-700 dark:text-gray-200">Features</h3>
+      {/* component to list features in modal */}
+      <FeatureToggles
+        features={formData.features}
+        userType={formData.userType}
+        onChange={(key, value) =>
+          setFormData((prev) => ({
+            ...prev,
+            features: { ...prev.features, [key]: value },
+          }))
+        }
+      />
+    </div>
+  </AdminModal>
+  {/* create plan modal - end */}
 
 
     <div className="flex justify-between items-center mb-4">
@@ -336,12 +344,12 @@ const Subscriptions = () => {
 
     {mainTab === 'Plans' ? (
   <>
-    <ReusableTable<PlanDTO> title="Plan Listing" columns={planColumns} data={filteredPlans} />
+    <ReusableTable<PlanTableDTO> title="Plan Listing" columns={planColumns} data={plans} />
     <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
     </>
     ) : (
     <>
-        <ReusableTable<SubscriptionDto> title="Subscription Listing" columns={subscriptionColumns} data={filteredSubscriptions} />
+        <ReusableTable<SubscriptionDto> title="Subscription Listing" columns={subscriptionColumns} data={subscriptions} />
         <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
     </>
     )}
@@ -350,4 +358,4 @@ const Subscriptions = () => {
 );
 }
 
-export default Subscriptions
+export default Subscriptions;

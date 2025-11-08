@@ -6,6 +6,7 @@ import { PlanRepository } from 'repositories/plan.repository';
 import { authMiddleware } from 'middlewares/authMiddleware';
 import { PaymentRepository } from 'repositories/payment.repository';
 import { RevenueRepository } from 'repositories/revenue.repository';
+import { UserRepository } from 'repositories/user.repository';
 
 const subscriptionRouter = express.Router()
 
@@ -13,8 +14,11 @@ const subscriptionRepository = new SubscriptionRepository();
 const planRepository = new PlanRepository();
 const paymentRepository = new PaymentRepository();
 const revenueRepository = new RevenueRepository();
+const userRepository = new UserRepository();
 
-const subscriptionService = new SubscriptionService(subscriptionRepository, planRepository, paymentRepository, revenueRepository);
+const subscriptionService = new SubscriptionService(
+    subscriptionRepository, planRepository, userRepository, paymentRepository, revenueRepository
+);
 const subscriptionController = new SubscriptionController(subscriptionService);
 
 subscriptionRouter.get('/', authMiddleware,subscriptionController.getAllSubscription.bind(subscriptionController))
