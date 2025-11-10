@@ -16,6 +16,14 @@ instance.interceptors.request.use((config) => {
     if(token) {
         config.headers.Authorization = `Bearer ${token}`
     }
+    // when detect formData, change the content type into multipart
+    const isFormData = config.data instanceof FormData;
+    if (isFormData) {
+        delete config.headers["Content-Type"];
+    } else {
+        config.headers["Content-Type"] = "application/json";
+    }
+
     return config
 });
 

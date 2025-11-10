@@ -11,6 +11,8 @@ import { UserListingDto } from "dtos/userListing.dto";
 import { PaginatedResult } from "types/pagination";
 import { calculateProfileCompletion } from "utils/profileCompletion";
 import { FilterQuery } from "mongoose";
+import cloudinary from "config/cloudinary.config";
+import { uploadToCloudinary } from "utils/cloudinary.helper";
 
 export class ProfileService implements IProfileService {
 
@@ -61,5 +63,32 @@ export class ProfileService implements IProfileService {
             ...result,
             data: result.data.map(mapUserToListingDto)
         };
+    }
+
+    async setProfileImage(userId: string, file: Express.Multer.File): Promise<{profileImage: string}> {
+        const uploadResult = await uploadToCloudinary(file, {
+            folder: "profile_images",
+            public_id: `user_${userId}`,
+            overwrite: true,
+            resource_type: "image",
+        });
+        return { profileImage: uploadResult.secure_url }
+    }
+
+    async removeProfileImage(userId: string): Promise<{ profileImage: string }> {
+        const user = await this.userRepository.findById(userId);
+        if (!user) throw createHttpError(HttpStatus.NOT_FOUND, "User not found");
+
+        if (user.profileImage) {
+             // extract public_id
+            const publicId = user.profileImage.split("/").pop()?.split(".")[0];
+            await cloudinary.uploader.destroy(`profile_images/${publicId}`);
+        }
+
+        // remove image url 
+        user.profileImage = "";
+        await user.save();
+
+        return { profileImage: "" };
     }
 }

@@ -1,14 +1,15 @@
 export const endPoints = {
     AUTH : {
         LOGIN : '/auth/login',
-        SIGNUP : '/auth/signUp',
-        VERIFY_SIGNUP_OTP : '/auth/verifySignupOtp',
-        VERIFY_OTP : '/auth/verifyOtp',
+        SIGNUP : '/auth/signup',
+        VERIFY_SIGNUP_OTP : '/auth/verify-signup-otp',
+        VERIFY_OTP : '/auth/verify-otp',
         VERIFY : '/auth/verify',
         REFRESH_TOKEN : '/auth/refresh',
-        RESET_PASSWORD : '/auth/resetPassword',
-        FORGOT_PASSWORD : '/auth/forgotPassword',
-        RESEND_OTP : '/auth/resendOtp',
+        RESET_PASSWORD : '/auth/reset-password',
+        FORGOT_PASSWORD : '/auth/forgot-password',
+        CHANGE_PASSWORD: '/auth/change-password',
+        RESEND_OTP : '/auth/resend-otp',
         GOOGLE: '/auth/google'
     },
     PROFILE : {
@@ -16,6 +17,7 @@ export const endPoints = {
         GET_BY_ID : (userId: string) => `/profile/${userId}`,
         CREATE : '/profile',
         UPDATE_ME : '/profile/me',
+        SET_PROFILE_IMAGE: '/profile/profile-image',
         LIST : (seach: string, page: number, limit:number) => `/profile?search=${seach}&page=${page}&limt=${limit}`
     },
     SKILL: {

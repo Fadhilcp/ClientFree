@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import ProfileModal from './profile/ProfileModal'
 import { useDispatch, useSelector } from 'react-redux'
 import type { RootState } from '../../store/store';
-import { clearOtpInfo, resetNewUser } from '../../features/authSlice';
+import { clearOtpInfo, resetNewUser, setUser } from '../../features/authSlice';
 import { notify } from '../../utils/toastService';
 import { profileService } from '../../services/profile.service';
 import { skillService } from '../../services/skill.service';
@@ -12,11 +12,7 @@ import Button from '../../components/ui/Button';
 const Home : React.FC = () => {
 
     const dispatch = useDispatch();
-        const isNewUser = useSelector((state: RootState) => state.auth.isNewUser);
-        useSelector((state: RootState) => {
-        console.log("🚀 ~ Home ~ state:", state)
-        return state.auth;
-    });
+    const isNewUser = useSelector((state: RootState) => state.auth.isNewUser);
     const user = useSelector((state: RootState) => state.auth.user);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -48,7 +44,10 @@ const Home : React.FC = () => {
         setLoading(true);
         try {
             const response = await profileService.updateProfile(formData);
+            console.log("🚀 ~ handleCreateProfile ~ response.data:", response.data)
             if(response.data){
+                const user = response.data.user;
+                dispatch(setUser(user));
                 notify.success('Profile updated successfully')
                 setIsModalOpen(false);
             }

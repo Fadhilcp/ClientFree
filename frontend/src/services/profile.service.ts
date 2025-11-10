@@ -18,6 +18,10 @@ class ProfileService {
     getProfiles(search: string ,page: number, limit: number) {
         return axios.get(endPoints.PROFILE.LIST(search ,page, limit));
     }
+
+    setProfileImage(formData: FormData){
+        return axios.post(endPoints.PROFILE.SET_PROFILE_IMAGE, formData);
+    }
 }
 
 export const profileService = new ProfileService();

@@ -13,6 +13,8 @@ import { HttpStatus } from "../constants/status.constants";
 import { HttpResponse } from "../constants/responseMessage.constant";
 import { createHttpError } from "../utils/httpError.util";
 import axios from "axios";
+import { mapUserProfile } from "mappers/mapUserProfile";
+import { UserProfileDto } from "dtos/profile.dto.types";
 
 
 export class AuthService implements IAuthService {
@@ -20,10 +22,8 @@ export class AuthService implements IAuthService {
     constructor(private userRepository : IUserRepository, private otpUserStoreRepository : IOtpUserStoreRepository){};
 
     async signUp(data : IOtpUserStore) : Promise<void> {
-    console.log("🚀 ~ AuthService ~ signUp ~ data:", data)
 
         const existingUser = await this.userRepository.findByEmail(data.email);
-        console.log("🚀 ~ AuthService ~ signUp ~ existingUser:", existingUser)
         const pendingUser = await this.otpUserStoreRepository.findByEmail(data.email);
 
         if(existingUser){
@@ -54,12 +54,11 @@ export class AuthService implements IAuthService {
         await sendOtpEmail(data.email, otp);
     }
 
-    async verifySignupOtp(email: string, otp: string, purpose : string): Promise<{ accessToken : string, refreshToken : string, user : SanitizedUser}> {
-        console.log("🚀 ~ AuthService ~ verifySignupOtp ~ purpose:", purpose)
-        console.log("🚀 ~ AuthService ~ verifySignupOtp ~ otp:", otp)
+    async verifySignupOtp(email: string, otp: string, purpose : string): 
+    Promise<{ accessToken : string, refreshToken : string, user : UserProfileDto }> 
+    {
         
         const pendingUser = await this.otpUserStoreRepository.findByEmailAndOtp(email,otp);
-        console.log("🚀 ~ AuthService ~ verifySignupOtp ~ pendingUser:", pendingUser)
         
         if(!pendingUser || pendingUser.purpose !== purpose) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.OTP_INCORRECT);
         if(pendingUser.expiresAt < new Date()) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.OTP_EXPIRED);
@@ -83,20 +82,13 @@ export class AuthService implements IAuthService {
         const accessToken = generateAccessToken(payload);
         const refreshToken = generateRefreshToken(payload);
 
-        const sanitizedUser = {
-            _id : createdUser._id as Types.ObjectId,
-            username : createdUser.username,
-            email : createdUser.email,
-            role : createdUser.role,
-        }
-        return { user : sanitizedUser, accessToken, refreshToken}
+        const user = mapUserProfile(createdUser);
+        return { user, accessToken, refreshToken}
     }
 
     async forgotPassword(email : string) : Promise<void> {
-    console.log("🚀 ~ AuthService ~ forgotPassword ~ email:", email)
 
         const user = await this.userRepository.findOne({email});
-        console.log("🚀 ~ AuthService ~ forgotPassword ~ user:", user)
         if(!user) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
 
         const otp = generateOtp();
@@ -128,7 +120,6 @@ export class AuthService implements IAuthService {
             });
         }
 
-
         await sendOtpEmail(email, otp, 'Forgot Password');
     }
 
@@ -140,8 +131,6 @@ export class AuthService implements IAuthService {
         }
 
         const decoded = verifyRefreshToken(token);
-        console.log("🚀 ~ AuthService ~ accessRefreshToken ~ decoded:", decoded)
-
         
         const userId = decoded._id;
         if (!userId) {
@@ -160,7 +149,6 @@ export class AuthService implements IAuthService {
             role: user.role,
         };
 
-
         const accessToken = generateAccessToken(payload);
         const refreshToken = generateRefreshToken(payload);
 
@@ -168,7 +156,7 @@ export class AuthService implements IAuthService {
     }
 
 
-    async login(email: string, password: string): Promise<{ accessToken: string; refreshToken: string; user: SanitizedUser }>  {
+    async login(email: string, password: string): Promise<{ accessToken: string; refreshToken: string; user: UserProfileDto }>  {
         
         const user = await this.userRepository.findByEmail(email);
 
@@ -195,14 +183,9 @@ export class AuthService implements IAuthService {
         const accessToken = generateAccessToken(payload);
         const refreshToken = generateRefreshToken(payload);
 
-        const sanitizedUser = {
-            _id : user._id as Types.ObjectId,
-            username : user.username,
-            email : user.email,
-            role : user.role,
-        }
+        const mappedUser = mapUserProfile(user);
 
-        return { accessToken, refreshToken , user: sanitizedUser };
+        return { accessToken, refreshToken , user: mappedUser };
     }
 
 
@@ -271,12 +254,10 @@ export class AuthService implements IAuthService {
 
             default:
             createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.UNEXPECTED_KEY_FOUND);
-        } 
+        }
     }
 
     async resetPassword(email : string, newPassword : string): Promise<void> {
-        console.log("🚀 ~ AuthService ~ resetPassword ~ email:", email)
-        console.log("🚀 ~ AuthService ~ resetPassword ~ newPassword:", newPassword)
         const [user, otpRecord] = await Promise.all([
             this.userRepository.findOne({email}),
             this.otpUserStoreRepository.findOne({email, isVerified: true })
@@ -358,33 +339,38 @@ export class AuthService implements IAuthService {
         }
     }
 
-    async verifyUser(userId: string): Promise<{ user: SanitizedUser; accessToken?: string; refreshToken?: string; }> {
+    async verifyUser(userId: string): Promise<{ user: UserProfileDto; accessToken?: string; refreshToken?: string; }> {
         
         const user = await this.userRepository.findById(userId);
 
         if(!user) {
             throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
         }
+        const mappedUser = mapUserProfile(user);
 
-        // to generate new token for each request when verifying user
-        // const payload: AuthPayload = {
-        //     _id: user._id.toString(),
-        //     email: user.email,
-        //     role: user.role,
-        // };
+        return { user: mappedUser };
+    }
 
-        // const accessToken = generateAccessToken(payload);
-        // const refreshToken = generateRefreshToken(payload);
+    async changePassword(userId: string, password: string, newPassword: string): Promise<{ message: string; }> {
+        const user = await this.userRepository.findById(userId);
+        if(!user) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
 
-        const sanitizedUser = {
-            _id: user._id,
-            email: user.email,
-            username: user.username,
-            profileImage: user.profileImage,
-            role: user.role,
-            phone: user.phone
-        };
+        if(user.provider === 'google' && !user.password){
+            throw createHttpError(HttpStatus.BAD_REQUEST, `You can't change password because you are a google auth user`);
+        }
 
-        return { user: sanitizedUser };
+        const isMatch = await bcrypt.compare(password, user.password as string);
+        if(!isMatch) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.PASSWORD_INCORRECT);
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        const updateUser = await this.userRepository.findByIdAndUpdate(
+            userId, 
+            { password: hashedPassword }
+        );
+
+        if(!updateUser) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
+
+        return { message: 'Password updated successfully'}
     }
 }

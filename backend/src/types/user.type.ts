@@ -15,7 +15,7 @@ export interface IUserProfile {
     phone?: string;
     description?: string;
     about?: string;
-    profileImage?: string;
+    profileImage?: string | null;
 
     location?: {
         city?: string;

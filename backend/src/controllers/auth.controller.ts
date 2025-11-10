@@ -36,12 +36,7 @@ export class AuthController {
 
             sendResponse(res, HttpStatus.OK, {
                 token: accessToken,
-                user: {
-                    _id: user._id,
-                    username: user.username,
-                    email: user.email,
-                    role: user.role,
-                },
+                user
             }, "SignUp complete");
         } catch (error : any) {
             next(error)
@@ -58,12 +53,7 @@ export class AuthController {
             
             sendResponse(res, HttpStatus.OK, {
                 token: accessToken,
-                user: {
-                    _id: user._id,
-                    username: user.username,
-                    email: user.email,
-                    role: user.role,
-                },
+                user
             }, "Login complete");
         } catch (error : any) {
             next(error)
@@ -79,8 +69,6 @@ export class AuthController {
             if(!email || typeof email !== 'string') {
              throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.INVALID_EMAIL)
             }
-
-            console.log('auth controller - forgotpassword --')
 
             await this.service.forgotPassword(email);
 
@@ -116,9 +104,7 @@ export class AuthController {
     async verifyOtp(req : Request, res : Response, next : NextFunction) : Promise<void> {
         try {
             const { email, otp, purpose } = req.body;
-            console.log("🚀 ~ AuthController ~ verifyOtp ~ purpose:", purpose)
-            console.log("🚀 ~ AuthController ~ verifyOtp ~ otp:", otp)
-            console.log("🚀 ~ AuthController ~ verifyOtp ~ email:", email)
+            console.log("🚀 ~ AuthController ~ verifyOtp ~ otp:", otp);
 
             if (!email || !otp || !purpose) {
                throw createHttpError(HttpStatus.BAD_REQUEST, 'Email, OTP, and purpose are required');
@@ -216,17 +202,32 @@ export class AuthController {
             }
 
             const { user } = await this.service.verifyUser(userPayload._id);
-            console.log("🚀 ~ AuthController ~ verifyUser ~ user:", user)
             if (!user) {
                 throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
             }
-
-        // setCookie(res, refreshToken);
 
             sendResponse(res, HttpStatus.OK, {
                     user,
                     token: req.headers.authorization?.split(" ")[1] || null,
             }, "Token verified successfully");
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async changePassword(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const userId = req.user?._id;
+            const { password, newPassword, confirmPassword } = req.body;
+
+            if(!userId) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
+
+            if(newPassword !== confirmPassword) {
+                throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.PASSWORD_NOT_MATCH);
+            }
+
+            const { message } = await this.service.changePassword(userId, password, newPassword);
+            sendResponse(res, HttpStatus.OK, {}, message);
         } catch (error) {
             next(error);
         }

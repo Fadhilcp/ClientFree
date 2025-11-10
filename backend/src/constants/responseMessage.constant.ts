@@ -5,6 +5,7 @@ export const HttpResponse = {
     USER_NOT_FOUND: "User not found",
     PASSWORD_INCORRECT: "Incorrect password, try again",
     PASSWORD_REQUIRED: "Password is required",
+    PASSWORD_NOT_MATCH: "Passwords do not match",
     EMAIL_AND_PASSWORD_REQUIRED: "Email and password are required",
     MISSING_REQUIRED_FIELDS: 'Missing required fields',
     NO_TOKEN: "Token not provided",
@@ -49,4 +50,5 @@ export const HttpResponse = {
     SUBSCRIPTION_NOT_FOUND: "Subscription not found",
     NO_ACTIVE_SUBSCRIPTION: "No active subscription found",
     ROLE_NOT_FOUND: "Role not found",
+    NO_FILE_FOUND: "No file uploaded",
 };

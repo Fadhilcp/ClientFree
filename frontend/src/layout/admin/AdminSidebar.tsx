@@ -71,7 +71,7 @@ const sidebarItems: SidebarItem[] = [
   },
 ];
 
-const Sidebar: React.FC = () => {
+const AdminSidebar: React.FC = () => {
   return (
     <div
       id="sidebar"
@@ -111,4 +111,4 @@ const Sidebar: React.FC = () => {
   );
 };
 
-export default Sidebar;
+export default AdminSidebar;

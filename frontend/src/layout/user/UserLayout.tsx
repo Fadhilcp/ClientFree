@@ -2,7 +2,7 @@ import React from 'react'
 import Navbar from './Navbar'
 import { Outlet } from 'react-router-dom'
 import { useSelector } from 'react-redux'
-import type { RootState } from '../store/store'
+import type { RootState } from '../../store/store'
 
 const UserLayout: React.FC = () => {
 
@@ -10,7 +10,7 @@ const UserLayout: React.FC = () => {
 
   return (
     <>
-      <Navbar role={role} />
+      {role !== "admin" && <Navbar role={role} />}
       <main className='pt-15'>
         <Outlet/>
       </main>

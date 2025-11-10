@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import Button from "../components/ui/Button";
+import Button from "../../components/ui/Button";
 import { useNavigate } from "react-router-dom";
-import Logo from "../components/ui/Navbar/Logo";
-import NavbarIcons from "../components/ui/Navbar/NavbarIcons";
-import NavLinks from "../components/ui/Navbar/NavLinks";
-import MobileSidebar from "../components/ui/Navbar/MobileSidebar";
+import Logo from "../../components/ui/Navbar/Logo";
+import NavbarIcons from "../../components/ui/Navbar/NavbarIcons";
+import NavLinks from "../../components/ui/Navbar/NavLinks";
+import MobileSidebar from "../../components/ui/Navbar/MobileSidebar";
 
 interface NavbarProps {
   role: "landing" | "freelancer" | "client";

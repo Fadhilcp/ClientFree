@@ -20,9 +20,9 @@ export class ProfileController {
 
             const userId = req.user._id;
    
-            const profile = await this.service.getMyProfile(userId);
+            const user = await this.service.getMyProfile(userId);
             
-            sendResponse(res, HttpStatus.OK, { profile });
+            sendResponse(res, HttpStatus.OK, { user });
         } catch (error) {
             next(error);
         }
@@ -41,9 +41,9 @@ export class ProfileController {
                 throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.INVALID_CREDENTIALS);
             }
             
-            const profile = await this.service.updateProfile(userId, result.data as Partial<IUser>);
+            const user = await this.service.updateProfile(userId, result.data as Partial<IUser>);
             
-            sendResponse(res, HttpStatus.OK, { profile });
+            sendResponse(res, HttpStatus.OK, { user });
         } catch (error) {
             next(error);
         }
@@ -72,5 +72,22 @@ export class ProfileController {
         } catch (error) {
             next(error);
         }
+    }
+
+    async  setProfileImage(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            if(!req.user){
+                throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.USER_NOT_FOUND);
+            }
+            if(!req.file) {
+                throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.NO_FILE_FOUND);
+            }
+
+            const { profileImage } = await this.service.setProfileImage(req.user?._id, req.file);
+
+            sendResponse(res, HttpStatus.OK, { profileImage });
+        } catch (error) {
+            next(error);
+        }  
     }
 }

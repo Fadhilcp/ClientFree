@@ -49,14 +49,14 @@ const Subscriptions: React.FC = () => {
 
   const handleSubscribe = async(planId: string, planName: string, billingInterval: 'monthly' | 'yearly') => {
 
-    if (!user?._id  || !user?.email) {
+    if (!user?.id  || !user?.email) {
       notify.warn('Please complete your profile before subscribing');
       return;
     }
     try {
 
       const response = await subscriptionService.create({
-        userId: user._id,
+        userId: user.id,
         email: user.email,
         contact: '9808878862',
         planId,
@@ -88,7 +88,7 @@ const Subscriptions: React.FC = () => {
           }
         },
         prefill: {
-          name: user._id,
+          name: user.id,
           email: user.email,
           contact: user.phone,
         },

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
 import Login from '../pages/admin/login'
-import AdminLayout from '../layout/AdminLayout'
+import AdminLayout from '../layout/admin/AdminLayout'
 import Users from '../pages/admin/Users'
 import Skills from '../pages/admin/Skills'
 import NoAuthProtectedRoute from './NoAuthProtectedRoute'

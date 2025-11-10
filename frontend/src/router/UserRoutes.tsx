@@ -1,6 +1,6 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import UserLayout from "../layout/UserLayout";
+import UserLayout from "../layout/user/UserLayout";
 import HeroSection from "../pages/user/landingPage/HeroSection";
 import RoleSelect from "../pages/auth/roleSelect";
 import SignUp from "../pages/auth/signUp";
@@ -19,11 +19,11 @@ import Subscriptions from "../pages/user/Subscriptions";
 
 const UserRoutes: React.FC = () => {
 
-    const { loading } = useAuthVerifier();
+    // const { loading } = useAuthVerifier();
 
-    if(loading){
-        return <Loader/>
-    }
+    // if(loading){
+    //     return <Loader/>
+    // }
 
     return (
 

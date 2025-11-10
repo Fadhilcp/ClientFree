@@ -15,18 +15,24 @@ import type { SkillItem } from "../../../types/skill.types";
 import ProfileModal from "./ProfileModal";
 import { skillService } from "../../../services/skill.service";
 import type { ProfileFormData } from "../../../types/profileModal.types";
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "../../../store/store";
+import { setUser } from "../../../features/authSlice";
 
 const Profile: React.FC = () => {
   const [profileData, setProfileData] = useState<UserProfileDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [availableSkills, setAvailableSkills] = useState<[]>([]);
+  const dispatch = useDispatch<AppDispatch>();
   
   const fetchProfile = async () => {
     try {
       const response = await profileService.getMyProfile();
       if (response.data.success) {
-        setProfileData(response.data.profile);
+        const user = response.data.user;
+        dispatch(setUser(user));
+        setProfileData(user);
       }
     } catch (error: any) {
       notify.error(error.response?.data?.error || "Failed to load profile");
@@ -65,6 +71,7 @@ const Profile: React.FC = () => {
       try {
           const response = await profileService.updateProfile(formData);
           if(response.data){
+
             fetchProfile();
             notify.success('Profile updated successfully')
             setIsModalOpen(false);

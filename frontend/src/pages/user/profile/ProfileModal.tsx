@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import ProfileImage from "../../../components/user/profile/ProfileImage";
 import { InputSection } from "../../../components/user/profileModal/InputSection";
 import { TextareaSection } from "../../../components/user/profileModal/TextareaSection";
 import { SelectSection } from "../../../components/user/profileModal/SelectSection";
@@ -9,6 +8,9 @@ import SkillsSelect from "../../../components/user/profileModal/SkillSelect";
 import { notify } from "../../../utils/toastService";
 import { validateProfileForm } from "../../../utils/validators";
 import type { ProfileFormData, FormErrors } from "../../../types/profileModal.types";
+import ProfileImageUploader from "../../../components/user/profile/ProfileImageUploader";
+import { profileService } from "../../../services/profile.service";
+import Loader from "../../../components/ui/Loader/Loader";
 
 interface ProfileModalProps {
   open: boolean;
@@ -30,9 +32,9 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
   defaultValues,
   availableSkills,
 }) => {
-  console.log("🚀 ~ ProfileModal ~ defaultValues:", defaultValues)
-  const emptyExternalLink = { type: "website", url: "" };
+  const [loading, setLoading] = useState(false);
 
+  const emptyExternalLink = { type: "website", url: "" };
   const [formData, setFormData] = useState<ProfileFormData>({
     name: "",
     phone: "",
@@ -48,10 +50,9 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
     externalLinks: [{ type: "website", url: "" }],
     company: { name: "", industry: "", website: "" },
   });
-  console.log("🚀 ~ ProfileModal ~ formData:", formData)
 
   const [errors, setErrors] = useState<FormErrors>({});
-
+  
   useEffect(() => {
     if (defaultValues) {
         setFormData((prev) => {
@@ -60,7 +61,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
           const normalizedSkills = (defaultValues.skills || []).map((skill: any) =>
             typeof skill === "string" ? skill : skill._id
           );
-
+          
           return {
             ...prev,
             ...defaultValues,
@@ -78,6 +79,13 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
         });
       }
   }, [defaultValues]);
+
+  useEffect(() => {
+    if (open && defaultValues) {
+        setPreviewUrl(defaultValues.profileImage || null);
+        setSelectedImageFile(null);
+      }
+  }, [open, defaultValues]);
 
   
   const handleChange = (
@@ -99,26 +107,54 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
     }
   };
   
+  // to update profile image and also for show preview of the image
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(defaultValues?.profileImage || null);
+  // function to upload image in cloudinary,return url 
+  const uploadProfileImage = async() => {
+    try {
+      setLoading(true);
+      let profileImageUrl = formData.profileImage;
 
-  const handleSave = () => {
-  const validationErrors = validateProfileForm(formData, role);
-  const hasErrors = Object.values(validationErrors).some((val) => {
-    if (Array.isArray(val)) return val.some((e) => Object.keys(e).length > 0);
-    if (typeof val === 'object') return Object.keys(val).length > 0;
-    return Boolean(val);
-  });
-  
-  if (hasErrors) {
-    setErrors(validationErrors);
-    notify.error('Please fix the highlighted errors');
-    return;
+      if(selectedImageFile){
+        const imageFormData = new FormData();
+        imageFormData.append('profileImage',selectedImageFile);
+        const uploadResponse = await profileService.setProfileImage(imageFormData);
+        profileImageUrl = uploadResponse.data.profileImage;
+      }
+
+      return profileImageUrl;
+    } catch (error: any) {
+      notify.error(error.response?.data?.error || 'Failed to save profile Image');
+    } finally {
+      setLoading(false);
+    }
   }
+  
 
-  setErrors({});
-  onSave(formData);
-};
+  const handleSave = async() => {
+    const validationErrors = validateProfileForm(formData, role);
+    const hasErrors = Object.values(validationErrors).some((val) => {
+      if (Array.isArray(val)) return val.some((e) => Object.keys(e).length > 0);
+      if (typeof val === 'object') return Object.keys(val).length > 0;
+      return Boolean(val);
+    });
+    
+    if (hasErrors) {
+      setErrors(validationErrors);
+      notify.error('Please fix the highlighted errors');
+      return;
+    }
+
+    setErrors({});
+    const profileImage = await uploadProfileImage();
+    const payload = {...formData, profileImage}
+    onSave(payload)
+  };
 
 if (!open) return null;
+
+if (loading) return <Loader />;
 return (
       <div className="fixed inset-0 z-50 flex items-center justify-center">
         {/* Overlay */}
@@ -132,7 +168,13 @@ return (
 
           {/* Profile Image */}
           <div className="mb-6 bg-gradient-to-r from-indigo-500 to-indigo-600 animate-gradient text-white p-6 md:p-10 rounded-lg">
-            <ProfileImage />
+            <ProfileImageUploader imageUrl={previewUrl || formData.profileImage}
+            onChange={(file, preview) => {
+              setSelectedImageFile(file);
+              setPreviewUrl(preview);
+              setFormData({ ...formData, profileImage: preview || "" });
+            }}
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

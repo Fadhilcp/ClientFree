@@ -3,13 +3,14 @@ import { useSelector } from 'react-redux';
 import type { RootState } from '../../../store/store';
 
 interface ProfileImageProps {
-  src?: string;        // ✅ New prop for external image
+  src?: string;  
   size?: number;
   className?: string;
 }
 
 const ProfileImage: React.FC<ProfileImageProps> = ({ src, size = 160, className = '' }) => {
   const fallbackImage = useSelector((state: RootState) => state.auth.user?.profileImage);
+  console.log("🚀 ~ ProfileImage ~ fallbackImage:", fallbackImage)
   const profileImage = src || fallbackImage;
 
   const imageSize = `${size}px`;

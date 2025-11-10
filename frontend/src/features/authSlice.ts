@@ -2,7 +2,7 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
 
 interface User {
-    _id: string;
+    id: string;
     email: string;
     role: 'freelancer' | 'client' | 'admin';
     username: string;
@@ -19,7 +19,6 @@ interface AuthState {
     otpEmail: string | null;
     otpPurpose: OtpPurpose | null;
     isNewUser: boolean;
-    loading: boolean;
 }
 
 const initialState: AuthState = {
@@ -28,8 +27,7 @@ const initialState: AuthState = {
     isAuthenticated: false,
     otpEmail: null,
     otpPurpose: null,
-    isNewUser: false,
-    loading: true
+    isNewUser: false
 }
 
 const authSlice = createSlice({
@@ -68,11 +66,20 @@ const authSlice = createSlice({
         resetNewUser: (state) => {
             state.isNewUser = false;
         },
-        finishLoading: (state) => {
-            state.loading = false;
+        setUser: (state, action: PayloadAction<User>) => {
+            if(state.user){
+                state.user = { ...state.user, ...action.payload };
+            }
         },
     }
 });
 
-export const { setCredentials, logout, setOtpInfo, clearOtpInfo, resetNewUser, finishLoading } = authSlice.actions;
+export const { 
+    setCredentials,
+    logout,
+    setOtpInfo,
+    clearOtpInfo,
+    resetNewUser,
+    setUser,
+ } = authSlice.actions;
 export default authSlice.reducer;

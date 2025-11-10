@@ -15,14 +15,17 @@ const authController = new AuthController(authService);
 
 
 
-authRouter.post('/signUp',authController.signUp.bind(authController));
-authRouter.post('/verifySignupOtp',authController.verifySignupOtp.bind(authController));
+authRouter.post('/signup',authController.signUp.bind(authController));
+authRouter.post('/verify-signup-otp',authController.verifySignupOtp.bind(authController));
 authRouter.get('/refresh',authController.accessRefreshToken.bind(authController));
 authRouter.post('/login',authController.login.bind(authController));
-authRouter.post('/forgotPassword',authController.forgotPassword.bind(authController));
-authRouter.post('/resendOtp',authController.resendOtp.bind(authController));
-authRouter.post('/verifyOtp',authController.verifyOtp.bind(authController));
-authRouter.post('/resetPassword',authController.resetPassword.bind(authController));
+authRouter.post('/resend-otp',authController.resendOtp.bind(authController));
+authRouter.post('/verify-otp',authController.verifyOtp.bind(authController));
+
+authRouter.post('/forgot-password',authController.forgotPassword.bind(authController));
+authRouter.post('/reset-password',authController.resetPassword.bind(authController));
+authRouter.put('/change-password',authMiddleware,authController.resetPassword.bind(authController));
+
 authRouter.post('/google',authController.googleAuth.bind(authController));
 authRouter.get('/verify',authMiddleware,authController.verifyUser.bind(authController));
 

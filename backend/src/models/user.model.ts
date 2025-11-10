@@ -38,7 +38,7 @@ const userSchema = new Schema({
     phone : { type : String },
     description : { type : String },
     about : { type : String },
-    profileImage : { type : String },
+    profileImage : { type : String, default: null },
 
     location : {
         city : { type : String },
