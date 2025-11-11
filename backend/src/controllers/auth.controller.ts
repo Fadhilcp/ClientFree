@@ -225,7 +225,6 @@ export class AuthController {
             if(newPassword !== confirmPassword) {
                 throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.PASSWORD_NOT_MATCH);
             }
-
             const { message } = await this.service.changePassword(userId, password, newPassword);
             sendResponse(res, HttpStatus.OK, {}, message);
         } catch (error) {

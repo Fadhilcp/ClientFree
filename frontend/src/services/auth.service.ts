@@ -1,5 +1,6 @@
 import axios from "../lib/axios";
 import { endPoints } from "../config/endpoints";
+import type { ChangePasswordType } from "../pages/user/settings/SecuritySetting";
 
 interface Idata {
     username : string;
@@ -47,6 +48,10 @@ class AuthService {
 
     verifyUser() {
         return axios.get(endPoints.AUTH.VERIFY);
+    }
+
+    changePassword(data: ChangePasswordType){
+        return axios.put(endPoints.AUTH.CHANGE_PASSWORD, data);
     }
 }
 

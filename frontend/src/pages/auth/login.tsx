@@ -27,7 +27,6 @@ const Login: React.FC = () => {
     password : '',
   });
 
-  //using Record utility to create object<key, value>
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   const handleChange = (field : keyof typeof values, value : string) => {
@@ -65,7 +64,7 @@ const Login: React.FC = () => {
       
     } catch (error : any) {
       console.log(error)
-      notify.error(error.response?.data?.error || 'Login failed')
+      notify.error(error.response?.data?.error || 'Login failed');
     } finally {
       setLoading(false);
     }

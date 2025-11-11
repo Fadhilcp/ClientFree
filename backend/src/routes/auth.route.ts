@@ -24,7 +24,7 @@ authRouter.post('/verify-otp',authController.verifyOtp.bind(authController));
 
 authRouter.post('/forgot-password',authController.forgotPassword.bind(authController));
 authRouter.post('/reset-password',authController.resetPassword.bind(authController));
-authRouter.put('/change-password',authMiddleware,authController.resetPassword.bind(authController));
+authRouter.put('/change-password',authMiddleware,authController.changePassword.bind(authController));
 
 authRouter.post('/google',authController.googleAuth.bind(authController));
 authRouter.get('/verify',authMiddleware,authController.verifyUser.bind(authController));

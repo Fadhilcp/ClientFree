@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import UserLayout from "../layout/user/UserLayout";
 import HeroSection from "../pages/user/landingPage/HeroSection";
 import RoleSelect from "../pages/auth/roleSelect";
@@ -16,6 +16,8 @@ import useAuthVerifier from "../hooks/useAuthVerifier";
 import NoAuthProtectedRoute from "./NoAuthProtectedRoute";
 import Loader from "../components/ui/Loader/Loader";
 import Subscriptions from "../pages/user/Subscriptions";
+import SettingsLayout from "../layout/user/SettingsLayout";
+import SecuritySetting from "../pages/user/settings/SecuritySetting";
 
 const UserRoutes: React.FC = () => {
 
@@ -30,6 +32,7 @@ const UserRoutes: React.FC = () => {
         <Routes>
         
             <Route element={<UserLayout />}>
+            {/* public routes - start */}
             <Route path="/" element={
                 <NoAuthProtectedRoute>
                     <HeroSection />
@@ -67,6 +70,8 @@ const UserRoutes: React.FC = () => {
                 }
             />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            {/* public routes - end */}
+            {/* Authenticated user routes - start */}
             <Route
                 path="/home"
                 element={
@@ -86,6 +91,16 @@ const UserRoutes: React.FC = () => {
                 <AuthProtectedRoute allowedRoles={['client','freelancer']}>
                     <Profile />
                 </AuthProtectedRoute>} />
+            {/* Authenticated user routes - end */}
+            {/* Setting routes under user layout - start */}
+            <Route path="/settings" element={
+                <AuthProtectedRoute allowedRoles={['client','freelancer']}>
+                    <SettingsLayout/>
+                </AuthProtectedRoute>
+            }>
+                <Route index element={<Navigate to="security" replace />} />
+                <Route path="security" element={<SecuritySetting/>}/>
+            </Route>
             </Route>
         </Routes>
     )
