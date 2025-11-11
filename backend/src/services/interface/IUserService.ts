@@ -4,7 +4,7 @@ import { UserProfileDto } from "dtos/profile.dto.types";
 import { PaginatedResult } from "types/pagination";
 
 
-export interface IProfileService {
+export interface IUserService {
     getMyProfile(userId : string) : Promise<UserProfileDto>;
     updateProfile(userId : string, data : Partial<IUser>) : Promise<UserProfileDto>;
     getUserProfileById(id : string) : Promise<UserProfileDto>;

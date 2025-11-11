@@ -13,12 +13,12 @@ export const endPoints = {
         GOOGLE: '/auth/google'
     },
     PROFILE : {
-        GET_ME : '/profile/me',
-        GET_BY_ID : (userId: string) => `/profile/${userId}`,
-        CREATE : '/profile',
-        UPDATE_ME : '/profile/me',
-        SET_PROFILE_IMAGE: '/profile/profile-image',
-        LIST : (seach: string, page: number, limit:number) => `/profile?search=${seach}&page=${page}&limt=${limit}`
+        GET_ME : '/user/me',
+        GET_BY_ID : (userId: string) => `/user/${userId}`,
+        CREATE : '/user',
+        UPDATE_ME : '/user/me',
+        SET_PROFILE_IMAGE: '/user/profile-image',
+        LIST : (seach: string, page: number, limit:number) => `/user?search=${seach}&page=${page}&limt=${limit}`
     },
     SKILL: {
         GET_ACTIVE: '/skills/active',

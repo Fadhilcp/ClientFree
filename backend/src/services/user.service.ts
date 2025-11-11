@@ -1,7 +1,7 @@
 import { HttpResponse } from "../constants/responseMessage.constant";
 import { HttpStatus } from "../constants/status.constants";
 import { IUserRepository } from "repositories/interfaces/IUserRepository";
-import { IProfileService } from "./interface/IProfileService";
+import { IUserService } from "./interface/IUserService";
 import { IUser, IUserDocument } from "../types/user.type";
 import { createHttpError } from "../utils/httpError.util";
 import { mapUserToListingDto } from "mappers/userListing.mapper";
@@ -14,7 +14,7 @@ import { FilterQuery } from "mongoose";
 import cloudinary from "config/cloudinary.config";
 import { uploadToCloudinary } from "utils/cloudinary.helper";
 
-export class ProfileService implements IProfileService {
+export class UserService implements IUserService {
 
     constructor(private userRepository: IUserRepository){}
 

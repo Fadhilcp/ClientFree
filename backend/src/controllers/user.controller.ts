@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { IProfileService } from "../services/interface/IProfileService";
+import { IUserService }from "../services/interface/IUserService";
 import { HttpStatus } from "../constants/status.constants";
 import { createHttpError } from "../utils/httpError.util";
 import { HttpResponse } from "../constants/responseMessage.constant";
@@ -10,7 +10,7 @@ import { IUser } from "types/user.type";
 
 export class ProfileController {
 
-    constructor(private service: IProfileService){}
+    constructor(private service: IUserService){}
 
     async getMe(req: Request, res:Response, next: NextFunction) : Promise<void> {
         try {

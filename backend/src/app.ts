@@ -8,7 +8,7 @@ import cookieParser from 'cookie-parser'
 import cors from 'cors';
 
 import { errorHandler } from './middlewares/errorHandler';
-import profileRouter from './routes/profile.route';
+import userRouter from './routes/user.route';
 import skillRouter from 'routes/skill.route';
 import subscriptionRouter from 'routes/subscription.route';
 import planRouter from 'routes/plan.route';
@@ -27,7 +27,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
 app.use("/api/auth",authRouter);
-app.use("/api/profile",profileRouter);
+app.use("/api/user",userRouter);
 app.use("/api/skills",skillRouter);
 app.use("/api/plans",planRouter);
 app.use("/api/subscription",subscriptionRouter);
