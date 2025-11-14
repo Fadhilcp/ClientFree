@@ -11,7 +11,7 @@ interface AdminModalProps<T extends Record<string, string>> {
   onChange: (field: keyof T, value: string) => void;
   title?: string;
   errors?: Partial<Record<keyof T, string>>;
-  fields: {
+  fields?: {
     name: keyof T;
     label?: string;
     placeholder?: string;
@@ -37,6 +37,7 @@ const AdminModal = <T extends Record<string, string>>({
   dropdowns,
   children
 }: AdminModalProps<T>) => {
+  console.log('admin modal - formdata -',formData);
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -50,7 +51,7 @@ const AdminModal = <T extends Record<string, string>>({
         <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">{title}</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {fields.map(({ name, label, placeholder, type }) => (
+          {fields && fields.map(({ name, label, placeholder, type }) => (
             <div key={String(name)}>
               <InputSection<T>
                 name={name}

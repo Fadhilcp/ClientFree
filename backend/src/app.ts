@@ -12,6 +12,7 @@ import userRouter from './routes/user.route';
 import skillRouter from 'routes/skill.route';
 import subscriptionRouter from 'routes/subscription.route';
 import planRouter from 'routes/plan.route';
+import requestLogger from 'middlewares/logger.middleware';
 
 connectDB();
 
@@ -25,6 +26,8 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
+
+app.use(requestLogger);
 
 app.use("/api/auth",authRouter);
 app.use("/api/user",userRouter);

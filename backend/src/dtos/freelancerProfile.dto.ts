@@ -4,7 +4,7 @@ export interface FreelancerProfileDto {
   email: string;
   profileImage?: string;
   role: string;
-
+  status: string;
   name?: string;
   phone?: string;
   professionalTitle?: string;

@@ -192,24 +192,20 @@ export class AuthController {
         }
     }
 
-    async verifyUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+    async getNewAccessToken(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-             const userPayload = req.user as AuthPayload | undefined;
-             console.log("🚀 ~ AuthController ~ verifyUser ~ userPayload:", userPayload)
+            const refreshToken = req.cookies.refreshToken;
 
-            if (!userPayload?._id) {
-                throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.USER_NOT_FOUND);
+            if (!refreshToken) {
+                throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.REFRESH_TOKEN_MISSING);
             }
 
-            const { user } = await this.service.verifyUser(userPayload._id);
-            if (!user) {
-                throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
-            }
+            const { user, accessToken } = await this.service.getNewAccessToken(refreshToken);
 
             sendResponse(res, HttpStatus.OK, {
                     user,
-                    token: req.headers.authorization?.split(" ")[1] || null,
-            }, "Token verified successfully");
+                    token: accessToken,
+            }, "New access token issued");
         } catch (error) {
             next(error);
         }

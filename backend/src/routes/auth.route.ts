@@ -21,12 +21,12 @@ authRouter.get('/refresh',authController.accessRefreshToken.bind(authController)
 authRouter.post('/login',authController.login.bind(authController));
 authRouter.post('/resend-otp',authController.resendOtp.bind(authController));
 authRouter.post('/verify-otp',authController.verifyOtp.bind(authController));
+authRouter.get('/access',authController.getNewAccessToken.bind(authController));
 
 authRouter.post('/forgot-password',authController.forgotPassword.bind(authController));
 authRouter.post('/reset-password',authController.resetPassword.bind(authController));
 authRouter.put('/change-password',authMiddleware,authController.changePassword.bind(authController));
 
 authRouter.post('/google',authController.googleAuth.bind(authController));
-authRouter.get('/verify',authMiddleware,authController.verifyUser.bind(authController));
 
 export default authRouter;

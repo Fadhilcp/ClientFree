@@ -10,7 +10,6 @@ interface ProfileImageProps {
 
 const ProfileImage: React.FC<ProfileImageProps> = ({ src, size = 160, className = '' }) => {
   const fallbackImage = useSelector((state: RootState) => state.auth.user?.profileImage);
-  console.log("🚀 ~ ProfileImage ~ fallbackImage:", fallbackImage)
   const profileImage = src || fallbackImage;
 
   const imageSize = `${size}px`;

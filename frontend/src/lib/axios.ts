@@ -2,6 +2,7 @@ import axios from "axios";
 import { env } from "../config/env";
 import { authService } from "../services/auth.service";
 import { notify } from "../utils/toastService";
+import { tokenStore } from "../utils/tokenStore";
 
 const instance = axios.create({
     baseURL : env.API_BASE_URL,
@@ -12,7 +13,7 @@ const instance = axios.create({
 });
 
 instance.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
+    const token = tokenStore.get();
     if(token) {
         config.headers.Authorization = `Bearer ${token}`
     }

@@ -5,6 +5,7 @@ export interface ClientProfileDto {
   name?: string;
   role: string;
   phone?: string;
+  status: string;
   profileImage?: string;
   
   description?: string;

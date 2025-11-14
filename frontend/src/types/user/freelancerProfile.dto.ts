@@ -4,15 +4,16 @@ export interface FreelancerProfileDto {
   id: string;
   username: string;
   email: string;
-  role: string;
   profileImage?: string;
-
+  role: string;
+  status: string;
   name?: string;
+  phone?: string;
   professionalTitle?: string;
   hourlyRate?: string;
   experienceLevel?: string;
   about?: string;
-  description?: string;
+  description?: string
   skills?: SkillItem[];
 
   externalLinks?: {
@@ -41,5 +42,5 @@ export interface FreelancerProfileDto {
     country?: string;
   };
 
-  createdAt: string;
+  createdAt: Date;
 }

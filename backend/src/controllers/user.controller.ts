@@ -53,9 +53,9 @@ export class ProfileController {
         try {
             const { id } = req.params
 
-            const profile = await this.service.getUserProfileById(id);
+            const user = await this.service.getUserProfileById(id);
             
-            sendResponse(res, HttpStatus.OK, { profile });
+            sendResponse(res, HttpStatus.OK, { user });
         } catch (error) {
             next(error);
         }
@@ -89,5 +89,21 @@ export class ProfileController {
         } catch (error) {
             next(error);
         }  
+    }
+
+    async updateStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const userId = req.params.id;
+            const { status } = req.body;
+            console.log("🚀 ~ ProfileController ~ updateStatus ~ status:", status)
+
+            if(!status) throw createHttpError(HttpStatus.BAD_REQUEST,'Status field is required');
+
+            const user = await this.service.changeUserStatus(userId, status);
+
+            sendResponse(res, HttpStatus.OK, { user });
+        } catch (error) {
+            next(error);
+        }
     }
 }

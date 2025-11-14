@@ -339,16 +339,33 @@ export class AuthService implements IAuthService {
         }
     }
 
-    async verifyUser(userId: string): Promise<{ user: UserProfileDto; accessToken?: string; refreshToken?: string; }> {
+    async getNewAccessToken(refreshToken: string): Promise<{ user: UserProfileDto; accessToken: string; }> {
+
+        // let payload: AuthPayload;
+
+        const decoded = verifyRefreshToken(refreshToken);
+        console.log('get new access token - decoded ',decoded);
         
+        const userId = decoded._id;
+        if (!userId) {
+            throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.NO_PAYLOAD);
+        }
+
         const user = await this.userRepository.findById(userId);
 
-        if(!user) {
+        if (!user) {
             throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
         }
-        const mappedUser = mapUserProfile(user);
 
-        return { user: mappedUser };
+        const payload : AuthPayload = {
+            _id: user._id.toString(),
+            email: user.email,
+            role: user.role,
+        };
+
+        const accessToken = generateAccessToken(payload);
+
+        return { user: mapUserProfile(user), accessToken };
     }
 
     async changePassword(userId: string, password: string, newPassword: string): Promise<{ message: string; }> {

@@ -9,7 +9,7 @@ import { notify } from "../../../utils/toastService";
 import { validateProfileForm } from "../../../utils/validators";
 import type { ProfileFormData, FormErrors } from "../../../types/profileModal.types";
 import ProfileImageUploader from "../../../components/user/profile/ProfileImageUploader";
-import { profileService } from "../../../services/profile.service";
+import { userService } from "../../../services/user.service";
 import Loader from "../../../components/ui/Loader/Loader";
 
 interface ProfileModalProps {
@@ -119,7 +119,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
       if(selectedImageFile){
         const imageFormData = new FormData();
         imageFormData.append('profileImage',selectedImageFile);
-        const uploadResponse = await profileService.setProfileImage(imageFormData);
+        const uploadResponse = await userService.setProfileImage(imageFormData);
         profileImageUrl = uploadResponse.data.profileImage;
       }
 

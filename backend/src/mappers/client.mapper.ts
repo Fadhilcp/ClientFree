@@ -8,6 +8,7 @@ export function mapUserToClientDto(user: any): ClientProfileDto {
     profileImage: user.profileImage,
     name: user.name,
     role: user.role,
+    status: user.status,
     phone: user.phone,
     company: user.company ?? {},
     description: user.description,

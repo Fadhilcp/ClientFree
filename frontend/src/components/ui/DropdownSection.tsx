@@ -13,6 +13,7 @@ function DropdownSection<T extends Record<string, string>>({
   label,
   options,
 }: DropdownSectionProps<T>) {
+  console.log("🚀 ~ DropdownSection ~ value:", value)
   return (
     <div className="mt-3 w-full">
       {label && (

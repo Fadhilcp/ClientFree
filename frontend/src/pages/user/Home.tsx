@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import type { RootState } from '../../store/store';
 import { clearOtpInfo, resetNewUser, setUser } from '../../features/authSlice';
 import { notify } from '../../utils/toastService';
-import { profileService } from '../../services/profile.service';
+import { userService } from '../../services/user.service';
 import { skillService } from '../../services/skill.service';
 import Loader from '../../components/ui/Loader/Loader';
 import Button from '../../components/ui/Button';
@@ -43,7 +43,7 @@ const Home : React.FC = () => {
     const handleCreateProfile = async (formData : FormData) => {
         setLoading(true);
         try {
-            const response = await profileService.updateProfile(formData);
+            const response = await userService.updateProfile(formData);
             console.log("🚀 ~ handleCreateProfile ~ response.data:", response.data)
             if(response.data){
                 const user = response.data.user;

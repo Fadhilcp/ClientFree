@@ -1,5 +1,4 @@
 import { Router } from "express";
-
 import { ProfileController } from "../controllers/user.controller";
 import { UserRepository } from "../repositories/user.repository";
 import { UserService } from "../services/user.service";
@@ -14,12 +13,13 @@ const userService = new UserService(userRepository);
 const userController = new ProfileController(userService)
 
 userRouter.get('/me',authMiddleware,userController.getMe.bind(userController));
-userRouter.patch('/me',authMiddleware,userController.update.bind(userController));
+userRouter.put('/me',authMiddleware,userController.update.bind(userController));
 userRouter.get('/:id',authMiddleware,userController.getById.bind(userController));
 userRouter.get('/',authMiddleware,userController.getAll.bind(userController));
 
 userRouter.post('/profile-image',authMiddleware,upload.single('profileImage'),
         userController.setProfileImage.bind(userController)
     );
+userRouter.patch('/:id/status',authMiddleware,userController.updateStatus.bind(userController));
 
 export default userRouter;

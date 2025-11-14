@@ -1,0 +1,298 @@
+2025-11-13 21:13:12 [INFO]: Incoming request: GET
+2025-11-13 21:13:12 [INFO]: GET /api/plans/active?userType=client null - 76ms
+2025-11-13 21:13:12 [INFO]: Incoming request: GET
+2025-11-13 21:13:12 [INFO]: GET /api/plans/active?userType=client null - 38ms
+2025-11-13 21:13:23 [INFO]: Incoming request: GET
+2025-11-13 21:13:23 [INFO]: GET /api/user/me null - 35ms
+2025-11-13 21:13:23 [INFO]: Incoming request: GET
+2025-11-13 21:13:23 [INFO]: GET /api/user/me null - 17ms
+2025-11-13 21:13:32 [INFO]: Incoming request: GET
+2025-11-13 21:13:32 [INFO]: GET /api/plans/active?userType=client null - 9ms
+2025-11-13 21:13:32 [INFO]: Incoming request: GET
+2025-11-13 21:13:32 [INFO]: GET /api/plans/active?userType=client null - 13ms
+2025-11-14 18:56:17 [INFO]: Incoming request: POST
+2025-11-14 18:56:17 [INFO]: POST /api/auth/login null - 340ms
+2025-11-14 18:56:21 [INFO]: Incoming request: GET
+2025-11-14 18:56:21 [INFO]: GET /api/plans/active?userType=freelancer null - 55ms
+2025-11-14 18:56:21 [INFO]: Incoming request: GET
+2025-11-14 18:56:21 [INFO]: GET /api/plans/active?userType=freelancer null - 23ms
+2025-11-14 18:56:24 [INFO]: Incoming request: GET
+2025-11-14 18:56:24 [INFO]: GET /api/user/me null - 27ms
+2025-11-14 18:56:24 [INFO]: Incoming request: GET
+2025-11-14 18:56:24 [INFO]: GET /api/user/me null - 12ms
+2025-11-14 19:01:21 [INFO]: Incoming request: POST
+2025-11-14 19:01:22 [WARN]: POST /api/auth/login null - 87ms
+2025-11-14 19:01:28 [INFO]: Incoming request: POST
+2025-11-14 19:01:28 [INFO]: POST /api/auth/login null - 87ms
+2025-11-14 19:01:31 [INFO]: Incoming request: GET
+2025-11-14 19:01:31 [INFO]: GET /api/user/me null - 11ms
+2025-11-14 19:01:31 [INFO]: Incoming request: GET
+2025-11-14 19:01:31 [INFO]: GET /api/user/me null - 23ms
+2025-11-14 19:40:53 [INFO]: Incoming request: POST
+2025-11-14 19:40:53 [INFO]: POST /api/auth/login null - 111ms
+2025-11-14 19:41:36 [INFO]: Incoming request: POST
+2025-11-14 19:41:36 [INFO]: POST /api/auth/login null - 78ms
+2025-11-14 19:41:39 [INFO]: Incoming request: GET
+2025-11-14 19:41:39 [INFO]: GET /api/user/me null - 11ms
+2025-11-14 19:41:39 [INFO]: Incoming request: GET
+2025-11-14 19:41:39 [INFO]: GET /api/user/me null - 15ms
+2025-11-14 20:13:37 [INFO]: Incoming request: GET
+2025-11-14 20:13:37 [WARN]: GET /api/plans/active?userType=client null - 17ms
+2025-11-14 20:13:37 [INFO]: Incoming request: GET
+2025-11-14 20:13:37 [WARN]: GET /api/plans/active?userType=client null - 3ms
+2025-11-14 20:13:37 [INFO]: Incoming request: GET
+2025-11-14 20:13:37 [INFO]: GET /api/auth/refresh null - 36ms
+2025-11-14 20:13:37 [INFO]: Incoming request: GET
+2025-11-14 20:13:37 [INFO]: GET /api/auth/refresh null - 27ms
+2025-11-14 20:13:39 [INFO]: Incoming request: GET
+2025-11-14 20:13:39 [INFO]: GET /api/plans/active?userType=client null - 10ms
+2025-11-14 20:13:39 [INFO]: Incoming request: GET
+2025-11-14 20:13:39 [INFO]: GET /api/plans/active?userType=client null - 11ms
+2025-11-14 21:26:45 [INFO]: Incoming request: GET
+2025-11-14 21:26:45 [INFO]: GET /api/auth/access null - 78ms
+2025-11-14 21:26:45 [INFO]: Incoming request: GET
+2025-11-14 21:26:45 [INFO]: GET /api/auth/access null - 29ms
+2025-11-14 21:26:54 [INFO]: Incoming request: GET
+2025-11-14 21:26:54 [INFO]: Incoming request: GET
+2025-11-14 21:26:54 [INFO]: GET /api/plans/active?userType=client null - 165ms
+2025-11-14 21:26:54 [INFO]: GET /api/auth/access null - 156ms
+2025-11-14 21:26:54 [INFO]: Incoming request: GET
+2025-11-14 21:26:54 [INFO]: GET /api/plans/active?userType=client null - 51ms
+2025-11-14 21:27:00 [INFO]: Incoming request: GET
+2025-11-14 21:27:00 [INFO]: GET /api/auth/access null - 13ms
+2025-11-14 21:27:00 [INFO]: Incoming request: GET
+2025-11-14 21:27:00 [INFO]: GET /api/auth/access null - 9ms
+2025-11-14 21:27:03 [INFO]: Incoming request: GET
+2025-11-14 21:27:03 [INFO]: Incoming request: GET
+2025-11-14 21:27:03 [INFO]: GET /api/auth/access null - 17ms
+2025-11-14 21:27:03 [INFO]: GET /api/user/me null - 33ms
+2025-11-14 21:27:03 [INFO]: Incoming request: GET
+2025-11-14 21:27:03 [INFO]: GET /api/user/me null - 9ms
+2025-11-14 21:47:04 [INFO]: Incoming request: GET
+2025-11-14 21:47:04 [INFO]: GET /api/auth/access null - 24ms
+2025-11-14 21:47:04 [INFO]: Incoming request: GET
+2025-11-14 21:47:04 [INFO]: GET /api/auth/access null - 16ms
+2025-11-14 21:47:04 [INFO]: Incoming request: GET
+2025-11-14 21:47:05 [INFO]: GET /api/user/me null - 8ms
+2025-11-14 21:47:05 [INFO]: Incoming request: GET
+2025-11-14 21:47:05 [INFO]: GET /api/user/me null - 21ms
+2025-11-14 21:52:10 [INFO]: Incoming request: GET
+2025-11-14 21:52:10 [INFO]: GET /api/auth/access null - 7ms
+2025-11-14 21:52:10 [INFO]: Incoming request: GET
+2025-11-14 21:52:10 [INFO]: GET /api/auth/access null - 6ms
+2025-11-14 21:52:10 [INFO]: Incoming request: GET
+2025-11-14 21:52:10 [INFO]: GET /api/user/me null - 7ms
+2025-11-14 21:52:10 [INFO]: Incoming request: GET
+2025-11-14 21:52:10 [INFO]: GET /api/user/me null - 13ms
+2025-11-14 21:52:46 [INFO]: Incoming request: POST
+2025-11-14 21:52:46 [INFO]: POST /api/auth/login null - 173ms
+2025-11-14 21:53:05 [INFO]: Incoming request: POST
+2025-11-14 21:53:05 [INFO]: POST /api/auth/login null - 83ms
+2025-11-14 22:00:55 [INFO]: Incoming request: GET
+2025-11-14 22:00:55 [INFO]: GET /api/auth/access null - 10ms
+2025-11-14 22:00:55 [INFO]: Incoming request: GET
+2025-11-14 22:00:55 [INFO]: GET /api/auth/access null - 7ms
+2025-11-14 22:00:57 [INFO]: Incoming request: GET
+2025-11-14 22:00:57 [INFO]: GET /api/auth/access null - 9ms
+2025-11-14 22:00:58 [INFO]: Incoming request: GET
+2025-11-14 22:00:58 [INFO]: GET /api/auth/access null - 16ms
+2025-11-14 22:01:13 [INFO]: Incoming request: POST
+2025-11-14 22:01:13 [INFO]: POST /api/auth/login null - 88ms
+2025-11-14 22:01:13 [INFO]: Incoming request: GET
+2025-11-14 22:01:13 [INFO]: GET /api/auth/access null - 9ms
+2025-11-14 22:01:28 [INFO]: Incoming request: POST
+2025-11-14 22:01:28 [INFO]: POST /api/auth/login null - 81ms
+2025-11-14 22:01:41 [INFO]: Incoming request: GET
+2025-11-14 22:01:41 [INFO]: GET /api/plans/active?userType=freelancer null - 14ms
+2025-11-14 22:01:41 [INFO]: Incoming request: GET
+2025-11-14 22:01:41 [INFO]: GET /api/plans/active?userType=freelancer null - 12ms
+2025-11-14 22:01:44 [INFO]: Incoming request: GET
+2025-11-14 22:01:44 [INFO]: GET /api/plans/active?userType=freelancer null - 10ms
+2025-11-14 22:01:44 [INFO]: Incoming request: GET
+2025-11-14 22:01:44 [INFO]: GET /api/plans/active?userType=freelancer null - 12ms
+2025-11-14 22:01:46 [INFO]: Incoming request: GET
+2025-11-14 22:01:46 [INFO]: GET /api/user/me null - 10ms
+2025-11-14 22:01:46 [INFO]: Incoming request: GET
+2025-11-14 22:01:46 [INFO]: GET /api/user/me null - 12ms
+2025-11-14 22:02:04 [INFO]: Incoming request: GET
+2025-11-14 22:02:04 [INFO]: GET /api/plans/active?userType=freelancer null - 17ms
+2025-11-14 22:02:04 [INFO]: Incoming request: GET
+2025-11-14 22:02:04 [INFO]: GET /api/plans/active?userType=freelancer null - 10ms
+2025-11-14 22:03:07 [INFO]: Incoming request: GET
+2025-11-14 22:03:07 [INFO]: GET /api/auth/access null - 14ms
+2025-11-14 22:03:07 [INFO]: Incoming request: GET
+2025-11-14 22:03:07 [INFO]: GET /api/auth/access null - 7ms
+2025-11-14 22:03:33 [INFO]: Incoming request: GET
+2025-11-14 22:03:33 [INFO]: GET /api/auth/access null - 7ms
+2025-11-14 22:03:33 [INFO]: Incoming request: GET
+2025-11-14 22:03:33 [INFO]: GET /api/auth/access null - 12ms
+2025-11-14 22:03:36 [INFO]: Incoming request: GET
+2025-11-14 22:03:36 [INFO]: GET /api/auth/access null - 10ms
+2025-11-14 22:03:36 [INFO]: Incoming request: GET
+2025-11-14 22:03:36 [INFO]: GET /api/auth/access null - 13ms
+2025-11-14 22:03:41 [INFO]: Incoming request: GET
+2025-11-14 22:03:41 [INFO]: Incoming request: GET
+2025-11-14 22:03:41 [INFO]: GET /api/plans/active?userType=freelancer null - 33ms
+2025-11-14 22:03:41 [INFO]: Incoming request: GET
+2025-11-14 22:03:41 [INFO]: GET /api/plans/active?userType=freelancer null - 30ms
+2025-11-14 22:03:41 [INFO]: GET /api/auth/access null - 84ms
+2025-11-14 22:03:43 [INFO]: Incoming request: GET
+2025-11-14 22:03:43 [INFO]: GET /api/auth/access null - 11ms
+2025-11-14 22:03:44 [INFO]: Incoming request: GET
+2025-11-14 22:03:44 [INFO]: Incoming request: GET
+2025-11-14 22:03:44 [INFO]: GET /api/plans/active?userType=freelancer null - 29ms
+2025-11-14 22:03:44 [INFO]: GET /api/auth/access null - 18ms
+2025-11-14 22:03:44 [INFO]: Incoming request: GET
+2025-11-14 22:03:44 [INFO]: GET /api/plans/active?userType=freelancer null - 19ms
+2025-11-14 22:03:47 [INFO]: Incoming request: GET
+2025-11-14 22:03:47 [INFO]: Incoming request: GET
+2025-11-14 22:03:47 [INFO]: GET /api/user/me null - 24ms
+2025-11-14 22:03:47 [INFO]: GET /api/auth/access null - 32ms
+2025-11-14 22:03:47 [INFO]: Incoming request: GET
+2025-11-14 22:03:47 [INFO]: GET /api/user/me null - 15ms
+2025-11-14 22:04:09 [INFO]: Incoming request: GET
+2025-11-14 22:04:09 [INFO]: GET /api/auth/access null - 6ms
+2025-11-14 22:04:12 [INFO]: Incoming request: GET
+2025-11-14 22:04:12 [INFO]: GET /api/auth/access null - 6ms
+2025-11-14 22:04:14 [INFO]: Incoming request: GET
+2025-11-14 22:04:14 [INFO]: GET /api/auth/access null - 11ms
+2025-11-14 22:04:17 [INFO]: Incoming request: GET
+2025-11-14 22:04:17 [INFO]: GET /api/auth/access null - 8ms
+2025-11-14 22:04:21 [INFO]: Incoming request: GET
+2025-11-14 22:04:21 [INFO]: GET /api/auth/access null - 9ms
+2025-11-14 22:04:23 [INFO]: Incoming request: GET
+2025-11-14 22:04:23 [INFO]: GET /api/auth/access null - 8ms
+2025-11-14 22:04:24 [INFO]: Incoming request: GET
+2025-11-14 22:04:24 [INFO]: GET /api/auth/access null - 5ms
+2025-11-14 22:04:29 [INFO]: Incoming request: GET
+2025-11-14 22:04:29 [INFO]: GET /api/auth/access null - 12ms
+2025-11-14 22:04:30 [INFO]: Incoming request: GET
+2025-11-14 22:04:30 [INFO]: GET /api/auth/access null - 6ms
+2025-11-14 22:04:33 [INFO]: Incoming request: GET
+2025-11-14 22:04:33 [INFO]: GET /api/auth/access null - 7ms
+2025-11-14 22:05:00 [INFO]: Incoming request: GET
+2025-11-14 22:05:00 [INFO]: GET /api/auth/access null - 16ms
+2025-11-14 22:05:00 [INFO]: Incoming request: GET
+2025-11-14 22:05:00 [INFO]: GET /api/auth/access null - 21ms
+2025-11-14 22:05:00 [INFO]: Incoming request: GET
+2025-11-14 22:05:00 [INFO]: GET /api/user/me null - 13ms
+2025-11-14 22:05:00 [INFO]: Incoming request: GET
+2025-11-14 22:05:00 [INFO]: GET /api/user/me null - 14ms
+2025-11-14 22:05:03 [INFO]: Incoming request: GET
+2025-11-14 22:05:03 [INFO]: GET /api/auth/access null - 9ms
+2025-11-14 22:05:03 [INFO]: Incoming request: GET
+2025-11-14 22:05:03 [INFO]: GET /api/auth/access null - 12ms
+2025-11-14 22:05:03 [INFO]: Incoming request: GET
+2025-11-14 22:05:03 [INFO]: GET /api/user/me null - 61ms
+2025-11-14 22:05:03 [INFO]: Incoming request: GET
+2025-11-14 22:05:03 [INFO]: GET /api/user/me null - 21ms
+2025-11-14 22:05:07 [INFO]: Incoming request: GET
+2025-11-14 22:05:07 [INFO]: GET /api/plans/active?userType=freelancer null - 19ms
+2025-11-14 22:05:07 [INFO]: Incoming request: GET
+2025-11-14 22:05:07 [INFO]: GET /api/plans/active?userType=freelancer null - 12ms
+2025-11-14 22:05:24 [INFO]: Incoming request: POST
+2025-11-14 22:05:24 [INFO]: POST /api/auth/login null - 82ms
+2025-11-14 22:05:26 [INFO]: Incoming request: GET
+2025-11-14 22:05:26 [INFO]: GET /api/plans/active?userType=client null - 6ms
+2025-11-14 22:05:26 [INFO]: Incoming request: GET
+2025-11-14 22:05:26 [INFO]: GET /api/plans/active?userType=client null - 20ms
+2025-11-14 22:05:28 [INFO]: Incoming request: GET
+2025-11-14 22:05:28 [INFO]: GET /api/auth/access null - 23ms
+2025-11-14 22:05:28 [INFO]: Incoming request: GET
+2025-11-14 22:05:28 [INFO]: GET /api/auth/access null - 13ms
+2025-11-14 22:05:28 [INFO]: Incoming request: GET
+2025-11-14 22:05:28 [INFO]: GET /api/plans/active?userType=client null - 8ms
+2025-11-14 22:05:28 [INFO]: Incoming request: GET
+2025-11-14 22:05:28 [INFO]: GET /api/plans/active?userType=client null - 13ms
+2025-11-14 22:05:31 [INFO]: Incoming request: GET
+2025-11-14 22:05:31 [INFO]: GET /api/plans/active?userType=client null - 19ms
+2025-11-14 22:05:31 [INFO]: Incoming request: GET
+2025-11-14 22:05:31 [INFO]: GET /api/plans/active?userType=client null - 5ms
+2025-11-14 22:05:37 [INFO]: Incoming request: GET
+2025-11-14 22:05:37 [INFO]: GET /api/auth/access null - 16ms
+2025-11-14 22:05:37 [INFO]: Incoming request: GET
+2025-11-14 22:05:37 [INFO]: GET /api/auth/access null - 10ms
+2025-11-14 22:05:37 [INFO]: Incoming request: GET
+2025-11-14 22:05:37 [INFO]: GET /api/plans/active?userType=client null - 15ms
+2025-11-14 22:05:37 [INFO]: Incoming request: GET
+2025-11-14 22:05:37 [INFO]: GET /api/plans/active?userType=client null - 13ms
+2025-11-14 22:05:40 [INFO]: Incoming request: GET
+2025-11-14 22:05:40 [INFO]: GET /api/user/me null - 6ms
+2025-11-14 22:05:40 [INFO]: Incoming request: GET
+2025-11-14 22:05:40 [INFO]: GET /api/user/me null - 12ms
+2025-11-14 22:05:54 [INFO]: Incoming request: GET
+2025-11-14 22:05:54 [INFO]: GET /api/plans/active?userType=client null - 7ms
+2025-11-14 22:05:54 [INFO]: Incoming request: GET
+2025-11-14 22:05:54 [INFO]: GET /api/plans/active?userType=client null - 10ms
+2025-11-14 22:05:56 [INFO]: Incoming request: GET
+2025-11-14 22:05:56 [INFO]: GET /api/auth/access null - 11ms
+2025-11-14 22:05:56 [INFO]: Incoming request: GET
+2025-11-14 22:05:56 [INFO]: GET /api/auth/access null - 19ms
+2025-11-14 22:05:56 [INFO]: Incoming request: GET
+2025-11-14 22:05:56 [INFO]: GET /api/plans/active?userType=client null - 5ms
+2025-11-14 22:05:56 [INFO]: Incoming request: GET
+2025-11-14 22:05:56 [INFO]: GET /api/plans/active?userType=client null - 9ms
+2025-11-14 22:05:58 [INFO]: Incoming request: GET
+2025-11-14 22:05:58 [INFO]: GET /api/user/me null - 10ms
+2025-11-14 22:05:58 [INFO]: Incoming request: GET
+2025-11-14 22:05:58 [INFO]: GET /api/user/me null - 6ms
+2025-11-14 22:06:02 [INFO]: Incoming request: GET
+2025-11-14 22:06:02 [INFO]: GET /api/plans/active?userType=client null - 7ms
+2025-11-14 22:06:02 [INFO]: Incoming request: GET
+2025-11-14 22:06:02 [INFO]: GET /api/plans/active?userType=client null - 9ms
+2025-11-14 22:06:04 [INFO]: Incoming request: GET
+2025-11-14 22:06:04 [INFO]: GET /api/user/me null - 7ms
+2025-11-14 22:06:04 [INFO]: Incoming request: GET
+2025-11-14 22:06:04 [INFO]: GET /api/user/me null - 11ms
+2025-11-14 22:06:11 [INFO]: Incoming request: GET
+2025-11-14 22:06:11 [INFO]: GET /api/skills/active null - 44ms
+2025-11-14 22:06:17 [INFO]: Incoming request: GET
+2025-11-14 22:06:17 [INFO]: GET /api/plans/active?userType=client null - 19ms
+2025-11-14 22:06:17 [INFO]: Incoming request: GET
+2025-11-14 22:06:17 [INFO]: GET /api/plans/active?userType=client null - 7ms
+2025-11-14 22:06:20 [INFO]: Incoming request: GET
+2025-11-14 22:06:20 [INFO]: GET /api/plans/active?userType=client null - 6ms
+2025-11-14 22:06:20 [INFO]: Incoming request: GET
+2025-11-14 22:06:20 [INFO]: GET /api/plans/active?userType=client null - 10ms
+2025-11-14 22:06:24 [INFO]: Incoming request: GET
+2025-11-14 22:06:24 [INFO]: GET /api/auth/access null - 14ms
+2025-11-14 22:06:24 [INFO]: Incoming request: GET
+2025-11-14 22:06:24 [INFO]: GET /api/auth/access null - 19ms
+2025-11-14 22:06:24 [INFO]: Incoming request: GET
+2025-11-14 22:06:24 [INFO]: GET /api/plans/active?userType=client null - 6ms
+2025-11-14 22:06:24 [INFO]: Incoming request: GET
+2025-11-14 22:06:24 [INFO]: GET /api/plans/active?userType=client null - 27ms
+2025-11-14 22:08:13 [INFO]: Incoming request: GET
+2025-11-14 22:08:13 [INFO]: GET /api/auth/access null - 43ms
+2025-11-14 22:08:13 [INFO]: Incoming request: GET
+2025-11-14 22:08:13 [INFO]: GET /api/auth/access null - 25ms
+2025-11-14 22:08:13 [INFO]: Incoming request: GET
+2025-11-14 22:08:13 [INFO]: GET /api/plans/active?userType=client null - 13ms
+2025-11-14 22:08:13 [INFO]: Incoming request: GET
+2025-11-14 22:08:13 [INFO]: GET /api/plans/active?userType=client null - 8ms
+2025-11-14 22:08:19 [INFO]: Incoming request: GET
+2025-11-14 22:08:19 [INFO]: GET /api/auth/access null - 8ms
+2025-11-14 22:08:19 [INFO]: Incoming request: GET
+2025-11-14 22:08:19 [INFO]: GET /api/auth/access null - 5ms
+2025-11-14 22:08:19 [INFO]: Incoming request: GET
+2025-11-14 22:08:19 [INFO]: GET /api/plans/active?userType=client null - 4ms
+2025-11-14 22:08:19 [INFO]: Incoming request: GET
+2025-11-14 22:08:19 [INFO]: GET /api/plans/active?userType=client null - 8ms
+2025-11-14 22:08:23 [INFO]: Incoming request: GET
+2025-11-14 22:08:23 [INFO]: GET /api/auth/access null - 8ms
+2025-11-14 22:08:23 [INFO]: Incoming request: GET
+2025-11-14 22:08:23 [INFO]: GET /api/auth/access null - 11ms
+2025-11-14 22:08:23 [INFO]: Incoming request: GET
+2025-11-14 22:08:23 [INFO]: GET /api/plans/active?userType=client null - 10ms
+2025-11-14 22:08:23 [INFO]: Incoming request: GET
+2025-11-14 22:08:23 [INFO]: GET /api/plans/active?userType=client null - 5ms
+2025-11-14 22:08:24 [INFO]: Incoming request: GET
+2025-11-14 22:08:24 [INFO]: GET /api/auth/access null - 7ms
+2025-11-14 22:08:26 [INFO]: Incoming request: GET
+2025-11-14 22:08:26 [INFO]: GET /api/plans/active?userType=client null - 4ms
+2025-11-14 22:08:26 [INFO]: Incoming request: GET
+2025-11-14 22:08:26 [INFO]: GET /api/plans/active?userType=client null - 6ms
+2025-11-14 22:08:36 [INFO]: Incoming request: GET
+2025-11-14 22:08:36 [INFO]: GET /api/plans/active?userType=client null - 9ms
+2025-11-14 22:08:36 [INFO]: Incoming request: GET
+2025-11-14 22:08:36 [INFO]: GET /api/plans/active?userType=client null - 19ms

@@ -14,6 +14,7 @@ import { useDispatch } from "react-redux";
 import { setCredentials } from "../../features/authSlice";
 import AuthImage from "../../components/auth/AuthImage";
 import Loader from "../../components/ui/Loader/Loader";
+import { tokenStore } from "../../utils/tokenStore";
 
 const Login: React.FC = () => {
 
@@ -56,7 +57,7 @@ const Login: React.FC = () => {
       const response = await authService.login(values);
         const { user, token } = response.data;
         console.log("🚀 ~ handleSubmit ~ user:", user)
-        localStorage.setItem('token',token)
+        tokenStore.set(token);
         dispatch(setCredentials({user,token}))
 
         notify.success('User logged')

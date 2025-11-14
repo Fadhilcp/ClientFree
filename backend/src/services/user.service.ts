@@ -41,8 +41,8 @@ export class UserService implements IUserService {
         return mapUserProfile(updatedUser);
     }
 
-    async getUserProfileById(id: string): Promise<UserProfileDto> {
-        const user = await this.userRepository.findById(id);
+    async getUserProfileById(userId: string): Promise<UserProfileDto> {
+        const user = await this.userRepository.findByIdWithSkills(userId);
 
         if(!user) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
 
@@ -90,5 +90,24 @@ export class UserService implements IUserService {
         await user.save();
 
         return { profileImage: "" };
+    }
+
+    async changeUserStatus(userId: string, status: "active" | "inactive" | "banned" ): Promise<UserProfileDto> {
+
+        if(!["active", "inactive", "banned"].includes(status)){
+            throw createHttpError(HttpStatus.BAD_REQUEST,HttpResponse.INVALID_STATUS);
+        }
+
+        const existingUser = await this.userRepository.findById(userId);
+
+        if(!existingUser) throw createHttpError(HttpStatus.NOT_FOUND,HttpResponse.USER_NOT_FOUND);
+
+        if(existingUser.status === status) {
+            throw createHttpError(HttpStatus.BAD_REQUEST, `User is already ${status}`);
+        }
+
+        existingUser.status = status;
+        await existingUser.save();
+        return mapUserProfile(existingUser);
     }
 }

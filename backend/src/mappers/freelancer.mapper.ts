@@ -8,6 +8,7 @@ export function mapUserToFreelancerDto(user: any): FreelancerProfileDto {
     profileImage: user.profileImage,
     name: user.name,
     role: user.role,
+    status: user.status,
     phone: user.phone,
     professionalTitle: user.professionalTitle,
     hourlyRate: user.hourlyRate,

@@ -51,4 +51,7 @@ export const HttpResponse = {
     NO_ACTIVE_SUBSCRIPTION: "No active subscription found",
     ROLE_NOT_FOUND: "Role not found",
     NO_FILE_FOUND: "No file uploaded",
+    ACCESS_DENIED: "Access denied",
+    INVALID_STATUS: "Invalid status",
+    REFRESH_TOKEN_MISSING: "Refresh token missing"
 };

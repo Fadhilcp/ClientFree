@@ -5,7 +5,7 @@ import ProfileHeader from "../../../components/user/profile/ProfileHeader";
 import ProfileSection from "../../../components/user/profile/ProfileSection";
 import InfoSection from "../../../components/user/profile/InfoSection";
 import TagListSection from "../../../components/user/profile/TagListSection";
-import { profileService } from "../../../services/profile.service";
+import { userService } from "../../../services/user.service";
 import type { UserProfileDto } from "../../../types/user/userProfile.type";
 import { notify } from "../../../utils/toastService";
 import Loader from "../../../components/ui/Loader/Loader";
@@ -28,7 +28,7 @@ const Profile: React.FC = () => {
   
   const fetchProfile = async () => {
     try {
-      const response = await profileService.getMyProfile();
+      const response = await userService.getMyProfile();
       if (response.data.success) {
         const user = response.data.user;
         dispatch(setUser(user));
@@ -69,7 +69,7 @@ const Profile: React.FC = () => {
   const handleCreateProfile = async (formData : FormData) => {
       setLoading(true);
       try {
-          const response = await profileService.updateProfile(formData);
+          const response = await userService.updateProfile(formData);
           if(response.data){
 
             fetchProfile();

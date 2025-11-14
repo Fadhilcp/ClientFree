@@ -16,5 +16,5 @@ export interface IAuthService{
     googleAuth(access_token: string, role: string) : Promise<{
          accessToken?: string, refreshToken?: string, user?: SanitizedUser, isNewUser?: Boolean, needsRole?: Boolean
         }>;
-    verifyUser(userId: string) : Promise<{ user: UserProfileDto, accessToken ?: string, refreshToken?: string }>;
+    getNewAccessToken(refreshToken: string) : Promise<{ user: UserProfileDto, accessToken: string }>;
 }

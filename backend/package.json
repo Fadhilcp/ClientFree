@@ -47,6 +47,7 @@
     "razorpay": "^2.9.6",
     "streamifier": "^0.1.1",
     "ts-node": "^10.9.2",
+    "winston": "^3.18.3",
     "zod": "^4.1.11"
   }
 }

@@ -10,6 +10,7 @@ import OtpResendTimer from '../../components/auth/OtpResendTimer';
 import AuthImage from '../../components/auth/AuthImage';
 import type { RootState } from '../../store/store';
 import Loader from '../../components/ui/Loader/Loader';
+import { tokenStore } from '../../utils/tokenStore';
 
 const VerifyOtp : React.FC = () => {
 
@@ -41,7 +42,7 @@ const VerifyOtp : React.FC = () => {
             const response = await authService.verifySignupOtp(otpEmail, otp, otpPurpose);
             const { user, token } = response.data;
             
-              localStorage.setItem('token',token);
+              tokenStore.set(token);
               dispatch(setCredentials({user, token, isNewUser: true}));
 
               notify.success('User verified')

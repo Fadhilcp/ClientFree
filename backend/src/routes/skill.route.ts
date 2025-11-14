@@ -5,6 +5,7 @@ import { UserRepository } from "repositories/user.repository";
 import { SkillService } from "services/skill.service";
 import { SkillController } from "controllers/skill.controller";
 import { authMiddleware } from "middlewares/authMiddleware";
+import { verifyAdmin } from "middlewares/verifyAdmin";
 
 const skillRouter = Router()
 
@@ -13,10 +14,12 @@ const skillRepository = new SkillRepository();
 const skillService = new SkillService(skillRepository, userRepository);
 const skillController = new SkillController(skillService);
 
-skillRouter.post('/',authMiddleware,skillController.create.bind(skillController));
 skillRouter.get('/active',authMiddleware,skillController.getActive.bind(skillController));
-skillRouter.get('/',authMiddleware,skillController.getAll.bind(skillController));
-skillRouter.patch('/:id',authMiddleware,skillController.update.bind(skillController));
-skillRouter.delete('/:id',authMiddleware,skillController.delete.bind(skillController));
+
+skillRouter.use(authMiddleware, verifyAdmin);
+skillRouter.post('/',skillController.create.bind(skillController));
+skillRouter.get('/',skillController.getAll.bind(skillController));
+skillRouter.patch('/:id',skillController.update.bind(skillController));
+skillRouter.delete('/:id',skillController.delete.bind(skillController));
 
 export default skillRouter;

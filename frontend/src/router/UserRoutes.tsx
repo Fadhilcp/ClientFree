@@ -21,11 +21,11 @@ import SecuritySetting from "../pages/user/settings/SecuritySetting";
 
 const UserRoutes: React.FC = () => {
 
-    // const { loading } = useAuthVerifier();
+    const { loading } = useAuthVerifier();
 
-    // if(loading){
-    //     return <Loader/>
-    // }
+    if(loading){
+        return <Loader/>
+    }
 
     return (
 
@@ -98,8 +98,8 @@ const UserRoutes: React.FC = () => {
                     <SettingsLayout/>
                 </AuthProtectedRoute>
             }>
-                <Route index element={<Navigate to="security" replace />} />
-                <Route path="security" element={<SecuritySetting/>}/>
+                <Route index element={<Navigate to="account-security" replace />} />
+                <Route path="account-security" element={<SecuritySetting/>}/>
             </Route>
             </Route>
         </Routes>

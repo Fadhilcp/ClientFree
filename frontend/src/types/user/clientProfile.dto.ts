@@ -2,11 +2,13 @@ export interface ClientProfileDto {
   id: string;
   username: string;
   email: string;
-  profileImage?: string;
-  role: string;
-  description?: string;
-
   name?: string;
+  role: string;
+  phone?: string;
+  status: string;
+  profileImage?: string;
+  
+  description?: string;
 
   company?: {
     name?: string;
@@ -29,5 +31,5 @@ export interface ClientProfileDto {
     country?: string;
   };
 
-  createdAt: string;
+  createdAt: Date;
 }

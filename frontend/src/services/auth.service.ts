@@ -46,8 +46,8 @@ class AuthService {
         return axios.post(endPoints.AUTH.GOOGLE, {token, role});
     }
 
-    verifyUser() {
-        return axios.get(endPoints.AUTH.VERIFY);
+    accessToken() {
+        return axios.get(endPoints.AUTH.ACCESS_TOKEN);
     }
 
     changePassword(data: ChangePasswordType){
