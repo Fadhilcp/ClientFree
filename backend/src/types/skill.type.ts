@@ -4,7 +4,7 @@ export interface ISkill {
     name: string;
     normalizedName: string;
     category: string;
-    status?: 'active' | 'inactive';
+    status: 'active' | 'inactive';
 }
 
 export interface ISkillDocument extends ISkill, Document {

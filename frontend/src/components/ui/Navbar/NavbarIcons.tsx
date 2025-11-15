@@ -5,6 +5,8 @@ import ProfileImage from '../../user/profile/ProfileImage';
 import type { RootState } from '../../../store/store';
 import { logout } from '../../../features/authSlice';
 import { notify } from '../../../utils/toastService';
+import { tokenStore } from '../../../utils/tokenStore';
+import { authService } from '../../../services/auth.service';
 
 const NavbarIcons: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,13 +28,13 @@ const NavbarIcons: React.FC = () => {
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const handleLogout = async () => {
+    const handleLogout = async() => {
+      await authService.logout();
       dispatch(logout());
-      localStorage.removeItem('token');
+      tokenStore.clear();
       notify.success('You’ve been logged out successfully.');
       navigate('/login');
     };
-
 
   return (
     <div className="relative flex items-center gap-4">

@@ -66,7 +66,7 @@ const Navbar: React.FC<NavbarProps> = ({ role }) => {
             <Logo/>
 
             {/* Right-side buttons */}
-            <div className="flex items-center lg:order-2 space-x-4">
+            <div className="flex items-center lg:order-2 space-x-2">
               {role !== "landing" ? (
 
                 <NavbarIcons/>
@@ -77,13 +77,13 @@ const Navbar: React.FC<NavbarProps> = ({ role }) => {
                     label="Login"
                     variant="secondary"
                     onClick={() => navigate("/login")}
-                    className="px-4 py-2 text-sm rounded font-bold transition-colors duration-200"
+                    className="px-4 py-1 text-sm rounded font-semibold transition-colors duration-200"
                   />
                   <Button
                     label="Sign Up"
                     variant="primary"
                     onClick={() => navigate("/roleselect")}
-                    className="px-4 py-2 text-sm rounded font-bold transition-colors duration-200"
+                    className="px-4 py-1 text-sm rounded font-semibold transition-colors duration-200"
                   />
                 </>
               )}

@@ -56,7 +56,6 @@ const Login: React.FC = () => {
     try {
       const response = await authService.login(values);
         const { user, token } = response.data;
-        console.log("🚀 ~ handleSubmit ~ user:", user)
         tokenStore.set(token);
         dispatch(setCredentials({user,token}))
 
@@ -64,7 +63,6 @@ const Login: React.FC = () => {
         navigate('/home');
       
     } catch (error : any) {
-      console.log(error)
       notify.error(error.response?.data?.error || 'Login failed');
     } finally {
       setLoading(false);

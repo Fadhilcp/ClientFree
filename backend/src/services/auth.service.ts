@@ -21,7 +21,11 @@ export class AuthService implements IAuthService {
 
     constructor(private userRepository : IUserRepository, private otpUserStoreRepository : IOtpUserStoreRepository){};
 
-    async signUp(data : IOtpUserStore) : Promise<void> {
+    async signUp(data : Partial<IOtpUserStore>) : Promise<void> {
+
+        if(!data.email){
+            throw createHttpError(HttpStatus.BAD_REQUEST,HttpResponse.EMAIL_REQUIRED);
+        }
 
         const existingUser = await this.userRepository.findByEmail(data.email);
         const pendingUser = await this.otpUserStoreRepository.findByEmail(data.email);
@@ -159,6 +163,7 @@ export class AuthService implements IAuthService {
     async login(email: string, password: string): Promise<{ accessToken: string; refreshToken: string; user: UserProfileDto }>  {
         
         const user = await this.userRepository.findByEmail(email);
+        console.log("🚀 ~ AuthService ~ login ~ user:", user)
 
         if(!user) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
 
@@ -281,23 +286,19 @@ export class AuthService implements IAuthService {
     } 
 
     async googleAuth(access_token: string, role: 'freelancer' | 'client') :Promise<{
-         accessToken ?: string, refreshToken ?: string, user ?: SanitizedUser, isNewUser?: Boolean, needsRole?: Boolean,
+         accessToken ?: string, refreshToken ?: string, user ?: SanitizedUser, isNewUser?: boolean, needsRole?: boolean,
         }>{
-        console.log("🚀 ~ AuthService ~ googleAuth ~ role:", role)
         try {
 
             const { data } = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
                 headers: { Authorization: `Bearer ${access_token}`},
             });
-            console.log("🚀 ~ AuthService ~ googleAuth ~ data:", data)
 
             const { email, name, picture } = data;
-            console.log("🚀 ~ AuthService ~ googleAuth ~ email:", email)
 
             if(!email) throw createHttpError(HttpStatus.BAD_REQUEST,HttpResponse.EMAIL_REQUIRED);
 
             let user = await this.userRepository.findOne({email});
-            console.log("🚀 ~ AuthService ~ googleAuth ~ user:", user)
 
             //to identify user is new or not
             let isNewUser = false;
@@ -333,9 +334,14 @@ export class AuthService implements IAuthService {
 
             return { user: sanitizedUser, refreshToken, accessToken, isNewUser };
             
-        } catch (error: any) {
-            console.error('googleAuth service error',error.message)
-            throw error;
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.error('googleAuth service error', error.message);
+                throw error;
+            } else {
+                console.error('googleAuth service unknown error', error);
+                throw createHttpError(HttpStatus.INTERNAL_SERVER_ERROR, 'An unexpected error occurred');
+            }
         }
     }
 

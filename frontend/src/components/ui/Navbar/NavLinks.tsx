@@ -1,5 +1,6 @@
 import React from 'react'
 import { useLocation } from 'react-router-dom';
+import Button from '../Button';
 
 interface NavLinksProps {
     links: string[];
@@ -18,16 +19,14 @@ const NavLinks: React.FC<NavLinksProps> = ({ links, navigate, routes }) => {
 
         return (
           <li key={i}>
-            <button
+            <Button label={label}
               onClick={() => navigate(routes[label])}
-              className={`block py-2 pl-1 pr-1 ${
+              className={`block py-2 pl-1 pr-1 bg-transparent hover:bg-transparent ${
                     isActive
                     ? "text-indigo-600 dark:text-indigo-500 border-b-2 border-indigo-600 dark:border-indigo-500"
                     : "text-gray-700 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-white"
                 }`}
-            >
-              {label}
-            </button>
+            />
           </li>
         );
       })}

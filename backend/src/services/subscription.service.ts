@@ -71,8 +71,14 @@ export class SubscriptionService implements ISubscriptionService {
             try {
                 const newCustomer = await razorpay.customers.create({ email: data.email, contact: data.contact });
                 razorpayCustomerId = newCustomer.id;
-            } catch (error: any) {
-                if (error.error?.description?.includes("Customer already exists")) {
+            } catch (error: unknown) {
+                //ro check the error is because of user already exist
+                if (
+                    typeof error === 'object' &&
+                    error !== null &&
+                    'error' in error &&
+                    (error as { error?: { description?: string } }).error?.description?.includes("Customer already exists")
+                ) {
                     // taking a list of subscription to find the customerId
                     const customers = await razorpay.customers.all({ count: 50 });
                     const existing = customers.items.find(c => c.email === data.email);
@@ -82,8 +88,10 @@ export class SubscriptionService implements ISubscriptionService {
                     } else {
                         throw createHttpError(HttpStatus.NOT_FOUND, 'customer exists but ID not found');
                     }
-                } else {
+                } else if (error instanceof Error) {
                     throw error;
+                } else {
+                    throw createHttpError(HttpStatus.INTERNAL_SERVER_ERROR, 'Unknown error occurred');
                 }
             }
         }
@@ -103,9 +111,11 @@ export class SubscriptionService implements ISubscriptionService {
 
         const startDate = new Date();
         const expiryDate = new Date(startDate);
-        data.billingInterval === "monthly"
-            ? expiryDate.setMonth(expiryDate.getMonth() + 1)
-            : expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+        if (data.billingInterval === "monthly") {
+            expiryDate.setMonth(expiryDate.getMonth() + 1);
+        } else {
+            expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+        }
 
         const subscription = await this.subscriptionRepository.create({
             userId: data.userId,
@@ -124,7 +134,7 @@ export class SubscriptionService implements ISubscriptionService {
     }
 
     async verifyPayment({
-        razorpay_subscription_id, razorpay_payment_id, razorpay_signature, role
+        razorpay_subscription_id, razorpay_payment_id, razorpay_signature
     }: Record<string, string>): Promise<{ message: string }>{
         
         const razorpay = getRazorpayInstance();

@@ -50,6 +50,10 @@ class AuthService {
         return axios.get(endPoints.AUTH.ACCESS_TOKEN);
     }
 
+    logout() {
+        return axios.post(endPoints.AUTH.LOGOUT);
+    }
+
     changePassword(data: ChangePasswordType){
         return axios.put(endPoints.AUTH.CHANGE_PASSWORD, data);
     }

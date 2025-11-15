@@ -4,7 +4,7 @@ import { IPlan, IPlanDocument } from "types/plan.type";
 import { createHttpError } from "utils/httpError.util";
 import { HttpStatus } from "constants/status.constants";
 import { HttpResponse } from "constants/responseMessage.constant";
-import { DeleteResult, FilterQuery, UpdateResult } from "mongoose";
+import { DeleteResult, FilterQuery } from "mongoose";
 import { mapPlan } from "mappers/plan.mapper";
 import { PlanDetailAdminDTO, PlanDetailUserDTO, PlanTableDTO } from "dtos/plan.dto";
 import { getRazorpayInstance } from "config/razorpay.config";
@@ -50,7 +50,6 @@ export class PlanService implements IPlanService {
     }
 
     async createPlan(data: IPlan): Promise<IPlanDocument> {
-        console.log("🚀 ~ PlanService ~ createPlan ~ data:", data)
         
         const razorpay = getRazorpayInstance();
         

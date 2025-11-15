@@ -10,7 +10,8 @@ export const endPoints = {
         FORGOT_PASSWORD : '/auth/forgot-password',
         CHANGE_PASSWORD: '/auth/change-password',
         RESEND_OTP : '/auth/resend-otp',
-        GOOGLE: '/auth/google'
+        GOOGLE: '/auth/google',
+        LOGOUT: '/auth/logout',
     },
     USER : {
         GET_ME : '/user/me',

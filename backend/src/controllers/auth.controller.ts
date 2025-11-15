@@ -1,10 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { IAuthService } from "../services/interface/IAuthService";
-import { setCookie } from "../utils/refreshCookie.util";
+import { clearCookie, setCookie } from "../utils/refreshCookie.util";
 import { HttpStatus } from "../constants/status.constants";
 import { HttpResponse } from "../constants/responseMessage.constant";
 import { createHttpError } from "../utils/httpError.util";
-import { AuthPayload } from "types/auth.type";
 import { sendResponse } from "utils/response.util";
 
 
@@ -15,12 +14,12 @@ export class AuthController {
         try {
             const { username, email , password, role } = req.body;
 
-            await this.service.signUp({ username, email, password, role} as any);
+            await this.service.signUp({ username, email, password, role});
 
             sendResponse(res, HttpStatus.CREATED, {
                 email
             },'OTP sent to your email. Please verify to complete signup')
-        } catch (error : any) {
+        } catch (error) {
             next(error)
         }
     };
@@ -38,7 +37,7 @@ export class AuthController {
                 token: accessToken,
                 user
             }, "SignUp complete");
-        } catch (error : any) {
+        } catch (error) {
             next(error)
         }
     };
@@ -55,7 +54,7 @@ export class AuthController {
                 token: accessToken,
                 user
             }, "Login complete");
-        } catch (error : any) {
+        } catch (error) {
             next(error)
         }
     };
@@ -74,7 +73,7 @@ export class AuthController {
 
             sendResponse(res, HttpStatus.OK, {}, "OTP sent to your email");
             
-        } catch (error : any) {
+        } catch (error) {
             next(error)
         }
     }
@@ -96,7 +95,7 @@ export class AuthController {
             sendResponse(res, HttpStatus.OK, {},
                 HttpResponse.OTP_RESENT_SUCCESS,
             );
-        } catch (error : any) {
+        } catch (error) {
             next(error)
         }
     }
@@ -116,7 +115,7 @@ export class AuthController {
                 HttpResponse.OTP_VERIFIED_SUCCESS,
             );
             
-        } catch (error : any) {
+        } catch (error) {
             next(error)
         }
     }
@@ -136,7 +135,7 @@ export class AuthController {
                 HttpResponse.PASSWORD_CHANGE_SUCCESS,
             );
             
-        } catch (error : any) {
+        } catch (error) {
             next(error)
         }
     }
@@ -154,7 +153,7 @@ export class AuthController {
                 token: accessToken 
             }, "Access token generated successfully");
                 
-        } catch (error : any) {
+        } catch (error) {
             next(error)
         }
     }
@@ -197,7 +196,9 @@ export class AuthController {
             const refreshToken = req.cookies.refreshToken;
 
             if (!refreshToken) {
-                throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.REFRESH_TOKEN_MISSING);
+                // throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.REFRESH_TOKEN_MISSING);
+                sendResponse(res, HttpStatus.UNAUTHORIZED, {}, HttpResponse.REFRESH_TOKEN_MISSING);
+                return
             }
 
             const { user, accessToken } = await this.service.getNewAccessToken(refreshToken);
@@ -223,6 +224,17 @@ export class AuthController {
             }
             const { message } = await this.service.changePassword(userId, password, newPassword);
             sendResponse(res, HttpStatus.OK, {}, message);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async logout(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            
+            clearCookie(res);
+
+            sendResponse(res, HttpStatus.OK, {}, HttpResponse.LOGOUT_SUCCESS);
         } catch (error) {
             next(error);
         }

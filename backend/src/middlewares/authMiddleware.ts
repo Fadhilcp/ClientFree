@@ -16,7 +16,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
         console.log("🚀 ~ authMiddleware ~ decoded:", decoded)
         req.user = decoded;
         next();
-    } catch (error : any) {
+    } catch (error) {
         next(error)
     }
 }

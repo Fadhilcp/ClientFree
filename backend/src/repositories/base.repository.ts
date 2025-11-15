@@ -6,7 +6,9 @@ import {
     UpdateQuery,
     UpdateResult,
     DeleteResult,
-    ObjectId
+    ObjectId,
+    SortOrder,
+    PopulateOptions
 } from "mongoose";
 import { IBaseRepository } from "./interfaces/IBaseRepository";
 
@@ -50,7 +52,7 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T>{
         return this.model.deleteOne(filter);
     }
 
-    async findOne(filter : FilterQuery<T>, options?: { sort?: any }) : Promise<T | null>{
+    async findOne(filter : FilterQuery<T>, options?: { sort?: Record<string, SortOrder> }) : Promise<T | null>{
         let query = this.model.findOne(filter);
         if(options?.sort) query = query.sort(options.sort);
         return query;
@@ -67,9 +69,9 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T>{
     async paginate(filter: FilterQuery<T> = {},options: {
         page?: number;
         limit?: number;
-        sort?: any;
-        select?: any;
-        populate?: any;
+        sort?: Record<string, SortOrder>;
+        select?: string | Record<string, 0 | 1>;
+        populate?: PopulateOptions | (string | PopulateOptions)[];
     } = {}): Promise<{
         data: T[];
         total: number;
@@ -85,7 +87,12 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T>{
 
         if (options.sort) query = query.sort(options.sort);
         if (options.select) query = query.select(options.select);
-        if (options.populate) query = query.populate(options.populate);
+        if (options.populate) {
+            const populateOption = typeof options.populate === 'string'
+                ? { path: options.populate } 
+                : options.populate;
+            query = query.populate(populateOption);
+        }
 
         const [data, total] = await Promise.all([
             query.exec(),

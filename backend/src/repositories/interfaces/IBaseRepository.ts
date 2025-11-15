@@ -1,4 +1,4 @@
-import { DeleteResult, Document, FilterQuery, ObjectId, UpdateQuery, UpdateResult } from "mongoose";
+import { DeleteResult, Document, FilterQuery, ObjectId, PopulateOptions, SortOrder, UpdateQuery, UpdateResult } from "mongoose";
 
 
 export interface IBaseRepository<TDocument extends Document> {
@@ -11,14 +11,14 @@ export interface IBaseRepository<TDocument extends Document> {
   delete(id: ObjectId | string): Promise<TDocument | null>;
   deleteMany(filter: FilterQuery<TDocument>): Promise<DeleteResult>;
   deleteOne(filter: FilterQuery<TDocument>): Promise<DeleteResult>;
-  findOne(filter: FilterQuery<TDocument>, options?: { sort?: any }): Promise<TDocument | null>;
+  findOne(filter: FilterQuery<TDocument>, options?: { sort?: Record<string, SortOrder> }): Promise<TDocument | null>;
   find(filter: FilterQuery<TDocument>): Promise<TDocument[]>;
   paginate(filter: FilterQuery<TDocument>,options: {
         page?: number;
         limit?: number;
-        sort?: any;
-        select?: any;
-        populate?: any;
+        sort?: Record<string, SortOrder>;
+        select?: string | Record<string, 0 | 1>;
+        populate?: PopulateOptions | (string | PopulateOptions)[];
     }): Promise<{
         data: TDocument[];
         total: number;

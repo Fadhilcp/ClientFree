@@ -7,14 +7,17 @@ import "react-toastify/dist/ReactToastify.css";
 import AdminRoutes from "./router/AdminRoutes";
 
 
-const App: React.FC = () => (
-  <Provider store={store}>
+const App: React.FC = () => {
+  return (
+    <Provider store={store}>
 
-      <UserRoutes />
-      <AdminRoutes/>
-      <ToastContainer position="top-right" autoClose={3000} theme="colored" />
+        <UserRoutes />
+        <AdminRoutes/>
+        <ToastContainer position="top-right" autoClose={3000} theme="colored" />
 
-  </Provider>
-);
+    </Provider>
+  );
+}
+
 
 export default App;

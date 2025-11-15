@@ -1,4 +1,6 @@
 import { ISkillDocument } from "types/skill.type";
 import { IBaseRepository } from "./IBaseRepository";
 
-export interface ISkillRepository extends IBaseRepository<ISkillDocument>{};
+// export interface ISkillRepository extends IBaseRepository<ISkillDocument>{};
+
+export type ISkillRepository = IBaseRepository<ISkillDocument>;

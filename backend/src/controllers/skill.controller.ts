@@ -25,12 +25,14 @@ export class SkillController {
 
     async getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const search = req.query.search as string || '';
-            const { category, status } = req.query;
+            const search = typeof req.query.search === 'string' ? req.query.search : '';
+            const category = typeof req.query.category === 'string' ? req.query.category : '';
+            const status = typeof req.query.status === 'string' ? req.query.status : '';
+            
             const page = parseInt(req.query.page as string) || 1;
             const limit = parseInt(req.query.limit as string) || 10;
 
-            const filters: any = {};
+            const filters: { category?: string, status?: string} = {};
             if (category) filters.category = category;
             if (status) filters.status = status;
 

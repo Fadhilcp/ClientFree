@@ -12,6 +12,7 @@ const useAuthVerifier = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+
     const existingToken = tokenStore.get();
     if(existingToken) {
       setLoading(false);
@@ -36,7 +37,6 @@ const useAuthVerifier = () => {
         console.error("Token verification failed", error);
         dispatch(logout());
         tokenStore.clear();
-        navigate("/login");
       } finally {
         setLoading(false);
       }

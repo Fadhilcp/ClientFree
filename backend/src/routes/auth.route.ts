@@ -25,8 +25,9 @@ authRouter.get('/access',authController.getNewAccessToken.bind(authController));
 
 authRouter.post('/forgot-password',authController.forgotPassword.bind(authController));
 authRouter.post('/reset-password',authController.resetPassword.bind(authController));
-authRouter.put('/change-password',authMiddleware,authController.changePassword.bind(authController));
-
 authRouter.post('/google',authController.googleAuth.bind(authController));
+authRouter.post('/logout',authController.logout.bind(authController));
+
+authRouter.put('/change-password',authMiddleware,authController.changePassword.bind(authController));
 
 export default authRouter;
