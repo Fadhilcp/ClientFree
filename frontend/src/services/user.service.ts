@@ -20,7 +20,11 @@ class UserService {
     }
 
     setProfileImage(formData: FormData){
-        return axios.post(endPoints.USER.SET_PROFILE_IMAGE, formData);
+        return axios.post(endPoints.USER.UPDATE_PROFILE_IMAGE, formData);
+    }
+
+    removeProfileImage(){
+        return axios.delete(endPoints.USER.UPDATE_PROFILE_IMAGE);
     }
 
     changeUserStatus(userId: string,data: { status: string}){

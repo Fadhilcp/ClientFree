@@ -17,10 +17,11 @@ const authController = new AuthController(authService);
 
 authRouter.post('/signup',authController.signUp.bind(authController));
 authRouter.post('/verify-signup-otp',authController.verifySignupOtp.bind(authController));
-authRouter.get('/refresh',authController.accessRefreshToken.bind(authController));
 authRouter.post('/login',authController.login.bind(authController));
 authRouter.post('/resend-otp',authController.resendOtp.bind(authController));
 authRouter.post('/verify-otp',authController.verifyOtp.bind(authController));
+
+authRouter.get('/refresh',authController.accessRefreshToken.bind(authController));
 authRouter.get('/access',authController.getNewAccessToken.bind(authController));
 
 authRouter.post('/forgot-password',authController.forgotPassword.bind(authController));

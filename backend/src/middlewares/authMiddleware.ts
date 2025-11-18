@@ -13,7 +13,6 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
         }
         
         const decoded = verifyAccessToken(token);
-        console.log("🚀 ~ authMiddleware ~ decoded:", decoded)
         req.user = decoded;
         next();
     } catch (error) {

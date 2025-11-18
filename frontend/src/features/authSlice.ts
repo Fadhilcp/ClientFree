@@ -5,6 +5,7 @@ interface User {
     id: string;
     email: string;
     role: 'freelancer' | 'client' | 'admin';
+    status: 'active' | 'inactive' | 'banned';
     username: string;
     profileImage: string;
     phone: string;
@@ -66,7 +67,7 @@ const authSlice = createSlice({
         resetNewUser: (state) => {
             state.isNewUser = false;
         },
-        setUser: (state, action: PayloadAction<User>) => {
+        setUser: (state, action: PayloadAction<Partial<User>>) => {
             if(state.user){
                 state.user = { ...state.user, ...action.payload };
             }

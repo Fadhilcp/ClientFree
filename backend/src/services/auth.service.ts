@@ -146,6 +146,9 @@ export class AuthService implements IAuthService {
         if (!user) {
             throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
         }
+        if (user.status === "banned") {
+            throw createHttpError(403, "User is banned");
+        }
 
         const payload : AuthPayload = {
             _id: user._id.toString(),
@@ -163,9 +166,12 @@ export class AuthService implements IAuthService {
     async login(email: string, password: string): Promise<{ accessToken: string; refreshToken: string; user: UserProfileDto }>  {
         
         const user = await this.userRepository.findByEmail(email);
-        console.log("🚀 ~ AuthService ~ login ~ user:", user)
 
         if(!user) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
+
+        if(user.status === 'banned') {
+            throw createHttpError(HttpStatus.FORBIDDEN, "User is banned");
+        }
 
         if (!user.password || user.provider === 'google') {
             throw createHttpError(HttpStatus.BAD_REQUEST, "Password login not allowed for Google account");
@@ -195,7 +201,6 @@ export class AuthService implements IAuthService {
 
 
     async resendOtp(email : string, purpose : OtpPurpose) : Promise<void>{
-    console.log("🚀 ~ AuthService ~ resendOtp ~ email : string, purpose :", email, purpose )
 
         const [user, pendingUser] = await Promise.all([
             this.userRepository.findOne({email}),
@@ -217,8 +222,6 @@ export class AuthService implements IAuthService {
             {email, purpose},
             {otp, expiresAt}
         )
-
-        console.log('resend otp service has been done')
 
         await sendOtpEmail(email, otp, purpose);
     }
@@ -347,10 +350,7 @@ export class AuthService implements IAuthService {
 
     async getNewAccessToken(refreshToken: string): Promise<{ user: UserProfileDto; accessToken: string; }> {
 
-        // let payload: AuthPayload;
-
         const decoded = verifyRefreshToken(refreshToken);
-        console.log('get new access token - decoded ',decoded);
         
         const userId = decoded._id;
         if (!userId) {
@@ -361,6 +361,10 @@ export class AuthService implements IAuthService {
 
         if (!user) {
             throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
+        }
+        console.log('is this works')
+        if (user.status === "banned") {
+            throw createHttpError(403, "User is banned");
         }
 
         const payload : AuthPayload = {

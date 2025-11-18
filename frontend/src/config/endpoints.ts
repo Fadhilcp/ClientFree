@@ -18,7 +18,7 @@ export const endPoints = {
         GET_BY_ID : (userId: string) => `/user/${userId}`,
         CREATE : '/user',
         UPDATE_ME : '/user/me',
-        SET_PROFILE_IMAGE: '/user/profile-image',
+        UPDATE_PROFILE_IMAGE: '/user/profile-image',
         LIST : (seach: string, page: number, limit:number) => `/user?search=${seach}&page=${page}&limt=${limit}`,
         UPDATE_STATUS : (userId: string) => `/user/${userId}/status`
     },

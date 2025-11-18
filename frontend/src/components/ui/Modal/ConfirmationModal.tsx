@@ -8,7 +8,7 @@ interface ConfirmDialogProps {
   onCancel: () => void;
 }
 
-const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
+const ConfirmationModal: React.FC<ConfirmDialogProps> = ({
   isOpen,
   title,
   description,
@@ -50,7 +50,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             onClick={onConfirm}
             className="inline-flex w-full justify-center rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-white hover:bg-red-400 sm:ml-3 sm:w-auto"
           >
-            Deactivate
+            Confirm
           </button>
           <button
             type="button"
@@ -65,4 +65,4 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   );
 };
 
-export default ConfirmDialog;
+export default ConfirmationModal;

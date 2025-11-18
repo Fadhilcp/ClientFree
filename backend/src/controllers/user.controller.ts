@@ -88,7 +88,21 @@ export class ProfileController {
             sendResponse(res, HttpStatus.OK, { profileImage });
         } catch (error) {
             next(error);
-        }  
+        }
+    }
+
+    async removeProfileImage(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            if(!req.user){
+                throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.USER_NOT_FOUND);
+            }
+
+            const { profileImage } = await this.service.removeProfileImage(req.user._id);
+
+            sendResponse(res, HttpStatus.OK, { profileImage });
+        } catch (error) {
+            next(error);
+        }
     }
 
     async updateStatus(req: Request, res: Response, next: NextFunction): Promise<void> {

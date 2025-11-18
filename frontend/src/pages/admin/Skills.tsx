@@ -9,6 +9,7 @@ import { notify } from '../../utils/toastService';
 import type { Skill, SkillForm } from '../../types/skill.types';
 import { capitalize } from '../../utils/formatters';
 import Pagination from '../../components/ui/Pagination';
+import ConfirmationModal from '../../components/ui/Modal/ConfirmationModal';
 
 export interface Column<T> {
   key: keyof T;
@@ -33,17 +34,17 @@ const modalDropdowns: {
     "Mobile Development",
     "DevOps",
     "Data & AI",
-  "Cybersecurity",
-  "Blockchain",
-  "Design",
-  "QA & Testing",
-  "Game Development",
-  "Product & Management"
-] },
+    "Cybersecurity",
+    "Blockchain",
+    "Design",
+    "QA & Testing",
+    "Game Development",
+    "Product & Management"
+  ] },
       { name: 'status', label: 'Status', options: ['active', 'inactive'] },
     ]
     // ===== Add skill modal dropdown fields - end =================
-    const Skills = () => {
+const Skills = () => {
   // ====== Add skill modal - start =============================
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [formData, setFormData] = useState<SkillForm>({
@@ -115,10 +116,16 @@ const modalDropdowns: {
       notify.error( error.response?.data?.error || 'Skill adding Failed, try again later' ) 
     }
   }
+  const [confirmModal, setConfirmModal] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+    const handleConfirm = () => {
+      if (!deleteId) return;
+      setConfirmModal(false);
+      handleDelete(deleteId);
+    };
   // to delete skill
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this skill?")) return;
-
     try {
       const response = await skillService.delete(id);
       if (response.data.success) {
@@ -154,7 +161,6 @@ const modalDropdowns: {
   const fetchSkills = async () => {
     try {
       const response = await skillService.getAll(search, page, limit);
-      console.log("🚀 ~ fetchSkills ~ response:", response)
       const { skills } = response.data;
       setSkills(skills.data);
       setTotalPages(skills.totalPages)
@@ -204,7 +210,10 @@ const modalDropdowns: {
           <div className=" gap-2">
             <Button label='Edit' onClick={() => handleEdit(row)}
             className="mx-1 px-3 py-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-transparent border border-indigo-600 dark:border-indigo-400 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900"/>
-            <Button label='Delete' onClick={() => handleDelete(row._id)}
+            <Button label='Delete' onClick={() => {
+              setDeleteId(row._id);
+              setConfirmModal(true);
+            }}
             className="mx-1 px-3 py-1 text-xs font-medium text-red-600 dark:text-red-400 border bg-transparent border-red-600 dark:border-red-400 rounded hover:bg-red-50 dark:hover:bg-red-900"/>
           </div>
         ),
@@ -213,6 +222,19 @@ const modalDropdowns: {
     // ====== Columns for table - end ===================
   return (
     <>
+    {/* delete skill confirmation modal - start */}
+    <ConfirmationModal
+      isOpen={confirmModal}
+      title="Confirm Delete"
+      description="Are you sure you want to delete this skill?"
+      onCancel={() => {
+        setConfirmModal(false);
+        setDeleteId(null);
+      }}
+      onConfirm={() => handleConfirm()}
+    />
+    {/* delete skill confirmation modal - start */}
+
     {/* Add skill modal - start */}
     <AdminModal
       isOpen={isModalOpen}

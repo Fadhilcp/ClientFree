@@ -72,7 +72,7 @@ const Profile: React.FC = () => {
           const response = await userService.updateProfile(formData);
           if(response.data){
 
-            fetchProfile();
+            await fetchProfile();
             notify.success('Profile updated successfully')
             setIsModalOpen(false);
           }

@@ -20,6 +20,7 @@ userRouter.get('/',authMiddleware,userController.getAll.bind(userController));
 userRouter.post('/profile-image',authMiddleware,upload.single('profileImage'),
         userController.setProfileImage.bind(userController)
     );
+userRouter.delete('/profile-image',authMiddleware,userController.removeProfileImage.bind(userController));
 userRouter.patch('/:id/status',authMiddleware,userController.updateStatus.bind(userController));
 
 export default userRouter;

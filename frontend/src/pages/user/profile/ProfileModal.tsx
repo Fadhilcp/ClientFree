@@ -11,6 +11,9 @@ import type { ProfileFormData, FormErrors } from "../../../types/profileModal.ty
 import ProfileImageUploader from "../../../components/user/profile/ProfileImageUploader";
 import { userService } from "../../../services/user.service";
 import Loader from "../../../components/ui/Loader/Loader";
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "../../../store/store";
+import { setUser } from "../../../features/authSlice";
 
 interface ProfileModalProps {
   open: boolean;
@@ -32,6 +35,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
   defaultValues,
   availableSkills,
 }) => {
+  const dispatch = useDispatch<AppDispatch>();
   const [loading, setLoading] = useState(false);
 
   const emptyExternalLink = { type: "website", url: "" };
@@ -78,7 +82,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
           };
         });
       }
-  }, [defaultValues]);
+  }, [open,defaultValues]);
 
   useEffect(() => {
     if (open && defaultValues) {
@@ -108,6 +112,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
   };
   
   // to update profile image and also for show preview of the image
+  const [backendImage, setBackendImage] = useState<string>(defaultValues?.profileImage || "");
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(defaultValues?.profileImage || null);
   // function to upload image in cloudinary,return url 
@@ -152,10 +157,72 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
     onSave(payload)
   };
 
-if (!open) return null;
+  // reset the data when closing modal - start ===============
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      phone: "",
+      description: "",
+      profileImage: "",
+      location: { city: "", state: "", country: "" },
+      portfolio: { portfolioFile: "", resume: "" },
+      skills: [],
+      professionalTitle: "",
+      hourlyRate: "",
+      about: "",
+      experienceLevel: "beginner",
+      externalLinks: [{ type: "website", url: "" }],
+      company: { name: "", industry: "", website: "" },
+    });
 
-if (loading) return <Loader />;
-return (
+    setErrors({});
+    setSelectedImageFile(null);
+    setPreviewUrl(null);
+    setBackendImage(defaultValues?.profileImage || "");
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
+  // reset the data when closing modal - end ===============
+
+  // to handle profile image updation - start =============== 
+  const handleProfileImageChange = (
+    file: File | null, preview: string, action: string
+  ) => {
+
+    switch (action) {
+
+      case "preview-added":
+        setSelectedImageFile(file);
+        setPreviewUrl(preview);
+        break;
+
+      case "preview-removed":
+        setSelectedImageFile(null);
+        setPreviewUrl("");
+        setFormData(prev => ({ ...prev, profileImage: backendImage }));
+        break;
+
+      case "backend-removed":
+        setSelectedImageFile(null);
+        setPreviewUrl("");
+        setBackendImage("");
+        setFormData(prev => ({ ...prev, profileImage: "" }));
+        dispatch(setUser({ profileImage: "" }));
+        break;
+
+      default:
+        break;
+    }
+  };
+  // to handle profile image updation - end =============== 
+
+  if (!open) return null;
+
+  if (loading) return <Loader />;
+  return (
       <div className="fixed inset-0 z-50 flex items-center justify-center">
         {/* Overlay */}
         <div className="absolute inset-0 bg-black opacity-50" onClick={onClose}></div>
@@ -168,12 +235,8 @@ return (
 
           {/* Profile Image */}
           <div className="mb-6 bg-gradient-to-r from-indigo-500 to-indigo-600 animate-gradient text-white p-6 md:p-10 rounded-lg">
-            <ProfileImageUploader imageUrl={previewUrl || formData.profileImage}
-            onChange={(file, preview) => {
-              setSelectedImageFile(file);
-              setPreviewUrl(preview);
-              setFormData({ ...formData, profileImage: preview || "" });
-            }}
+            <ProfileImageUploader imageUrl={previewUrl || backendImage}
+            onChange={handleProfileImageChange}
             />
           </div>
 
@@ -265,7 +328,7 @@ return (
 
           {/* Actions */}
           <div className="flex justify-end gap-3 mt-8">
-            <Button label="Cancel" onClick={onClose} variant="secondary" />
+            <Button label="Cancel" onClick={handleClose} variant="secondary" />
             <Button label="Save" onClick={handleSave} variant="primary" />
           </div>
         </div>
