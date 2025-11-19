@@ -1,18 +1,33 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { authService } from "../services/auth.service";
 import { setCredentials, logout } from "../features/authSlice";
 import { tokenStore } from "../utils/tokenStore";
 import { notify } from "../utils/toastService";
+
+const PUBLIC_PATHS = [
+  "/", "/signup", "/login", "/forgot-password",
+  "/verifyotp", "/reset-password", "/roleselect",
+  "/admin/login"
+];
 
 const useAuthVerifier = () => {
   const [loading, setLoading] = useState(true);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
+  const pathname = location.pathname;
+  console.log("🚀 ~ useAuthVerifier ~ pathname:", pathname)
+  
   useEffect(() => {
+
+    if(PUBLIC_PATHS.includes(pathname)) {
+      setLoading(false);
+      return;
+    }
 
     const existingToken = tokenStore.get();
     if(existingToken) {
@@ -22,6 +37,7 @@ const useAuthVerifier = () => {
 
     const verify = async () => {
       try {
+        console.log("🚀 ~ verify ~ response:")
         const response = await authService.accessToken();
 
         if (response.data?.success) {
@@ -45,17 +61,17 @@ const useAuthVerifier = () => {
           navigate("/login");
         }
       } catch (error: any) {
-        console.log(error);
         await authService.logout();
         dispatch(logout());
         tokenStore.clear();
+        navigate("/login");
       } finally {
         setLoading(false);
       }
     };
 
     verify();
-  }, [dispatch, navigate]);
+  }, [dispatch, navigate, pathname]);
 
   return { loading }
 };

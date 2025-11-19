@@ -13,6 +13,7 @@ import skillRouter from 'routes/skill.route';
 import subscriptionRouter from 'routes/subscription.route';
 import planRouter from 'routes/plan.route';
 import requestLogger from 'middlewares/logger.middleware';
+import jobRouter from 'routes/job.route';
 
 connectDB();
 
@@ -34,6 +35,7 @@ app.use("/api/user",userRouter);
 app.use("/api/skills",skillRouter);
 app.use("/api/plans",planRouter);
 app.use("/api/subscription",subscriptionRouter);
+app.use("/api/jobs",jobRouter);
 
 app.use(errorHandler);
 

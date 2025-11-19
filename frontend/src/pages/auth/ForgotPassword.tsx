@@ -52,7 +52,7 @@ const ForgotPassword : React.FC = () => {
         dispatch(setOtpInfo({ email, purpose: 'forgot-password'}))
 
         notify.success('OTP sent to your email');
-        navigate('/verifyOtp');
+        navigate('/verifyotp');
         } catch (err: any) {
         notify.error(err.response?.data?.error || 'Failed to send OTP');
         } finally {

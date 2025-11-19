@@ -84,7 +84,7 @@ const SignUp: React.FC = () => {
       const { email } = response.data;
 
       dispatch(setOtpInfo({ email, purpose : 'signup'}))
-      navigate('/verifyOtp');
+      navigate('/verifyotp');
       
     } catch (error : any) {
       notify.error(error.response.data.error || 'Signup failed');

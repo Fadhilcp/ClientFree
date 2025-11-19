@@ -216,6 +216,7 @@ export class AuthService implements IAuthService {
         if(!pendingUser) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.OTP_NOT_FOUND);
 
         const otp = generateOtp();
+        console.log("🚀 ~ AuthService ~ resendOtp ~ otp:", otp)
         const expiresAt = new Date(Date.now() + 1 * 60 * 1000);
 
         await this.otpUserStoreRepository.updateOne(
