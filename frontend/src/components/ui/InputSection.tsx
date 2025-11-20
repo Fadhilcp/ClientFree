@@ -39,7 +39,7 @@ function InputSection<T>({
     placeholder-gray-500 dark:placeholder-gray-400
     text-sm text-gray-900 dark:text-gray-100
     focus:outline-none focus:border-gray-400 dark:focus:border-gray-500
-    focus:bg-white dark:focus:bg-gray-700
+    focus:bg-white dark:focus:bg-gray-700 focus:ring-1 focus:ring-indigo-500
   `;
 
   const borderClass = error ? "border-red-500" : "border-gray-200 dark:border-gray-600";

@@ -1,5 +1,5 @@
 export type Skill = {
-  _id: string;
+  id: string;
   name: string;
   category: string;
   status: 'active' | 'inactive';
@@ -12,6 +12,6 @@ export type SkillForm = {
 }
 
 export interface SkillItem {
-  _id: string;
+  id: string;
   name: string;
 }

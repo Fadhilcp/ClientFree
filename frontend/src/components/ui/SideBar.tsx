@@ -1,22 +1,24 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-const menuItems = [
-  { label: "Account & Security", path: "/settings/account-security" },
-  { label: "Subscription & Premium", path: "/settings/subscription-premium" },
-  { label: "Payment Methods", path: "/settings/payment-methods" },
-  { label: "Notifications", path: "/settings/notifications" },
-  { label: "Role & Permissions", path: "/settings/roles-permissions" },
-];
+export interface SidebarItem {
+  label: string;
+  path: string;
+}
 
-const SettingSidebar: React.FC = () => {
+interface SidebarProps {
+  title?: string;    
+  items: SidebarItem[];      
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ title = "Menu", items }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const currentLabel =
-    menuItems.find((item) => item.path === location.pathname)?.label ||
+    items.find((item) => item.path === location.pathname)?.label ||
     "Select Menu";
 
   // Close dropdown when clicking outside
@@ -39,12 +41,12 @@ const SettingSidebar: React.FC = () => {
   return (
     <>
       {/* Sidebar for desktop */}
-      <div className="hidden md:block w-54 bg-gray-100 dark:bg-gray-800 p-4 border-r border-indigo-500">
+      <div className="hidden md:block w-54 bg-white dark:bg-gray-900 p-4">
         <h2 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-3">
-          Menu
+          {title}
         </h2>
         <ul className="space-y-1">
-          {menuItems.map((item) => {
+          {items.map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <li
@@ -53,7 +55,7 @@ const SettingSidebar: React.FC = () => {
                 className={`p-2 block text-sm rounded cursor-pointer transition-colors ${
                   isActive
                     ? "bg-indigo-100 text-indigo-600 font-medium dark:bg-indigo-500 dark:text-white"
-                    : "hover:bg-gray-200 text-gray-800 dark:hover:bg-gray-800 dark:text-gray-300"
+                    : "hover:bg-gray-200 bg-gray-100 text-gray-800 dark:hover:bg-gray-700 dark:bg-gray-800 dark:text-gray-300"
                 }`}
               >
                 {item.label}
@@ -84,7 +86,7 @@ const SettingSidebar: React.FC = () => {
 
           {open && (
             <ul className="absolute mt-2 w-full rounded-md shadow-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 z-20">
-              {menuItems.map((item) => (
+              {items.map((item) => (
                 <li
                   key={item.path}
                   onClick={() => {
@@ -109,4 +111,4 @@ const SettingSidebar: React.FC = () => {
   );
 };
 
-export default SettingSidebar;
+export default Sidebar;

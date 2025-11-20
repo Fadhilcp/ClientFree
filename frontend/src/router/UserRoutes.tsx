@@ -18,6 +18,8 @@ import Loader from "../components/ui/Loader/Loader";
 import Subscriptions from "../pages/user/Subscriptions";
 import SettingsLayout from "../layout/user/SettingsLayout";
 import SecuritySetting from "../pages/user/settings/SecuritySetting";
+import JobLayout from "../layout/user/JobLayout";
+import ActiveJobs from "../pages/user/job/ActiveJobs";
 
 const UserRoutes: React.FC = () => {
 
@@ -92,6 +94,17 @@ const UserRoutes: React.FC = () => {
                     <Profile />
                 </AuthProtectedRoute>} />
             {/* Authenticated user routes - end */}
+
+            {/* Job routes under user layout - start */}
+            <Route path="/my-jobs" element={
+                <AuthProtectedRoute allowedRoles={['client','freelancer']}>
+                    <JobLayout/>
+                </AuthProtectedRoute>
+            }>
+                <Route index element={<Navigate to="active-jobs" replace />} />
+                <Route path="active-jobs" element={<ActiveJobs/>}/>
+            </Route>
+            {/* Job routes under user layout - end */}
             {/* Setting routes under user layout - start */}
             <Route path="/settings" element={
                 <AuthProtectedRoute allowedRoles={['client','freelancer']}>
@@ -101,6 +114,7 @@ const UserRoutes: React.FC = () => {
                 <Route index element={<Navigate to="account-security" replace />} />
                 <Route path="account-security" element={<SecuritySetting/>}/>
             </Route>
+            {/* Setting routes under user layout - end */}
             </Route>
         </Routes>
     )

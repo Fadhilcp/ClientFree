@@ -1,16 +1,12 @@
 import React, { useEffect, useState } from "react";
 import Select, { type StylesConfig, type MultiValue, type GroupBase } from "react-select";
-
-export interface ISkillOption {
-  _id: string;
-  name: string;
-}
+import { type SkillItem } from "../../../types/skill.types";
 
 interface SkillsSelectProps {
   value: string[];
   error?: string;
   onChange: (skills: string[]) => void;
-  options: ISkillOption[];
+  options: SkillItem[];
 }
 
 const SkillsSelect: React.FC<SkillsSelectProps> = ({
@@ -32,14 +28,14 @@ const SkillsSelect: React.FC<SkillsSelectProps> = ({
 
   const skillOptions = options.map((skill) => ({
     label: skill.name,
-    value: skill._id,
+    value: skill.id,
   }));
 
   const selectedOptions = skillOptions.filter((skill) =>
     value.includes(skill.value)
   );
 
-  // 🎨 Styling for light/dark modes
+  // Styling for light/dark modes
   const style: StylesConfig<{ label: string; value: string }, true> = {
     control: (base, state) => ({
       ...base,

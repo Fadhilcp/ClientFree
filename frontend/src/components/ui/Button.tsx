@@ -20,7 +20,7 @@ const Button: React.FC<ButtonProps> = ({
 
   const variantClasses =
     variant === "primary"
-      ? "bg-indigo-600 text-white hover:bg-indigo-700"
+      ? "bg-indigo-600 dark:bg-indigo-500 text-white hover:bg-indigo-700 hover:dark:bg-indigo-600"
       : "bg-gray-200 text-gray-800 hover:bg-gray-300";
 
   return (

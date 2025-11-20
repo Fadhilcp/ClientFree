@@ -79,6 +79,21 @@ export class JobController {
         }
     }
 
+    async getClientJobs(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const clientId = req.user?._id;
+            console.log("🚀 ~ JobController ~ getClientJobs ~ clientId:", clientId)
+            const status = req.query.status as string || '';
+            if(!clientId) throw createHttpError(HttpStatus.BAD_REQUEST,'user Id is needed');
+
+            const jobs = await this.service.getClientJobs(clientId, status);
+
+            sendResponse(res, HttpStatus.OK, { jobs });
+        } catch (error) {
+            next(error);
+        }
+    }
+
     async addProposal(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const jobId = req.params.id;

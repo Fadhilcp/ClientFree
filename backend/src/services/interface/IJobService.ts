@@ -8,4 +8,5 @@ export interface IJobService {
     updateJob(jobId: string, data: IJob): Promise<IJobDocument>;
     deleteJob(jobId: string): Promise<string>;
     addProposal(jobId: string, data: IProposalInvitation): Promise<IProposalInvitationDocument>;
+    getClientJobs(clientId: string, status?: string): Promise<IJobDocument[]>;
 }

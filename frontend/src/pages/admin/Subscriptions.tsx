@@ -44,7 +44,7 @@ const modalFields: { name: keyof PlanForm; label: string; placeholder: string; t
       { name: 'status', label: 'Status', options: ['active', 'inactive'] },
     ]
 
-    const subscriptionColumns: Column<SubscriptionDto>[] = [
+const subscriptionColumns: Column<SubscriptionDto>[] = [
   { key: 'subscriptionId', header: 'Subscription ID' },
   { key: 'gateway', header: 'Gateway' },
   {
@@ -289,7 +289,7 @@ const [formData, setFormData] = useState<PlanForm>({
       render: (_, row) => (
         <div className=" gap-2">
           <Button label='Edit' onClick={() => handleEdit(row)}
-          className="mx-1 px-3 py-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-transparent border border-indigo-600 dark:border-indigo-400 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900"/>
+          className="mx-1 px-3 py-1 text-xs font-medium text-indigo-600 dark:bg-transparent dark:text-indigo-400 bg-transparent border border-indigo-600 dark:border-indigo-400 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900"/>
         </div>
       ),
     },

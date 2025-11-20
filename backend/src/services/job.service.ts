@@ -5,6 +5,7 @@ import { createHttpError } from "utils/httpError.util";
 import { HttpStatus } from "constants/status.constants";
 import { IProposalInvitationRepository } from "repositories/interfaces/IProposalInvitation";
 import { IProposalInvitation, IProposalInvitationDocument } from "types/proposalInvitation.type";
+import { FilterQuery } from "mongoose";
 
 export class JobService implements IJobService {
 
@@ -52,6 +53,20 @@ export class JobService implements IJobService {
         if(deleted.deletedCount === 0) throw createHttpError(HttpStatus.NOT_FOUND, 'Job not found');
 
         return 'Job is deleted'
+    }
+
+    async getClientJobs(clientId: string, status?: string): Promise<IJobDocument[]> {
+        console.log("🚀 ~ JobService ~ getClientJobs ~ status:", status)
+        console.log("🚀 ~ JobService ~ getClientJobs ~ clientId:", clientId)
+        const filter: FilterQuery<IJobDocument> = { clientId };
+        
+        if(status){
+            filter.status = status;
+        }
+
+        const jobs = await this.jobRepository.find(filter);
+        
+        return jobs;
     }
 
     async addProposal(jobId: string, data: IProposalInvitation): Promise<IProposalInvitationDocument> {

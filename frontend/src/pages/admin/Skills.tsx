@@ -139,7 +139,7 @@ const Skills = () => {
 
   // to edit skill ========= 
   const handleEdit = (row: Skill) => {
-    setEditingId(row._id);
+    setEditingId(row.id);
     setFormData({
       name: row.name,
       category: row.category,
@@ -204,17 +204,17 @@ const Skills = () => {
         ),
       },
       {
-        key: '_id',
+        key: 'id',
         header: 'Actions',
         render: (_, row) => (
           <div className=" gap-2">
             <Button label='Edit' onClick={() => handleEdit(row)}
-            className="mx-1 px-3 py-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-transparent border border-indigo-600 dark:border-indigo-400 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900"/>
+            className="mx-1 px-3 py-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-transparent border border-indigo-600 dark:border-indigo-400 rounded hover:bg-indigo-50 dark:bg-transparent dark:hover:bg-indigo-900"/>
             <Button label='Delete' onClick={() => {
-              setDeleteId(row._id);
+              setDeleteId(row.id);
               setConfirmModal(true);
             }}
-            className="mx-1 px-3 py-1 text-xs font-medium text-red-600 dark:text-red-400 border bg-transparent border-red-600 dark:border-red-400 rounded hover:bg-red-50 dark:hover:bg-red-900"/>
+            className="mx-1 px-3 py-1 text-xs font-medium text-red-600 dark:text-red-400 border bg-transparent border-red-600 dark:border-red-400 rounded hover:bg-red-50 dark:bg-transparent dark:hover:bg-red-900"/>
           </div>
         ),
       },

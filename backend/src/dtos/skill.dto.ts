@@ -1,5 +1,5 @@
 export interface SkillDto {
-    _id: string;
+    id: string;
     name: string;
     category: string;
     status: 'active' | 'inactive'

@@ -12,8 +12,9 @@ const proposalInvitationRepository = new ProposalInvitationRepository();
 const jobSerivce = new JobService(jobRepository, proposalInvitationRepository);
 const jobController = new JobController(jobSerivce);
 
-jobRouter.post('/',jobController.createJob.bind(jobController));
+jobRouter.post('/',authMiddleware,jobController.createJob.bind(jobController));
 jobRouter.get('/',jobController.getAll.bind(jobController));
+jobRouter.get('/my',authMiddleware,jobController.getClientJobs.bind(jobController));
 jobRouter.get('/:id',jobController.getById.bind(jobController));
 jobRouter.put('/:id',jobController.update.bind(jobController));
 jobRouter.delete('/:id',jobController.delete.bind(jobController));
