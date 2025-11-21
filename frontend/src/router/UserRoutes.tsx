@@ -19,7 +19,9 @@ import Subscriptions from "../pages/user/Subscriptions";
 import SettingsLayout from "../layout/user/SettingsLayout";
 import SecuritySetting from "../pages/user/settings/SecuritySetting";
 import JobLayout from "../layout/user/JobLayout";
-import ActiveJobs from "../pages/user/job/ActiveJobs";
+import JobsPage from "../pages/user/job/JobsPage";
+import DummyWrapper from "../pages/user/job/JobDetail";
+
 
 const UserRoutes: React.FC = () => {
 
@@ -102,8 +104,17 @@ const UserRoutes: React.FC = () => {
                 </AuthProtectedRoute>
             }>
                 <Route index element={<Navigate to="active-jobs" replace />} />
-                <Route path="active-jobs" element={<ActiveJobs/>}/>
+                <Route path="active-jobs" element={<JobsPage status="active" title="Active Jobs" />}/>
+                <Route path="posted-jobs" element={<JobsPage status="open" title="Posted Jobs" />}/>
+                <Route path="completed-jobs" element={<JobsPage status="completed" title="Completed Jobs" />}/>
             </Route>
+            <Route
+                path="/my-jobs/job-details" element={
+                <AuthProtectedRoute allowedRoles={['client','freelancer']}>
+                    <DummyWrapper/>
+                </AuthProtectedRoute>
+                }
+            />
             {/* Job routes under user layout - end */}
             {/* Setting routes under user layout - start */}
             <Route path="/settings" element={

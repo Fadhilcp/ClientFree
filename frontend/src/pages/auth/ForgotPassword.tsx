@@ -4,7 +4,7 @@ import PrimaryButton from "../../components/auth/PrimaryButton";
 import AuthRedirectNotice from "../../components/auth/AuthRedirectNotice";
 import { 
   validateEmail,
- } from "../../utils/validators";
+ } from "../../utils/validators/profileForm";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../../services/auth.service";
 import { notify } from "../../utils/toastService";

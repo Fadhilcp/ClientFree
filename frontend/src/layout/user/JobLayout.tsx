@@ -9,6 +9,10 @@ import SkillsSelect from "../../components/user/profileModal/SkillSelect";
 import Loader from "../../components/ui/Loader/Loader";
 import { type JobForm } from "../../types/job/job.dto";
 import { jobService } from "../../services/job.service";
+import { validateJobForm } from "../../utils/validators/jobForm";
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "../../store/store";
+import { refreshJobs } from "../../features/jobSlice";
 
 const jobMenuItems = [
   { label: "Active Jobs", path: "/my-jobs/active-jobs" },
@@ -23,6 +27,16 @@ const jobFields = [
 ];
 
 const jobDropdowns = [
+  {
+    name: "locationType",
+    label: "Location Preference",
+    options: ["specific", "worldwide"],
+  },
+  {
+    name: "visibility",
+    label: "Visibility",
+    options: ["public", "private"],
+  },
   {
     name: "category",
     label: "Category",
@@ -52,18 +66,7 @@ const jobDropdowns = [
     label: "Payment Type",
     options: ["fixed", "hourly"],
   },
-  {
-    name: "visibility",
-    label: "Visibility",
-    options: ["public", "private"],
-  },
-  {
-    name: "locationType",
-    label: "Location Preference",
-    options: ["specific", "worldwide"],
-  },
 ];
-
 
 const jobTextAreas = [
   {
@@ -78,8 +81,15 @@ const userDateFields = [
   { name: "duration", label: "Duration" }
 ];
 
+const locationFields = [
+  { name: "locationCity", label: "City", placeholder: "Enter city" },
+  { name: "locationCountry", label: "Country", placeholder: "Enter country" }
+];
 
 const JobLayout: React.FC = () => {
+
+  const dispatch = useDispatch<AppDispatch>();
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [availableSkills, setAvailableSkills] = useState<[]>([]);
     const [loading, setLoading] = useState(false);
@@ -89,132 +99,172 @@ const JobLayout: React.FC = () => {
         category: "",
         subcategory: "",
         skills: [],
-
         duration: "",
-
         paymentBudget: "",
         paymentType: "fixed",
-
         description: "",
-
         visibility: "public",
-
         locationCity: "",
         locationCountry: "",
         locationType: "specific",
-
         isFeatured: false,
     });
 
-  const [errors, setErrors] = useState<Partial<Record<keyof JobForm, string>>>({});
+    const [errors, setErrors] = useState<Partial<Record<keyof JobForm, string>>>({});
 
-  const didFetchRef = useRef(false);
-    useEffect(() => {
-    if (!isModalOpen || didFetchRef.current) return;
-    didFetchRef.current = true;
+    const didFetchRef = useRef(false);
+      useEffect(() => {
+      if (!isModalOpen || didFetchRef.current) return;
+      didFetchRef.current = true;
 
-    const fetchSkills = async () => {
-      setLoading(true);
-      try {
-        const res = await skillService.getActive();
-        console.log("🚀 ~ fetchSkills ~ res:", res)
-        setAvailableSkills(res.data.skills);
-      } catch(error: any) {
-        notify.error(error.response?.data?.error || "Failed to load skills");
-      } finally {
-        setLoading(false);
+      const fetchSkills = async () => {
+        setLoading(true);
+        try {
+          const res = await skillService.getActive();
+          setAvailableSkills(res.data.skills);
+        } catch(error: any) {
+          notify.error(error.response?.data?.error || "Failed to load skills");
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchSkills();
+    }, [isModalOpen]);
+    
+    const handleChange = (field: keyof JobForm, value: string) => {
+      if (field === "locationType") {
+        if (value === "worldwide") {
+          setFormData(prev => ({
+            ...prev,
+            locationType: "worldwide",
+            locationCity: "",
+            locationCountry: ""
+          }));
+        } else {
+          setFormData(prev => ({
+            ...prev,
+            locationType: "specific"
+          }));
+        }
+        return;
       }
+      setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
-    fetchSkills();
-  }, [isModalOpen]);
-  
-  const handleChange = (field: keyof JobForm, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-  
-  const handleSubmit = async() => {
-    try {
-        const response = await jobService.createJob(formData);
-        if(response.data.success){
-            notify.success('Job created successfully')
-            resetForm();
+    const computedFields = [
+      ...jobFields,
+      ...(formData.locationType === "specific" ? locationFields : [])
+    ];
+    
+    const handleSubmit = async() => {
+
+      const validation = validateJobForm(formData);
+      setErrors(validation);
+
+      if (Object.keys(validation).length > 0) {
+        return; 
+      }
+
+      const payload = {
+        title: formData.title,
+        category: formData.category,
+        subcategory: formData.subcategory,
+        skills: formData.skills,
+        duration: formData.duration,
+        paymentBudget: formData.paymentBudget,
+        paymentType: formData.paymentType,
+        description: formData.description,
+        visibility: formData.visibility,
+        isFeatured: formData.isFeatured,
+        locationPreference: {
+          city: formData.locationType === 'specific' ? formData.locationCity : "",
+          country: formData.locationType === 'specific' ? formData.locationCountry : "",
+          type: formData.locationType,
         }
-    } catch (error: any) {
-        notify.error(error.response?.data?.error || "Failed to create job");
-    }
-  };
-  
-  const resetForm = () => {
-    setFormData({
-        title: "",
-        category: "",
-        subcategory: "",
-        skills: [],
-        duration: "",
-        paymentBudget: "",
-        paymentType: "fixed",
-        description: "",
-        visibility: "public",
-        locationCity: "",
-        locationCountry: "",
-        locationType: "specific",
-        isFeatured: false,
-    });
-    setErrors({});
-    setIsModalOpen(false);
-  };
+      };
 
+      try {
+          const response = await jobService.createJob(payload);
+          if(response.data.success){
+              notify.success('Job created successfully');
+              //to reload the new jobs list in child components
+              dispatch(refreshJobs());
+              resetForm();
+          }
+      } catch (error: any) {
+          notify.error(error.response?.data?.error || "Failed to create job");
+      }
+    };
+    
+    const resetForm = () => {
+      setFormData({
+          title: "",
+          category: "",
+          subcategory: "",
+          skills: [],
+          duration: "",
+          paymentBudget: "",
+          paymentType: "fixed",
+          description: "",
+          visibility: "public",
+          locationCity: "",
+          locationCountry: "",
+          locationType: "specific",
+          isFeatured: false,
+      });
+      setErrors({});
+      setIsModalOpen(false);
+    };
 
+  return (
+    <div className="flex flex-col md:flex-row min-h-screen bg-white dark:bg-gray-900">
+      { loading && <Loader/> }
 
-return (
-  <div className="flex flex-col md:flex-row min-h-screen bg-white dark:bg-gray-900">
-    { loading && <Loader/> }
+      <UserModal<JobForm>
+          isOpen={isModalOpen}
+          onClose={resetForm}
+          onSubmit={handleSubmit}
+          formData={formData}
+          onChange={handleChange}
+          title="Post Job"
+          fields={computedFields}
+          dropdowns={jobDropdowns}
+          textAreas={jobTextAreas}
+          dateFields={userDateFields}
+          errors={errors}
+      >
+          <SkillsSelect
+              title="Skills(Optional)"
+              value={formData.skills}
+              error={errors.skills}
+              onChange={(skills) => setFormData({ ...formData, skills })}
+              options={availableSkills}
+          />
+      </UserModal>
 
-    <UserModal<JobForm>
-        isOpen={isModalOpen}
-        onClose={resetForm}
-        onSubmit={handleSubmit}
-        formData={formData}
-        onChange={handleChange}
-        title="Post Job"
-        fields={jobFields}
-        dropdowns={jobDropdowns}
-        textAreas={jobTextAreas}
-        dateFields={userDateFields}
-        errors={errors}
-    >
-        <SkillsSelect
-            value={formData.skills}
-            error={errors.skills}
-            onChange={(skills) => setFormData({ ...formData, skills })}
-            options={availableSkills}
-        />
-    </UserModal>
+      {/* The layout start from here */}
+      {/* Left column */}
+      <div className="flex flex-col">
+        {/* Button above sidebar */}
+        <div className="p-4 bg-white dark:bg-gray-900">
+          <Button
+            label="Post a Job"
+            onClick={() => setIsModalOpen(true)}
+            className="w-full rounded-sm p-1"
+          />
+        </div>
 
-
-    {/* Left column */}
-    <div className="flex flex-col">
-      {/* Button above sidebar */}
-      <div className="p-4 bg-white dark:bg-gray-900">
-        <Button
-          label="Post a Job"
-          onClick={() => setIsModalOpen(true)}
-          className="w-full rounded-sm p-1"
-        />
+          {/* Sidebar itself */}
+          <Sidebar items={jobMenuItems} />
       </div>
 
-        {/* Sidebar itself */}
-        <Sidebar items={jobMenuItems} />
+      {/* Main content */}
+      <main className="flex-1 p-6 overflow-y-auto text-gray-800 dark:text-gray-200">
+        <Outlet />
+      </main>
     </div>
-
-    {/* Main content */}
-    <main className="flex-1 p-6 overflow-y-auto text-gray-800 dark:text-gray-200">
-      <Outlet />
-    </main>
-  </div>
-);
-
+  );
 };
 
 export default JobLayout;

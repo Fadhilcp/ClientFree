@@ -6,7 +6,7 @@ import { ExternalLinks } from "../../../components/user/profileModal/ExternalLin
 import Button from "../../../components/ui/Button";
 import SkillsSelect from "../../../components/user/profileModal/SkillSelect";
 import { notify } from "../../../utils/toastService";
-import { validateProfileForm } from "../../../utils/validators";
+import { validateProfileForm } from "../../../utils/validators/profileForm";
 import type { ProfileFormData, FormErrors } from "../../../types/profileModal.types";
 import ProfileImageUploader from "../../../components/user/profile/ProfileImageUploader";
 import { userService } from "../../../services/user.service";

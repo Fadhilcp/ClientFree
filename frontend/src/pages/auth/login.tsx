@@ -6,7 +6,7 @@ import AuthRedirectNotice from "../../components/auth/AuthRedirectNotice";
 import { 
   validateEmail,
   validatePassword,
- } from "../../utils/validators";
+ } from "../../utils/validators/profileForm";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../../services/auth.service";
 import { notify } from "../../utils/toastService";

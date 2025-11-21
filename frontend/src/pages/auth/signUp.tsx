@@ -8,7 +8,7 @@ import {
   validateEmail,
   validatePassword,
   validateConfirmPassword
- } from "../../utils/validators";
+ } from "../../utils/validators/profileForm";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { authService } from "../../services/auth.service";
 import { notify } from "../../utils/toastService";

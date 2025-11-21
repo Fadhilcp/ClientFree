@@ -11,7 +11,7 @@ const JobSchema = new Schema({
   title: { type: String, required: true },
   category: String,
   subcategory: String,
-  skills: [{ type: Schema.Types.ObjectId, ref: "Skills" }],
+  skills: [{ type: Schema.Types.ObjectId, ref: "Skill" }],
 
   duration: String,
 

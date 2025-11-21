@@ -1,3 +1,4 @@
+import { JobListDTO } from "dtos/job.dto";
 import { IJob, IJobDocument } from "types/job.type";
 import { IProposalInvitation, IProposalInvitationDocument } from "types/proposalInvitation.type";
 
@@ -8,5 +9,5 @@ export interface IJobService {
     updateJob(jobId: string, data: IJob): Promise<IJobDocument>;
     deleteJob(jobId: string): Promise<string>;
     addProposal(jobId: string, data: IProposalInvitation): Promise<IProposalInvitationDocument>;
-    getClientJobs(clientId: string, status?: string): Promise<IJobDocument[]>;
+    getClientJobs(clientId: string, status?: string): Promise<JobListDTO[]>;
 }

@@ -12,7 +12,7 @@ export class JobMapper {
             category: job.category,
             subcategory: job.subcategory,
 
-            skills: job.skills?.map(id => id.toString()) ?? [],
+            skills: job.skills,
 
             duration: job.duration,
 

@@ -7,12 +7,12 @@ class JobService {
         return axios.get(endPoints.JOB.LIST(search, status, page, limit));
     }
 
-    createJob(data: JobForm) {
+    createJob(data: unknown) {
         return axios.post(endPoints.JOB.CREATE, data);
     }
 
-    getMyJobs() {
-        return axios.get(endPoints.JOB.MY_JOBS);
+    getMyJobs(status: string) {
+        return axios.get(endPoints.JOB.MY_JOBS(status));
     }
 
     getJob(jobId: string) {

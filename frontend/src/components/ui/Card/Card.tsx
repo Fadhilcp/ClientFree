@@ -119,7 +119,7 @@ const Card: React.FC<CardProps> = ({
                 label={action.label}
                 onClick={action.onClick}
                 variant={action.variant}
-                className="text-1xl font-medium px-3 py-1 rounded-sm"
+                className="text-sm font-medium px-3 py-1 rounded-sm"
               />
             ))}
           </div>

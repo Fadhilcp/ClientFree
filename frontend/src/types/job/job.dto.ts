@@ -1,3 +1,5 @@
+import type { SkillItem } from "../skill.types";
+
 export interface JobBaseDTO {
   id: string;
   clientId: string;
@@ -6,7 +8,7 @@ export interface JobBaseDTO {
   category?: string;
   subcategory?: string;
 
-  skills?: string[];
+  skills?: SkillItem[];
 
   duration?: string;
 

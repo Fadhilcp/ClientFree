@@ -1,4 +1,4 @@
-import type { ExternalLinkErrors, ProfileFormData, FormErrors, ExternalLink } from "../types/profileModal.types";
+import type { ExternalLinkErrors, ProfileFormData, FormErrors, ExternalLink } from "../../types/profileModal.types";
 
 export const validateUsername = (username : string) : string => {
     if(!username.trim()) return 'Username is required';

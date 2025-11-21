@@ -7,7 +7,7 @@ import { authService } from "../../services/auth.service";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "../../features/authSlice";
 import Loader from "../../components/ui/Loader/Loader";
-import { validateEmail, validatePassword } from "../../utils/validators";
+import { validateEmail, validatePassword } from "../../utils/validators/profileForm";
 
 const AdminLogin: React.FC = () => {
 

@@ -16,6 +16,7 @@ export class JobController {
             }
 
             const data = req.body;
+            console.log("🚀 ~ JobController ~ createJob ~ data:", data)
 
             const job = await this.service.createJob({ ...data, clientId });
 
@@ -82,7 +83,6 @@ export class JobController {
     async getClientJobs(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const clientId = req.user?._id;
-            console.log("🚀 ~ JobController ~ getClientJobs ~ clientId:", clientId)
             const status = req.query.status as string || '';
             if(!clientId) throw createHttpError(HttpStatus.BAD_REQUEST,'user Id is needed');
 

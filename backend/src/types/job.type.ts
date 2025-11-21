@@ -18,7 +18,7 @@ export interface IJob {
   category?: string;
   subcategory?: string;
 
-  skills?: Types.ObjectId[];
+  skills?: string[];
 
   duration?: string;
 

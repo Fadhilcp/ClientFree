@@ -55,7 +55,7 @@ export const endPoints = {
             `/jobs?search=${search}&status=${status}&page=${page}&limit=${limit}`,
 
         CREATE: '/jobs',
-        MY_JOBS: '/jobs/my', 
+        MY_JOBS: (status: string) => `/jobs/my?status=${status}`, 
         BY_ID: (jobId: string) => `/jobs/${jobId}`, // GET / PUT / DELETE
         ADD_PROPOSAL: (jobId: string) => `/jobs/${jobId}/proposal`, // POST
     }

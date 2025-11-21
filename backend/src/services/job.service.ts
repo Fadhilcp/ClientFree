@@ -6,6 +6,8 @@ import { HttpStatus } from "constants/status.constants";
 import { IProposalInvitationRepository } from "repositories/interfaces/IProposalInvitation";
 import { IProposalInvitation, IProposalInvitationDocument } from "types/proposalInvitation.type";
 import { FilterQuery } from "mongoose";
+import { JobMapper } from "mappers/job.mapper";
+import { JobListDTO } from "dtos/job.dto";
 
 export class JobService implements IJobService {
 
@@ -55,18 +57,16 @@ export class JobService implements IJobService {
         return 'Job is deleted'
     }
 
-    async getClientJobs(clientId: string, status?: string): Promise<IJobDocument[]> {
-        console.log("🚀 ~ JobService ~ getClientJobs ~ status:", status)
-        console.log("🚀 ~ JobService ~ getClientJobs ~ clientId:", clientId)
+    async getClientJobs(clientId: string, status?: string): Promise<JobListDTO[]> {
         const filter: FilterQuery<IJobDocument> = { clientId };
         
         if(status){
             filter.status = status;
         }
 
-        const jobs = await this.jobRepository.find(filter);
+        const jobs = await this.jobRepository.findWithSkills(filter);
         
-        return jobs;
+        return jobs.map(job => JobMapper.toListDTO(job));
     }
 
     async addProposal(jobId: string, data: IProposalInvitation): Promise<IProposalInvitationDocument> {

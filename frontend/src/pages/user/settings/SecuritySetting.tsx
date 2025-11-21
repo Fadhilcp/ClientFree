@@ -2,7 +2,7 @@ import SettingSection from "../../../components/user/settings/SettingSection";
 import InputSection from "../../../components/ui/InputSection";
 import Button from "../../../components/ui/Button";
 import { useState } from "react";
-import { validateConfirmPassword, validatePassword } from "../../../utils/validators";
+import { validateConfirmPassword, validatePassword } from "../../../utils/validators/profileForm";
 import { authService } from "../../../services/auth.service";
 import { notify } from "../../../utils/toastService";
 import Loader from "../../../components/ui/Loader/Loader";

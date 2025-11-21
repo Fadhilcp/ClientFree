@@ -3,6 +3,7 @@ import Select, { type StylesConfig, type MultiValue, type GroupBase } from "reac
 import { type SkillItem } from "../../../types/skill.types";
 
 interface SkillsSelectProps {
+  title?: string;
   value: string[];
   error?: string;
   onChange: (skills: string[]) => void;
@@ -10,6 +11,7 @@ interface SkillsSelectProps {
 }
 
 const SkillsSelect: React.FC<SkillsSelectProps> = ({
+  title = 'Skills',
   value,
   error,
   onChange,
@@ -108,7 +110,7 @@ const SkillsSelect: React.FC<SkillsSelectProps> = ({
   return (
     <div>
       <label className="block font-semibold mb-1 text-gray-800 dark:text-gray-100">
-        Skills
+        {title}
       </label>
       <Select<{ label: string; value: string }, true, GroupBase<{ label: string; value: string }>>
         isMulti
