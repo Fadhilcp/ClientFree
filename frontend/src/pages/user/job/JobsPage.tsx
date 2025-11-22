@@ -6,12 +6,14 @@ import type { JobListDTO } from "../../../types/job/job.dto";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../../store/store";
 import Loader from "../../../components/ui/Loader/Loader";
+import { useNavigate } from "react-router-dom";
 
 
 
 const JobsPage: React.FC<{ status: string; title: string }> = ({ status, title }) => {
     const [jobs, setJobs] = useState<JobListDTO[]>([]);
     const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const updateAt = useSelector((state: RootState) => state.job.updatedAt);
 
@@ -39,16 +41,8 @@ const JobsPage: React.FC<{ status: string; title: string }> = ({ status, title }
         console.log("Searching jobs for:", query);
     };
 
-    const handleViewDetails = async (jobId: string) => {
-      setLoading(true);
-        try {
-            const res = await jobService.getJob(jobId);
-            console.log("Job detail:", res);
-        } catch (err) {
-            console.error("Failed to fetch job details:", err);
-        } finally {
-          setLoading(false);
-        }
+    const handleViewDetails = (jobId: string) => {
+      navigate(`/job-details/${jobId}`);
     };
 
   return (

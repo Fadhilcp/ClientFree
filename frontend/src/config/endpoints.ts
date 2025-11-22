@@ -51,12 +51,19 @@ export const endPoints = {
         CURRENT: '/subscription/current'
     },
     JOB: {
-        LIST: (search: string, status: string, page: number, limit: number) =>
-            `/jobs?search=${search}&status=${status}&page=${page}&limit=${limit}`,
+        LIST: (status?: string, search?: string, page?: number, limit?: number) =>
+            `/jobs?status=${status}&search=${search}&page=${page}&limit=${limit}`,
 
         CREATE: '/jobs',
         MY_JOBS: (status: string) => `/jobs/my?status=${status}`, 
         BY_ID: (jobId: string) => `/jobs/${jobId}`, // GET / PUT / DELETE
         ADD_PROPOSAL: (jobId: string) => `/jobs/${jobId}/proposal`, // POST
+    },
+    PROPOSAL: {
+        CREATE: "/proposal",                          // POST
+        BY_ID: (id: string) => `/proposal/${id}`,     // GET / PUT
+        UPDATE: (id: string) => `/proposal/${id}`,    // PUT
+        UPDATE_STATUS: (id: string) => `/proposal/${id}/status`, // PATCH
+        FOR_JOB: (jobId: string) => `/proposal/job/${jobId}`,    // GET proposals for job
     }
 }

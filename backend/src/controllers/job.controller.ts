@@ -16,7 +16,6 @@ export class JobController {
             }
 
             const data = req.body;
-            console.log("🚀 ~ JobController ~ createJob ~ data:", data)
 
             const job = await this.service.createJob({ ...data, clientId });
 
@@ -28,7 +27,8 @@ export class JobController {
 
     async getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const jobs = await this.service.getAllJobs();
+            const status  = req.query.status as string || '';
+            const jobs = await this.service.getAllJobs(status);
     
             sendResponse(res, HttpStatus.OK, { jobs });
         } catch (error) {
@@ -89,21 +89,6 @@ export class JobController {
             const jobs = await this.service.getClientJobs(clientId, status);
 
             sendResponse(res, HttpStatus.OK, { jobs });
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    async addProposal(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const jobId = req.params.id;
-            const data = req.body;
-
-            if(!jobId) throw createHttpError(HttpStatus.BAD_REQUEST, 'Job id is needed');
-
-            const proposal = await this.service.addProposal(jobId, data);
-
-            sendResponse(res, HttpStatus.OK, { proposal });
         } catch (error) {
             next(error);
         }

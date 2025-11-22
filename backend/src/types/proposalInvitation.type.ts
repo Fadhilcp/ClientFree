@@ -19,9 +19,11 @@ export interface IOptionalUpgrade {
   price: number;
 }
 
+export type ProposalStatus = "pending" | "shortlisted" | "accepted" | "rejected" | "invited"
+
 export interface IProposalInvitation {
   jobId: Types.ObjectId | string;
-  freelancerId: Types.ObjectId;
+  freelancerId: Types.ObjectId | string;
 
   isInvitation: boolean;
   invitedBy?: Types.ObjectId;
@@ -35,7 +37,7 @@ export interface IProposalInvitation {
   milestones?: IMilestone[];
   optionalUpgrades?: IOptionalUpgrade[];
 
-  status: "pending" | "accepted" | "rejected" | "invited";
+  status: ProposalStatus;
 
   createdAt?: Date;
   updatedAt?: Date;

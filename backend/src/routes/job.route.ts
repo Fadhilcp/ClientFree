@@ -2,23 +2,19 @@ import { JobController } from "controllers/job.controller";
 import { Router } from "express";
 import { authMiddleware } from "middlewares/authMiddleware";
 import { JobRepository } from "repositories/job.repository";
-import { ProposalInvitationRepository } from "repositories/proposalInvitation.repository";
 import { JobService } from "services/job.service";
 
 const jobRouter = Router();
 
 const jobRepository = new JobRepository();
-const proposalInvitationRepository = new ProposalInvitationRepository();
-const jobSerivce = new JobService(jobRepository, proposalInvitationRepository);
+const jobSerivce = new JobService(jobRepository);
 const jobController = new JobController(jobSerivce);
 
 jobRouter.post('/',authMiddleware,jobController.createJob.bind(jobController));
-jobRouter.get('/',jobController.getAll.bind(jobController));
+jobRouter.get('/',authMiddleware,jobController.getAll.bind(jobController));
 jobRouter.get('/my',authMiddleware,jobController.getClientJobs.bind(jobController));
-jobRouter.get('/:id',jobController.getById.bind(jobController));
-jobRouter.put('/:id',jobController.update.bind(jobController));
-jobRouter.delete('/:id',jobController.delete.bind(jobController));
-
-jobRouter.post('/:id/proposal',authMiddleware,jobController.addProposal.bind(jobController));
+jobRouter.get('/:id',authMiddleware,jobController.getById.bind(jobController));
+jobRouter.put('/:id',authMiddleware,jobController.update.bind(jobController));
+jobRouter.delete('/:id',authMiddleware,jobController.delete.bind(jobController));
 
 export default jobRouter;

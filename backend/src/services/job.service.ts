@@ -3,18 +3,13 @@ import { IJobService } from "./interface/IJobService";
 import { IJob, IJobDocument } from "types/job.type";
 import { createHttpError } from "utils/httpError.util";
 import { HttpStatus } from "constants/status.constants";
-import { IProposalInvitationRepository } from "repositories/interfaces/IProposalInvitation";
-import { IProposalInvitation, IProposalInvitationDocument } from "types/proposalInvitation.type";
 import { FilterQuery } from "mongoose";
 import { JobMapper } from "mappers/job.mapper";
-import { JobListDTO } from "dtos/job.dto";
+import { JobDetailDTO, JobListDTO } from "dtos/job.dto";
 
 export class JobService implements IJobService {
 
-    constructor(
-        private jobRepository: IJobRepository, 
-        private proposalInvitationRepository: IProposalInvitationRepository
-    ){}
+    constructor(private jobRepository: IJobRepository){}
 
     async createJob(data: IJob): Promise<IJobDocument> {
         const result = await this.jobRepository.create(data);
@@ -22,19 +17,21 @@ export class JobService implements IJobService {
         return result;
     }
 
-    async getAllJobs(): Promise<IJobDocument[]> {
-        const result = await this.jobRepository.findAll();
+    async getAllJobs(status?: string): Promise<JobListDTO[]> {
+            const jobs = status
+        ? await this.jobRepository.findWithSkills({ status })
+        : await this.jobRepository.findWithSkills({});
 
-        return result;
+        return jobs.map(job => JobMapper.toListDTO(job));
     }
 
-    async getJobById(jobId: string): Promise<IJobDocument> {
+    async getJobById(jobId: string): Promise<JobDetailDTO> {
         if(!jobId) throw createHttpError(HttpStatus.BAD_REQUEST, 'Job id is needed');
 
-        const result = await this.jobRepository.findById(jobId);
+        const result = await this.jobRepository.findByIdWithSkills(jobId);
 
         if(!result) throw createHttpError(HttpStatus.NOT_FOUND, 'Job not found');
-        return result;
+        return JobMapper.toDetailDTO(result);;
     }
 
     async updateJob(jobId: string, data: IJob): Promise<IJobDocument> {
@@ -67,23 +64,5 @@ export class JobService implements IJobService {
         const jobs = await this.jobRepository.findWithSkills(filter);
         
         return jobs.map(job => JobMapper.toListDTO(job));
-    }
-
-    async addProposal(jobId: string, data: IProposalInvitation): Promise<IProposalInvitationDocument> {
-        
-        const job = await this.jobRepository.findById(jobId);
-
-        if(!job) throw createHttpError(HttpStatus.NOT_FOUND, 'Job not found');
-
-        const proposal = await this.proposalInvitationRepository.create({
-            ...data,
-            jobId
-        });
-
-        job.proposals.push(proposal._id);
-        job.proposalCount += 1;
-        await job.save();
-
-        return proposal;
     }
 }

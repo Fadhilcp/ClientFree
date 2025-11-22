@@ -28,7 +28,7 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T>{
         return this.model.create(data);
     }
 
-    async findByIdAndUpdate(id : ObjectId, data : Partial<T>) : Promise<T | null>{
+    async findByIdAndUpdate(id : string | ObjectId, data : UpdateQuery<T>) : Promise<T | null>{
         return this.model.findByIdAndUpdate(id , data , { upsert : true , new : true});
     }
 

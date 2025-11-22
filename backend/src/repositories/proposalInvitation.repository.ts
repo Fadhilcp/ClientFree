@@ -1,13 +1,24 @@
 import { BaseRepository } from "./base.repository";
 import { IProposalInvitationDocument } from "types/proposalInvitation.type";
-import { IProposalInvitationRepository } from "./interfaces/IProposalInvitation";
+import { IProposalRepository } from "./interfaces/IProposalInvitation";
 import proposalInvitationModel from "models/proposalInvitation.model";
+import { Types, UpdateQuery } from "mongoose";
 
-export class ProposalInvitationRepository 
+export class ProposalRepository 
    extends BaseRepository<IProposalInvitationDocument>
-      implements IProposalInvitationRepository {
+      implements IProposalRepository {
         
     constructor(){
         super(proposalInvitationModel);
+    }
+    async findDetailById(id: string | Types.ObjectId): Promise<IProposalInvitationDocument | null> {
+        return this.model.findById(id)
+            .populate("freelancerId", "firstName lastName skills rating")
+            .populate("jobId", "title category subcategory payment clientId");
+    }
+
+    async findByJob(jobId: string): Promise<IProposalInvitationDocument[]> {
+        return this.model.find({ jobId })
+            .populate("freelancerId", "name email profileImage");
     }
 }

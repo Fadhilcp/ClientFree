@@ -1,13 +1,11 @@
-import { JobListDTO } from "dtos/job.dto";
+import { JobDetailDTO, JobListDTO } from "dtos/job.dto";
 import { IJob, IJobDocument } from "types/job.type";
-import { IProposalInvitation, IProposalInvitationDocument } from "types/proposalInvitation.type";
 
 export interface IJobService {
     createJob(data: IJob): Promise<IJobDocument>;
-    getAllJobs(): Promise<IJobDocument[]>;
-    getJobById(jobId: string): Promise<IJobDocument | null>;
+    getAllJobs(status?: string): Promise<JobListDTO[]>;
+    getJobById(jobId: string): Promise<JobDetailDTO>;
     updateJob(jobId: string, data: IJob): Promise<IJobDocument>;
     deleteJob(jobId: string): Promise<string>;
-    addProposal(jobId: string, data: IProposalInvitation): Promise<IProposalInvitationDocument>;
     getClientJobs(clientId: string, status?: string): Promise<JobListDTO[]>;
 }

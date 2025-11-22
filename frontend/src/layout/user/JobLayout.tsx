@@ -10,15 +10,21 @@ import Loader from "../../components/ui/Loader/Loader";
 import { type JobForm } from "../../types/job/job.dto";
 import { jobService } from "../../services/job.service";
 import { validateJobForm } from "../../utils/validators/jobForm";
-import { useDispatch } from "react-redux";
-import type { AppDispatch } from "../../store/store";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../../store/store";
 import { refreshJobs } from "../../features/jobSlice";
 
-const jobMenuItems = [
+const clientMenuItems = [
   { label: "Active Jobs", path: "/my-jobs/active-jobs" },
   { label: "Posted Jobs", path: "/my-jobs/posted-jobs" },
   { label: "Completed Jobs", path: "/my-jobs/completed-jobs" },
   { label: "Invitations & Proposals", path: "/my-jobs/invitations-proposals" },
+];
+
+const freelancerMenuItems = [
+  { label: "Active Jobs", path: "/my-jobs/active-jobs" },
+  { label: "Task List", path: "/my-jobs/tasks" },
+  { label: "Completed Jobs", path: "/my-jobs/completed-jobs" },
 ];
 
 const jobFields = [
@@ -89,6 +95,8 @@ const locationFields = [
 const JobLayout: React.FC = () => {
 
   const dispatch = useDispatch<AppDispatch>();
+
+  const userRole = useSelector((state: RootState) => state.auth.user?.role);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [availableSkills, setAvailableSkills] = useState<[]>([]);
@@ -221,42 +229,47 @@ const JobLayout: React.FC = () => {
     <div className="flex flex-col md:flex-row min-h-screen bg-white dark:bg-gray-900">
       { loading && <Loader/> }
 
-      <UserModal<JobForm>
-          isOpen={isModalOpen}
-          onClose={resetForm}
-          onSubmit={handleSubmit}
-          formData={formData}
-          onChange={handleChange}
-          title="Post Job"
-          fields={computedFields}
-          dropdowns={jobDropdowns}
-          textAreas={jobTextAreas}
-          dateFields={userDateFields}
-          errors={errors}
-      >
-          <SkillsSelect
+      {userRole === "client" && (
+        <>
+          <UserModal<JobForm>
+            isOpen={isModalOpen}
+            onClose={resetForm}
+            onSubmit={handleSubmit}
+            formData={formData}
+            onChange={handleChange}
+            title="Post Job"
+            fields={computedFields}
+            dropdowns={jobDropdowns}
+            textAreas={jobTextAreas}
+            dateFields={userDateFields}
+            errors={errors}
+          >
+            <SkillsSelect
               title="Skills(Optional)"
               value={formData.skills}
               error={errors.skills}
               onChange={(skills) => setFormData({ ...formData, skills })}
               options={availableSkills}
-          />
-      </UserModal>
+            />
+          </UserModal>
+        </>
+      )}
 
       {/* The layout start from here */}
       {/* Left column */}
       <div className="flex flex-col">
         {/* Button above sidebar */}
-        <div className="p-4 bg-white dark:bg-gray-900">
-          <Button
-            label="Post a Job"
-            onClick={() => setIsModalOpen(true)}
-            className="w-full rounded-sm p-1"
-          />
-        </div>
-
+        {userRole === "client" && (
+          <div className="p-4 bg-white dark:bg-gray-900">
+            <Button
+              label="Post a Job"
+              onClick={() => setIsModalOpen(true)}
+              className="w-full rounded-sm p-1"
+            />
+          </div>
+        )}
           {/* Sidebar itself */}
-          <Sidebar items={jobMenuItems} />
+          <Sidebar items={userRole === "client" ? clientMenuItems : freelancerMenuItems} />
       </div>
 
       {/* Main content */}

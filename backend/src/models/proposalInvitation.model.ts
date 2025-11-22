@@ -4,7 +4,7 @@ import { IProposalInvitationDocument } from "types/proposalInvitation.type";
 const proposalInvitationSchema = new Schema({
   freelancerId: {
     type: Schema.Types.ObjectId,
-    ref: "Users",
+    ref: "User",
     required: true
   },
 
@@ -18,7 +18,7 @@ const proposalInvitationSchema = new Schema({
 
   invitedBy: {
     type: Schema.Types.ObjectId,
-    ref: "Users"
+    ref: "User"
   },
 
   invitation: {
@@ -50,7 +50,7 @@ const proposalInvitationSchema = new Schema({
 
   status: {
     type: String,
-    enum: ["pending", "accepted", "rejected", "invited"],
+    enum: ["pending", "accepted", "rejected", "invited", "shortlisted"],
     default: "pending"
   }
 },{ timestamps: true });

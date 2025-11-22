@@ -4,7 +4,7 @@ import { IJobDocument } from "types/job.type";
 const JobSchema = new Schema({
   clientId: {
     type: Schema.Types.ObjectId,
-    ref: "Users",
+    ref: "User",
     required: true
   },
 

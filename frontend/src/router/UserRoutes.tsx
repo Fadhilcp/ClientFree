@@ -20,7 +20,10 @@ import SettingsLayout from "../layout/user/SettingsLayout";
 import SecuritySetting from "../pages/user/settings/SecuritySetting";
 import JobLayout from "../layout/user/JobLayout";
 import JobsPage from "../pages/user/job/JobsPage";
-import DummyWrapper from "../pages/user/job/JobDetail";
+import JobDetailPage from "../pages/user/job/JobDetailPage";
+import NotFoundPage from "../pages/user/NotFoundPage";
+import FindJobsLayout from "../layout/user/FindJobsLayout";
+import FindJobsPage from "../pages/user/find jobs/FindJobsPage";
 
 
 const UserRoutes: React.FC = () => {
@@ -109,13 +112,24 @@ const UserRoutes: React.FC = () => {
                 <Route path="completed-jobs" element={<JobsPage status="completed" title="Completed Jobs" />}/>
             </Route>
             <Route
-                path="/my-jobs/job-details" element={
-                <AuthProtectedRoute allowedRoles={['client','freelancer']}>
-                    <DummyWrapper/>
-                </AuthProtectedRoute>
+                path="/job-details/:id"
+                element={
+                    <AuthProtectedRoute allowedRoles={["client", "freelancer"]}>
+                    <JobDetailPage /> 
+                    </AuthProtectedRoute>
                 }
             />
             {/* Job routes under user layout - end */}
+            {/* find jobs routes - freelancer - start */}
+            <Route path="/find-jobs" element={
+                <AuthProtectedRoute allowedRoles={['freelancer']}>
+                    <FindJobsLayout/>
+                </AuthProtectedRoute>
+            }>
+                <Route path="" element={<FindJobsPage/>}/>
+                <Route path="interested" element={<h1>Interested Jobs</h1>} />
+            </Route>
+            {/* find jobs routes - freelancer - end */}
             {/* Setting routes under user layout - start */}
             <Route path="/settings" element={
                 <AuthProtectedRoute allowedRoles={['client','freelancer']}>
@@ -127,6 +141,7 @@ const UserRoutes: React.FC = () => {
             </Route>
             {/* Setting routes under user layout - end */}
             </Route>
+            <Route path="*" element={<NotFoundPage />} />
         </Routes>
     )
 }

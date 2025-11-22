@@ -3,8 +3,8 @@ import axios from '../lib/axios';
 import { type JobForm } from '../types/job/job.dto';
 
 class JobService {
-    getJobs(search: string, status: string, page: number, limit: number) {
-        return axios.get(endPoints.JOB.LIST(search, status, page, limit));
+    getJobs(status?: string, search?: string, page?: number, limit?: number) {
+        return axios.get(endPoints.JOB.LIST(status, search, page, limit));
     }
 
     createJob(data: unknown) {
