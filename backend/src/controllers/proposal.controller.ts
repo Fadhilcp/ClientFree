@@ -31,12 +31,13 @@ export class ProposalController {
     async getProposalsForJob(req: Request, res: Response, next: NextFunction) {
         try {
             const jobId = req.params.jobId;
+            const status = req.query.status as string || '';
+            const invitation = req.query.invitation === 'true'
 
             if (!jobId) {
                 throw createHttpError(HttpStatus.BAD_REQUEST, "Job id is needed");
             }
-
-            const proposals = await this.service.getProposalsForJob(jobId);
+            const proposals = await this.service.getProposalsForJob(jobId,status,invitation);
 
             sendResponse(res, HttpStatus.OK, { proposals });
         } catch (error) {

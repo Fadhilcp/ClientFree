@@ -11,10 +11,10 @@ function DropdownSection<T extends Record<string, string>>({
   value,
   onChange,
   label,
-  options,
+  options
 }: DropdownSectionProps<T>) {
   return (
-    <div className="mt-3 w-full">
+    <div className="w-full">
       {label && (
         <label
           htmlFor={String(name)}

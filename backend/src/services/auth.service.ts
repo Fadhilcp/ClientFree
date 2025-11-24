@@ -363,7 +363,6 @@ export class AuthService implements IAuthService {
         if (!user) {
             throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
         }
-        console.log('is this works')
         if (user.status === "banned") {
             throw createHttpError(403, "User is banned");
         }

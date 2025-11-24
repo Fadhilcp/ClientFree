@@ -3,14 +3,16 @@ import { useSelector } from 'react-redux';
 import type { RootState } from '../../../store/store';
 
 interface ProfileImageProps {
-  src?: string;  
+  src?: string;
   size?: number;
   className?: string;
+  useAuthFallback?: boolean;
 }
 
-const ProfileImage: React.FC<ProfileImageProps> = ({ src, size = 160, className = '' }) => {
+
+const ProfileImage: React.FC<ProfileImageProps> = ({ src, size = 160, useAuthFallback = false, className = '' }) => {
   const fallbackImage = useSelector((state: RootState) => state.auth.user?.profileImage);
-  const profileImage = src || fallbackImage;
+  const profileImage = src || (useAuthFallback ? fallbackImage : undefined);
 
   const imageSize = `${size}px`;
 

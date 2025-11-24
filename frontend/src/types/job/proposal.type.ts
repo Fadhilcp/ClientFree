@@ -1,4 +1,12 @@
 export interface IProposal {
+  id: string;
+  freelancer: {
+    id: string;
+    username: string;
+    email: string;
+    profileImage?: string | null;
+  };
+  invitedBy?: string;
   jobId: string;
   bidAmount: number;
   duration: string;
@@ -9,6 +17,16 @@ export interface IProposal {
     name: "highlight" | "sponsored" | "sealed";
     price: number;
   }>;
+  status: ProposalStatus;
+  isInvitation: boolean;
+  invitation: IInvitationDetails;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+export interface IInvitationDetails {
+  title?: string;
+  message?: string;
+  respondedAt?: Date;
 }
 
 export interface Milestone {
@@ -17,3 +35,5 @@ export interface Milestone {
   dueDate?: string;
   description?: string;
 }
+
+export type ProposalStatus = "pending" | "shortlisted" | "accepted" | "rejected" | "invited";

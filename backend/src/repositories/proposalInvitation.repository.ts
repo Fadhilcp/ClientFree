@@ -2,7 +2,7 @@ import { BaseRepository } from "./base.repository";
 import { IProposalInvitationDocument } from "types/proposalInvitation.type";
 import { IProposalRepository } from "./interfaces/IProposalInvitation";
 import proposalInvitationModel from "models/proposalInvitation.model";
-import { Types, UpdateQuery } from "mongoose";
+import { FilterQuery, Types, UpdateQuery } from "mongoose";
 
 export class ProposalRepository 
    extends BaseRepository<IProposalInvitationDocument>
@@ -17,8 +17,8 @@ export class ProposalRepository
             .populate("jobId", "title category subcategory payment clientId");
     }
 
-    async findByJob(jobId: string): Promise<IProposalInvitationDocument[]> {
-        return this.model.find({ jobId })
-            .populate("freelancerId", "name email profileImage");
+    async findByJob(filter: FilterQuery<IProposalInvitationDocument> | Types.ObjectId): Promise<IProposalInvitationDocument[]> {
+        return this.model.find(filter)
+            .populate("freelancerId", "username email profileImage")
     }
 }

@@ -6,7 +6,7 @@ export interface IProposalService {
     createProposal(
         jobId: string,freelancerId: string,payload: IProposalInvitation
     ): Promise<ProposalDTO>;
-    getProposalsForJob(jobId: string): Promise<ProposalDTO[]>;
+    getProposalsForJob(jobId: string, status?: string, isInvitation?: boolean): Promise<ProposalDTO[]>;
     getById(id: string): Promise<ProposalDTO>;
     updateProposal(id: string,data: IProposalInvitation): Promise<ProposalDTO>;
     updateStatus(id: string,status: ProposalStatus): Promise<ProposalDTO>;

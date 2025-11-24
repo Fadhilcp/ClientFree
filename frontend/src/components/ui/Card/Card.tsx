@@ -1,18 +1,27 @@
 import React from "react";
 import Button from "../Button";
+import UserInfo from "../../user/UserInfo";
 
 interface MetaItem {
   label: string;
   value: string;
 }
 
-interface ActionItem {
+export interface ActionItem {
   label: string;
   onClick: () => void;
   variant: "primary" | "secondary";
 }
 
+interface CardUser {
+  id: string;
+  username: string;
+  email: string;
+  profileImage?: string | null;
+}
+
 interface CardProps {
+  user?: CardUser;
   image?: string;
   title: string;
   subtitle?: string;
@@ -25,6 +34,7 @@ interface CardProps {
 }
 
 const Card: React.FC<CardProps> = ({
+  user,
   image,
   title,
   subtitle,
@@ -37,6 +47,18 @@ const Card: React.FC<CardProps> = ({
 }) => {
   return (
     <div className="mb-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-sm p-6">
+      {/* User section */}
+      {user && (
+        <div className="mb-4">
+          <UserInfo
+            username={user.username}
+            email={user.email}
+            profileImage={user.profileImage}
+            size={40}
+          />
+        </div>
+      )}
+
       <div className="flex flex-col lg:flex-row items-start gap-6">
         {/* Image / Logo */}
         {image && (

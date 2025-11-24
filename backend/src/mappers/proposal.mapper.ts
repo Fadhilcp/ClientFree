@@ -1,13 +1,24 @@
 import { IProposalInvitationDocument } from "types/proposalInvitation.type";
 import { ProposalDTO } from "dtos/proposal.dto";
+import { IUserDocument } from "types/user.type";
 
 export function mapProposal(
   doc: IProposalInvitationDocument
 ): ProposalDTO {
+  const freelancerObj = doc.freelancerId as unknown as Partial<IUserDocument>;
   return {
     id: doc._id.toString(),
     jobId: doc.jobId.toString(),
-    freelancerId: doc.freelancerId.toString(),
+freelancer: {
+      id: freelancerObj._id
+        ? freelancerObj._id.toString()
+        : doc.freelancerId.toString(),
+      username: freelancerObj.username ?? "",
+      email: freelancerObj.email ?? "",
+      profileImage: freelancerObj.profileImage ?? null,
+    },
+
+
     isInvitation: doc.isInvitation,
     invitedBy: doc.invitedBy ? doc.invitedBy.toString() : undefined,
     invitation: doc.invitation

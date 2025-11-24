@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import ProfileImage from '../../user/profile/ProfileImage';
 import type { RootState } from '../../../store/store';
 import { logout } from '../../../features/authSlice';
 import { notify } from '../../../utils/toastService';
 import { tokenStore } from '../../../utils/tokenStore';
 import { authService } from '../../../services/auth.service';
+import UserInfo from '../../user/UserInfo';
 
 const NavbarIcons: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -66,11 +66,7 @@ const NavbarIcons: React.FC = () => {
                 setIsOpen(false);
               }}
             >
-              <ProfileImage size={40} />
-              <div className="flex flex-col">
-                <div className="font-semibold text-sm text-gray-800 dark:text-gray-200">{username}</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">{email}</div>
-              </div>
+              <UserInfo username={username} email={email} useAuthFallback />
             </div>
             <div className="border-t border-gray-200 dark:border-gray-700"></div>
             <div className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"

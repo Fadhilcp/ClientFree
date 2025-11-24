@@ -19,7 +19,6 @@ const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ jobId }) => {
     milestones: [],
     optionalUpgrades: [],
   });
-  console.log("🚀 ~ PlaceBidPage ~ proposalState:", proposalState)
 
   const [loading, setLoading] = useState(false);
 

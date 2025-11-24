@@ -2,11 +2,11 @@ import { createHttpError } from "../utils/httpError.util";
 import { HttpStatus } from "../constants/status.constants";
 import { IProposalRepository } from "repositories/interfaces/IProposalInvitation";
 import { IJobRepository } from "repositories/interfaces/IJobRepository";
-import { IProposalInvitation, ProposalStatus } from "types/proposalInvitation.type";
+import { IProposalInvitation, IProposalInvitationDocument, ProposalStatus } from "types/proposalInvitation.type";
 import { IProposalService } from "./interface/IProposalService";
 import { mapProposal } from "mappers/proposal.mapper";
 import { ProposalDTO } from "dtos/proposal.dto";
-import { UpdateQuery } from "mongoose";
+import { FilterQuery, UpdateQuery } from "mongoose";
 import { IJobDocument } from "types/job.type";
 
 export class ProposalService implements IProposalService {
@@ -16,11 +16,22 @@ export class ProposalService implements IProposalService {
         const job = await this.jobRepository.findById(jobId);
         if (!job) throw createHttpError(HttpStatus.NOT_FOUND, "Job not found");
 
+        const exists = await this.proposalRepository.findOne({ jobId, freelancerId });
+        if (exists) {
+            throw createHttpError(HttpStatus.BAD_REQUEST, "Proposal already submitted");
+        }
+
+        const { bidAmount, duration, description, milestones, optionalUpgrades } = payload;
         const proposal = await this.proposalRepository.create({
-            ...payload,
+            bidAmount,
+            duration,
+            description,
+            milestones,
+            optionalUpgrades,
             jobId,
             freelancerId,
-            status: "pending"
+            status: "pending",
+            isInvitation: false
         });
 
         // increment proposalCount on job
@@ -32,11 +43,17 @@ export class ProposalService implements IProposalService {
         return mapProposal(proposal);
     }
 
-    async getProposalsForJob(jobId: string): Promise<ProposalDTO[]> {
+    async getProposalsForJob(jobId: string, status?: string, isInvitation?: boolean): Promise<ProposalDTO[]> {
+
         const job = await this.jobRepository.findById(jobId);
         if (!job) throw createHttpError(HttpStatus.NOT_FOUND, "Job not found");
 
-        const proposals = await this.proposalRepository.findByJob(jobId);
+        const filter: FilterQuery<IProposalInvitationDocument> = { jobId }; 
+
+        if (status) filter.status = status;
+        if (isInvitation !== undefined) filter.isInvitation = isInvitation === true;
+
+        const proposals = await this.proposalRepository.findByJob(filter);
         return proposals.map(mapProposal);
     }
 

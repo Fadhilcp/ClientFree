@@ -8,8 +8,8 @@ class ProposalService {
     return axios.post(endPoints.PROPOSAL.CREATE, data);
   }
 
-  getProposalsForJob(jobId: string) {
-    return axios.get(endPoints.PROPOSAL.FOR_JOB(jobId));
+  getProposalsForJob(jobId: string, status: string, invitation: boolean) {
+    return axios.get(endPoints.PROPOSAL.FOR_JOB(jobId, status, invitation));
   }
 
   getProposal(proposalId: string) {
