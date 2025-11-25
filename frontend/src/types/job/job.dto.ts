@@ -31,6 +31,27 @@ export interface JobBaseDTO {
 
 export interface JobListDTO extends JobBaseDTO {}
 
+export interface FreelancerProfileDTO {
+  id: string;
+  username: string;
+  name?: string;
+  profileImage?: string;
+  professionalTitle?: string;
+  hourlyRate?: string;
+  experienceLevel?: string;
+  skills?: { id: string; name: string }[];
+  stats?: any;
+  ratings?: any;
+}
+
+export interface AcceptedProposalDTO {
+  id: string;
+  bidAmount?: number;
+  duration?: string;
+  status: "pending" | "shortlisted" | "accepted" | "rejected" | "invited";
+  freelancer?: FreelancerProfileDTO | null;
+}
+
 export interface JobDetailDTO extends JobBaseDTO {
   locationPreference?: {
     city?: string;
@@ -40,23 +61,5 @@ export interface JobDetailDTO extends JobBaseDTO {
 
   proposals: string[];
   isMultiFreelancer: boolean;
-  acceptedProposalIds: string[];
-}
-
-
-export interface JobForm {
-  title: string;
-  category: string;
-  subcategory: string;
-  skills: string[];
-  duration: string;
-  paymentBudget: string;
-  paymentType: "fixed" | "hourly";
-  description: string;
-  visibility: "public" | "private";
-  locationCity: string;
-  locationCountry: string;
-  locationType: "specific" | "worldwide";
-  isFeatured: boolean;
-  [key: string]: any;
+  acceptedProposals: AcceptedProposalDTO[];
 }

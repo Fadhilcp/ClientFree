@@ -10,4 +10,5 @@ export interface IProposalService {
     getById(id: string): Promise<ProposalDTO>;
     updateProposal(id: string,data: IProposalInvitation): Promise<ProposalDTO>;
     updateStatus(id: string,status: ProposalStatus): Promise<ProposalDTO>;
+    acceptProposal(id: string): Promise<void>;
 }

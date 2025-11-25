@@ -13,6 +13,9 @@ import type { RootState } from "../../../store/store";
 import type { IProposal, ProposalStatus } from "../../../types/job/proposal.type";
 import DropdownSection from "../../../components/ui/DropdownSection";
 import { notify } from "../../../utils/toastService";
+import type { SkillItem } from "../../../types/skill.types";
+import CenteredMessage from "../../../components/user/CenteredMessage";
+import Button from "../../../components/ui/Button";
 
 const tabs = [
   { key: "details", label: "Job Details" },
@@ -34,10 +37,9 @@ const JobDetailPage: React.FC = () => {
   const [invitationsLoading, setInvitationsLoading] = useState(false);
   // to find the user who post job
   const isJobOwner = user?.id === job?.clientId;
-
+  
   useEffect(() => {
-  if (!id) return;
-
+    if (!id) return;
   // for proposal and invitation 
   const fetchData = async () => {
     try {
@@ -51,7 +53,6 @@ const JobDetailPage: React.FC = () => {
         if (res.data.success) setProposals(res.data.proposals);
         setProposalsLoading(false);
       }
-
       if (activeTab === "invitations") {
         setInvitationsLoading(true);
         const res = await proposalService.getProposalsForJob(id, "", true);
@@ -71,7 +72,6 @@ const JobDetailPage: React.FC = () => {
   // polling of new proposal( every 20 seconds )
   useEffect(() => {
     if (!id || activeTab !== "proposals") return;
-    console.log('hello')
     const interval = setInterval(async () => {
       try {
         const response = await proposalService.getProposalsForJob(
@@ -79,13 +79,11 @@ const JobDetailPage: React.FC = () => {
           proposalFilter !== "all" ? proposalFilter : "",
           false
         );
-        console.log('hello')
         if (response.data.success) setProposals(response.data.proposals);
       } catch (err) {
         console.error("Polling failed:", err);
       }
     }, 20000); // 20 seconds
-
     return () => clearInterval(interval);
   }, [id, activeTab, proposalFilter]);
 
@@ -93,7 +91,7 @@ const JobDetailPage: React.FC = () => {
   useEffect(() => {
     const fetchJob = async () => {
       try {
-        if (!id) return;
+        if (!id || activeTab !== 'details') return;
         setLoading(true);
         const res = await jobService.getJob(id);
         if (res.data.success) {
@@ -106,11 +104,17 @@ const JobDetailPage: React.FC = () => {
       }
     };
     fetchJob();
-  }, [id]);
+  }, [id, activeTab]);
 
   const handleChangeStatus = async(proposalId: string, status: ProposalStatus) => {
     try { 
-      const response = await proposalService.updateProposalStatus(proposalId, status);
+      let response = null
+      if(status === 'accepted'){
+        response = await proposalService.acceptProposal(proposalId);
+      }else{
+        response = await proposalService.updateProposalStatus(proposalId, status);
+      }
+      
       if(response.data.success){
         notify.success(`Proposal ${status}`);
        
@@ -119,7 +123,7 @@ const JobDetailPage: React.FC = () => {
             p.id === proposalId ? { ...p, status } : p
           )
         );
-
+        
         setInvitations(prev =>
           prev.map(p =>
             p.id === proposalId ? { ...p, status } : p
@@ -131,20 +135,20 @@ const JobDetailPage: React.FC = () => {
       notify.error("Failed to update proposal status");
     }
   }
-
-const getProposalActions = (p: IProposal): ActionItem[] => {
-  const viewAction = {
-    label: "View",
+  
+  const getProposalActions = (p: IProposal): ActionItem[] => {
+    const viewAction = {
+      label: "View",
     onClick: () => console.log("View proposal", p.id),
     variant: "secondary" as const,
   };
-
+  
   if (!isJobOwner) return [viewAction];
   const actions: ActionItem[] = [viewAction];
 
   switch (p.status) {
     case "pending":
-    case "invited":
+      case "invited":
       actions.push(
         {
           label: "Shortlist",
@@ -173,12 +177,12 @@ const getProposalActions = (p: IProposal): ActionItem[] => {
     case "rejected":
       break;
   }
-
+  
   return actions;
 };
 // propos of cards
   const getCardProps = (p: IProposal) => ({
-      user: p.freelancer,
+    user: p.freelancer,
       title: `Bid: ₹${p.bidAmount}`,
       subtitle: `Duration: ${p.duration}`,
       description: p.description,
@@ -194,25 +198,19 @@ const getProposalActions = (p: IProposal): ActionItem[] => {
         p.updatedAt
       ).toLocaleDateString()}`,
       actions: getProposalActions(p),
-  });
+    });
 
-
-  if (loading) {
-    return (
-      <section className="bg-white dark:bg-gray-900 min-h-screen flex items-center justify-center">
-        <p className="text-gray-600 dark:text-gray-300">Loading job details...</p>
-      </section>
-    );
-  }
-
-  if (!job) {
-    return (
-      <section className="bg-white dark:bg-gray-900 min-h-screen flex items-center justify-center">
-        <p className="text-gray-600 dark:text-gray-300">Job not found.</p>
-      </section>
-    );
-  }
-
+    
+    if (loading) {
+      return <CenteredMessage message="Loading job details..." />;
+    }
+  
+    if (!job) {
+      return <CenteredMessage message="Job not found." />;
+    }
+    if (!isJobOwner && user?.role === "client") {
+      return <CenteredMessage message="You cannot view jobs posted by other clients." />;
+    }
 
   return (
     <section className="bg-white dark:bg-gray-900 min-h-screen flex justify-center py-6">
@@ -227,13 +225,57 @@ const getProposalActions = (p: IProposal): ActionItem[] => {
         />
 
         {/* Job Details */}
-        {activeTab === "details" && (
-          <div className="p-6">
-            <JobDetails job={job} />
-            <div className="border-t border-gray-200 dark:border-gray-700 my-6"></div>
-            <PlaceBidPage jobId={job.id} />
-          </div>
+{activeTab === "details" && (
+  <div className="p-6">
+    <JobDetails job={job} />
+    <div className="border-t border-gray-200 dark:border-gray-700 my-6"></div>
+
+    {/* Hired / Accepted Freelancer Section */}
+    {isJobOwner && job.acceptedProposals && job.acceptedProposals.length > 0 && (
+      <div className="mb-6">
+        <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-3">
+          {job.acceptedProposals.length > 1 ? "Hired Freelancers" : "Hired Freelancer"}
+        </h2>
+        <div className="space-y-4">
+          {job.acceptedProposals.map((p: any) => (
+            <Card
+              key={p.id}
+              user={p.freelancer}
+              title={p.freelancer.professionalTitle || p.freelancer.name}
+              subtitle={`Bid: ₹${p.bidAmount} • Duration: ${p.duration}`}
+              description={p.description}
+              status={p.status}
+              tags={p.freelancer.skills ? p.freelancer.skills.map((s: SkillItem) => (s.name)) : []}
+              meta={[
+                { label: "Experience", value: p.freelancer.experienceLevel },
+                { label: "Hourly Rate", value: p.freelancer.hourlyRate },
+              ]}
+              footer={`Accepted on: ${new Date(p.updatedAt).toLocaleDateString()}`}
+              actions={[
+                {
+                  label: "View Profile",
+                  onClick: () => console.log("View freelancer", p.freelancer.id),
+                  variant: "secondary" as const,
+                },
+              ]}
+            />
+          ))}
+        </div>
+                {/* Start Job Button */}
+        {job.status === "open" && (
+          <Button
+            label="Start Job"
+            onClick={() => {}}
+            className="mt-4 px-4 py-2 bg-indigo-600 dark:bg-indigo-600 text-white rounded-md hover:bg-indigo-700 hover:dark:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+          />
         )}
+
+      </div>
+    )}
+
+    { user?.role === 'freelancer' && <PlaceBidPage jobId={job.id} />}
+  </div>
+)}
 
         {/* Proposals */}
         {activeTab === "proposals" && (

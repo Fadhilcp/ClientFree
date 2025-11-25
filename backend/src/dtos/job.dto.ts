@@ -1,3 +1,5 @@
+import { FreelancerProfileDto } from "./freelancerProfile.dto";
+
 export interface JobBaseDTO {
   id: string;
   clientId: string;
@@ -29,6 +31,14 @@ export interface JobBaseDTO {
 
 export interface JobListDTO extends JobBaseDTO {}
 
+export interface AcceptedProposalDTO {
+  id: string;
+  bidAmount?: number;
+  duration?: string;
+  status: "pending" | "shortlisted" | "accepted" | "rejected" | "invited";
+  freelancer?: FreelancerProfileDto | null;
+}
+
 export interface JobDetailDTO extends JobBaseDTO {
   locationPreference?: {
     city?: string;
@@ -38,5 +48,5 @@ export interface JobDetailDTO extends JobBaseDTO {
 
   proposals: string[];
   isMultiFreelancer: boolean;
-  acceptedProposalIds: string[];
+  acceptedProposals: AcceptedProposalDTO[];
 }

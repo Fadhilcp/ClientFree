@@ -8,6 +8,7 @@ import { mapProposal } from "mappers/proposal.mapper";
 import { ProposalDTO } from "dtos/proposal.dto";
 import { FilterQuery, UpdateQuery } from "mongoose";
 import { IJobDocument } from "types/job.type";
+import { HttpResponse } from "constants/responseMessage.constant";
 
 export class ProposalService implements IProposalService {
     constructor(private proposalRepository: IProposalRepository, private jobRepository: IJobRepository){};
@@ -80,5 +81,27 @@ export class ProposalService implements IProposalService {
         if (!proposal) throw createHttpError(HttpStatus.NOT_FOUND, "Proposal not found");
 
         return mapProposal(proposal);
+    }
+
+    async acceptProposal(id: string): Promise<void> {
+        
+        const proposal = await this.proposalRepository.findByIdAndUpdate(id,{ status: 'accepted'});
+        if(!proposal){
+            throw createHttpError(HttpStatus.NOT_FOUND,HttpResponse.PROPOSAL_NOT_FOUND);
+        }
+
+        const job = await this.jobRepository.findById(proposal.jobId.toString());
+
+        if(!job){
+            throw createHttpError(HttpStatus.NOT_FOUND,HttpResponse.JOB_NOT_FOUND);
+        }
+
+        if(job.acceptedProposalIds.length > 0){
+            throw createHttpError(HttpStatus.CONFLICT, "Job already has an accepted proposal");
+        }
+        await this.jobRepository.findByIdAndUpdate(
+            job._id.toString(),
+            { $push: { acceptedProposalIds: proposal._id } } as FilterQuery<IJobDocument>
+        );
     }
 }

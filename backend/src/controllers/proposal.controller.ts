@@ -2,7 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import { IProposalService } from "services/interface/IProposalService";
 import { sendResponse } from "../utils/response.util";
 import { HttpStatus } from "../constants/status.constants";
-import { createHttpError } from "../utils/httpError.util";
+import { createHttpError, HttpError } from "../utils/httpError.util";
+import { HttpResponse } from "constants/responseMessage.constant";
 
 export class ProposalController {
     constructor(private service: IProposalService) {}
@@ -93,6 +94,21 @@ export class ProposalController {
             const result = await this.service.updateStatus(id, status);
 
             sendResponse(res, HttpStatus.OK, { result });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async acceptProposal(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+
+            const { id } = req.params;
+            if(!id) throw createHttpError(HttpStatus.BAD_REQUEST, 'Proposal id is needed');
+
+            await this.service.acceptProposal(id);
+
+            sendResponse(res, HttpStatus.OK, {} , 'Proposal accepted');
+            
         } catch (error) {
             next(error);
         }

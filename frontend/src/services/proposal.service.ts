@@ -23,6 +23,10 @@ class ProposalService {
   updateProposalStatus(proposalId: string, status: string) {
     return axios.patch(endPoints.PROPOSAL.UPDATE_STATUS(proposalId), { status });
   }
+
+  acceptProposal(proposalId: string) {
+    return axios.post(endPoints.PROPOSAL.ACCEPT_PROPOSAL(proposalId));
+  }
 }
 
 export const proposalService = new ProposalService();

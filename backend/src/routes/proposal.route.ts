@@ -17,5 +17,6 @@ proposalRouter.get('/job/:jobId',authMiddleware,proposalController.getProposalsF
 proposalRouter.get('/:id',authMiddleware,proposalController.getById.bind(proposalController));
 proposalRouter.put('/:id',authMiddleware,proposalController.update.bind(proposalController));
 proposalRouter.patch('/:id/status',authMiddleware,proposalController.updateStatus.bind(proposalController));
+proposalRouter.post('/:id/accept',authMiddleware,proposalController.acceptProposal.bind(proposalController));
 
 export default proposalRouter;

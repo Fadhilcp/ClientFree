@@ -53,5 +53,7 @@ export const HttpResponse = {
     NO_FILE_FOUND: "No file uploaded",
     ACCESS_DENIED: "Access denied",
     INVALID_STATUS: "Invalid status",
-    REFRESH_TOKEN_MISSING: "Refresh token missing"
+    REFRESH_TOKEN_MISSING: "Refresh token missing",
+    PROPOSAL_NOT_FOUND: "Proposal not found",
+    JOB_NOT_FOUND: "Job not found",
 };

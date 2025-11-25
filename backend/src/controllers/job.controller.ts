@@ -93,4 +93,37 @@ export class JobController {
             next(error);
         }
     }
+
+    async changeStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const jobId = req.params.id;
+            const clientId = req.user?._id;
+            if(!clientId) {
+                throw createHttpError(HttpStatus.UNAUTHORIZED,HttpResponse.UNAUTHORIZED);
+            }
+            const { status } = req.body;
+
+            await this.service.changeStatus(jobId, clientId, status);
+
+            sendResponse(res, HttpStatus.OK, {}, "Job status updated");
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async startJob(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const jobId = req.params.id;
+            const clientId = req.user?._id;
+            if(!clientId) {
+                throw createHttpError(HttpStatus.UNAUTHORIZED,HttpResponse.UNAUTHORIZED);
+            }
+
+            await this.service.startJob(jobId, clientId);
+
+            sendResponse(res, HttpStatus.OK, {}, "Job activated successfully");
+        } catch (error) {
+            next(error);
+        }
+    }
 }

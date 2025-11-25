@@ -49,7 +49,7 @@ const JobSchema = new Schema({
   isFeatured: { type: Boolean, default: false },
   isMultiFreelancer: { type: Boolean, default: false },
 
-  acceptedProposalIds: [{ type: Schema.Types.ObjectId }],
+  acceptedProposalIds: [{ type: Schema.Types.ObjectId, ref: "ProposalInvitation" }],
 },{ timestamps: true });
 
 export default model<IJobDocument>("Jobs", JobSchema);

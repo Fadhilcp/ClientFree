@@ -1,4 +1,5 @@
 import { Document, Types } from "mongoose";
+import { IProposalInvitationDocument } from "./proposalInvitation.type";
 
 export interface IPayment {
   budget?: number;
@@ -10,6 +11,8 @@ export interface ILocationPreference {
   country?: string;
   type?: "specific" | "worldwide";
 }
+
+export type IJobStatus = "open" | "active" | "completed" | "cancelled";
 
 export interface IJob {
   clientId: Types.ObjectId;
@@ -30,7 +33,7 @@ export interface IJob {
 
   locationPreference?: ILocationPreference;
 
-  status: "open" | "active" | "completed" | "cancelled";
+  status: IJobStatus;
 
   proposalCount: number;
 
@@ -39,7 +42,7 @@ export interface IJob {
   isFeatured: boolean;
   isMultiFreelancer: boolean;
 
-  acceptedProposalIds: Types.ObjectId[];
+  acceptedProposalIds: Types.ObjectId[] | IProposalInvitationDocument[];
 
   createdAt?: Date;
   updatedAt?: Date;
