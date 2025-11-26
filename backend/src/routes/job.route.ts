@@ -16,9 +16,10 @@ const jobController = new JobController(jobSerivce);
 
 jobRouter.post('/',authMiddleware,jobController.createJob.bind(jobController));
 jobRouter.get('/',authMiddleware,jobController.getAll.bind(jobController));
-jobRouter.get('/my',authMiddleware,jobController.getClientJobs.bind(jobController));
-jobRouter.patch('/jobs/:id/status',authMiddleware,jobController.changeStatus.bind(jobController));
-jobRouter.post('/jobs/:id/activate',authMiddleware,jobController.startJob.bind(jobController));
+jobRouter.get('/client/me',authMiddleware,jobController.getClientJobs.bind(jobController));
+jobRouter.get('/freelancer/me',authMiddleware,jobController.getFreelancerJobs.bind(jobController));
+jobRouter.patch('/:id/status',authMiddleware,jobController.changeStatus.bind(jobController));
+jobRouter.post('/:id/activate',authMiddleware,jobController.startJob.bind(jobController));
 jobRouter.get('/:id',authMiddleware,jobController.getById.bind(jobController));
 jobRouter.put('/:id',authMiddleware,jobController.update.bind(jobController));
 jobRouter.delete('/:id',authMiddleware,jobController.delete.bind(jobController));

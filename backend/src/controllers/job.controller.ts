@@ -42,7 +42,7 @@ export class JobController {
 
             if(!id) throw createHttpError(HttpStatus.BAD_REQUEST,'job id is needed');
 
-            const job = await this.service.getJobById(id);
+            const job = await this.service.getJobById(id, req.user!);
 
             sendResponse(res, HttpStatus.OK, { job });
         } catch (error) {
@@ -84,8 +84,11 @@ export class JobController {
         try {
             const clientId = req.user?._id;
             const status = req.query.status as string || '';
+            
             if(!clientId) throw createHttpError(HttpStatus.BAD_REQUEST,'user Id is needed');
-
+            if (req.user?.role !== "client") {
+                throw createHttpError(HttpStatus.FORBIDDEN, "Only clients can access their jobs.");
+            }
             const jobs = await this.service.getClientJobs(clientId, status);
 
             sendResponse(res, HttpStatus.OK, { jobs });
@@ -119,9 +122,25 @@ export class JobController {
                 throw createHttpError(HttpStatus.UNAUTHORIZED,HttpResponse.UNAUTHORIZED);
             }
 
-            await this.service.startJob(jobId, clientId);
+            const job  = await this.service.startJob(jobId, clientId);
 
-            sendResponse(res, HttpStatus.OK, {}, "Job activated successfully");
+            sendResponse(res, HttpStatus.OK, { job }, "Job activated successfully");
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getFreelancerJobs(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const freelancerId = req.user?._id;
+            if(!freelancerId){
+                throw createHttpError(HttpStatus.UNAUTHORIZED,HttpResponse.UNAUTHORIZED);
+            }
+            const status = req.query.status as string || "";
+
+            const jobs = await this.service.getFreelancerJobs(freelancerId, status);
+
+            sendResponse(res, HttpStatus.OK, { jobs })
         } catch (error) {
             next(error);
         }

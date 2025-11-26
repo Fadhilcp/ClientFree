@@ -55,9 +55,12 @@ export const endPoints = {
             `/jobs?status=${status}&search=${search}&page=${page}&limit=${limit}`,
 
         CREATE: '/jobs',
-        MY_JOBS: (status: string) => `/jobs/my?status=${status}`, 
+        MY_JOBS: (status: string) => `/jobs/client/me?status=${status}`, 
+        FREELANCER_JOBS: (status: string) => `/jobs/freelancer/me?status=${status}`,
         BY_ID: (jobId: string) => `/jobs/${jobId}`, // GET / PUT / DELETE
         ADD_PROPOSAL: (jobId: string) => `/jobs/${jobId}/proposal`, // POST
+        UPDATE_STATUS: (jobId: string) => `/jobs/${jobId}/status`,// PATCH
+        START_JOB: (jobId: string) =>  `/jobs/${jobId}/activate`,
     },
     PROPOSAL: {
         CREATE: "/proposal",                          // POST

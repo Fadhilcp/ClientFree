@@ -1,4 +1,5 @@
 import { Document, Types } from "mongoose";
+import { IJobDocument } from "./job.type";
 
 export interface ITask {
   id?: string;
@@ -30,7 +31,7 @@ export interface IMilestone {
 export type IAssignmentStatus = "active" | "completed" | "cancelled";
 
 export interface IJobAssignment {
-  jobId: Types.ObjectId;
+  jobId: Types.ObjectId | string | IJobDocument;
   freelancerId: Types.ObjectId | string;
   proposalId: Types.ObjectId;
 

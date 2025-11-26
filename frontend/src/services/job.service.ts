@@ -1,6 +1,6 @@
 import { endPoints } from '../config/endpoints';
 import axios from '../lib/axios';
-import { type JobForm } from '../types/job/job.dto';
+import { type JobDetailDTO } from '../types/job/job.dto';
 
 class JobService {
     getJobs(status?: string, search?: string, page?: number, limit?: number) {
@@ -15,11 +15,15 @@ class JobService {
         return axios.get(endPoints.JOB.MY_JOBS(status));
     }
 
+    getFreelancerJob(status: string) {
+        return axios.get(endPoints.JOB.FREELANCER_JOBS(status));
+    }
+
     getJob(jobId: string) {
         return axios.get(endPoints.JOB.BY_ID(jobId));
     }
 
-    updateJob(jobId: string, data: Partial<JobForm>) {
+    updateJob(jobId: string, data: Partial<JobDetailDTO>) {
         return axios.put(endPoints.JOB.BY_ID(jobId), data);
     }
 
@@ -29,6 +33,14 @@ class JobService {
 
     addProposal(jobId: string, data: any) {
         return axios.post(endPoints.JOB.ADD_PROPOSAL(jobId), data);
+    }
+
+    updateStatus(jobId: string, status: string) {
+        return axios.patch(endPoints.JOB.UPDATE_STATUS(jobId), { status });
+    }
+
+    startJob(jobId: string) {
+        return axios.post(endPoints.JOB.START_JOB(jobId));
     }
 }
 

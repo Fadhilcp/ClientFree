@@ -16,6 +16,9 @@ export class ProposalController {
             if (!freelancerId) {
                 throw createHttpError(HttpStatus.UNAUTHORIZED, "Unauthorized");
             }
+            if (req.user?.role !== "freelancer") {
+                throw createHttpError(HttpStatus.FORBIDDEN, "Only freelancers can create their proposals.");
+            }
 
             if (!jobId) {
                 throw createHttpError(HttpStatus.BAD_REQUEST, "Job id is needed");

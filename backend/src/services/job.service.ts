@@ -9,6 +9,8 @@ import { JobDetailDTO, JobListDTO } from "dtos/job.dto";
 import { HttpResponse } from "constants/responseMessage.constant";
 import { IProposalRepository } from "repositories/interfaces/IProposalInvitation";
 import { IJobAssignmentRepository } from "repositories/interfaces/IJobAssignmentRepository";
+import { IJobAssignmentDocument } from "types/jobAssignment.type";
+import { AuthPayload } from "types/auth.type";
 
 export class JobService implements IJobService {
 
@@ -32,13 +34,19 @@ export class JobService implements IJobService {
         return jobs.map(job => JobMapper.toListDTO(job));
     }
 
-    async getJobById(jobId: string): Promise<JobDetailDTO> {
+    async getJobById(jobId: string, user: AuthPayload): Promise<JobDetailDTO> {
         if(!jobId) throw createHttpError(HttpStatus.BAD_REQUEST, 'Job id is needed');
 
-        const result = await this.jobRepository.findByIdWithDetails(jobId);
+        const job = await this.jobRepository.findByIdWithDetails(jobId);
         
-        if(!result) throw createHttpError(HttpStatus.NOT_FOUND, 'Job not found');
-        return JobMapper.toDetailDTO(result);;
+        if(!job) throw createHttpError(HttpStatus.NOT_FOUND, 'Job not found');
+        // to prevent job detail from other clients
+        if(user.role === 'client'){
+            if(job.clientId.toString() !== user._id.toString()){
+                throw createHttpError(HttpStatus.FORBIDDEN, 'You cannot view jobs posted by other clients.');
+            }
+        }
+        return JobMapper.toDetailDTO(job);
     }
 
     async updateJob(jobId: string, data: IJob): Promise<IJobDocument> {
@@ -67,12 +75,12 @@ export class JobService implements IJobService {
         if(status){
             filter.status = status;
         }
-
         const jobs = await this.jobRepository.findWithSkills(filter);
         
         return jobs.map(job => JobMapper.toListDTO(job));
     }
 
+    
     async changeStatus(jobId: string, clientId: string, status: IJobStatus): Promise<void> {
         const allowed = ["open","active","completed","cancelled"];
 
@@ -81,14 +89,14 @@ export class JobService implements IJobService {
         }
         const job = await this.jobRepository.findById(jobId);
         if(!job) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.JOB_NOT_FOUND);
-
+        
         if(job.clientId.toString() !== clientId){
             throw createHttpError(HttpStatus.FORBIDDEN, "Not allowed");
         }
         await this.jobRepository.findByIdAndUpdate(jobId, { status });
     }
 
-    async startJob(jobId: string, clientId: string): Promise<void> {
+    async startJob(jobId: string, clientId: string): Promise<JobDetailDTO> {
         const job = await this.jobRepository.findById(jobId);
 
         if(!job) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.JOB_NOT_FOUND);
@@ -101,13 +109,22 @@ export class JobService implements IJobService {
         if(job.acceptedProposalIds.length === 0){
             throw createHttpError(HttpStatus.CONFLICT,"No accepted proposal exists for this job");
         }
-
-        const proposals = await this.proposalRepository.find(job.acceptedProposalIds)
-
+        // to reject all other proposals
+        await this.proposalRepository.updateMany(
+            {
+                jobId: job._id,
+                _id: { $nin: job.acceptedProposalIds }
+            },
+            { $set: { status: 'rejected'}}
+        );
+        const proposals = await this.proposalRepository.find({
+            _id: { $in: job.acceptedProposalIds }
+        });
+        
         if(!proposals || proposals.length === 0){
             throw createHttpError(HttpStatus.NOT_FOUND, "Accepted proposals not found");
         }
-
+        
         const totalAmount = proposals.reduce(
             (acc,proposal) => acc + (proposal.bidAmount || 0),
             0
@@ -122,12 +139,31 @@ export class JobService implements IJobService {
                 status: "active"
             });
         }
-
-        await this.jobRepository.findByIdAndUpdate(jobId, {
+        
+        const updatedJob = await this.jobRepository.findByIdAndUpdate(jobId, {
             $set: {
                 status: "active",
                 "payment.budget": totalAmount
-            } 
+            }
         } as FilterQuery<IJobDocument> );
+
+        if(!updatedJob) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.JOB_NOT_FOUND);
+        
+        return JobMapper.toDetailDTO(updatedJob);
+    }
+
+    async getFreelancerJobs(freelancerId: string, status?: string): Promise<any[]> {
+        const filter: FilterQuery<IJobAssignmentDocument> = { freelancerId };
+        if(status){
+            filter.status = status
+        }
+
+        const assignments = await this.jobAssignmentRepository.findWithJobDetail(filter);
+
+        if(!assignments) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.JOB_NOT_FOUND);
+
+        const jobs = assignments.map(a => a.jobId as IJobDocument);
+
+        return jobs.map(job => JobMapper.toListDTO(job));
     }
 }

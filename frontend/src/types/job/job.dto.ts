@@ -63,3 +63,20 @@ export interface JobDetailDTO extends JobBaseDTO {
   isMultiFreelancer: boolean;
   acceptedProposals: AcceptedProposalDTO[];
 }
+
+export interface JobForm {
+  title: string;
+  category: string;
+  subcategory: string;
+  skills: string[];
+  duration: string;
+  paymentBudget: string;
+  paymentType: "fixed" | "hourly";
+  description: string;
+  visibility: "public" | "private";
+  locationCity: string;
+  locationCountry: string;
+  locationType: "specific" | "worldwide";
+  isFeatured: boolean;
+  [key: string]: any;
+}

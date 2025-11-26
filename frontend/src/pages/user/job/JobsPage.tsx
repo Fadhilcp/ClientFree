@@ -16,14 +16,21 @@ const JobsPage: React.FC<{ status: string; title: string }> = ({ status, title }
     const navigate = useNavigate();
 
     const updateAt = useSelector((state: RootState) => state.job.updatedAt);
+    const { user } = useSelector((state: RootState) => state.auth);
 
     // Load active jobs
     const fetchJobs = useCallback(async () => {
+      if(!user) return;
       setLoading(true);
         try {
-            const response = await jobService.getMyJobs(status);
+            let response;
+            if(user.role === 'client'){
+              response = await jobService.getMyJobs(status);
+            }else if(user.role === 'freelancer'){
+              response = await jobService.getFreelancerJob(status);
+            }
 
-            if (response.data.success) {
+            if (response?.data.success) {
                 setJobs(response.data.jobs);
             }
         } catch (err) {
@@ -31,7 +38,7 @@ const JobsPage: React.FC<{ status: string; title: string }> = ({ status, title }
         }finally {
           setLoading(false);
         }
-    }, [status]);
+    }, [status, user]);
 
     useEffect(() => {
         fetchJobs();

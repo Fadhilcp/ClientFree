@@ -29,6 +29,7 @@ const JobDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState("details");
   const [job, setJob] = useState<JobDetailDTO | null>(null);
+  console.log("🚀 ~ JobDetailPage ~ job:", job)
   const [loading, setLoading] = useState(true);
   const [proposals, setProposals] = useState<IProposal[]>([]);
   const [proposalsLoading, setProposalsLoading] = useState(false);
@@ -40,6 +41,12 @@ const JobDetailPage: React.FC = () => {
   
   useEffect(() => {
     if (!id) return;
+    if (job?.status === "active" && 
+      (activeTab === "proposals" || activeTab === "invitations")) {
+      setProposals([]);
+      setInvitations([]);
+      return; 
+    }
   // for proposal and invitation 
   const fetchData = async () => {
     try {
@@ -60,6 +67,7 @@ const JobDetailPage: React.FC = () => {
         setInvitationsLoading(false);
       }
     } catch (err) {
+      notify.error('Pleaes try again!')
       console.error("Failed:", err);
       setProposalsLoading(false);
       setInvitationsLoading(false);
@@ -67,11 +75,11 @@ const JobDetailPage: React.FC = () => {
   };
 
   fetchData();
-}, [id, activeTab, proposalFilter]);
+}, [id, activeTab, proposalFilter, job?.status]);
 
   // polling of new proposal( every 20 seconds )
   useEffect(() => {
-    if (!id || activeTab !== "proposals") return;
+    if (!id || activeTab !== "proposals"|| job?.status !== "open") return;
     const interval = setInterval(async () => {
       try {
         const response = await proposalService.getProposalsForJob(
@@ -85,7 +93,7 @@ const JobDetailPage: React.FC = () => {
       }
     }, 20000); // 20 seconds
     return () => clearInterval(interval);
-  }, [id, activeTab, proposalFilter]);
+  }, [id, activeTab, proposalFilter, job?.status]);
 
   // Fetch job details
   useEffect(() => {
@@ -98,6 +106,7 @@ const JobDetailPage: React.FC = () => {
           setJob(res.data.job);
         }
       } catch (err) {
+        notify.error('Failed to fetch job details')
         console.error("Failed to fetch job details:", err);
       } finally {
         setLoading(false);
@@ -130,9 +139,27 @@ const JobDetailPage: React.FC = () => {
           )
         );
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to update status:", error);
-      notify.error("Failed to update proposal status");
+      notify.error(error.response?.data?.error || "Failed to update proposal status");
+    }
+  }
+
+  const handleStartJob = async() => {
+    try {
+      if(!id) return;
+      const response = await jobService.startJob(id);
+      if(response.data.success){
+        notify.success('Job activated');
+        const { job } = response.data;
+        setJob(prev => ({
+          ...prev!,
+          status: job.status,
+          payment: { budget: job.payment.budget }
+        }));
+      }
+    } catch (error: any) {
+      notify.error(error.response?.data?.error || 'Failed to activate job, Please try again');
     }
   }
   
@@ -182,7 +209,7 @@ const JobDetailPage: React.FC = () => {
 };
 // propos of cards
   const getCardProps = (p: IProposal) => ({
-    user: p.freelancer,
+    user: p.freelancer ?? undefined,
       title: `Bid: ₹${p.bidAmount}`,
       subtitle: `Duration: ${p.duration}`,
       description: p.description,
@@ -211,6 +238,7 @@ const JobDetailPage: React.FC = () => {
     if (!isJobOwner && user?.role === "client") {
       return <CenteredMessage message="You cannot view jobs posted by other clients." />;
     }
+    
 
   return (
     <section className="bg-white dark:bg-gray-900 min-h-screen flex justify-center py-6">
@@ -225,92 +253,122 @@ const JobDetailPage: React.FC = () => {
         />
 
         {/* Job Details */}
-{activeTab === "details" && (
-  <div className="p-6">
-    <JobDetails job={job} />
-    <div className="border-t border-gray-200 dark:border-gray-700 my-6"></div>
-
-    {/* Hired / Accepted Freelancer Section */}
-    {isJobOwner && job.acceptedProposals && job.acceptedProposals.length > 0 && (
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-3">
-          {job.acceptedProposals.length > 1 ? "Hired Freelancers" : "Hired Freelancer"}
-        </h2>
-        <div className="space-y-4">
-          {job.acceptedProposals.map((p: any) => (
-            <Card
-              key={p.id}
-              user={p.freelancer}
-              title={p.freelancer.professionalTitle || p.freelancer.name}
-              subtitle={`Bid: ₹${p.bidAmount} • Duration: ${p.duration}`}
-              description={p.description}
-              status={p.status}
-              tags={p.freelancer.skills ? p.freelancer.skills.map((s: SkillItem) => (s.name)) : []}
-              meta={[
-                { label: "Experience", value: p.freelancer.experienceLevel },
-                { label: "Hourly Rate", value: p.freelancer.hourlyRate },
-              ]}
-              footer={`Accepted on: ${new Date(p.updatedAt).toLocaleDateString()}`}
-              actions={[
-                {
-                  label: "View Profile",
-                  onClick: () => console.log("View freelancer", p.freelancer.id),
-                  variant: "secondary" as const,
-                },
-              ]}
-            />
-          ))}
-        </div>
-                {/* Start Job Button */}
-        {job.status === "open" && (
-          <Button
-            label="Start Job"
-            onClick={() => {}}
-            className="mt-4 px-4 py-2 bg-indigo-600 dark:bg-indigo-600 text-white rounded-md hover:bg-indigo-700 hover:dark:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-600"
-          />
-        )}
-
-      </div>
-    )}
-
-    { user?.role === 'freelancer' && <PlaceBidPage jobId={job.id} />}
-  </div>
-)}
-
-        {/* Proposals */}
-        {activeTab === "proposals" && (
+        {activeTab === "details" && (
+          
           <div className="p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-                Proposals
-              </h2>
-              <div className="w-fit">              
-                <DropdownSection<{ filter: string }>
-                  name="filter"
-                  value={proposalFilter}
-                  onChange={(_, val) => setProposalFilter(val)}
-                  options={["all", "pending", "shortlisted", "accepted", "rejected"]}
-                />
-              </div>
+            <JobDetails job={job} />
+            <div className="border-t border-gray-200 dark:border-gray-700 my-6"></div>
 
-            </div>
+            {/* Freelancer not selected notice */}
+            {user?.role === "freelancer" &&
+              job.status === "active" &&
+              !(job.acceptedProposals ?? []).some(p => p.freelancer && p.freelancer.id === user.id) && (
+                <div className="p-4 mb-4 text-red-600 dark:text-red-400 font-medium">
+                  You were not selected for this job.
+                </div>
+            )}
 
-            {proposalsLoading ? (
-              <p className="text-gray-600 dark:text-gray-300">Loading proposals...</p>
-            ) : proposals.length > 0 ? (
-              <div className="space-y-4">
-                {proposals.map((p, i) => (
-                  <Card key={p.id || i} {...getCardProps(p)} />
-                ))}
+            {/* Hired / Accepted Freelancer Section */}
+            {isJobOwner && job.acceptedProposals && job.acceptedProposals.length > 0 && (
+              <div className="mb-6">
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-3">
+                  {job.acceptedProposals.length > 1 ? "Hired Freelancers" : "Hired Freelancer"}
+                </h2>
+                <div className="space-y-4">
+                  {job.acceptedProposals.map((p: any) => (
+                    <Card
+                      key={p.id}
+                      user={p.freelancer ?? undefined}
+                      title={p.freelancer.professionalTitle || p.freelancer.name}
+                      subtitle={`Bid: ₹${p.bidAmount} • Duration: ${p.duration}`}
+                      description={p.description}
+                      status={p.status}
+                      tags={p.freelancer.skills ? p.freelancer.skills.map((s: SkillItem) => (s.name)) : []}
+                      meta={[
+                        { label: "Experience", value: p.freelancer.experienceLevel },
+                        { label: "Hourly Rate", value: p.freelancer.hourlyRate },
+                      ]}
+                      footer={`Accepted on: ${new Date(p.updatedAt).toLocaleDateString()}`}
+                      actions={[
+                        {
+                          label: "View Profile",
+                          onClick: () => console.log("View freelancer", p.freelancer.id),
+                          variant: "secondary" as const,
+                        },
+                      ]}
+                    />
+                  ))}
+                </div>
+                        {/* Start Job Button */}
+                {job.status === "open" && (
+                  <Button
+                    label="Start Job"
+                    onClick={() => handleStartJob()}
+                    className="mt-4 px-4 py-2 bg-indigo-600 dark:bg-indigo-600 text-white rounded-md hover:bg-indigo-700 hover:dark:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                  />
+                )}
+
               </div>
-            ) : (
-              <p className="text-gray-600 dark:text-gray-300">No proposals yet.</p>
+            )}
+
+            { user?.role === 'freelancer' && job.status === 'open' && (
+              <PlaceBidPage jobId={job.id} />
             )}
           </div>
         )}
 
+        {/* Proposals */}
+        {activeTab === "proposals" && (
+          <>
+            {/* hide proposals for freelancers when job is active */}
+            {user?.role === "freelancer" && job.status === "active" && (
+              <p className="p-6 text-gray-600 dark:text-gray-300">
+                This job is no longer accepting proposals. You were not selected.
+              </p>
+            )}
+
+            {/* hide proposals list when job is active for client too */}
+            {user?.role === "client" && job.status === "active" && (
+              <p className="p-6 text-gray-600 dark:text-gray-300">
+                Proposals are hidden after the job becomes active.
+              </p>
+            )}
+
+            {/* normal proposals UI list (only when job is open) */}
+            {job.status === "open" && (
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                    Proposals
+                  </h2>
+                  <div className="w-fit">
+                    <DropdownSection<{ filter: string }>
+                      name="filter"
+                      value={proposalFilter}
+                      onChange={(_, val) => setProposalFilter(val)}
+                      options={["all", "pending", "shortlisted", "accepted", "rejected"]}
+                    />
+                  </div>
+                </div>
+
+                {proposalsLoading ? (
+                  <p className="text-gray-600 dark:text-gray-300">Loading proposals...</p>
+                ) : proposals.length > 0 ? (
+                  <div className="space-y-4">
+                    {proposals.map((p, i) => (
+                      <Card key={p.id || i} {...getCardProps(p)} />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-600 dark:text-gray-300">No proposals yet.</p>
+                )}
+              </div>
+            )}
+          </>
+        )}
+
         {/* Invitations */}
-        {activeTab === "invitations" && (
+        {activeTab === "invitations" && job.status === "open" && (
           <div className="p-6">
             <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
               Invitations
