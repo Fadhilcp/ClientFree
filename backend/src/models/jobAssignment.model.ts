@@ -25,8 +25,8 @@ const jobAssignmentSchema = new Schema({
 
     status: {
       type: String,
-      enum: ["created", "funded", "released", "refunded", "disputed", "cancelled"],
-      default: "created"
+      enum: ["draft", "funded", "submitted", "changes_requested", "approved", "released", "refunded", "disputed", "cancelled"],
+      default: "draft"
     },
 
     createdAt: { type: Date, default: Date.now },
@@ -35,8 +35,8 @@ const jobAssignmentSchema = new Schema({
 
   status: {
     type: String,
-    enum: ["active", "completed", "cancelled"],
-    default: "active"
+    enum: ["pending", "active", "onHold", "completed", "cancelled"],
+    default: "pending"
   }
 
 }, { timestamps: true });

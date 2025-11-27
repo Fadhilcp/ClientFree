@@ -9,9 +9,14 @@ import { ProposalDTO } from "dtos/proposal.dto";
 import { FilterQuery, UpdateQuery } from "mongoose";
 import { IJobDocument } from "types/job.type";
 import { HttpResponse } from "constants/responseMessage.constant";
+import { IJobAssignmentRepository } from "repositories/interfaces/IJobAssignmentRepository";
 
 export class ProposalService implements IProposalService {
-    constructor(private proposalRepository: IProposalRepository, private jobRepository: IJobRepository){};
+    constructor(
+        private proposalRepository: IProposalRepository, 
+        private jobRepository: IJobRepository,
+        private jobAssignmentRepository: IJobAssignmentRepository
+    ){};
 
     async createProposal(jobId: string, freelancerId: string, payload: IProposalInvitation): Promise<ProposalDTO> {
         const job = await this.jobRepository.findById(jobId);
@@ -99,6 +104,16 @@ export class ProposalService implements IProposalService {
         if(job.acceptedProposalIds.length > 0){
             throw createHttpError(HttpStatus.CONFLICT, "Job already has an accepted proposal");
         }
+        
+        await this.jobAssignmentRepository.create({
+            jobId: job._id,
+            freelancerId: proposal.freelancerId,
+            proposalId: proposal._id,
+            amount: proposal.bidAmount || 0,
+            tasks: [],
+            status: "pending"
+        });
+
         await this.jobRepository.findByIdAndUpdate(
             job._id.toString(),
             { $push: { acceptedProposalIds: proposal._id } } as FilterQuery<IJobDocument>

@@ -1,10 +1,10 @@
 import { endPoints } from "../config/endpoints";
 import axios from "../lib/axios";
-import type { IProposal } from "../types/job/proposal.type";
+import type { IProposal, IProposalForm } from "../types/job/proposal.type";
 
 class ProposalService {
 
-  createProposal(data: IProposal) {
+  createProposal(data: IProposalForm) {
     return axios.post(endPoints.PROPOSAL.CREATE, data);
   }
 

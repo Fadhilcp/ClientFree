@@ -4,14 +4,15 @@ import TextAreaSection from "../../ui/TextAreaSection";
 import Button from "../../ui/Button";
 import { proposalService } from "../../../services/proposal.service";
 import { notify } from "../../../utils/toastService";
-import type { IProposal, Milestone } from "../../../types/job/proposal.type";
+import type { IProposal, IProposalForm } from "../../../types/job/proposal.type";
+import type { Milestone } from "../../../types/job/assignment.type";
 
 interface PlaceBidPageProps {
   jobId: string;
 }
 
 const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ jobId }) => {
-  const [proposalState, setProposalState] = useState<IProposal>({
+  const [proposalState, setProposalState] = useState<IProposalForm>({
     jobId,
     bidAmount: 0,
     duration: "",
@@ -63,7 +64,7 @@ const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ jobId }) => {
     try {
       setLoading(true);
 
-      const payload: IProposal = {
+      const payload: IProposalForm = {
         ...proposalState,
         bidAmount: Number(proposalState.bidAmount),
         milestones: (proposalState.milestones || []).map((m) => ({

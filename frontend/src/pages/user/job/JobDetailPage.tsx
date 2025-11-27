@@ -16,6 +16,9 @@ import { notify } from "../../../utils/toastService";
 import type { SkillItem } from "../../../types/skill.types";
 import CenteredMessage from "../../../components/user/CenteredMessage";
 import Button from "../../../components/ui/Button";
+import { jobAssignmentService } from "../../../services/jobAssignments.service";
+import MilestoneForm from "../../../components/user/job/MilestoneForm";
+import type { AssignmentDto, MilestoneDto } from "../../../types/job/assignment.type";
 
 const tabs = [
   { key: "details", label: "Job Details" },
@@ -36,6 +39,9 @@ const JobDetailPage: React.FC = () => {
   const [proposalFilter, setProposalFilter] = useState("all");
   const [invitations, setInvitations] = useState<IProposal[]>([]);
   const [invitationsLoading, setInvitationsLoading] = useState(false);
+  
+  const [jobAssignments, setJobAssignments] = useState<AssignmentDto[]>([]);
+  console.log("🚀 ~ JobDetailPage ~ jobAssignments:", jobAssignments)
   // to find the user who post job
   const isJobOwner = user?.id === job?.clientId;
   
@@ -97,23 +103,50 @@ const JobDetailPage: React.FC = () => {
 
   // Fetch job details
   useEffect(() => {
-    const fetchJob = async () => {
+    if (!id || activeTab !== 'details') return;
+
+    let cancelled = false;
+    setLoading(true)
+    const load = async () => {
       try {
-        if (!id || activeTab !== 'details') return;
-        setLoading(true);
-        const res = await jobService.getJob(id);
-        if (res.data.success) {
-          setJob(res.data.job);
-        }
+        const [jobRes, assignmentRes] = await Promise.all([
+          jobService.getJob(id),
+          jobAssignmentService.getAssignemntsOfJob(id),
+        ]);
+        if(cancelled) return;
+
+        if (jobRes.data.success) setJob(jobRes.data.job);
+        if (assignmentRes.data.success) setJobAssignments(assignmentRes.data.assignments);
       } catch (err) {
         notify.error('Failed to fetch job details')
         console.error("Failed to fetch job details:", err);
       } finally {
-        setLoading(false);
+        if(!cancelled) setLoading(false);
       }
     };
-    fetchJob();
+    load();
+    return () => { cancelled = true };
   }, [id, activeTab]);
+
+  // --- Function to handle milestone update ---
+  const handleUpdateMilestones = async (assignmentId: string, milestones: MilestoneDto[]) => {
+    try {
+      const res = await jobAssignmentService.updateMilestones(assignmentId, milestones);
+      if (res.data.success) {
+        notify.success("Milestones updated successfully");
+
+        // Update local state
+        setJobAssignments((prev) =>
+          prev.map((a) =>
+            a.id === assignmentId ? { ...a, milestones } : a
+          )
+        );
+      }
+    } catch (err: any) {
+      notify.error(err.response?.data?.error || "Failed to update milestones");
+    }
+  }
+
 
   const handleChangeStatus = async(proposalId: string, status: ProposalStatus) => {
     try { 
@@ -299,6 +332,22 @@ const JobDetailPage: React.FC = () => {
                     />
                   ))}
                 </div>
+                <div className="border-t border-gray-200 dark:border-gray-700 my-6"></div>
+              {isJobOwner && jobAssignments?.map((assignment) => (
+                <div key={assignment.id} className="mb-8">
+                  <h2 className="text-md font-bold text-gray-800 dark:text-gray-100 mb-3">
+                    Milestones for {assignment.freelancer.name}
+                  </h2>
+
+                  <MilestoneForm
+                    initialMilestones={assignment.milestones || []}
+                    onSubmit={(milestones) => handleUpdateMilestones(assignment.id, milestones)}
+                    submitLabel="Save & Fund Milestones"
+                  />
+                </div>
+              ))}
+
+                
                         {/* Start Job Button */}
                 {job.status === "open" && (
                   <Button

@@ -21,6 +21,7 @@ export class JobService implements IJobService {
     ){}
 
     async createJob(data: IJob): Promise<IJobDocument> {
+        console.log("🚀 ~ JobService ~ createJob ~ data:", data)
         const result = await this.jobRepository.create(data);
 
         return result;
@@ -129,16 +130,6 @@ export class JobService implements IJobService {
             (acc,proposal) => acc + (proposal.bidAmount || 0),
             0
         )
-        for (const proposal of proposals) {
-            await this.jobAssignmentRepository.create({
-                jobId: job._id,
-                freelancerId: proposal.freelancerId,
-                proposalId: proposal._id,
-                amount: proposal.bidAmount || 0,
-                tasks: [],
-                status: "active"
-            });
-        }
         
         const updatedJob = await this.jobRepository.findByIdAndUpdate(jobId, {
             $set: {

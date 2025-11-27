@@ -6,7 +6,7 @@ export interface IInvitationDetails {
   respondedAt?: Date;
 }
 
-export interface IMilestone {
+export interface IProposalMilestone {
   title: string;
   amount: number;
   dueDate?: Date;
@@ -34,7 +34,7 @@ export interface IProposalInvitation {
   duration?: string;
   description?: string;
 
-  milestones?: IMilestone[];
+  milestones?: IProposalMilestone[];
   optionalUpgrades?: IOptionalUpgrade[];
 
   status: ProposalStatus;

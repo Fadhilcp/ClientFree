@@ -16,4 +16,9 @@ export class JobAssignmentRepository
             return this.model.find(filter)
             .populate({ path: "jobId", model: "Jobs" })
         }
+
+        async findWithFreelancer(filter: FilterQuery<IJobAssignmentDocument>): Promise<IJobAssignmentDocument[]> {
+            return this.model.find(filter)
+            .populate({ path: "freelancerId", model: "User"})
+        }
 }

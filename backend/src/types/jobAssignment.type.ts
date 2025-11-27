@@ -14,21 +14,25 @@ export type IMilestoneStatus =
   | "released"
   | "refunded"
   | "disputed"
-  | "cancelled";
+  | "cancelled" 
+  | "draft" 
+  | "submitted" 
+  | "changes_requested" 
+  | "approved"
 
 export interface IMilestone {
   title: string;
-  description?: string;
+  description?: string | null;
   amount: number;
-  dueDate?: Date;
-  paymentId?: Types.ObjectId;
+  dueDate?: Date | null;
+  paymentId?: Types.ObjectId | null;
   status: IMilestoneStatus;
 
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export type IAssignmentStatus = "active" | "completed" | "cancelled";
+export type IAssignmentStatus = "active" | "pending" |"onHold" | "completed" | "cancelled"; 
 
 export interface IJobAssignment {
   jobId: Types.ObjectId | string | IJobDocument;

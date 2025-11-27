@@ -69,5 +69,9 @@ export const endPoints = {
         UPDATE_STATUS: (id: string) => `/proposal/${id}/status`, // PATCH
         FOR_JOB: (jobId: string, status?: string, invitation?: boolean) => `/proposal/job/${jobId}?status=${status ?? ""}&invitation=${invitation ?? ""}`,    // GET proposals for job
         ACCEPT_PROPOSAL: (proposalId: string) => `/proposal/${proposalId}/accept`,
+    },
+    ASSIGNMENT: {
+        GET_JOB_ASSIGNMENTS: (jobId: string) => `/assignment/job/${jobId}`,
+        UPDATE_MILESTONE: (assignmentId: string) => `/assignment/${assignmentId}/milestones`
     }
 }

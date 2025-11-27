@@ -1,3 +1,5 @@
+import type { Milestone } from "./assignment.type";
+
 export interface IProposal {
   id: string;
   freelancer: {
@@ -29,11 +31,18 @@ export interface IInvitationDetails {
   respondedAt?: Date;
 }
 
-export interface Milestone {
-  title: string;
-  amount: number;
-  dueDate?: string;
-  description?: string;
-}
 
 export type ProposalStatus = "pending" | "shortlisted" | "accepted" | "rejected" | "invited";
+
+export interface IProposalForm {
+  jobId: string;
+  bidAmount: number;
+  duration: string;
+  description: string;
+  milestones: Milestone[];
+  optionalUpgrades?: Array<{
+    addonId: string;
+    name: "highlight" | "sponsored" | "sealed";
+    price: number;
+  }>;
+}

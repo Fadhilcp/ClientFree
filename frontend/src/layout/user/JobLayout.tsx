@@ -180,8 +180,10 @@ const JobLayout: React.FC = () => {
         subcategory: formData.subcategory,
         skills: formData.skills,
         duration: formData.duration,
-        paymentBudget: formData.paymentBudget,
-        paymentType: formData.paymentType,
+        payment: {
+          budget: formData.paymentBudget,
+          type: formData.paymentType
+        },
         description: formData.description,
         visibility: formData.visibility,
         isFeatured: formData.isFeatured,

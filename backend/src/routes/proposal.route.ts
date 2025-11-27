@@ -4,12 +4,14 @@ import { JobRepository } from "repositories/job.repository";
 import { ProposalRepository } from "repositories/proposalInvitation.repository";
 import { ProposalService } from "services/proposal.service";
 import { authMiddleware } from "middlewares/authMiddleware";
+import { JobAssignmentRepository } from "repositories/jobAssignment.repository";
 
 const proposalRouter = Router();
 
 const proposalRepository = new ProposalRepository();
 const jobRepository = new JobRepository();
-const proposalService = new ProposalService(proposalRepository, jobRepository);
+const jobAssignmentRepository = new JobAssignmentRepository();
+const proposalService = new ProposalService(proposalRepository, jobRepository, jobAssignmentRepository);
 const proposalController = new ProposalController(proposalService);
 
 proposalRouter.post('/',authMiddleware,proposalController.create.bind(proposalController));
