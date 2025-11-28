@@ -8,6 +8,7 @@ export interface AssignmentTaskDto {
 }
 
 export interface AssignmentMilestoneDto {
+    id?: string;
     title: string;
     description?: string | null;
     amount: number;

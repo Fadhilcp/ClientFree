@@ -8,6 +8,7 @@ export interface Milestone {
 }
 
 export interface MilestoneDto {
+  id?: string;
   title: string;
   amount: number;
   dueDate: string;

@@ -11,5 +11,7 @@ const assignmentRouter = Router();
 
 assignmentRouter.get('/job/:id',jobAssignmentController.getAssignments.bind(jobAssignmentController));
 assignmentRouter.post('/:id/milestones',jobAssignmentController.addMilestones.bind(jobAssignmentController));
+assignmentRouter.patch('/:id/milestones/:milestoneId/cancel',jobAssignmentController.cancelMilestone.bind(jobAssignmentController));
+assignmentRouter.patch('/:id/milestones/:milestoneId',jobAssignmentController.updateMilestone.bind(jobAssignmentController));
 
 export default assignmentRouter;

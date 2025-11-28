@@ -36,4 +36,28 @@ export class JobAssignmentController {
             next(error);
         }
     }
+
+    async updateMilestone(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const { id, milestoneId } = req.params;
+            const { milestone } = req.body;
+
+            const assignment = await this.service.updateMilestone(id, milestoneId, milestone);
+
+            sendResponse(res, HttpStatus.OK, { assignment });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async cancelMilestone(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const { id, milestoneId } = req.params;
+            const assignment = await this.service.cancelMilestone(id, milestoneId);
+
+            sendResponse(res, HttpStatus.OK, { assignment });
+        } catch (error) {
+            next(error);
+        }
+    }
 }

@@ -18,7 +18,7 @@ import CenteredMessage from "../../../components/user/CenteredMessage";
 import Button from "../../../components/ui/Button";
 import { jobAssignmentService } from "../../../services/jobAssignments.service";
 import MilestoneForm from "../../../components/user/job/MilestoneForm";
-import type { AssignmentDto, MilestoneDto } from "../../../types/job/assignment.type";
+import type { AssignmentDto, Milestone, MilestoneDto } from "../../../types/job/assignment.type";
 
 const tabs = [
   { key: "details", label: "Job Details" },
@@ -32,7 +32,6 @@ const JobDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState("details");
   const [job, setJob] = useState<JobDetailDTO | null>(null);
-  console.log("🚀 ~ JobDetailPage ~ job:", job)
   const [loading, setLoading] = useState(true);
   const [proposals, setProposals] = useState<IProposal[]>([]);
   const [proposalsLoading, setProposalsLoading] = useState(false);
@@ -128,22 +127,55 @@ const JobDetailPage: React.FC = () => {
     return () => { cancelled = true };
   }, [id, activeTab]);
 
-  // --- Function to handle milestone update ---
-  const handleUpdateMilestones = async (assignmentId: string, milestones: MilestoneDto[]) => {
+  const handleAddMilestones = async (assignmentId: string, milestones: MilestoneDto[]) => {
     try {
-      const res = await jobAssignmentService.updateMilestones(assignmentId, milestones);
+      const res = await jobAssignmentService.addMilestones(assignmentId, milestones);
       if (res.data.success) {
-        notify.success("Milestones updated successfully");
-
-        // Update local state
+        notify.success("Milestones added successfully");
+        const { assignment } = res.data;
         setJobAssignments((prev) =>
           prev.map((a) =>
-            a.id === assignmentId ? { ...a, milestones } : a
+            a.id === assignmentId ? { ...a, milestones: assignment.milestones } : a
           )
         );
       }
     } catch (err: any) {
-      notify.error(err.response?.data?.error || "Failed to update milestones");
+      notify.error(err.response?.data?.error || "Failed to add milestones");
+    }
+  }
+
+  const handleEditMilestone = async (assignmentId: string, milestoneId: string, milestone: Milestone) => {
+    try {
+      const res = await jobAssignmentService.updateMilestone(assignmentId, milestoneId, milestone);
+      if(res.data.success) {
+        notify.success('Milestone updated successfully');
+        const { assignment } = res.data;
+        setJobAssignments((prev) =>
+          prev.map((a) =>
+            a.id === assignmentId ? { ...a, milestones: assignment.milestones } : a
+          )
+        );
+      }
+    } catch (error: any) {
+      notify.error(error.response?.data?.error || "Failed to update milestones");
+    }
+  }
+
+  const handleCancelMilestone = async(assignmentId: string, milestoneId: string) => {
+    try {
+      const response = await jobAssignmentService.cancelMilestone(assignmentId, milestoneId);
+      if(response.data.success){
+        notify.success('Milestone cancelled successfully');
+        const { assignment } = response.data;
+        setJobAssignments((prev) =>
+          prev.map((a) =>
+            a.id === assignmentId ? { ...a, milestones: assignment.milestones } : a
+          )
+        );
+      }
+
+    } catch (error: any) {
+      notify.error(error.response?.data?.error || "Failed to cancel milestones");
     }
   }
 
@@ -341,8 +373,10 @@ const JobDetailPage: React.FC = () => {
 
                   <MilestoneForm
                     initialMilestones={assignment.milestones || []}
-                    onSubmit={(milestones) => handleUpdateMilestones(assignment.id, milestones)}
+                    onSubmit={(milestones) => handleAddMilestones(assignment.id, milestones)}
+                    onUpdateMilestone={(_index, m) => handleEditMilestone(assignment.id, m.id!, m)}
                     submitLabel="Save & Fund Milestones"
+                    onCancelMilestone={(milestoneId) => handleCancelMilestone(assignment.id, milestoneId)} 
                   />
                 </div>
               ))}

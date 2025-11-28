@@ -8,19 +8,20 @@ export interface ITask {
   dueDate?: Date;
 }
 
-export type IMilestoneStatus =
-  | "created"
-  | "funded"
-  | "released"
-  | "refunded"
-  | "disputed"
-  | "cancelled" 
-  | "draft" 
-  | "submitted" 
-  | "changes_requested" 
-  | "approved"
+export type IMilestoneStatus = 
+        | "draft"
+        | "funded"
+        | "submitted"
+        | "changes_requested"
+        | "approved"
+        | "released"
+        | "refunded"
+        | "disputed"
+        | "cancelled";
 
-export interface IMilestone {
+
+export interface IMilestone{
+  _id?: Types.ObjectId;
   title: string;
   description?: string | null;
   amount: number;

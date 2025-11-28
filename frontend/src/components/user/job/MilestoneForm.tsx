@@ -1,27 +1,38 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import InputSection from "../../ui/InputSection";
 import TextAreaSection from "../../ui/TextAreaSection";
 import Button from "../../ui/Button";
+import Card, { type ActionItem } from "../../ui/Card/Card";
 import type { Milestone, MilestoneDto } from "../../../types/job/assignment.type";
 
 interface MilestoneFormProps {
-  initialMilestones?: Milestone[];
+  initialMilestones?: MilestoneDto[];
   onSubmit: (milestones: MilestoneDto[]) => void;
+  onUpdateMilestone?: (index: number, milestone: MilestoneDto) => void;
   submitLabel?: string;
+  onCancelMilestone?: (milestoneId: string) => void
 }
 
 const MilestoneForm: React.FC<MilestoneFormProps> = ({
   initialMilestones = [],
   onSubmit,
+  onUpdateMilestone,
   submitLabel = "Save Milestones",
+  onCancelMilestone,
 }) => {
-  const [milestones, setMilestones] = useState<Milestone[]>(initialMilestones);
+  const [milestones, setMilestones] = useState<MilestoneDto[]>(initialMilestones);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    setMilestones(initialMilestones);
+  }, [initialMilestones]);
 
   const handleAddMilestone = () => {
     setMilestones((prev) => [
       ...prev,
       { title: "", amount: 0, description: "", dueDate: "" },
     ]);
+    setEditingIndex(milestones.length);
   };
 
   const handleMilestoneChange = (
@@ -44,97 +55,164 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
     setMilestones(updated);
   };
 
+  const handleCancelMilestone = (index: number) => {
+    const current = milestones[index];
+    if(!current.id){
+      handleRemoveMilestone(index);
+    }
+    setEditingIndex(null);
+  }
+
   const handleSubmit = () => {
     onSubmit(
-      milestones.map((m) => ({
+      milestones
+      .filter(m => !m.id)
+      .map((m) => ({
         ...m,
         amount: Number(m.amount),
         dueDate: m.dueDate ? new Date(m.dueDate).toISOString() : undefined,
       } as MilestoneDto))
     );
+    setEditingIndex(null);
   };
 
-return (
-  <div className="mb-6">
-    <h2 className="text-md font-medium text-gray-800 dark:text-white mb-4">
-      Milestones
-    </h2>
+  return (
+    <div className="mb-6">
+      <h2 className="text-md font-medium text-gray-800 dark:text-white mb-4">
+        Milestones
+      </h2>
 
-    {milestones.map((milestone, index) => (
-      <div
-        key={index}
-        className="relative mb-4 p-4 rounded-md border border-gray-300 dark:border-gray-700"
-      >
-        <Button
-          type="button"
-          onClick={() => handleRemoveMilestone(index)}
-          className="absolute top-2 right-2 bg-transparent dark:bg-transparent hover:dark:bg-transparent hover:bg-transparent text-sm"
-        >
-          <i className="fa-solid fa-xmark text-black hover:text-indigo-500 dark:text-gray-400 dark:hover:text-indigo-400"></i>
-        </Button>
+      {milestones.map((milestone, index) => (
+        <div key={index} className="mb-4">
+          {editingIndex === index ? (
+            // --- Edit Mode ---
+            <div className="relative mb-4 p-4 rounded-md border border-gray-300 dark:border-gray-700">
+              <Button
+                type="button"
+                onClick={() => handleRemoveMilestone(index)}
+                className="absolute top-2 right-2 bg-transparent text-sm"
+              >
+                ✕
+              </Button>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          <InputSection<Milestone>
-            name="title"
-            value={milestone.title}
-            onChange={(val: string) =>
-              handleMilestoneChange(index, "title", val)
-            }
-            placeholder="Add Title"
-            label="Title"
-          />
-          <InputSection<Milestone>
-            name="amount"
-            type="number"
-            value={String(milestone.amount)}
-            onChange={(val: string) =>
-              handleMilestoneChange(index, "amount", val)
-            }
-            placeholder="₹ 5620.00"
-            label="Amount (INR)"
-          />
-          <InputSection<Milestone>
-            name="dueDate"
-            type="date"
-            value={milestone.dueDate || ""}
-            onChange={(val: string) =>
-              handleMilestoneChange(index, "dueDate", val)
-            }
-            label="Due Date"
-          />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <InputSection<Milestone>
+                  name="title"
+                  value={milestone.title}
+                  onChange={(val: string) =>
+                    handleMilestoneChange(index, "title", val)
+                  }
+                  placeholder="Add Title"
+                  label="Title"
+                />
+                <InputSection<Milestone>
+                  name="amount"
+                  type="number"
+                  value={String(milestone.amount)}
+                  onChange={(val: string) =>
+                    handleMilestoneChange(index, "amount", val)
+                  }
+                  placeholder="₹ 5620.00"
+                  label="Amount (INR)"
+                />
+                <InputSection<Milestone>
+                  name="dueDate"
+                  type="date"
+                  value={milestone.dueDate || ""}
+                  onChange={(val: string) =>
+                    handleMilestoneChange(index, "dueDate", val)
+                  }
+                  label="Due Date"
+                />
+              </div>
+
+              <TextAreaSection<Milestone>
+                name="description"
+                value={milestone.description || ""}
+                onChange={(val: string) =>
+                  handleMilestoneChange(index, "description", val)
+                }
+                placeholder="Describe milestone..."
+                label="Description"
+                rows={3}
+              />
+
+              <div className="flex gap-3 mt-4">
+                <Button
+                  label="Save"
+                  onClick={() => {
+                    const current = milestones[index];
+
+                    if (current.id && onUpdateMilestone) {
+                      onUpdateMilestone(index, milestones[index]); 
+                      setEditingIndex(null);
+                    } else {
+                      handleSubmit();
+                    }
+                  }}
+                  variant="primary"
+                  className="px-4 py-2"
+                />
+                <Button
+                  label="Cancel"
+                  onClick={() => handleCancelMilestone(index)}
+                  variant="secondary"
+                  className="px-4 py-2"
+                />
+              </div>
+            </div>
+          ) : (
+            // --- View Mode (Card) ---
+            
+            <Card
+              title={milestone.title || "Untitled Milestone"}
+              description={milestone.description}
+              meta={[
+                { label: "Amount", value: `₹ ${milestone.amount}` },
+                {
+                  label: "Due Date",
+                  value: milestone.dueDate
+                    ? new Date(milestone.dueDate).toLocaleDateString()
+                    : "N/A",
+                },
+              ]}
+              status={milestone.status || "pending"}
+              actions={[
+                {
+                  label: "Edit",
+                  onClick: () => setEditingIndex(index),
+                  variant: "secondary",
+                },
+                milestone.id && milestone.status === "draft"
+                  ? {
+                      label: "Cancel",
+                      onClick: () => onCancelMilestone?.(milestone.id!),
+                      variant: "secondary",
+                    }
+                  : null,
+              ].filter(Boolean) as ActionItem[]}
+            />
+          )}
         </div>
+      ))}
 
-        <TextAreaSection<Milestone>
-          name="description"
-          value={milestone.description || ""}
-          onChange={(val: string) =>
-            handleMilestoneChange(index, "description", val)
-          }
-          placeholder="Describe milestone..."
-          label="Description"
-          rows={3}
+      {/* Action buttons with spacing */}
+      <div className="flex items-center gap-4 mt-6">
+        <button
+          onClick={handleAddMilestone}
+          className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
+        >
+          + Add Milestone
+        </button>
+
+        <Button
+          label={submitLabel}
+          onClick={handleSubmit}
+          className="rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500"
         />
       </div>
-    ))}
-
-    {/* Action buttons with spacing */}
-    <div className="flex items-center gap-4 mt-6">
-      <button
-        onClick={handleAddMilestone}
-        className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
-      >
-        + Add Milestone
-      </button>
-
-      <Button
-        label={submitLabel}
-        onClick={handleSubmit}
-        className="rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500"
-      />
     </div>
-  </div>
-);
-
+  );
 };
 
 export default MilestoneForm;

@@ -72,6 +72,10 @@ export const endPoints = {
     },
     ASSIGNMENT: {
         GET_JOB_ASSIGNMENTS: (jobId: string) => `/assignment/job/${jobId}`,
-        UPDATE_MILESTONE: (assignmentId: string) => `/assignment/${assignmentId}/milestones`
+        ADD_MILESTONE: (assignmentId: string) => `/assignment/${assignmentId}/milestones`,
+        UPDATE_MILESTONE: (assignmentId: string, milestoneId: string) => 
+            `/assignment/${assignmentId}/milestones/${milestoneId}`,
+        CANCEL_MILESTONE: (assignmentId: string, milestoneId: string) => 
+            `/assignment/${assignmentId}/milestones/${milestoneId}/cancel`,
     }
 }

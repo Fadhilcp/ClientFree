@@ -1,9 +1,22 @@
 import { FreelancerProfileDto } from "dtos/freelancerProfile.dto";
-import { AssignmentDto, FreelancerDto } from "dtos/jobAssignment.dto";
-import { IJobAssignmentDocument } from "types/jobAssignment.type";
+import { AssignmentDto, AssignmentMilestoneDto, FreelancerDto } from "dtos/jobAssignment.dto";
+import { IJobAssignmentDocument, IMilestone } from "types/jobAssignment.type";
 import { IUserDocument } from "types/user.type";
 
 export class AssignmentMapper {
+    static mapMilestone(m : IMilestone): AssignmentMilestoneDto {
+        return {
+            id: m._id?.toString(),
+            title: m.title,
+            description: m.description ?? null,
+            amount: m.amount,
+            dueDate: m.dueDate ? m.dueDate.toISOString() : null,
+            paymentId: m.paymentId ? m.paymentId.toString() : null,
+            status: m.status,
+            createdAt: m.createdAt ? m.createdAt.toISOString() : "",
+            updatedAt: m.updatedAt ? m.updatedAt.toISOString() : ""
+        }
+    }
     static mapFreelancer(f: IUserDocument): FreelancerProfileDto {
         return {
             id: f._id.toString(),
@@ -23,7 +36,7 @@ export class AssignmentMapper {
             status: a.status,
             createdAt: a.createdAt.toISOString(),
             updatedAt: a.updatedAt.toISOString(),
-            milestones: a.milestones,
+            milestones: a.milestones.map((m: IMilestone) => this.mapMilestone(m)),
             freelancer: this.mapFreelancer(a.freelancerId),
         };
     }
