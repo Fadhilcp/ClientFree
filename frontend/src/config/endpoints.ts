@@ -77,5 +77,11 @@ export const endPoints = {
             `/assignment/${assignmentId}/milestones/${milestoneId}`,
         CANCEL_MILESTONE: (assignmentId: string, milestoneId: string) => 
             `/assignment/${assignmentId}/milestones/${milestoneId}/cancel`,
+    },
+    PAYMENTS: {
+        CREATE_ORDER: (assignmentId: string,milestoneId: string) => `/payment/milestones/${assignmentId}/${milestoneId}/fund`,
+        VERIFY: '/payment/verify',
+        REFUND: (paymentId: string) => `/payment/${paymentId}/refund`,
+        RELEASE: (paymentId: string) => `/payment/${paymentId}/release`
     }
 }

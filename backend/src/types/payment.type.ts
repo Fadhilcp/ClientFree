@@ -14,12 +14,12 @@ export interface IPayment {
   providerOrderId?: string;
   providerSignature?: string;
 
-  jobId?: Types.ObjectId;
-  milestoneId?: Types.ObjectId;
+  jobId?: Types.ObjectId | string;
+  milestoneId?: Types.ObjectId | string;
 
-  freelancerId?: Types.ObjectId;
-  clientId?: Types.ObjectId;
-  userId?: Types.ObjectId;
+  freelancerId?: Types.ObjectId | string;
+  clientId?: Types.ObjectId | string;
+  userId?: Types.ObjectId | string;
 
   isDisputed?: boolean;
   disputeReason?: string;

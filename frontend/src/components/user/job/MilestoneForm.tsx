@@ -10,7 +10,8 @@ interface MilestoneFormProps {
   onSubmit: (milestones: MilestoneDto[]) => void;
   onUpdateMilestone?: (index: number, milestone: MilestoneDto) => void;
   submitLabel?: string;
-  onCancelMilestone?: (milestoneId: string) => void
+  onCancelMilestone?: (milestoneId: string) => void;
+  onFundMilestone?: (milestoneId: string, amount: number) => Promise<void>;
 }
 
 const MilestoneForm: React.FC<MilestoneFormProps> = ({
@@ -19,6 +20,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
   onUpdateMilestone,
   submitLabel = "Save Milestones",
   onCancelMilestone,
+  onFundMilestone,
 }) => {
   const [milestones, setMilestones] = useState<MilestoneDto[]>(initialMilestones);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -49,10 +51,14 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
     setMilestones(updated);
   };
 
-  const handleRemoveMilestone = (index: number) => {
-    const updated = [...milestones];
+  const handleRemoveMilestone = (index: number, milestoneId?: string) => {
+    if(milestoneId){
+      setEditingIndex(null);
+    }else { 
+      const updated = [...milestones];
     updated.splice(index, 1);
     setMilestones(updated);
+    }
   };
 
   const handleCancelMilestone = (index: number) => {
@@ -76,6 +82,14 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
     setEditingIndex(null);
   };
 
+  const handleFund = async(milestoneId: string, amount: number) => {
+    if(onFundMilestone){
+      await onFundMilestone(milestoneId, amount)
+    }
+  }
+  const firstPendingIndex = milestones.findIndex((m) => m.status === "draft");
+
+
   return (
     <div className="mb-6">
       <h2 className="text-md font-medium text-gray-800 dark:text-white mb-4">
@@ -89,7 +103,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
             <div className="relative mb-4 p-4 rounded-md border border-gray-300 dark:border-gray-700">
               <Button
                 type="button"
-                onClick={() => handleRemoveMilestone(index)}
+                onClick={() => handleRemoveMilestone(index, milestone.id)}
                 className="absolute top-2 right-2 bg-transparent text-sm"
               >
                 ✕
@@ -178,16 +192,25 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
               ]}
               status={milestone.status || "pending"}
               actions={[
+                milestone.status === "draft" ? 
                 {
                   label: "Edit",
                   onClick: () => setEditingIndex(index),
                   variant: "secondary",
-                },
+                } : null,
                 milestone.id && milestone.status === "draft"
                   ? {
                       label: "Cancel",
                       onClick: () => onCancelMilestone?.(milestone.id!),
                       variant: "secondary",
+                    }
+                  : null,
+                  milestone.status === "draft" && index === firstPendingIndex
+                  ? {
+                      label: "Fund",
+                      onClick: () =>
+                        handleFund(milestone.id!, milestone.amount),
+                      variant: "primary",
                     }
                   : null,
               ].filter(Boolean) as ActionItem[]}

@@ -19,6 +19,8 @@ import Button from "../../../components/ui/Button";
 import { jobAssignmentService } from "../../../services/jobAssignments.service";
 import MilestoneForm from "../../../components/user/job/MilestoneForm";
 import type { AssignmentDto, Milestone, MilestoneDto } from "../../../types/job/assignment.type";
+import { paymentService } from "../../../services/payment.service";
+import { env } from "../../../config/env";
 
 const tabs = [
   { key: "details", label: "Job Details" },
@@ -28,6 +30,7 @@ const tabs = [
 
 const JobDetailPage: React.FC = () => {
   const { user } = useSelector((state: RootState) => state.auth);
+  console.log("🚀 ~ JobDetailPage ~ user:", user)
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState("details");
@@ -40,7 +43,6 @@ const JobDetailPage: React.FC = () => {
   const [invitationsLoading, setInvitationsLoading] = useState(false);
   
   const [jobAssignments, setJobAssignments] = useState<AssignmentDto[]>([]);
-  console.log("🚀 ~ JobDetailPage ~ jobAssignments:", jobAssignments)
   // to find the user who post job
   const isJobOwner = user?.id === job?.clientId;
   
@@ -176,6 +178,55 @@ const JobDetailPage: React.FC = () => {
 
     } catch (error: any) {
       notify.error(error.response?.data?.error || "Failed to cancel milestones");
+    }
+  }
+
+  const handleFundMilestone = async(assignmentId: string, milsetoneId: string, amount: number) => {
+    if (!user?.id  || !user?.email || !user.phone) {
+      notify.warn('Please complete your profile before fund milestone');
+      return;
+    }
+    try {
+      const response = await paymentService.fundMilestone(assignmentId, milsetoneId);
+
+      if(response.data.success){
+        const { order } = response.data;
+        const razorpayKey = env.RAZORPAY_KEY_ID;
+        const options = {
+          key: razorpayKey,
+          amount: amount*100,
+          currency: "INR",
+          order_id: order.id,
+          handler: async(response: any) => {
+            console.log("🚀 ~ handleFundMilestone ~ response:", response)
+            try {
+              const verifyResponse = await paymentService.verifyMilestone({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature || '',
+              });
+              if(verifyResponse.data.success){
+                notify.success(verifyResponse.data.message || 'milestone funded successfully');
+              }
+              
+            } catch (error: any) {
+              notify.error(error.response?.data?.error || 'verification failed. Contact support');
+            }
+          },
+          prefill: {
+            name: user?.id,
+            email: user?.email,
+            contact: user?.phone,
+          },
+          theme: {
+            color: '#6366f1'
+          }
+        }
+        const rzp = new (window as any).Razorpay(options);
+        rzp.open();
+      }
+    } catch (error: any) {
+      notify.error(error.response?.data?.error || "Failed to fund milestones");
     }
   }
 
@@ -377,6 +428,7 @@ const JobDetailPage: React.FC = () => {
                     onUpdateMilestone={(_index, m) => handleEditMilestone(assignment.id, m.id!, m)}
                     submitLabel="Save & Fund Milestones"
                     onCancelMilestone={(milestoneId) => handleCancelMilestone(assignment.id, milestoneId)} 
+                    onFundMilestone={(milestoneId, amount) => handleFundMilestone(assignment.id, milestoneId, amount)}
                   />
                 </div>
               ))}
