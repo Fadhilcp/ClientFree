@@ -62,7 +62,7 @@ export class PaymentService implements IPaymentService {
         payment.providerOrderId = order.id;
         await payment.save();
 
-        return { order };
+        return { order, payment };
     }
 
     async verifyMilestonePayment(razorpay_order_id: string, razorpay_payment_id: string, razorpay_signature: string, clientId: string): Promise<any> {
@@ -85,9 +85,7 @@ export class PaymentService implements IPaymentService {
         payment.providerSignature = razorpay_signature;
         payment.status = "completed";
         payment.paymentDate = new Date();
-
         await payment.save();
-        console.log("🚀 ~ PaymentService ~ verifyMilestonePayment ~ payment:", payment)
 
         const assignment = await this.jobAssignmentRepository.findOne({
             "milestones._id": payment.milestoneId
@@ -147,15 +145,16 @@ export class PaymentService implements IPaymentService {
     }
 
     async releaseMilestone(paymentId: string, approverId: string): Promise<any> {
+
         const payment = await this.paymentRepository.findById(paymentId);
         if(!payment) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.PAYMENT_NOT_FOUND);
         if(payment.status !== "completed"){
             throw createHttpError(HttpStatus.BAD_REQUEST, "Only completed payments can be released");
         }
-
         const assignment = await this.jobAssignmentRepository.findOne({ "milestones._id": payment.milestoneId });
+
         if(!assignment) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.ASSIGNMENT_NOT_FOUND);
-        const milestone = assignment.milestones?.find(m => m._id?.toString() === payment.milestoneId);
+        const milestone = assignment.milestones?.find(m => m._id?.toString() === payment.milestoneId?.toString());
         if(!milestone) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.MILESTONE_NOT_FOUND);
         if(milestone.status === "released"){
             throw createHttpError(HttpStatus.BAD_REQUEST, "Milestone already released");

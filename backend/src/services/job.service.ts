@@ -121,7 +121,7 @@ export class JobService implements IJobService {
         const proposals = await this.proposalRepository.find({
             _id: { $in: job.acceptedProposalIds }
         });
-        
+
         if(!proposals || proposals.length === 0){
             throw createHttpError(HttpStatus.NOT_FOUND, "Accepted proposals not found");
         }
@@ -129,7 +129,11 @@ export class JobService implements IJobService {
         const totalAmount = proposals.reduce(
             (acc,proposal) => acc + (proposal.bidAmount || 0),
             0
-        )
+        );
+        await this.jobAssignmentRepository.updateMany(
+            { proposalId: { $in: job.acceptedProposalIds }},
+            { status: "active" }
+        );
         
         const updatedJob = await this.jobRepository.findByIdAndUpdate(jobId, {
             $set: {
@@ -150,9 +154,7 @@ export class JobService implements IJobService {
         }
 
         const assignments = await this.jobAssignmentRepository.findWithJobDetail(filter);
-
         if(!assignments) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.JOB_NOT_FOUND);
-
         const jobs = assignments.map(a => a.jobId as IJobDocument);
 
         return jobs.map(job => JobMapper.toListDTO(job));

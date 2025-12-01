@@ -2,14 +2,19 @@ import { IJobAssignmentRepository } from "repositories/interfaces/IJobAssignment
 import { IJobAssignmentService } from "./interface/IJobAssignmentService";
 import { AssignmentMapper } from "mappers/jobAssignment.mapper";
 import { AssignmentDto } from "dtos/jobAssignment.dto";
-import { IMilestone } from "types/jobAssignment.type";
+import { IMilestone, IMilestoneFile } from "types/jobAssignment.type";
 import { createHttpError } from "utils/httpError.util";
 import { HttpStatus } from "constants/status.constants";
 import { HttpResponse } from "constants/responseMessage.constant";
 import { VALID_BUDGET_STATUSES } from "constants/validBudgetStatuses";
+import { IPaymentDocument } from "types/payment.type";
+import { IPaymentRepository } from "repositories/interfaces/IPaymentRepository";
 
 export class JobAssignmentService implements IJobAssignmentService {
-    constructor(private jobAssignmentRepository: IJobAssignmentRepository){};
+    constructor(
+        private jobAssignmentRepository: IJobAssignmentRepository,
+        private paymentRepository: IPaymentRepository,
+    ){};
 
     async getAssignments(jobId: string): Promise<AssignmentDto[]>{
 
@@ -127,4 +132,82 @@ export class JobAssignmentService implements IJobAssignmentService {
         return AssignmentMapper.mapAssignment(assignment);
     }
 
+    async submitWork(
+        assignmentId: string, milestoneId: string, freelancerId: string, 
+        submissionNote?: string, submissionFiles?: IMilestoneFile[]
+    ): Promise<AssignmentDto> {
+        const assignment = await this.jobAssignmentRepository.findById(assignmentId);
+        if(!assignment) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.ASSIGNMENT_NOT_FOUND);
+        if(assignment.freelancerId.toString() !== freelancerId){
+            throw createHttpError(HttpStatus.FORBIDDEN, "Not allowed");
+        }
+        const milestone = assignment.milestones?.find(m => m._id?.toString() === milestoneId);
+        if(!milestone) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.MILESTONE_NOT_FOUND);
+        if(milestone.status !== "funded"){
+            throw createHttpError(HttpStatus.BAD_REQUEST,"Only funded milestones can be submitted");
+        }
+        milestone.status = "submitted";
+        milestone.submissionMessage = submissionNote || null;
+        milestone.submissionFiles = submissionFiles || [];
+        milestone.submittedAt = new Date();
+        milestone.updatedAt = new Date();
+
+        await assignment.save();
+
+        return AssignmentMapper.mapAssignment(assignment);
+    }
+
+    async requestChange(assignmentId: string, milestoneId: string): Promise<AssignmentDto> {
+        const assignment = await this.jobAssignmentRepository.findById(assignmentId);
+        if(!assignment) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.ASSIGNMENT_NOT_FOUND);
+        
+        const milestone = assignment.milestones?.find(m => m._id?.toString() === milestoneId);
+        if(!milestone) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.MILESTONE_NOT_FOUND);
+        if(milestone.status === "approved"){
+            throw createHttpError(HttpStatus.BAD_REQUEST, "Only submitted milestones can have changes requested");
+        }
+        milestone.status === "changes_requested";
+        milestone.updatedAt = new Date();
+        await assignment.save();
+
+        return AssignmentMapper.mapAssignment(assignment);
+    }
+
+    async approveMilestone(assignmentId: string, milestoneId: string): Promise<AssignmentDto> {
+        const assignment = await this.jobAssignmentRepository.findById(assignmentId);
+        if(!assignment) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.ASSIGNMENT_NOT_FOUND);
+        const milestone = assignment.milestones?.find(m => m._id?.toString() === milestoneId);
+        if(!milestone) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.MILESTONE_NOT_FOUND);
+
+        milestone.status = "approved";
+        milestone.updatedAt = new Date();
+        await assignment.save();
+
+        return AssignmentMapper.mapAssignment(assignment);
+    }
+
+    async disputeMilestone(
+        assignmentId: string, milestoneId: string, reason?: string
+    ): Promise<{ assignment: AssignmentDto; payment: IPaymentDocument; }> {
+        const assignment = await this.jobAssignmentRepository.findById(assignmentId);
+        if(!assignment) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.ASSIGNMENT_NOT_FOUND);
+        const milestone = assignment.milestones?.find(m => m._id?.toString() === milestoneId);
+        if(!milestone) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.MILESTONE_NOT_FOUND);
+        const payment = await this.paymentRepository.findOne({ milestoneId: milestone._id });
+        if(!payment) throw createHttpError(HttpStatus.NOT_FOUND, "Associated payment not found");
+
+        payment.status = "disputed";
+        payment.isDisputed = true;
+        payment.disputeReason = reason;
+        await payment.save();
+
+        milestone.status = "disputed";
+        milestone.updatedAt = new Date();
+        await assignment.save();
+        
+        return { 
+            assignment: AssignmentMapper.mapAssignment(assignment),
+            payment,
+        }
+    }
 }

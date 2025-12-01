@@ -11,16 +11,15 @@ import { formatDate } from "../../../utils/formatters";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../../store/store";
 import type { IProposal, ProposalStatus } from "../../../types/job/proposal.type";
-import DropdownSection from "../../../components/ui/DropdownSection";
 import { notify } from "../../../utils/toastService";
 import type { SkillItem } from "../../../types/skill.types";
 import CenteredMessage from "../../../components/user/CenteredMessage";
 import Button from "../../../components/ui/Button";
 import { jobAssignmentService } from "../../../services/jobAssignments.service";
 import MilestoneForm from "../../../components/user/job/MilestoneForm";
-import type { AssignmentDto, Milestone, MilestoneDto } from "../../../types/job/assignment.type";
-import { paymentService } from "../../../services/payment.service";
-import { env } from "../../../config/env";
+import type { AssignmentDto } from "../../../types/job/assignment.type";
+import InvitationsSection from "../../../components/user/job/InvitationSection";
+import ProposalsSection from "../../../components/user/job/ProposalSection";
 
 const tabs = [
   { key: "details", label: "Job Details" },
@@ -30,7 +29,6 @@ const tabs = [
 
 const JobDetailPage: React.FC = () => {
   const { user } = useSelector((state: RootState) => state.auth);
-  console.log("🚀 ~ JobDetailPage ~ user:", user)
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState("details");
@@ -45,6 +43,10 @@ const JobDetailPage: React.FC = () => {
   const [jobAssignments, setJobAssignments] = useState<AssignmentDto[]>([]);
   // to find the user who post job
   const isJobOwner = user?.id === job?.clientId;
+  const canStartJob = job?.status === "open" && 
+  jobAssignments.some((a) =>
+    a.milestones.some((m) => m.status === "funded")
+  );
   
   useEffect(() => {
     if (!id) return;
@@ -82,8 +84,7 @@ const JobDetailPage: React.FC = () => {
   };
 
   fetchData();
-}, [id, activeTab, proposalFilter, job?.status]);
-
+  }, [id, activeTab, proposalFilter, job?.status]);
   // polling of new proposal( every 20 seconds )
   useEffect(() => {
     if (!id || activeTab !== "proposals"|| job?.status !== "open") return;
@@ -101,7 +102,6 @@ const JobDetailPage: React.FC = () => {
     }, 20000); // 20 seconds
     return () => clearInterval(interval);
   }, [id, activeTab, proposalFilter, job?.status]);
-
   // Fetch job details
   useEffect(() => {
     if (!id || activeTab !== 'details') return;
@@ -128,108 +128,6 @@ const JobDetailPage: React.FC = () => {
     load();
     return () => { cancelled = true };
   }, [id, activeTab]);
-
-  const handleAddMilestones = async (assignmentId: string, milestones: MilestoneDto[]) => {
-    try {
-      const res = await jobAssignmentService.addMilestones(assignmentId, milestones);
-      if (res.data.success) {
-        notify.success("Milestones added successfully");
-        const { assignment } = res.data;
-        setJobAssignments((prev) =>
-          prev.map((a) =>
-            a.id === assignmentId ? { ...a, milestones: assignment.milestones } : a
-          )
-        );
-      }
-    } catch (err: any) {
-      notify.error(err.response?.data?.error || "Failed to add milestones");
-    }
-  }
-
-  const handleEditMilestone = async (assignmentId: string, milestoneId: string, milestone: Milestone) => {
-    try {
-      const res = await jobAssignmentService.updateMilestone(assignmentId, milestoneId, milestone);
-      if(res.data.success) {
-        notify.success('Milestone updated successfully');
-        const { assignment } = res.data;
-        setJobAssignments((prev) =>
-          prev.map((a) =>
-            a.id === assignmentId ? { ...a, milestones: assignment.milestones } : a
-          )
-        );
-      }
-    } catch (error: any) {
-      notify.error(error.response?.data?.error || "Failed to update milestones");
-    }
-  }
-
-  const handleCancelMilestone = async(assignmentId: string, milestoneId: string) => {
-    try {
-      const response = await jobAssignmentService.cancelMilestone(assignmentId, milestoneId);
-      if(response.data.success){
-        notify.success('Milestone cancelled successfully');
-        const { assignment } = response.data;
-        setJobAssignments((prev) =>
-          prev.map((a) =>
-            a.id === assignmentId ? { ...a, milestones: assignment.milestones } : a
-          )
-        );
-      }
-
-    } catch (error: any) {
-      notify.error(error.response?.data?.error || "Failed to cancel milestones");
-    }
-  }
-
-  const handleFundMilestone = async(assignmentId: string, milsetoneId: string, amount: number) => {
-    if (!user?.id  || !user?.email || !user.phone) {
-      notify.warn('Please complete your profile before fund milestone');
-      return;
-    }
-    try {
-      const response = await paymentService.fundMilestone(assignmentId, milsetoneId);
-
-      if(response.data.success){
-        const { order } = response.data;
-        const razorpayKey = env.RAZORPAY_KEY_ID;
-        const options = {
-          key: razorpayKey,
-          amount: amount*100,
-          currency: "INR",
-          order_id: order.id,
-          handler: async(response: any) => {
-            console.log("🚀 ~ handleFundMilestone ~ response:", response)
-            try {
-              const verifyResponse = await paymentService.verifyMilestone({
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_signature: response.razorpay_signature || '',
-              });
-              if(verifyResponse.data.success){
-                notify.success(verifyResponse.data.message || 'milestone funded successfully');
-              }
-              
-            } catch (error: any) {
-              notify.error(error.response?.data?.error || 'verification failed. Contact support');
-            }
-          },
-          prefill: {
-            name: user?.id,
-            email: user?.email,
-            contact: user?.phone,
-          },
-          theme: {
-            color: '#6366f1'
-          }
-        }
-        const rzp = new (window as any).Razorpay(options);
-        rzp.open();
-      }
-    } catch (error: any) {
-      notify.error(error.response?.data?.error || "Failed to fund milestones");
-    }
-  }
-
 
   const handleChangeStatus = async(proposalId: string, status: ProposalStatus) => {
     try { 
@@ -322,7 +220,7 @@ const JobDetailPage: React.FC = () => {
   }
   
   return actions;
-};
+  };
 // propos of cards
   const getCardProps = (p: IProposal) => ({
     user: p.freelancer ?? undefined,
@@ -341,20 +239,17 @@ const JobDetailPage: React.FC = () => {
         p.updatedAt
       ).toLocaleDateString()}`,
       actions: getProposalActions(p),
-    });
+  });
 
-    
     if (loading) {
       return <CenteredMessage message="Loading job details..." />;
     }
-  
     if (!job) {
       return <CenteredMessage message="Job not found." />;
     }
     if (!isJobOwner && user?.role === "client") {
       return <CenteredMessage message="You cannot view jobs posted by other clients." />;
     }
-    
 
   return (
     <section className="bg-white dark:bg-gray-900 min-h-screen flex justify-center py-6">
@@ -370,7 +265,6 @@ const JobDetailPage: React.FC = () => {
 
         {/* Job Details */}
         {activeTab === "details" && (
-          
           <div className="p-6">
             <JobDetails job={job} />
             <div className="border-t border-gray-200 dark:border-gray-700 my-6"></div>
@@ -378,172 +272,124 @@ const JobDetailPage: React.FC = () => {
             {/* Freelancer not selected notice */}
             {user?.role === "freelancer" &&
               job.status === "active" &&
-              !(job.acceptedProposals ?? []).some(p => p.freelancer && p.freelancer.id === user.id) && (
+              !(job.acceptedProposals ?? []).some(
+                (p) => p.freelancer && p.freelancer.id === user.id
+              ) && (
                 <div className="p-4 mb-4 text-red-600 dark:text-red-400 font-medium">
                   You were not selected for this job.
                 </div>
-            )}
+              )}
 
-            {/* Hired / Accepted Freelancer Section */}
-            {isJobOwner && job.acceptedProposals && job.acceptedProposals.length > 0 && (
-              <div className="mb-6">
-                <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-3">
-                  {job.acceptedProposals.length > 1 ? "Hired Freelancers" : "Hired Freelancer"}
-                </h2>
-                <div className="space-y-4">
-                  {job.acceptedProposals.map((p: any) => (
-                    <Card
-                      key={p.id}
-                      user={p.freelancer ?? undefined}
-                      title={p.freelancer.professionalTitle || p.freelancer.name}
-                      subtitle={`Bid: ₹${p.bidAmount} • Duration: ${p.duration}`}
-                      description={p.description}
-                      status={p.status}
-                      tags={p.freelancer.skills ? p.freelancer.skills.map((s: SkillItem) => (s.name)) : []}
-                      meta={[
-                        { label: "Experience", value: p.freelancer.experienceLevel },
-                        { label: "Hourly Rate", value: p.freelancer.hourlyRate },
-                      ]}
-                      footer={`Accepted on: ${new Date(p.updatedAt).toLocaleDateString()}`}
-                      actions={[
-                        {
-                          label: "View Profile",
-                          onClick: () => console.log("View freelancer", p.freelancer.id),
-                          variant: "secondary" as const,
-                        },
-                      ]}
-                    />
-                  ))}
-                </div>
-                <div className="border-t border-gray-200 dark:border-gray-700 my-6"></div>
-              {isJobOwner && jobAssignments?.map((assignment) => (
-                <div key={assignment.id} className="mb-8">
-                  <h2 className="text-md font-bold text-gray-800 dark:text-gray-100 mb-3">
-                    Milestones for {assignment.freelancer.name}
+            {/* Hired / Accepted Freelancer Section (only for client) */}
+            {isJobOwner &&
+              job.acceptedProposals &&
+              job.acceptedProposals.length > 0 && (
+                <div className="mb-6">
+                  <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-3">
+                    {job.acceptedProposals.length > 1
+                      ? "Hired Freelancers"
+                      : "Hired Freelancer"}
                   </h2>
-
-                  <MilestoneForm
-                    initialMilestones={assignment.milestones || []}
-                    onSubmit={(milestones) => handleAddMilestones(assignment.id, milestones)}
-                    onUpdateMilestone={(_index, m) => handleEditMilestone(assignment.id, m.id!, m)}
-                    submitLabel="Save & Fund Milestones"
-                    onCancelMilestone={(milestoneId) => handleCancelMilestone(assignment.id, milestoneId)} 
-                    onFundMilestone={(milestoneId, amount) => handleFundMilestone(assignment.id, milestoneId, amount)}
-                  />
+                  <div className="space-y-4">
+                    {job.acceptedProposals.map((p: any) => (
+                      <Card
+                        key={p.id}
+                        user={p.freelancer ?? undefined}
+                        title={
+                          p.freelancer.professionalTitle || p.freelancer.name
+                        }
+                        subtitle={`Bid: ₹${p.bidAmount} • Duration: ${p.duration}`}
+                        description={p.description}
+                        status={p.status}
+                        tags={
+                          p.freelancer.skills
+                            ? p.freelancer.skills.map((s: SkillItem) => s.name)
+                            : []
+                        }
+                        meta={[
+                          {
+                            label: "Experience",
+                            value: p.freelancer.experienceLevel,
+                          },
+                          {
+                            label: "Hourly Rate",
+                            value: p.freelancer.hourlyRate,
+                          },
+                        ]}
+                        footer={`Accepted on: ${new Date(
+                          p.updatedAt
+                        ).toLocaleDateString()}`}
+                        actions={[
+                          {
+                            label: "View Profile",
+                            onClick: () =>
+                              console.log("View freelancer", p.freelancer.id),
+                            variant: "secondary" as const,
+                          },
+                        ]}
+                      />
+                    ))}
+                  </div>
+                  <div className="border-t border-gray-200 dark:border-gray-700 my-6"></div>
                 </div>
-              ))}
+              )}
 
-                
-                        {/* Start Job Button */}
-                {job.status === "open" && (
-                  <Button
-                    label="Start Job"
-                    onClick={() => handleStartJob()}
-                    className="mt-4 px-4 py-2 bg-indigo-600 dark:bg-indigo-600 text-white rounded-md hover:bg-indigo-700 hover:dark:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-600"
-                  />
-                )}
+            {/* Milestones Section (visible to both client and freelancer) */}
+            {jobAssignments?.map((assignment) => (
+              <div key={assignment.id} className="mb-8">
+                <h2 className="text-md font-bold text-gray-800 dark:text-gray-100 mb-3">
+                  Milestones for {assignment.freelancer.name}
+                </h2>
 
+                <MilestoneForm
+                  assignmentId={assignment.id}
+                  initialMilestones={assignment.milestones || []}
+                  user={user}
+                  setJobAssignments={setJobAssignments}
+                  freelancerId={assignment.freelancer.id}
+                />
               </div>
-            )}
+            ))}
 
-            { user?.role === 'freelancer' && job.status === 'open' && (
+            {/* Start Job Button (only for client, when job is open and any milestone funded) */}
+            {isJobOwner &&
+              job.status === "open" && canStartJob && (
+                <Button
+                  label="Start Job"
+                  onClick={() => handleStartJob()}
+                  className="mt-4 px-4 py-2 bg-indigo-600 dark:bg-indigo-600 text-white rounded-md hover:bg-indigo-700 hover:dark:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                />
+              )}
+
+            {/* Place Bid Page (only for freelancer when job is open) */}
+            {user?.role === "freelancer" && job.status === "open" && (
               <PlaceBidPage jobId={job.id} />
             )}
           </div>
         )}
 
-        {/* Proposals */}
-        {activeTab === "proposals" && (
-          <>
-            {/* hide proposals for freelancers when job is active */}
-            {user?.role === "freelancer" && job.status === "active" && (
-              <p className="p-6 text-gray-600 dark:text-gray-300">
-                This job is no longer accepting proposals. You were not selected.
-              </p>
-            )}
+        {/* Proposals Section */}
+        <ProposalsSection
+          activeTab={activeTab}
+          jobStatus={job.status}
+          userRole={user?.role}
+          proposals={proposals}
+          proposalsLoading={proposalsLoading}
+          proposalFilter={proposalFilter}
+          setProposalFilter={setProposalFilter}
+          getCardProps={getCardProps}
+        />
 
-            {/* hide proposals list when job is active for client too */}
-            {user?.role === "client" && job.status === "active" && (
-              <p className="p-6 text-gray-600 dark:text-gray-300">
-                Proposals are hidden after the job becomes active.
-              </p>
-            )}
-
-            {/* normal proposals UI list (only when job is open) */}
-            {job.status === "open" && (
-              <div className="p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-                    Proposals
-                  </h2>
-                  <div className="w-fit">
-                    <DropdownSection<{ filter: string }>
-                      name="filter"
-                      value={proposalFilter}
-                      onChange={(_, val) => setProposalFilter(val)}
-                      options={["all", "pending", "shortlisted", "accepted", "rejected"]}
-                    />
-                  </div>
-                </div>
-
-                {proposalsLoading ? (
-                  <p className="text-gray-600 dark:text-gray-300">Loading proposals...</p>
-                ) : proposals.length > 0 ? (
-                  <div className="space-y-4">
-                    {proposals.map((p, i) => (
-                      <Card key={p.id || i} {...getCardProps(p)} />
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-600 dark:text-gray-300">No proposals yet.</p>
-                )}
-              </div>
-            )}
-          </>
-        )}
-
-        {/* Invitations */}
-        {activeTab === "invitations" && job.status === "open" && (
-          <div className="p-6">
-            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
-              Invitations
-            </h2>
-            {invitationsLoading ? (
-              <p className="text-gray-600 dark:text-gray-300">Loading invitations...</p>
-            ) : invitations.length > 0 ? (
-              <div className="space-y-4">
-                {invitations.map((p, i) => (
-                  <Card
-                    key={p.id || i}
-                    user={p.freelancer}
-                    title="Invitation"
-                    description={p.description || "This freelancer was invited to bid."}
-                    status={p.status}
-                    footer={`Invited on: ${new Date(p.createdAt).toLocaleDateString()}`}
-                    actions={[
-                      {
-                        label: "View",
-                        onClick: () => console.log("View invitation", p.id),
-                        variant: "secondary" as const,
-                      },
-                      ...(isJobOwner
-                        ? [
-                            {
-                              label: "Cancel Invitation",
-                              onClick: () => console.log("Cancel invitation", p.id),
-                              variant: "secondary" as const,
-                            },
-                          ]
-                        : []),
-                    ]}
-                  />
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-600 dark:text-gray-300">No invitations yet.</p>
-            )}
-          </div>
-        )}
+        {/* Invitations Section */}
+        <InvitationsSection
+          activeTab={activeTab}
+          jobStatus={job.status}
+          invitations={invitations}
+          invitationsLoading={invitationsLoading}
+          isJobOwner={isJobOwner}
+          onViewInvitation={(id) => console.log("View invitation", id)}
+          onCancelInvitation={(id) => console.log("Cancel invitation", id)}
+        />
       </div>
     </section>
   );

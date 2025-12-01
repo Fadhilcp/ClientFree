@@ -25,6 +25,7 @@ export interface MilestoneDto {
     | "cancelled";
   createdAt?: string;
   updateAt?: string;
+  paymentId?: string;
 }
 
 

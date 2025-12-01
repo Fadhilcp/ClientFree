@@ -19,6 +19,11 @@ export type IMilestoneStatus =
         | "disputed"
         | "cancelled";
 
+export interface IMilestoneFile {
+  url: string;
+  name: string;
+  type: string;
+}
 
 export interface IMilestone{
   _id?: Types.ObjectId;
@@ -28,6 +33,10 @@ export interface IMilestone{
   dueDate?: Date | null;
   paymentId?: Types.ObjectId | null;
   status: IMilestoneStatus;
+
+  submissionMessage?: string | null;
+  submissionFiles?: IMilestoneFile[];
+  submittedAt?: Date | null;
 
   createdAt?: Date;
   updatedAt?: Date;

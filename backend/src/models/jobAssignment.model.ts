@@ -28,6 +28,13 @@ const jobAssignmentSchema = new Schema({
       enum: ["draft", "funded", "submitted", "changes_requested", "approved", "released", "refunded", "disputed", "cancelled"],
       default: "draft"
     },
+    submissionMessage: { type: String },
+    submissionFiles: [{
+      url: String,
+      name: String,
+      type: String
+    }],
+    submittedAt: Date,
 
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
