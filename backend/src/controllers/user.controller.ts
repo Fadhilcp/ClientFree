@@ -109,13 +109,26 @@ export class ProfileController {
         try {
             const userId = req.params.id;
             const { status } = req.body;
-            console.log("🚀 ~ ProfileController ~ updateStatus ~ status:", status)
 
             if(!status) throw createHttpError(HttpStatus.BAD_REQUEST,'Status field is required');
 
             const user = await this.service.changeUserStatus(userId, status);
 
             sendResponse(res, HttpStatus.OK, { user });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getFreelancers(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const search = req.query.search as string || "";
+            const page = parseInt(req.query.page as string) || 1;
+            const limit = parseInt(req.query.limit as string) || 10;
+
+            const freelancers = await this.service.getFreelancers(search, page, limit);
+
+            sendResponse(res, HttpStatus.OK, { freelancers });
         } catch (error) {
             next(error);
         }

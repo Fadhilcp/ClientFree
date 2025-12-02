@@ -8,7 +8,6 @@ export const upload = multer({
         fileSize: 1024 * 1024,
     },
     fileFilter: (_, file, callback) => {
-        console.log("🚀 ~ file:", file)
         if(!file.mimetype.startsWith('image/')) {
             return callback(new Error('Only image files are allowed!'));
         }

@@ -49,7 +49,6 @@ export class JobAssignmentService implements IJobAssignmentService {
                 `Milestones exceed assignment amount. Allowed: ${assignment.amount}, Request: ${existingTotal + incomingTotal}`
             );
         }
-
         const normalizeMilestones: IMilestone[] = milestones.map(m => ({
             title: m.title,
             description: m.description ?? undefined,
@@ -136,6 +135,7 @@ export class JobAssignmentService implements IJobAssignmentService {
         assignmentId: string, milestoneId: string, freelancerId: string, 
         submissionNote?: string, submissionFiles?: IMilestoneFile[]
     ): Promise<AssignmentDto> {
+
         const assignment = await this.jobAssignmentRepository.findById(assignmentId);
         if(!assignment) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.ASSIGNMENT_NOT_FOUND);
         if(assignment.freelancerId.toString() !== freelancerId){

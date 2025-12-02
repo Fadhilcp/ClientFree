@@ -18,6 +18,22 @@ class JobAssignmentService {
     cancelMilestone(assignmentId: string, milestoneId: string){
         return axios.patch(endPoints.ASSIGNMENT.CANCEL_MILESTONE(assignmentId, milestoneId));
     }
+
+    submitWork(assignmentId: string, milestoneId: string, formData: FormData){
+        return axios.post(endPoints.ASSIGNMENT.SUBMIT_MILESTONE(assignmentId, milestoneId), formData);
+    }
+
+    requestChange(assignmentId: string, milestoneId: string){
+        return axios.patch(endPoints.ASSIGNMENT.REQUEST_CHANGE(assignmentId, milestoneId));
+    }
+
+    approveMilestone(assignmentId: string, milestoneId: string){
+        return axios.patch(endPoints.ASSIGNMENT.APPROVE(assignmentId, milestoneId));
+    }
+
+    diputeMilestone(assignmentId: string, milestoneId: string){
+        return axios.patch(endPoints.ASSIGNMENT.DISPUTE(assignmentId, milestoneId));
+    }
 }
 
 export const jobAssignmentService = new JobAssignmentService();

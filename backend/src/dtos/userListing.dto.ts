@@ -1,9 +1,10 @@
 import { Types } from "mongoose";
 
 export interface UserListingDto {
-  _id: string;
+  id: string;
   profileImage?: string | null;
   username: string;
+  name: string;
   email: string;
   role: "freelancer" | "client" | "admin";
   status: "active" | "inactive" | "banned";

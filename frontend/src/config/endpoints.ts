@@ -19,8 +19,11 @@ export const endPoints = {
         CREATE : '/user',
         UPDATE_ME : '/user/me',
         UPDATE_PROFILE_IMAGE: '/user/profile-image',
-        LIST : (seach: string, page: number, limit:number) => 
-            `/user?search=${seach}&page=${page}&limt=${limit}`,
+        LIST_FREELANCERS: (seach: string, page: number, limit:number) => 
+            `/user/freelancers?search=${seach}&page=${page}&limt=${limit}`,
+        
+        LIST : (seach: string, page: number, limit:number, role?: string) => 
+            `/user?search=${seach}&page=${page}&limt=${limit}${role ? `&status=${role}` : ""}`,
 
         UPDATE_STATUS : (userId: string) => `/user/${userId}/status`
     },
@@ -76,7 +79,16 @@ export const endPoints = {
         UPDATE_MILESTONE: (assignmentId: string, milestoneId: string) => 
             `/assignment/${assignmentId}/milestones/${milestoneId}`,
         CANCEL_MILESTONE: (assignmentId: string, milestoneId: string) => 
-            `/assignment/${assignmentId}/milestones/${milestoneId}/cancel`,
+            `/assignment/${assignmentId}/${milestoneId}/cancel`,
+        SUBMIT_MILESTONE: (assignmentId: string, milestoneId: string) => 
+            `/assignment/${assignmentId}/${milestoneId}/submit`,
+        REQUEST_CHANGE: (assignmentId: string, milestoneId: string) => 
+            `/assignment/${assignmentId}/${milestoneId}/request-changes`,
+        APPROVE: (assignmentId: string, milestoneId: string) => 
+            `/assignment/${assignmentId}/${milestoneId}/approve`,
+        DISPUTE: (assignmentId: string, milestoneId: string) => 
+            `/assignment/${assignmentId}/${milestoneId}/dispute`,
+
     },
     PAYMENTS: {
         CREATE_ORDER: (assignmentId: string,milestoneId: string) => `/payment/milestones/${assignmentId}/${milestoneId}/fund`,

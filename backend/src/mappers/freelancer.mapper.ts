@@ -1,4 +1,4 @@
-import { FreelancerProfileDto } from "dtos/freelancerProfile.dto";
+import { FreelancerListItemDto, FreelancerProfileDto } from "dtos/freelancerProfile.dto";
 import { IUserDocument } from "types/user.type";
 
 export function mapUserToFreelancerDto(user: IUserDocument): FreelancerProfileDto {
@@ -32,5 +32,24 @@ export function mapUserToFreelancerDto(user: IUserDocument): FreelancerProfileDt
 
     location: user.location,
     createdAt: user.createdAt
+  };
+}
+
+
+export function mapUserToFreelancerListItemDto(
+  user: IUserDocument
+): FreelancerListItemDto {
+  return {
+    id: user._id.toString(),
+    username: user.username ?? "",
+    name: user.name ?? "",
+    email: user.email ?? "",
+    skills: user.skills ?? [],
+    about: user.about ?? "",
+    experienceLevel: user.experienceLevel ?? "",
+    ratings: user.ratings?.asFreelancer ?? 0,
+    professionalTitle: user.professionalTitle ?? "",
+    status: user.status ?? "",
+    profileImage: user.profileImage ?? ""
   };
 }

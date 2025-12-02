@@ -44,3 +44,17 @@ export interface FreelancerProfileDto {
 
   createdAt: Date;
 }
+
+export interface FreelancerListItemDto {
+  id: string;
+  username: string;
+  name: string;
+  email: string;
+  skills: SkillItem[];
+  about: string;
+  experienceLevel: string;
+  ratings: number;
+  professionalTitle: string;
+  status: string;
+  profileImage: string;
+}

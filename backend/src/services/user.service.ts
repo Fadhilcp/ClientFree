@@ -13,6 +13,8 @@ import { calculateProfileCompletion } from "utils/profileCompletion";
 import { FilterQuery } from "mongoose";
 import cloudinary from "config/cloudinary.config";
 import { uploadToCloudinary } from "utils/cloudinary.helper";
+import { FreelancerListItemDto } from "dtos/freelancerProfile.dto";
+import { mapUserToFreelancerListItemDto } from "mappers/freelancer.mapper";
 
 export class UserService implements IUserService {
 
@@ -20,7 +22,6 @@ export class UserService implements IUserService {
 
     async getMyProfile(userId: string): Promise<UserProfileDto> {
         const user = await this.userRepository.findByIdWithSkills(userId);
-        console.log("🚀 ~ ProfileService ~ getMyProfile ~ user:", user)
 
         if(!user) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
 
@@ -55,7 +56,7 @@ export class UserService implements IUserService {
            filter.$or = [
                 { username: { $regex: search, $options: "i" } },
                 { email: { $regex: search, $options: "i" } },
-                { role: { $regex: search, $options: "i" } }
+                { role: { $regex: search, $options: "i" } },
             ]
         }
         const result = await this.userRepository.paginate(filter, { page, limit, sort: { createdAt: -1 } });
@@ -78,13 +79,11 @@ export class UserService implements IUserService {
     async removeProfileImage(userId: string): Promise<{ profileImage: string }> {
         const user = await this.userRepository.findById(userId);
         if (!user) throw createHttpError(HttpStatus.NOT_FOUND, "User not found");
-
         if (user.profileImage) {
              // extract public_id
             const publicId = user.profileImage.split("/").pop()?.split(".")[0];
             await cloudinary.uploader.destroy(`profile_images/${publicId}`);
         }
-
         // remove image url 
         user.profileImage = "";
         await user.save();
@@ -109,5 +108,11 @@ export class UserService implements IUserService {
         existingUser.status = status;
         await existingUser.save();
         return mapUserProfile(existingUser);
+    }
+
+    async getFreelancers(search: string, page=1, limit=10): Promise<FreelancerListItemDto[]> {
+        const freelancers = await this.userRepository.findFreelancersWithSkill();
+
+        return freelancers.map(mapUserToFreelancerListItemDto);
     }
 }

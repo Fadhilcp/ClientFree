@@ -16,7 +16,7 @@ const TagListSection: React.FC<TagListSectionProps> = ({ title, items }) => {
       <div className="space-y-3">
         {items.map((item) => (
           <div
-            key={item._id}
+            key={item.id}
             className="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-indigo-50 dark:hover:bg-gray-600 transition-colors"
           >
             <span className="font-medium text-gray-800 dark:text-gray-200">{item.name}</span>

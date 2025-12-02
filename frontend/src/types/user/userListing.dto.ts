@@ -1,6 +1,7 @@
 export interface UserListingDto {
-  _id: string;
+  id: string;
   profileImage?: string;
+  name: string;
   username: string;
   email: string;
   role: "freelancer" | "client" | "admin";

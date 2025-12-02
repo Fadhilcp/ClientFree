@@ -103,7 +103,7 @@ export class JobAssignmentController {
         try {
             const { assignmentId, milestoneId } = req.params;
             
-            if(req.user?.role === "client"){
+            if(req.user?.role !== "client"){
                 throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
             }
 

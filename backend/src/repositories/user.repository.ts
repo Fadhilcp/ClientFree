@@ -15,8 +15,9 @@ export class UserRepository
         return this.model.findOne({ email });
     }
 
-    async findFreelancers() : Promise<IUserDocument[]>{
-        return this.model.find({ role : "freelancer" });
+    async findFreelancersWithSkill() : Promise<IUserDocument[]>{
+        return this.model.find({ role : "freelancer", isProfileCompleted: true })
+        .populate("skills", "name _id");
     }
 
     async findClients() : Promise<IUserDocument[]>{

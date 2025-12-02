@@ -3,8 +3,9 @@ import { IUserDocument } from "types/user.type";
 
 export function mapUserToListingDto(user: IUserDocument): UserListingDto {
   return {
-    _id: user._id.toString(),
+    id: user._id.toString(),
     username: user.username,
+    name: user.name ?? "",
     email: user.email,
     role: user.role,
     status: user.status,

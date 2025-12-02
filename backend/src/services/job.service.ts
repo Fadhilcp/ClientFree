@@ -11,6 +11,7 @@ import { IProposalRepository } from "repositories/interfaces/IProposalInvitation
 import { IJobAssignmentRepository } from "repositories/interfaces/IJobAssignmentRepository";
 import { IJobAssignmentDocument } from "types/jobAssignment.type";
 import { AuthPayload } from "types/auth.type";
+import { createJobSchema } from "schema/job.schema";
 
 export class JobService implements IJobService {
 
@@ -20,11 +21,16 @@ export class JobService implements IJobService {
         private jobAssignmentRepository: IJobAssignmentRepository
     ){}
 
-    async createJob(data: IJob): Promise<IJobDocument> {
-        console.log("🚀 ~ JobService ~ createJob ~ data:", data)
+    async createJob(data: IJob): Promise<JobDetailDTO> {
+        const parsed = createJobSchema.safeParse(data);
+        if(!parsed.success){
+            const errors = parsed.error.format();
+            console.log("🚀 ~ JobService ~ createJob ~ errors:", errors)
+            throw createHttpError(HttpStatus.BAD_REQUEST,`Job validation failed: ${JSON.stringify(errors)}`);
+        }
         const result = await this.jobRepository.create(data);
 
-        return result;
+        return JobMapper.toDetailDTO(result)
     }
 
     async getAllJobs(status?: string): Promise<JobListDTO[]> {

@@ -62,7 +62,7 @@ const Users: React.FC = () => {
 
       const mappedUsers: UserListing[] = rawUsers.map((user: UserListingDto) => ({
         ...user,
-        id: user._id,
+        id: user.id,
         role: capitalize(user.role),
         status: mapStatus(user.status),
         joined: user.createdAt ? formatDate(user.createdAt) : "—",

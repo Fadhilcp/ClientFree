@@ -1,23 +1,48 @@
 import type { JobForm } from "../../types/job/job.dto";
 
 export const validateJobForm = (data: JobForm) => {
-  const newErrors: Partial<Record<keyof JobForm, string>> = {};
+  const errors: Partial<Record<keyof JobForm, string>> = {};
 
-  if (!data.title.trim()) newErrors.title = "Title is required";
-  if (!data.category.trim()) newErrors.category = "Category is required";
-  if (!data.subcategory.trim()) newErrors.subcategory = "Subcategory is required";
+  const isEmpty = (v: unknown) =>
+    typeof v === "string" ? v.trim().length === 0 : v === null || v === undefined;
 
-  if (!data.paymentBudget.trim()) newErrors.paymentBudget = "Budget is required";
-
-  if (!data.description.trim()) newErrors.description = "Description is required";
-
-  if (!data.duration.trim()) newErrors.duration = "Duration is required";
-
-  // Location fields — only when specific
+  const isNumeric = (v: unknown) =>
+    typeof v === "number"
+      ? !isNaN(v)
+      : typeof v === "string"
+      ? /^[0-9]+(\.[0-9]+)?$/.test(v.trim())
+      : false;
+  if (isEmpty(data.title)) {
+    errors.title = "Title is required";
+  }
+  if (isEmpty(data.category)) {
+    errors.category = "Category is required";
+  }
+  if (isEmpty(data.subcategory)) {
+    errors.subcategory = "Subcategory is required";
+  }
+  if (isEmpty(data.paymentBudget)) {
+    errors.paymentBudget = "Budget is required";
+  } else if (!isNumeric(data.paymentBudget)) {
+    errors.paymentBudget = "Budget must be a number";
+  }
+  if (isEmpty(data.description)) {
+    errors.description = "Description is required";
+  } else if (data.description.trim().length < 20) {
+    errors.description = "Description must be at least 20 characters";
+  }
+  if (isEmpty(data.duration)) {
+    errors.duration = "Duration is required";
+  }
+  // location only when type specific
   if (data.locationType === "specific") {
-    if (!data.locationCity.trim()) newErrors.locationCity = "City is required";
-    if (!data.locationCountry.trim()) newErrors.locationCountry = "Country is required";
+    if (isEmpty(data.locationCity)) {
+      errors.locationCity = "City is required";
+    }
+    if (isEmpty(data.locationCountry)) {
+      errors.locationCountry = "Country is required";
+    }
   }
 
-  return newErrors;
+  return errors;
 };

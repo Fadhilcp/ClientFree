@@ -8,6 +8,8 @@ import { notify } from "../../../utils/toastService";
 import { jobAssignmentService } from "../../../services/jobAssignments.service";
 import { paymentService } from "../../../services/payment.service";
 import { env } from "../../../config/env";
+import SubmitModal from "./SubmitModal";
+import ConfirmationModal from "../../ui/Modal/ConfirmationModal";
 
 interface MilestoneFormProps {
   assignmentId: string;
@@ -27,10 +29,31 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
 
   const [milestones, setMilestones] = useState<MilestoneDto[]>(initialMilestones);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
+  const [selectedMilestoneId, setSelectedMilestoneId] = useState<string | null>(null);
+  const [errors, setErrors] = useState<
+    { title?: string; amount?: string; dueDate?: string; description?: string }[]
+  >([]);
+  // for confirmation modal 
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<() => void>(() => () => {});
+  const [confirmTitle, setConfirmTitle] = useState("");
+  const [confirmDescription, setConfirmDescription] = useState("");
 
   useEffect(() => {
     setMilestones(initialMilestones);
   }, [initialMilestones]);
+
+  const validateMilestone = (m: MilestoneDto) => {
+    const milestoneErrors: { title?: string; amount?: string; dueDate?: string; description?: string } = {};
+
+    if (!m.title.trim()) milestoneErrors.title = "Title is required";
+    if (!m.amount || m.amount <= 0) milestoneErrors.amount = "Amount must be greater than 0";
+    if (!m.dueDate) milestoneErrors.dueDate = "Due date is required";
+    if (!m.description.trim()) milestoneErrors.description = "Description is required";
+
+    return milestoneErrors;
+  };
 
   const addMilestones = async (milestones: MilestoneDto[]) => {
     try {
@@ -102,14 +125,18 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
           order_id: order.id,
           handler: async (response: any) => {
             try {
-              const vRes = await paymentService.verifyMilestone({
+              const verifyRes = await paymentService.verifyMilestone({
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_signature: response.razorpay_signature || "",
               });
+              if (verifyRes.data.success) {
+                const { assignment } = verifyRes.data;
 
-              if (vRes.data.success) {
-                notify.success(vRes.data.message || "Milestone funded successfully");
+                setJobAssignments(prev =>
+                  prev.map(a => a.id === assignmentId ? { ...a, milestones: assignment.milestones } : a)
+                );
+                notify.success(verifyRes.data.message || "Milestone funded successfully");
               }
             } catch (err: any) {
               notify.error(err.response?.data?.error || "Verification failed");
@@ -133,26 +160,57 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
     }
   };
   
-  const releaseMilestone = async (paymentId: string) => {
+  // const releaseMilestone = async (paymentId: string) => {
+  //   try {
+  //     const response = await paymentService.releaseMilestone(paymentId);
+  //     console.log('release milestone - response-',response)
+  //     if(response.data.success){
+  //       const { assignment } = response.data;
+  //       setJobAssignments(prev =>
+  //         prev.map(a => a.id === assignmentId ? { ...a, milestones: assignment.milestones } : a)
+  //       );
+  //     }
+  //   } catch (error: any) {
+  //     notify.error(error.response?.data?.err0r || "Failed to release milestone");
+  //   }
+  // }
+
+  const submitMilestone = async (milestoneId: string, note: string, files: File[]) => {
     try {
-      const response = await paymentService.releaseMilestone(paymentId);
-      console.log('release milestone - response-',response)
+      const formData = new FormData();
+      formData.append("note",note);
+      files.forEach(file => formData.append("files", file));
+      const response = await jobAssignmentService.submitWork(
+        assignmentId, 
+        milestoneId,
+        formData
+      );
       if(response.data.success){
+        notify.success('Milestone submit successfully');
         const { assignment } = response.data;
+
         setJobAssignments(prev =>
           prev.map(a => a.id === assignmentId ? { ...a, milestones: assignment.milestones } : a)
         );
       }
     } catch (error: any) {
-      notify.error(error.response?.data?.err0r || "Failed to release milestone");
+      notify.error(error.response?.data?.error || "Failed to submit milestone");
     }
   }
 
-  const submitMilestone = async (milestoneId: string) => {
+  const approveMilestone = async (milestoneId: string) => {
     try {
-      
+      const response = await jobAssignmentService.approveMilestone(assignmentId, milestoneId);
+      if(response.data.success){
+        notify.success('Milestone approved successfully');
+        const { assignment } = response.data;
+
+        setJobAssignments(prev =>
+          prev.map(a => a.id === assignmentId ? { ...a, milestones: assignment.milestones } : a)
+        );
+      }
     } catch (error: any) {
-      
+      notify.error(error.response?.data?.error || "Failed to approve milestone");
     }
   }
 
@@ -199,7 +257,16 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
   return (
     <div className="mb-6">
       <h2 className="text-md font-medium text-gray-800 dark:text-white mb-4">Milestones</h2>
-
+      <ConfirmationModal
+        isOpen={isConfirmOpen}
+        title={confirmTitle}
+        description={confirmDescription}
+        onConfirm={() => {
+          confirmAction();
+          setIsConfirmOpen(false);
+        }}
+        onCancel={() => setIsConfirmOpen(false)}
+      />
       {milestones.map((milestone, index) => (
         <div key={index} className="mb-4">
           {editingIndex === index ? (
@@ -219,6 +286,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
                   onChange={(val: string) => handleMilestoneChange(index, "title", val)}
                   label="Title"
                   placeholder="Add Title"
+                  error={errors[index]?.title}
                 />
                 <InputSection
                   name="amount"
@@ -226,6 +294,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
                   value={String(milestone.amount)}
                   onChange={(val: string) => handleMilestoneChange(index, "amount", val)}
                   label="Amount (INR)"
+                  error={errors[index]?.amount}
                 />
                 <InputSection
                   name="dueDate"
@@ -233,6 +302,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
                   value={milestone.dueDate || ""}
                   onChange={(val: string) => handleMilestoneChange(index, "dueDate", val)}
                   label="Due Date"
+                  error={errors[index]?.dueDate}
                 />
               </div>
 
@@ -242,6 +312,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
                 onChange={(val: string) => handleMilestoneChange(index, "description", val)}
                 label="Description"
                 placeholder="Describe milestone..."
+                error={errors[index]?.description}
               />
 
               <div className="flex gap-3 mt-4">
@@ -249,13 +320,17 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
                   label="Save"
                   onClick={() => {
                     const current = milestones[index];
+                    const milestoneErrors = validateMilestone(current);
+                    const newErrors = [...errors];
+                    newErrors[index] = milestoneErrors;
+                    setErrors(newErrors);
 
+                    if (Object.keys(milestoneErrors).length > 0) return;
                     if (current.id) {
                       editMilestone(current.id, current);
                     } else {
                       addMilestones([current]);
                     }
-
                     setEditingIndex(null);
                   }}
                   variant="primary"
@@ -270,78 +345,92 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
             </div>
           ) : (
             <Card
-  title={milestone.title || "Untitled Milestone"}
-  description={milestone.description}
-  meta={[
-    { label: "Amount", value: `₹ ${milestone.amount}` },
-    {
-      label: "Due Date",
-      value: milestone.dueDate
-        ? new Date(milestone.dueDate).toLocaleDateString()
-        : "N/A",
-    },
-  ]}
-  status={milestone.status || "pending"}
-  actions={[
-    // --- CLIENT ACTIONS ---
-    user?.role === "client" && milestone.status === "draft"
-      ? { label: "Edit", onClick: () => setEditingIndex(index), variant: "secondary" }
-      : null,
+            title={milestone.title || "Untitled Milestone"}
+            description={milestone.description}
+            meta={[
+              { label: "Amount", value: `₹ ${milestone.amount}` },
+              {
+                label: "Due Date",
+                value: milestone.dueDate
+                  ? new Date(milestone.dueDate).toLocaleDateString()
+                  : "N/A",
+              },
+            ]}
+            status={milestone.status || "pending"}
+            actions={[
+              // client actions 
+              user?.role === "client" && milestone.status === "draft"
+                ? { label: "Edit", onClick: () => setEditingIndex(index), variant: "secondary" }
+                : null,
 
-    user?.role === "client" && milestone.id && milestone.status === "draft"
-      ? {
-          label: "Cancel",
-          onClick: () => cancelMilestone(milestone.id!),
-          variant: "secondary",
-        }
-      : null,
+              user?.role === "client" && milestone.id && milestone.status === "draft"
+                ? {
+                    label: "Cancel",
+                    onClick: () => {
+                      setConfirmTitle("Cancel Milestone");
+                      setConfirmDescription("Are you sure you want to cancel this milestone?");
+                      setConfirmAction(() => () => cancelMilestone(milestone.id!));
+                      setIsConfirmOpen(true);
+                    },
+                    variant: "secondary",
+                  }
+                : null,
 
-    user?.role === "client" &&
-    !hasFunded &&
-    milestone.status === "draft" &&
-    index === firstDraftIndex
-      ? {
-          label: "Fund",
-          onClick: () => fundMilestone(milestone.id!, milestone.amount),
-          variant: "primary",
-        }
-      : null,
+              user?.role === "client" &&
+              !hasFunded && milestone.id &&
+              milestone.status === "draft" &&
+              index === firstDraftIndex
+                ? {
+                    label: "Fund",
+                    onClick: () => fundMilestone(milestone.id!, milestone.amount),
+                    variant: "primary",
+                  }
+                : null,
 
-    user?.role === "client" && milestone.status === "funded"
-      ? {
-          label: "Request Change",
-          onClick: () => console.log("Request change for milestone:", milestone.id),
-          variant: "secondary",
-        }
-      : null,
+              user?.role === "client" && milestone.status === "funded"
+                ? {
+                    label: "Request Change",
+                    onClick: () => console.log("Request change for milestone:", milestone.id),
+                    variant: "secondary",
+                  }
+                : null,
+              user?.role === "client" && milestone.status === "submitted"
+                ? {
+                    label: "Approve",
+                    onClick: () => {
+                      setConfirmTitle("Approve Milestone");
+                      setConfirmDescription("Do you want to approve this submitted milestone?");
+                      setConfirmAction(() => () => approveMilestone(milestone.id!));
+                      setIsConfirmOpen(true);
+                    },
+                    variant: "primary",
+                  }
+                : null,
+              // freelancer actions
+              user?.role === "freelancer" && milestone.status === "funded"
+              && freelancerId === user.id
+                ? {
+                    label: "Submit",
+                    onClick: () => {
+                      setSelectedMilestoneId(milestone.id!);
+                      setIsSubmitModalOpen(true);
+                    },
+                    variant: "primary",
+                  }
+                : null,
+            ].filter(Boolean) as ActionItem[]}
+          />
 
-    user?.role === "client" && milestone.status === "funded"
-      ? {
-          label: "Release",
-          onClick: () => milestone.paymentId && releaseMilestone(milestone.paymentId),
-          variant: "primary",
-        }
-      : null,
-
-    // --- FREELANCER ACTION ---
-    user?.role === "freelancer" && milestone.status === "funded"
-      ? {
-          label: "Submit",
-          onClick: () => {
-            // Strong authorization: ensure only the assigned freelancer can submit
-            if (freelancerId !== user.id) {
-              notify.error("You are not authorized to submit this milestone.");
-              return;
-            }
-            submitMilestone(milestone.id!);
-          },
-          variant: "primary",
-        }
-      : null,
-  ].filter(Boolean) as ActionItem[]}
-/>
-
-          )}
+            )}
+          <SubmitModal
+            isOpen={isSubmitModalOpen}
+            onClose={() => setIsSubmitModalOpen(false)}
+            onSubmit={(note, files) => {
+              if (selectedMilestoneId) {
+                submitMilestone(selectedMilestoneId, note, files);
+              }
+            }}
+          />
         </div>
       ))}
 

@@ -3,7 +3,7 @@ import { AuthPayload } from "types/auth.type";
 import { IJob, IJobDocument } from "types/job.type";
 
 export interface IJobService {
-    createJob(data: IJob): Promise<IJobDocument>;
+    createJob(data: IJob): Promise<JobDetailDTO>;
     getAllJobs(status?: string): Promise<JobListDTO[]>;
     getJobById(jobId: string, user: AuthPayload): Promise<JobDetailDTO>;
     updateJob(jobId: string, data: IJob): Promise<IJobDocument>;

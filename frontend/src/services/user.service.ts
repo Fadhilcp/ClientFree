@@ -7,7 +7,7 @@ class UserService {
         return axios.get(endPoints.USER.GET_ME);
     }
 
-    updateProfile(formData : any) {
+    updateProfile(formData : FormData) {
          return axios.put(endPoints.USER.UPDATE_ME, formData);
     }
 
@@ -15,8 +15,12 @@ class UserService {
         return axios.get(endPoints.USER.GET_BY_ID(userId));
     }
 
-    getProfiles(search: string ,page: number, limit: number) {
-        return axios.get(endPoints.USER.LIST(search ,page, limit));
+    getProfiles(search: string ,page: number, limit: number, role?: string) {
+        return axios.get(endPoints.USER.LIST(search ,page, limit, role));
+    }
+
+    getFreelancers(search: string, page: number, limit: number) {
+        return axios.get(endPoints.USER.LIST_FREELANCERS(search, page, limit));
     }
 
     setProfileImage(formData: FormData){

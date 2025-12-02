@@ -20,6 +20,7 @@ import MilestoneForm from "../../../components/user/job/MilestoneForm";
 import type { AssignmentDto } from "../../../types/job/assignment.type";
 import InvitationsSection from "../../../components/user/job/InvitationSection";
 import ProposalsSection from "../../../components/user/job/ProposalSection";
+import ClarificationBoard from "../../../components/user/job/ClarificationBoard";
 
 const tabs = [
   { key: "details", label: "Job Details" },
@@ -340,7 +341,7 @@ const JobDetailPage: React.FC = () => {
                 <h2 className="text-md font-bold text-gray-800 dark:text-gray-100 mb-3">
                   Milestones for {assignment.freelancer.name}
                 </h2>
-
+                {/* Milestone form */}
                 <MilestoneForm
                   assignmentId={assignment.id}
                   initialMilestones={assignment.milestones || []}
@@ -351,7 +352,15 @@ const JobDetailPage: React.FC = () => {
               </div>
             ))}
 
-            {/* Start Job Button (only for client, when job is open and any milestone funded) */}
+
+            {/* Place Bid Page (only for freelancer when job is open) */}
+            {user?.role === "freelancer" && job.status === "open" && (
+              <PlaceBidPage jobId={job.id} />
+            )}
+            <div className="border-t border-gray-200 dark:border-gray-700 my-6"></div>
+            {/* Clarification board */}
+            <ClarificationBoard userRole={'freelancer'} userName={user?.username!}/>
+            {/* Start Job Button */}
             {isJobOwner &&
               job.status === "open" && canStartJob && (
                 <Button
@@ -360,11 +369,6 @@ const JobDetailPage: React.FC = () => {
                   className="mt-4 px-4 py-2 bg-indigo-600 dark:bg-indigo-600 text-white rounded-md hover:bg-indigo-700 hover:dark:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-600"
                 />
               )}
-
-            {/* Place Bid Page (only for freelancer when job is open) */}
-            {user?.role === "freelancer" && job.status === "open" && (
-              <PlaceBidPage jobId={job.id} />
-            )}
           </div>
         )}
 

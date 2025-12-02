@@ -24,6 +24,9 @@ import JobDetailPage from "../pages/user/job/JobDetailPage";
 import NotFoundPage from "../pages/user/NotFoundPage";
 import FindJobsLayout from "../layout/user/FindJobsLayout";
 import FindJobsPage from "../pages/user/find jobs/FindJobsPage";
+import FreelancersLayout from "../layout/user/FreelancersListLayout";
+import FreelancersPage from "../pages/user/freelancers/FreelancersPage";
+import UserDetailPage from "../pages/user/UserDetailPage";
 
 
 const UserRoutes: React.FC = () => {
@@ -119,6 +122,14 @@ const UserRoutes: React.FC = () => {
                     </AuthProtectedRoute>
                 }
             />
+            <Route
+              path="/users/:userId"
+              element={
+                <AuthProtectedRoute allowedRoles={["client", "freelancer"]}>
+                    <UserDetailPage/>
+                </AuthProtectedRoute>
+              }
+            />
             {/* Job routes under user layout - end */}
             {/* find jobs routes - freelancer - start */}
             <Route path="/find-jobs" element={
@@ -130,6 +141,16 @@ const UserRoutes: React.FC = () => {
                 <Route path="interested" element={<h1>Interested Jobs</h1>} />
             </Route>
             {/* find jobs routes - freelancer - end */}
+            {/* find freelancer routes - client - start */}
+            <Route path="/freelancers" element={
+                <AuthProtectedRoute allowedRoles={['client']}>
+                    <FreelancersLayout/>
+                </AuthProtectedRoute>
+            }>
+                <Route path="" element={<FreelancersPage/>}/>
+                <Route path="interested" element={<h1>Interested Freelancers</h1>} />
+            </Route>
+            {/* find freelancer routes - client - end */}
             {/* Setting routes under user layout - start */}
             <Route path="/settings" element={
                 <AuthProtectedRoute allowedRoles={['client','freelancer']}>
