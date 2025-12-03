@@ -21,7 +21,6 @@ import SecuritySetting from "../pages/user/settings/SecuritySetting";
 import JobLayout from "../layout/user/JobLayout";
 import JobsPage from "../pages/user/job/JobsPage";
 import JobDetailPage from "../pages/user/job/JobDetailPage";
-import NotFoundPage from "../pages/user/NotFoundPage";
 import FindJobsLayout from "../layout/user/FindJobsLayout";
 import FindJobsPage from "../pages/user/find jobs/FindJobsPage";
 import FreelancersLayout from "../layout/user/FreelancersListLayout";
@@ -162,7 +161,6 @@ const UserRoutes: React.FC = () => {
             </Route>
             {/* Setting routes under user layout - end */}
             </Route>
-            <Route path="*" element={<NotFoundPage />} />
         </Routes>
     )
 }

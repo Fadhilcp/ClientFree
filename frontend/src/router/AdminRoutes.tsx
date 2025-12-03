@@ -7,6 +7,7 @@ import Skills from '../pages/admin/Skills'
 import NoAuthProtectedRoute from './NoAuthProtectedRoute'
 import AuthProtectedRoute from './AuthProtectedRoute'
 import Subscriptions from '../pages/admin/Subscriptions'
+import NotFoundPage from '../pages/user/NotFoundPage'
 
 const AdminRoutes: React.FC = () => {
   return (
@@ -33,6 +34,7 @@ const AdminRoutes: React.FC = () => {
                 <Subscriptions/>
               </AuthProtectedRoute>
             }/>
+            <Route path="*" element={<NotFoundPage />} />
         </Route>
     </Routes>
   )
