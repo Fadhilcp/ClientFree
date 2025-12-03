@@ -13,6 +13,7 @@ export function mapUserToClientDto(user: IUserDocument): ClientProfileDto {
     phone: user.phone,
     company: user.company ?? {},
     description: user.description,
+    isProfileComplete: user.isProfileCompleted ?? false,
 
     stats: {
       totalProjectsPosted: user.stats?.totalProjectsPosted ?? 0,

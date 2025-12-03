@@ -19,6 +19,8 @@ export function mapUserToFreelancerDto(user: IUserDocument): FreelancerProfileDt
     skills: user.skills ?? [],
     externalLinks: user.externalLinks ?? [],
     portfolio: user.portfolio ?? {},
+    isProfileComplete: user.isProfileCompleted ?? false,
+    
 
     stats: {
       jobsCompleted: user.stats?.jobsCompleted ?? 0,

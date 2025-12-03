@@ -95,8 +95,7 @@ const locationFields = [
 const JobLayout: React.FC = () => {
 
   const dispatch = useDispatch<AppDispatch>();
-
-  const userRole = useSelector((state: RootState) => state.auth.user?.role);
+  const user = useSelector((state: RootState) => state.auth.user)
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [availableSkills, setAvailableSkills] = useState<[]>([]);
@@ -206,6 +205,14 @@ const JobLayout: React.FC = () => {
           notify.error(error.response?.data?.error || "Failed to create job");
       }
     };
+
+    const handlePostJobModal = () => {
+      if(!user?.isProfileComplete){
+        notify.info("Complete your profile before posting a job.")
+        return;
+      }
+      setIsModalOpen(true)
+    }
     
     const resetForm = () => {
       setFormData({
@@ -231,7 +238,7 @@ const JobLayout: React.FC = () => {
     <div className="flex flex-col md:flex-row min-h-screen bg-white dark:bg-gray-900">
       { loading && <Loader/> }
 
-      {userRole === "client" && (
+      {user?.role === "client" && (
         <>
           <UserModal<JobForm>
             isOpen={isModalOpen}
@@ -261,17 +268,17 @@ const JobLayout: React.FC = () => {
       {/* Left column */}
       <div className="flex flex-col">
         {/* Button above sidebar */}
-        {userRole === "client" && (
+        {user?.role === "client" && (
           <div className="p-4 bg-white dark:bg-gray-900">
             <Button
               label="Post a Job"
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => handlePostJobModal()}
               className="w-full rounded-sm p-1"
             />
           </div>
         )}
           {/* Sidebar itself */}
-          <Sidebar items={userRole === "client" ? clientMenuItems : freelancerMenuItems} />
+          <Sidebar items={user?.role === "client" ? clientMenuItems : freelancerMenuItems} />
       </div>
 
       {/* Main content */}

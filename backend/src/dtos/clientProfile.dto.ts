@@ -7,6 +7,7 @@ export interface ClientProfileDto {
   phone?: string;
   status: string;
   profileImage?: string;
+  isProfileComplete: boolean;
   
   description?: string;
 

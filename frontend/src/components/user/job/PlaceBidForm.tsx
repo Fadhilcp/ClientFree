@@ -9,9 +9,10 @@ import type { Milestone } from "../../../types/job/assignment.type";
 
 interface PlaceBidPageProps {
   jobId: string;
+  isProfileComplete: boolean;
 }
 
-const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ jobId }) => {
+const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ jobId, isProfileComplete }) => {
   const [proposalState, setProposalState] = useState<IProposalForm>({
     jobId,
     bidAmount: 0,
@@ -104,7 +105,10 @@ const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ jobId }) => {
   };
 
   const handleSubmit = async () => {
-    console.log("🚀 ~ handleSubmit ~ validateProposal:", validateProposal)
+    if(!isProfileComplete){
+      notify.info('Before place bid, please complete you profile');
+      return;
+    }
     if (!validateProposal()) return;
     try {
       setLoading(true);

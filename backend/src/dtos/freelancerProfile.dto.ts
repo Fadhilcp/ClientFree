@@ -13,6 +13,7 @@ export interface FreelancerProfileDto {
   about?: string;
   description?: string
   skills?: string[];
+  isProfileComplete: boolean;
 
   externalLinks?: {
     type: string;

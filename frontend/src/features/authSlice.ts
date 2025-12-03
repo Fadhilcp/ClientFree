@@ -9,6 +9,8 @@ interface User {
     username: string;
     profileImage: string;
     phone: string;
+    isProfileComplete: boolean;
+    name: string;
 }
 
 type OtpPurpose = 'signup' | 'forgot-password' | 'email-change' | 'phone-change';

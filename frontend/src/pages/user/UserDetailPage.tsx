@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Loader from "../../components/ui/Loader/Loader";
 import { userService } from "../../services/user.service";
+import ProfileImage from "../../components/user/profile/ProfileImage";
+import Button from "../../components/ui/Button";
+
+interface SkillItem {
+  _id: string;
+  name: string;
+}
 
 interface UserDetailDto {
   id: string;
@@ -11,16 +18,26 @@ interface UserDetailDto {
   role: "client" | "freelancer" | "admin";
   professionalTitle?: string;
   about?: string;
-  skills?: { _id: string; name: string }[];
+  description?: string;
+  skills?: SkillItem[];
   ratings?: { asFreelancer: number };
   profileImage?: string;
   status?: string;
+  hourlyRate?: string;
+  experienceLevel?: string;
+  location?: { city: string; state: string; country: string };
+  phone?: string;
+  portfolio?: { portfolioFile: string; resume: string };
+  stats?: { jobsCompleted: number; reviewsCount: number; earningTotal: number };
+  externalLinks?: { label: string; url: string }[];
+  createdAt?: string;
 }
 
 const UserDetailPage: React.FC = () => {
   const { userId } = useParams();
   const [user, setUser] = useState<UserDetailDto | null>(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -28,7 +45,6 @@ const UserDetailPage: React.FC = () => {
       setLoading(true);
       try {
         const response = await userService.getProfileById(userId);
-        console.log("🚀 ~ fetchUser ~ response:", response)
         if (response?.data.success) {
           setUser(response.data.user);
         }
@@ -45,42 +61,57 @@ const UserDetailPage: React.FC = () => {
   if (!user) return <p className="text-center text-gray-500 py-10">User not found.</p>;
 
   return (
-    <section className="bg-white dark:bg-gray-900 min-h-screen p-6">
-      <div className="max-w-4xl mx-auto rounded-lg shadow-md bg-gray-50 dark:bg-gray-800 p-6">
-        {/* Profile Header */}
-        <div className="flex items-center gap-6 mb-6">
-          <img
-            src={user.profileImage || "/default-avatar.png"}
-            alt={user.name}
-            className="w-24 h-24 rounded-full object-cover border-2 border-indigo-500"
-          />
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {user.name || user.username}
-            </h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              {user.professionalTitle || user.role}
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
-          </div>
-        </div>
+  <section className="bg-white dark:bg-gray-900 min-h-screen p-6">
+    {/* Back Button full width */}
+    <div className="max-w-6xl mx-auto mb-4 flex">
+      <Button
+        onClick={() => navigate(-1)}
+        variant="secondary"
+        className="px-3 py-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 
+                   dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700"
+      >
+        <i className="fa-solid fa-arrow-left mr-2"></i> Back
+      </Button>
+    </div>
 
-        {/* About */}
+    {/* Profile Card */}
+    <div className="max-w-6xl mx-auto rounded-lg shadow-md bg-gray-50 dark:bg-gray-800 p-6">
+      {/* Profile Header */}
+      <div className="flex items-center gap-6 mb-6">
+        <ProfileImage src={user.profileImage} useAuthFallback size={100} />
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            {user.name || user.username}
+          </h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {user.professionalTitle || user.role}
+          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
+          {user.phone && (
+            <p className="text-sm text-gray-500 dark:text-gray-400"><i className="fa-solid fa-phone"></i> {user.phone}</p>
+          )}
+        </div>
+      </div>
+
+
+        {/* About / Description */}
         {user.about && (
           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-              About
-            </h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">About</h2>
             <p className="text-gray-700 dark:text-gray-300">{user.about}</p>
+          </div>
+        )}
+        {user.description && (
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Description</h2>
+            <p className="text-gray-700 dark:text-gray-300">{user.description}</p>
           </div>
         )}
 
         {/* Skills */}
         {user.skills && user.skills.length > 0 && (
           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-              Skills
-            </h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Skills</h2>
             <div className="flex flex-wrap gap-2">
               {user.skills.map((skill) => (
                 <span
@@ -94,12 +125,81 @@ const UserDetailPage: React.FC = () => {
           </div>
         )}
 
-        {/* Ratings */}
-        {user.ratings !== undefined && (
+        {/* Experience + Hourly Rate */}
+        <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+          {user.experienceLevel && (
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                Experience Level
+              </h2>
+              <p className="text-gray-700 dark:text-gray-300">{user.experienceLevel}</p>
+            </div>
+          )}
+          {user.hourlyRate && (
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                Hourly Rate
+              </h2>
+              <p className="text-gray-700 dark:text-gray-300">₹ {user.hourlyRate}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Location */}
+        {user.location && (
           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-              Ratings
-            </h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Location</h2>
+            <p className="text-gray-700 dark:text-gray-300">
+              {user.location.city}, {user.location.state}, {user.location.country}
+            </p>
+          </div>
+        )}
+
+        {/* Portfolio */}
+        {user.portfolio && (
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Portfolio</h2>
+            <p className="text-gray-700 dark:text-gray-300">
+              Resume: {user.portfolio.resume} | Portfolio File: {user.portfolio.portfolioFile}
+            </p>
+          </div>
+        )}
+
+        {/* External Links */}
+        {user.externalLinks && user.externalLinks.length > 0 && (
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">External Links</h2>
+            <ul className="list-disc list-inside text-gray-700 dark:text-gray-300">
+              {user.externalLinks.map((link, idx) => (
+                <li key={idx}>
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-indigo-600 dark:text-indigo-400 hover:underline"
+                  >
+                    {link.label || link.url}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Stats */}
+        {user.stats && (
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Stats</h2>
+            <p className="text-gray-700 dark:text-gray-300">
+              Jobs Completed: {user.stats.jobsCompleted} | Reviews: {user.stats.reviewsCount} | Earnings: ₹{user.stats.earningTotal}
+            </p>
+          </div>
+        )}
+
+        {/* Ratings */}
+        {user.ratings && (
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Ratings</h2>
             <p className="text-gray-700 dark:text-gray-300">{user.ratings.asFreelancer} / 5</p>
           </div>
         )}
@@ -107,10 +207,18 @@ const UserDetailPage: React.FC = () => {
         {/* Status */}
         {user.status && (
           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-              Status
-            </h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Status</h2>
             <p className="text-gray-700 dark:text-gray-300">{user.status}</p>
+          </div>
+        )}
+
+        {/* Created At */}
+        {user.createdAt && (
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Joined</h2>
+            <p className="text-gray-700 dark:text-gray-300">
+              {new Date(user.createdAt).toLocaleDateString()}
+            </p>
           </div>
         )}
       </div>

@@ -107,7 +107,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
 
   
   const fundMilestone = async (milestoneId: string, amount: number) => {
-    if (!user?.id || !user?.email || !user?.phone) {
+    if (!user.isProfileComplete) {
       notify.warn("Please complete your profile before funding milestones");
       return;
     }

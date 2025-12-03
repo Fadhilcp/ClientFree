@@ -355,7 +355,7 @@ const JobDetailPage: React.FC = () => {
 
             {/* Place Bid Page (only for freelancer when job is open) */}
             {user?.role === "freelancer" && job.status === "open" && (
-              <PlaceBidPage jobId={job.id} />
+              <PlaceBidPage jobId={job.id} isProfileComplete={user.isProfileComplete} />
             )}
             <div className="border-t border-gray-200 dark:border-gray-700 my-6"></div>
             {/* Clarification board */}
