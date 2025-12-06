@@ -42,6 +42,18 @@ class JobService {
     startJob(jobId: string) {
         return axios.post(endPoints.JOB.START_JOB(jobId));
     }
+
+    getInterestedJobs() {
+        return axios.get(endPoints.JOB.GET_INTERESTED);
+    }
+
+    addInterestedJob(jobId: string) {
+        return axios.post(endPoints.JOB.ADD_INTERESTED(jobId));
+    }
+
+    removeInterestedJob(jobId: string) {
+        return axios.delete(endPoints.JOB.REMOVE_INTERESTED(jobId))
+    }
 }
 
 export const jobService = new JobService();

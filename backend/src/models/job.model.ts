@@ -50,6 +50,8 @@ const JobSchema = new Schema({
   isMultiFreelancer: { type: Boolean, default: false },
 
   acceptedProposalIds: [{ type: Schema.Types.ObjectId, ref: "ProposalInvitation" }],
+  isDeleted: { type: Boolean, default: false },
+  deletedAt: { type: Date, default: null },
 },{ timestamps: true });
 
 export default model<IJobDocument>("Jobs", JobSchema);

@@ -13,19 +13,19 @@ import { IUserRepository } from "repositories/interfaces/IUserRepository";
 
 
 export class SkillService implements ISkillService {
-    constructor(private skillRepository : ISkillRepository, private userRepository: IUserRepository){};
+    constructor(private _skillRepository : ISkillRepository, private _userRepository: IUserRepository){};
 
-    async createSkill(data: ISkill): Promise<ISkillDocument> {
+    async createSkill(skillData: ISkill): Promise<ISkillDocument> {
 
-        const normalizedName = normalizeText(data.name);
-        const existing = await this.skillRepository.findOne({ normalizedName });
+        const normalizedName = normalizeText(skillData.name);
+        const existing = await this._skillRepository.findOne({ normalizedName });
 
         if (existing) {
-            throw createHttpError(HttpStatus.CONFLICT, `Skill "${data.name}" already exists`);
+            throw createHttpError(HttpStatus.CONFLICT, `Skill "${skillData.name}" already exists`);
         }
 
-        return this.skillRepository.create({
-            ...data,
+        return this._skillRepository.create({
+            ...skillData,
             normalizedName,
         });
     }
@@ -38,7 +38,7 @@ export class SkillService implements ISkillService {
                 { category: { $regex: search, $options: "i" } }
             ]
         }
-        const result = await this.skillRepository.paginate(filter, { page, limit, sort: { createdAt: -1 } });
+        const result = await this._skillRepository.paginate(filter, { page, limit, sort: { createdAt: -1 } });
         return {
             ...result,
             data: result.data.map(mapSkill)
@@ -46,23 +46,23 @@ export class SkillService implements ISkillService {
     }
 
     async getActiveSkills(): Promise<SkillDto[]> {
-        const skills = await this.skillRepository.find({ status: 'active' });
+        const skills = await this._skillRepository.find({ status: 'active' });
         return skills.map(mapSkill);
     }
 
     async getSkillsByCategory(category: string): Promise<ISkillDocument[]> {
-        return this.skillRepository.find({ category, status: 'active' });
+        return this._skillRepository.find({ category, status: 'active' });
     }
 
-    async updateSkill(id: string, data: ISkill): Promise<ISkillDocument> {
+    async updateSkill(id: string, skillData: ISkill): Promise<ISkillDocument> {
 
-        const normalizedName = normalizeText(data.name);
-        const existing = await this.skillRepository.findOne({ normalizedName, _id: { $ne: id } });
+        const normalizedName = normalizeText(skillData.name);
+        const existing = await this._skillRepository.findOne({ normalizedName, _id: { $ne: id } });
 
         if (existing) {
-            throw createHttpError(HttpStatus.CONFLICT, `Skill "${data.name}" already exists`);
+            throw createHttpError(HttpStatus.CONFLICT, `Skill "${skillData.name}" already exists`);
         }
-        const updated = await this.skillRepository.findByIdAndUpdate(id, {...data, normalizedName});
+        const updated = await this._skillRepository.findByIdAndUpdate(id, {...skillData, normalizedName});
 
         if(!updated) {
             throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.SKILL_NOT_FOUND);
@@ -70,14 +70,14 @@ export class SkillService implements ISkillService {
         return updated;
     }
 
-    async deleteSkill(id: string): Promise<DeleteResult> {
-        const result = await this.skillRepository.deleteOne({ _id: id });
+    async deleteSkill(skillId: string): Promise<DeleteResult> {
+        const result = await this._skillRepository.deleteOne({ _id: skillId });
 
         if(result.deletedCount === 0) {
             throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.SKILL_NOT_FOUND);
         }
         // to remove skill id from the user document
-        await this.userRepository.updateMany({ skills: id }, { $pull: { skills: id }});
+        await this._userRepository.updateMany({ skills: skillId }, { $pull: { skills: skillId }});
 
         return result;
     }

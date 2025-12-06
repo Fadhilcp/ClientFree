@@ -6,7 +6,7 @@ import { createHttpError } from "utils/httpError.util";
 import { sendResponse } from "utils/response.util";
 
 export class PaymentController {
-    constructor(private service: IPaymentService){}
+    constructor(private _service: IPaymentService){}
 
     async createOrder(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
@@ -14,7 +14,7 @@ export class PaymentController {
             const clientId = req.user?._id;
             if(!clientId) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
 
-            const result = await this.service.createMilestoneOrder(assignmentId, milestoneId, clientId);
+            const result = await this._service.createMilestoneOrder(assignmentId, milestoneId, clientId);
             
             sendResponse(res, HttpStatus.OK, result);
         } catch (error) {
@@ -30,7 +30,7 @@ export class PaymentController {
 
             if(!clientId) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
 
-            const result = await this.service.verifyMilestonePayment(
+            const result = await this._service.verifyMilestonePayment(
                 razorpay_order_id, 
                 razorpay_payment_id, 
                 razorpay_signature,
@@ -51,7 +51,7 @@ export class PaymentController {
 
             if(!initiatorId) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
 
-            const result = await this.service.refundMilestone(paymentId, initiatorId, reason);
+            const result = await this._service.refundMilestone(paymentId, initiatorId, reason);
 
             sendResponse(res, HttpStatus.OK, result);
         } catch (error) {
@@ -65,7 +65,7 @@ export class PaymentController {
             const clientId = req.user?._id;
             if(!clientId) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
 
-            const result = await this.service.releaseMilestone(paymentId, clientId);
+            const result = await this._service.releaseMilestone(paymentId, clientId);
 
             sendResponse(res, HttpStatus.OK, result);
         } catch (error) {

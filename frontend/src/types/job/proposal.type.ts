@@ -8,8 +8,16 @@ export interface IProposal {
     email: string;
     profileImage?: string | null;
   };
+  job?: {
+    id: string;
+    title: string;
+    category: string;
+    subcategory: string;
+    status: string;
+    clientId?: string;
+    createdAt?: Date;
+  };
   invitedBy?: string;
-  jobId: string;
   bidAmount: number;
   duration: string;
   description: string;

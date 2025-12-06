@@ -43,6 +43,8 @@ export interface IJob {
   isMultiFreelancer: boolean;
 
   acceptedProposalIds: Types.ObjectId[] | IProposalInvitationDocument[];
+  isDeleted: boolean;
+  deleteAt: Date;
 
   createdAt?: Date;
   updatedAt?: Date;

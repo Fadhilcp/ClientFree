@@ -22,6 +22,11 @@ userRouter.post('/profile-image',authMiddleware,upload.single('profileImage'),
     );
 userRouter.delete('/profile-image',authMiddleware,userController.removeProfileImage.bind(userController));
 userRouter.patch('/:id/status',authMiddleware,userController.updateStatus.bind(userController));
+
+userRouter.get('/interested',authMiddleware,userController.getInterestedFreelancer.bind(userController));
+userRouter.post('/:freelancerId/interest',authMiddleware,userController.addFreelancerInterest.bind(userController));
+userRouter.delete('/:freelancerId/interest',authMiddleware,userController.removeFreelancerInterest.bind(userController));
+
 userRouter.get('/:id',authMiddleware,userController.getById.bind(userController));
 
 export default userRouter;

@@ -19,16 +19,16 @@ import { UserProfileDto } from "dtos/profile.dto.types";
 
 export class AuthService implements IAuthService {
 
-    constructor(private userRepository : IUserRepository, private otpUserStoreRepository : IOtpUserStoreRepository){};
+    constructor(private _userRepository : IUserRepository, private _otpUserStoreRepository : IOtpUserStoreRepository){};
 
-    async signUp(data : Partial<IOtpUserStore>) : Promise<void> {
+    async signUp(userData : Partial<IOtpUserStore>) : Promise<void> {
 
-        if(!data.email){
+        if(!userData.email){
             throw createHttpError(HttpStatus.BAD_REQUEST,HttpResponse.EMAIL_REQUIRED);
         }
 
-        const existingUser = await this.userRepository.findByEmail(data.email);
-        const pendingUser = await this.otpUserStoreRepository.findByEmail(data.email);
+        const existingUser = await this._userRepository.findByEmail(userData.email);
+        const pendingUser = await this._otpUserStoreRepository.findByEmail(userData.email);
 
         if(existingUser){
             throw createHttpError(HttpStatus.CONFLICT, HttpResponse.EMAIL_EXIST)
@@ -37,37 +37,37 @@ export class AuthService implements IAuthService {
         console.log("🚀 ~ AuthService ~ signUp ~ otp:", otp)
 
         if(pendingUser){
-            await this.otpUserStoreRepository.updateOne({email : data.email},{otp , expiresAt : new Date(Date.now() + 1 * 60 * 1000)});
-            await sendOtpEmail(data.email, otp);
+            await this._otpUserStoreRepository.updateOne({email : userData.email},{otp , expiresAt : new Date(Date.now() + 1 * 60 * 1000)});
+            await sendOtpEmail(userData.email, otp);
             return;
         }
 
-        if(!data.password) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.PASSWORD_REQUIRED)
-        const hashPassword = await bcrypt.hash(data.password , 10);
+        if(!userData.password) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.PASSWORD_REQUIRED)
+        const hashPassword = await bcrypt.hash(userData.password , 10);
 
-        await this.otpUserStoreRepository.create({
-            username : data.username,
-            email : data.email,
+        await this._otpUserStoreRepository.create({
+            username : userData.username,
+            email : userData.email,
             password : hashPassword,
-            role : data.role,
+            role : userData.role,
             otp,
             expiresAt : new Date(Date.now() + 1 * 60 * 1000),
             purpose : 'signup'
         });
         
-        await sendOtpEmail(data.email, otp);
+        await sendOtpEmail(userData.email, otp);
     }
 
     async verifySignupOtp(email: string, otp: string, purpose : string): 
     Promise<{ accessToken : string, refreshToken : string, user : UserProfileDto }> 
     {
         
-        const pendingUser = await this.otpUserStoreRepository.findByEmailAndOtp(email,otp);
+        const pendingUser = await this._otpUserStoreRepository.findByEmailAndOtp(email,otp);
         
         if(!pendingUser || pendingUser.purpose !== purpose) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.OTP_INCORRECT);
         if(pendingUser.expiresAt < new Date()) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.OTP_EXPIRED);
 
-        const createdUser = await this.userRepository.create({
+        const createdUser = await this._userRepository.create({
             username : pendingUser.username,
             email : pendingUser.email,
             password : pendingUser.password,
@@ -75,7 +75,7 @@ export class AuthService implements IAuthService {
             provider : 'local'
         })
 
-        await this.otpUserStoreRepository.delete(pendingUser._id);
+        await this._otpUserStoreRepository.delete(pendingUser._id);
 
          const payload: AuthPayload = {
             _id: createdUser._id.toString(),
@@ -92,7 +92,7 @@ export class AuthService implements IAuthService {
 
     async forgotPassword(email : string) : Promise<void> {
 
-        const user = await this.userRepository.findOne({email});
+        const user = await this._userRepository.findOne({email});
         if(!user) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
 
         const otp = generateOtp();
@@ -100,13 +100,13 @@ export class AuthService implements IAuthService {
         
         const expiresAt = new Date(Date.now() + 1 * 60 * 1000);
 
-        const existingRecord = await this.otpUserStoreRepository.findOne({
+        const existingRecord = await this._otpUserStoreRepository.findOne({
             email,
             purpose: 'forgot-password',
         });
 
         if (existingRecord) {
-            await this.otpUserStoreRepository.updateOne(
+            await this._otpUserStoreRepository.updateOne(
                 { email, purpose: 'forgot-password' },
                 {
                     otp,
@@ -116,7 +116,7 @@ export class AuthService implements IAuthService {
                 }
             );
         } else {
-            await this.otpUserStoreRepository.create({
+            await this._otpUserStoreRepository.create({
                 email,
                 purpose: 'forgot-password',
                 otp,
@@ -141,7 +141,7 @@ export class AuthService implements IAuthService {
             throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.NO_PAYLOAD);
         }
 
-        const user = await this.userRepository.findById(userId);
+        const user = await this._userRepository.findById(userId);
 
         if (!user) {
             throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
@@ -165,7 +165,7 @@ export class AuthService implements IAuthService {
 
     async login(email: string, password: string): Promise<{ accessToken: string; refreshToken: string; user: UserProfileDto }>  {
         
-        const user = await this.userRepository.findByEmail(email);
+        const user = await this._userRepository.findByEmail(email);
 
         if(!user) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
 
@@ -203,8 +203,8 @@ export class AuthService implements IAuthService {
     async resendOtp(email : string, purpose : OtpPurpose) : Promise<void>{
 
         const [user, pendingUser] = await Promise.all([
-            this.userRepository.findOne({email}),
-            this.otpUserStoreRepository.findOne({email, purpose})
+            this._userRepository.findOne({email}),
+            this._otpUserStoreRepository.findOne({email, purpose})
         ]);
 
         if (purpose === 'signup' && user) {
@@ -219,7 +219,7 @@ export class AuthService implements IAuthService {
         console.log("🚀 ~ AuthService ~ resendOtp ~ otp:", otp)
         const expiresAt = new Date(Date.now() + 1 * 60 * 1000);
 
-        await this.otpUserStoreRepository.updateOne(
+        await this._otpUserStoreRepository.updateOne(
             {email, purpose},
             {otp, expiresAt}
         )
@@ -228,7 +228,7 @@ export class AuthService implements IAuthService {
     }
 
     async verifyOtp(email : string, otp : string, purpose : OtpPurpose) : Promise<void> {
-        const record = await this.otpUserStoreRepository.findOne({email, purpose});
+        const record = await this._otpUserStoreRepository.findOne({email, purpose});
         console.log("🚀 ~ AuthService ~ verifyOtp ~ record:", record)
 
         if(!record || record.otp !== otp){
@@ -243,19 +243,19 @@ export class AuthService implements IAuthService {
         switch (purpose) {
             case 'email-change':
             if (!record.newEmail) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.EMAIL_REQUIRED);
-            await this.userRepository.updateOne({ email }, { email: record.newEmail });
-            await this.otpUserStoreRepository.deleteOne({ email, purpose });
+            await this._userRepository.updateOne({ email }, { email: record.newEmail });
+            await this._otpUserStoreRepository.deleteOne({ email, purpose });
             break;
 
             case 'phone-change':
             if (!record.newPhone) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.PHONE_REQUIRED);
-            await this.userRepository.updateOne({ email }, { phone: record.newPhone });
-            await this.otpUserStoreRepository.deleteOne({ email, purpose });
+            await this._userRepository.updateOne({ email }, { phone: record.newPhone });
+            await this._otpUserStoreRepository.deleteOne({ email, purpose });
             break;
 
             case 'forgot-password':
             //verifiedAt is to check the validity time of when reset password
-            await this.otpUserStoreRepository.updateOne(
+            await this._otpUserStoreRepository.updateOne(
                 { email, purpose : 'forgot-password' }, 
                 { isVerified: true, verifiedAt : new Date() }
             );
@@ -268,8 +268,8 @@ export class AuthService implements IAuthService {
 
     async resetPassword(email : string, newPassword : string): Promise<void> {
         const [user, otpRecord] = await Promise.all([
-            this.userRepository.findOne({email}),
-            this.otpUserStoreRepository.findOne({email, isVerified: true })
+            this._userRepository.findOne({email}),
+            this._otpUserStoreRepository.findOne({email, isVerified: true })
         ]);
 
         if(!user) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
@@ -279,14 +279,14 @@ export class AuthService implements IAuthService {
         const maxWindow = 5 * 60 * 1000;
 
         if(!otpRecord.verifiedAt || now.getTime() - otpRecord.verifiedAt.getTime() > maxWindow){
-            await this.otpUserStoreRepository.deleteOne({email, purpose : 'forgot-password'});
+            await this._otpUserStoreRepository.deleteOne({email, purpose : 'forgot-password'});
             throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.PASSWORD_RESET_EXPIRED);
         }
 
         const hashPassword = await bcrypt.hash(newPassword, 10)
 
-        await this.userRepository.updateOne({email},{ password : hashPassword });
-        await this.otpUserStoreRepository.deleteOne({email, purpose : 'forgot-password'});
+        await this._userRepository.updateOne({email},{ password : hashPassword });
+        await this._otpUserStoreRepository.deleteOne({email, purpose : 'forgot-password'});
     } 
 
     async googleAuth(access_token: string, role: 'freelancer' | 'client') :Promise<{
@@ -302,7 +302,7 @@ export class AuthService implements IAuthService {
 
             if(!email) throw createHttpError(HttpStatus.BAD_REQUEST,HttpResponse.EMAIL_REQUIRED);
 
-            let user = await this.userRepository.findOne({email});
+            let user = await this._userRepository.findOne({email});
 
             //to identify user is new or not
             let isNewUser = false;
@@ -310,7 +310,7 @@ export class AuthService implements IAuthService {
 
                 if (!role) return { needsRole: true };
 
-                user = await this.userRepository.create({
+                user = await this._userRepository.create({
                     username: name,
                     email,
                     profileImage: picture,
@@ -358,7 +358,7 @@ export class AuthService implements IAuthService {
             throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.NO_PAYLOAD);
         }
 
-        const user = await this.userRepository.findById(userId);
+        const user = await this._userRepository.findById(userId);
 
         if (!user) {
             throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
@@ -379,7 +379,7 @@ export class AuthService implements IAuthService {
     }
 
     async changePassword(userId: string, password: string, newPassword: string): Promise<{ message: string; }> {
-        const user = await this.userRepository.findById(userId);
+        const user = await this._userRepository.findById(userId);
         if(!user) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
 
         if(user.provider === 'google' && !user.password){
@@ -391,7 +391,7 @@ export class AuthService implements IAuthService {
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-        const updateUser = await this.userRepository.findByIdAndUpdate(
+        const updateUser = await this._userRepository.findByIdAndUpdate(
             userId, 
             { password: hashedPassword }
         );

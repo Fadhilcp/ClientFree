@@ -18,7 +18,7 @@ const clientMenuItems = [
   { label: "Active Jobs", path: "/my-jobs/active-jobs" },
   { label: "Posted Jobs", path: "/my-jobs/posted-jobs" },
   { label: "Completed Jobs", path: "/my-jobs/completed-jobs" },
-  { label: "Invitations & Proposals", path: "/my-jobs/invitations-proposals" },
+  { label: "Invitations & Proposals", path: "/my-jobs/proposals-invitations" },
 ];
 
 const freelancerMenuItems = [

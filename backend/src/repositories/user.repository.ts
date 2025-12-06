@@ -2,6 +2,7 @@ import { BaseRepository } from "./base.repository";
 import { IUserDocument } from "../types/user.type";
 import userModel from "./../models/user.model"
 import { IUserRepository } from "./interfaces/IUserRepository";
+import { FilterQuery } from "mongoose";
 
 export class UserRepository 
    extends BaseRepository<IUserDocument>
@@ -15,8 +16,8 @@ export class UserRepository
         return this.model.findOne({ email });
     }
 
-    async findFreelancersWithSkill() : Promise<IUserDocument[]>{
-        return this.model.find({ role : "freelancer", isProfileCompleted: true })
+    async findWithSkill(filter: FilterQuery<IUserDocument>) : Promise<IUserDocument[]>{
+        return this.model.find(filter)
         .populate("skills", "name _id");
     }
 

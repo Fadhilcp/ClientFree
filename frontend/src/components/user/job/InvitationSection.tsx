@@ -17,9 +17,7 @@ const InvitationsSection: React.FC<InvitationsSectionProps> = ({
   jobStatus,
   invitations,
   invitationsLoading,
-  isJobOwner,
   onViewInvitation,
-  onCancelInvitation,
 }) => {
   if (activeTab !== "invitations" || jobStatus !== "open") return null;
 
@@ -37,8 +35,8 @@ const InvitationsSection: React.FC<InvitationsSectionProps> = ({
             <Card
               key={p.id || i}
               user={p.freelancer}
-              title="Invitation"
-              description={p.description || "This freelancer was invited to bid."}
+              title={p.invitation.title || "Invitation"}
+              description={p.invitation.message || "This freelancer was invited to bid."}
               status={p.status}
               footer={`Invited on: ${new Date(p.createdAt).toLocaleDateString()}`}
               actions={[
@@ -47,15 +45,6 @@ const InvitationsSection: React.FC<InvitationsSectionProps> = ({
                   onClick: () => onViewInvitation?.(p.id),
                   variant: "secondary" as const,
                 },
-                ...(isJobOwner
-                  ? [
-                      {
-                        label: "Cancel Invitation",
-                        onClick: () => onCancelInvitation?.(p.id),
-                        variant: "secondary" as const,
-                      },
-                    ]
-                  : []),
               ]}
             />
           ))}

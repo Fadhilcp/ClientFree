@@ -2,12 +2,21 @@ import { ProposalStatus } from "types/proposalInvitation.type";
 
 export interface ProposalDTO {
   id: string;
-  jobId: string;
   freelancer: {
     id: string;
     username: string;
     email: string;
     profileImage?: string | null;
+  };
+
+  job?: {
+    id: string;
+    title: string;
+    category: string;
+    subcategory: string;
+    status: string;
+    clientId?: string;
+    createdAt?: Date;
   };
 
   isInvitation: boolean;

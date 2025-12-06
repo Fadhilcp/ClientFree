@@ -6,7 +6,7 @@ import { createHttpError } from "utils/httpError.util";
 import { sendResponse } from "utils/response.util";
 
 export class JobController {
-    constructor(private service: IJobService){}
+    constructor(private _service: IJobService){}
 
     async createJob(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
@@ -17,7 +17,7 @@ export class JobController {
 
             const data = req.body;
 
-            const job = await this.service.createJob({ ...data, clientId });
+            const job = await this._service.createJob({ ...data, clientId });
 
             sendResponse(res,HttpStatus.CREATED, { job });
         } catch (error) {
@@ -27,8 +27,13 @@ export class JobController {
 
     async getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
+            const freelancerId = req.user?._id;
+            if(!freelancerId) {
+                throw createHttpError(HttpStatus.UNAUTHORIZED,HttpResponse.UNAUTHORIZED);
+            }
+
             const status  = req.query.status as string || '';
-            const jobs = await this.service.getAllJobs(status);
+            const jobs = await this._service.getAllJobs(freelancerId, status);
     
             sendResponse(res, HttpStatus.OK, { jobs });
         } catch (error) {
@@ -42,7 +47,7 @@ export class JobController {
 
             if(!id) throw createHttpError(HttpStatus.BAD_REQUEST,'job id is needed');
 
-            const job = await this.service.getJobById(id, req.user!);
+            const job = await this._service.getJobById(id, req.user!);
 
             sendResponse(res, HttpStatus.OK, { job });
         } catch (error) {
@@ -57,7 +62,7 @@ export class JobController {
 
             if(!id) throw createHttpError(HttpStatus.BAD_REQUEST, 'job id is needed');
 
-            const job = await this.service.updateJob(id, data);
+            const job = await this._service.updateJob(id, data);
 
             sendResponse(res, HttpStatus.OK, { job });
         } catch (error) {
@@ -72,7 +77,7 @@ export class JobController {
 
             if(!id) throw createHttpError(HttpStatus.BAD_REQUEST,'Job id is needed');
 
-            const message = await this.service.deleteJob(id);
+            const message = await this._service.deleteJob(id);
 
             sendResponse(res, HttpStatus.OK, {}, message);
         } catch (error) {
@@ -89,7 +94,7 @@ export class JobController {
             if (req.user?.role !== "client") {
                 throw createHttpError(HttpStatus.FORBIDDEN, "Only clients can access their jobs.");
             }
-            const jobs = await this.service.getClientJobs(clientId, status);
+            const jobs = await this._service.getClientJobs(clientId, status);
 
             sendResponse(res, HttpStatus.OK, { jobs });
         } catch (error) {
@@ -106,7 +111,7 @@ export class JobController {
             }
             const { status } = req.body;
 
-            await this.service.changeStatus(jobId, clientId, status);
+            await this._service.changeStatus(jobId, clientId, status);
 
             sendResponse(res, HttpStatus.OK, {}, "Job status updated");
         } catch (error) {
@@ -122,7 +127,7 @@ export class JobController {
                 throw createHttpError(HttpStatus.UNAUTHORIZED,HttpResponse.UNAUTHORIZED);
             }
 
-            const job  = await this.service.startJob(jobId, clientId);
+            const job  = await this._service.startJob(jobId, clientId);
 
             sendResponse(res, HttpStatus.OK, { job }, "Job activated successfully");
         } catch (error) {
@@ -138,9 +143,54 @@ export class JobController {
             }
             const status = req.query.status as string || "";
 
-            const jobs = await this.service.getFreelancerJobs(freelancerId, status);
+            const jobs = await this._service.getFreelancerJobs(freelancerId, status);
 
             sendResponse(res, HttpStatus.OK, { jobs })
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getInterestedJobs(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const freelancerId = req.user?._id;
+            if(!freelancerId) {
+                throw createHttpError(HttpStatus.UNAUTHORIZED,HttpResponse.UNAUTHORIZED);
+            }
+            const jobs = await this._service.getInterestedJobsForFreelancer(freelancerId);
+
+            sendResponse(res, HttpStatus.OK, { jobs });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async addJobInterest(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const freelancerId = req.user?._id;
+            if(!freelancerId) {
+                throw createHttpError(HttpStatus.UNAUTHORIZED,HttpResponse.UNAUTHORIZED);
+            }
+            const jobId = req.params.jobId;
+
+            await this._service.addJobInterest(freelancerId, jobId);
+
+            sendResponse(res, HttpStatus.OK, {}, "Interested Job added");
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async removeJobInterest(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const freelancerId = req.user?._id;
+            const jobId = req.params.jobId;
+            if(!freelancerId) {
+                throw createHttpError(HttpStatus.UNAUTHORIZED,HttpResponse.UNAUTHORIZED);
+            }
+
+            await this._service.removeJobInterest(freelancerId, jobId);
+            sendResponse(res, HttpStatus.OK, {}, "Interested job status updated");
         } catch (error) {
             next(error);
         }

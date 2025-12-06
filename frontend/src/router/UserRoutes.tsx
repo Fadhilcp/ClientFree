@@ -22,10 +22,13 @@ import JobLayout from "../layout/user/JobLayout";
 import JobsPage from "../pages/user/job/JobsPage";
 import JobDetailPage from "../pages/user/job/JobDetailPage";
 import FindJobsLayout from "../layout/user/FindJobsLayout";
-import FindJobsPage from "../pages/user/find jobs/FindJobsPage";
+import BrowseJobsPage from "../pages/user/find jobs/BrowseJobsPage";
 import FreelancersLayout from "../layout/user/FreelancersListLayout";
 import FreelancersPage from "../pages/user/freelancers/FreelancersPage";
 import UserDetailPage from "../pages/user/UserDetailPage";
+import MyPrposalsLayout from "../layout/user/MyProposalsLayout";
+import MyProposals from "../pages/user/my proposals/MyProposals";
+import ProposalAndInvitation from "../pages/user/my proposals/ProposalAndInvitation";
 
 
 const UserRoutes: React.FC = () => {
@@ -112,6 +115,7 @@ const UserRoutes: React.FC = () => {
                 <Route path="active-jobs" element={<JobsPage status="active" title="Active Jobs" />}/>
                 <Route path="posted-jobs" element={<JobsPage status="open" title="Posted Jobs" />}/>
                 <Route path="completed-jobs" element={<JobsPage status="completed" title="Completed Jobs" />}/>
+                <Route path="proposals-invitations" element={<ProposalAndInvitation/>}/>
             </Route>
             <Route
                 path="/job-details/:id"
@@ -130,14 +134,24 @@ const UserRoutes: React.FC = () => {
               }
             />
             {/* Job routes under user layout - end */}
+            {/* my proposals routes - freelancer - start */}
+            <Route path="/my-proposals" element={
+                <AuthProtectedRoute allowedRoles={['freelancer']}>
+                    <MyPrposalsLayout/>
+                </AuthProtectedRoute>
+            }>
+                <Route path="" element={<MyProposals/>}/>
+                <Route path="invites" element={<MyProposals/>} />
+            </Route>
+            {/* my proposals routes - freelancer - end */}
             {/* find jobs routes - freelancer - start */}
             <Route path="/find-jobs" element={
                 <AuthProtectedRoute allowedRoles={['freelancer']}>
                     <FindJobsLayout/>
                 </AuthProtectedRoute>
             }>
-                <Route path="" element={<FindJobsPage/>}/>
-                <Route path="interested" element={<h1>Interested Jobs</h1>} />
+                <Route path="" element={<BrowseJobsPage/>}/>
+                <Route path="interested" element={<BrowseJobsPage/>} />
             </Route>
             {/* find jobs routes - freelancer - end */}
             {/* find freelancer routes - client - start */}
@@ -147,7 +161,7 @@ const UserRoutes: React.FC = () => {
                 </AuthProtectedRoute>
             }>
                 <Route path="" element={<FreelancersPage/>}/>
-                <Route path="interested" element={<h1>Interested Freelancers</h1>} />
+                <Route path="interested" element={<FreelancersPage/>} />
             </Route>
             {/* find freelancer routes - client - end */}
             {/* Setting routes under user layout - start */}

@@ -84,7 +84,6 @@ export interface IUserProfile {
         type: "freelancerJob" | "clientFreelancer";
         jobId?: string;
         targetUserId?: string;
-        status?: "interested" | "notInterested";
         createdAt?: Date;
         updatedAt?: Date;
     }[];

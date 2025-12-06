@@ -121,11 +121,6 @@ const userSchema = new Schema({
             type : Schema.Types.ObjectId,
             ref : "Users"
         },
-        status : { 
-            type : String,
-            enum : ["interested", "notInterested"],
-            default : "interested"
-        },
         createdAt : { type : Date, default : Date.now },
         updatedAt : { type : Date, default : Date.now },
     }],

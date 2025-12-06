@@ -12,19 +12,19 @@ import { IPaymentRepository } from "repositories/interfaces/IPaymentRepository";
 
 export class JobAssignmentService implements IJobAssignmentService {
     constructor(
-        private jobAssignmentRepository: IJobAssignmentRepository,
-        private paymentRepository: IPaymentRepository,
+        private _jobAssignmentRepository: IJobAssignmentRepository,
+        private _paymentRepository: IPaymentRepository,
     ){};
 
     async getAssignments(jobId: string): Promise<AssignmentDto[]>{
 
-        const assignments = await this.jobAssignmentRepository.findWithFreelancer({ jobId: jobId });
+        const assignments = await this._jobAssignmentRepository.findWithFreelancer({ jobId: jobId });
 
         return AssignmentMapper.mapList(assignments);
     }
 
     async addMilestones(assignmentId: string, milestones: IMilestone[]): Promise<AssignmentDto> {
-        const assignment = await this.jobAssignmentRepository.findById(assignmentId);
+        const assignment = await this._jobAssignmentRepository.findById(assignmentId);
         if(!assignment){
             throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.ASSIGNMENT_NOT_FOUND);
         }
@@ -68,7 +68,7 @@ export class JobAssignmentService implements IJobAssignmentService {
     }
 
     async updateMilestone(assignmentId: string, milestoneId: string, payload: Partial<IMilestone>): Promise<AssignmentDto> {
-        const assignment = await this.jobAssignmentRepository.findById(assignmentId);
+        const assignment = await this._jobAssignmentRepository.findById(assignmentId);
         if(!assignment){
             throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.ASSIGNMENT_NOT_FOUND);
         }
@@ -114,7 +114,7 @@ export class JobAssignmentService implements IJobAssignmentService {
     }
 
     async cancelMilestone(assignmentId: string, milestoneId: string): Promise<AssignmentDto> {
-        const assignment = await this.jobAssignmentRepository.findById(assignmentId);
+        const assignment = await this._jobAssignmentRepository.findById(assignmentId);
         if(!assignment) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.MILESTONE_NOT_FOUND);
 
         const milestone = assignment.milestones?.find(m => m._id?.toString() === milestoneId);
@@ -136,7 +136,7 @@ export class JobAssignmentService implements IJobAssignmentService {
         submissionNote?: string, submissionFiles?: IMilestoneFile[]
     ): Promise<AssignmentDto> {
 
-        const assignment = await this.jobAssignmentRepository.findById(assignmentId);
+        const assignment = await this._jobAssignmentRepository.findById(assignmentId);
         if(!assignment) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.ASSIGNMENT_NOT_FOUND);
         if(assignment.freelancerId.toString() !== freelancerId){
             throw createHttpError(HttpStatus.FORBIDDEN, "Not allowed");
@@ -158,7 +158,7 @@ export class JobAssignmentService implements IJobAssignmentService {
     }
 
     async requestChange(assignmentId: string, milestoneId: string): Promise<AssignmentDto> {
-        const assignment = await this.jobAssignmentRepository.findById(assignmentId);
+        const assignment = await this._jobAssignmentRepository.findById(assignmentId);
         if(!assignment) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.ASSIGNMENT_NOT_FOUND);
         
         const milestone = assignment.milestones?.find(m => m._id?.toString() === milestoneId);
@@ -174,7 +174,7 @@ export class JobAssignmentService implements IJobAssignmentService {
     }
 
     async approveMilestone(assignmentId: string, milestoneId: string): Promise<AssignmentDto> {
-        const assignment = await this.jobAssignmentRepository.findById(assignmentId);
+        const assignment = await this._jobAssignmentRepository.findById(assignmentId);
         if(!assignment) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.ASSIGNMENT_NOT_FOUND);
         const milestone = assignment.milestones?.find(m => m._id?.toString() === milestoneId);
         if(!milestone) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.MILESTONE_NOT_FOUND);
@@ -189,11 +189,11 @@ export class JobAssignmentService implements IJobAssignmentService {
     async disputeMilestone(
         assignmentId: string, milestoneId: string, reason?: string
     ): Promise<{ assignment: AssignmentDto; payment: IPaymentDocument; }> {
-        const assignment = await this.jobAssignmentRepository.findById(assignmentId);
+        const assignment = await this._jobAssignmentRepository.findById(assignmentId);
         if(!assignment) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.ASSIGNMENT_NOT_FOUND);
         const milestone = assignment.milestones?.find(m => m._id?.toString() === milestoneId);
         if(!milestone) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.MILESTONE_NOT_FOUND);
-        const payment = await this.paymentRepository.findOne({ milestoneId: milestone._id });
+        const payment = await this._paymentRepository.findOne({ milestoneId: milestone._id });
         if(!payment) throw createHttpError(HttpStatus.NOT_FOUND, "Associated payment not found");
 
         payment.status = "disputed";

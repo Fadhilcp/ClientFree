@@ -4,7 +4,7 @@ import Sidebar from "../../components/ui/SideBar";
 
 interface BaseLayoutProps {
   menuItems: { label: string; path: string }[];
-  filterBox: React.ReactNode;
+  filterBox?: React.ReactNode;
 }
 
 const BaseLayout: React.FC<BaseLayoutProps> = ({ menuItems, filterBox }) => {

@@ -9,12 +9,12 @@ import { sendResponse } from "utils/response.util";
 
 
 export class SkillController {
-    constructor(private service: ISkillService) {};
+    constructor(private _service: ISkillService) {};
 
     async create(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const data: ISkill = req.body;
-            const skill = await this.service.createSkill(data);
+            const skillData: ISkill = req.body;
+            const skill = await this._service.createSkill(skillData);
 
             sendResponse(res, HttpStatus.OK, { skill });
         } catch (error) {
@@ -35,7 +35,7 @@ export class SkillController {
             if (category) filters.category = category;
             if (status) filters.status = status;
 
-            const skills = await this.service.getAllSkills(filters, search, page, limit);
+            const skills = await this._service.getAllSkills(filters, search, page, limit);
             sendResponse(res, HttpStatus.OK, { skills });
         } catch (error) {
             next(error);
@@ -44,7 +44,7 @@ export class SkillController {
 
     async getActive(req: Request, res: Response, next: NextFunction) {
         try {
-            const skills = await this.service.getActiveSkills();
+            const skills = await this._service.getActiveSkills();
             sendResponse(res, HttpStatus.OK, { skills });
         } catch (error) {
             next(error);
@@ -54,11 +54,11 @@ export class SkillController {
     async update(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const skillId = req.params.id
-            const data = req.body;
+            const skillData = req.body;
 
             if(!skillId) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.SKILL_ID_REQUIRED)
 
-            const updated = await this.service.updateSkill(skillId, data);
+            const updated = await this._service.updateSkill(skillId, skillData);
             sendResponse(res, HttpStatus.OK, { updated });
         } catch (error) {
             next(error);
@@ -71,7 +71,7 @@ export class SkillController {
 
             if(!skillId) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.SKILL_ID_REQUIRED)
 
-            const result = await this.service.deleteSkill(skillId);
+            const result = await this._service.deleteSkill(skillId);
             sendResponse(res, HttpStatus.OK, { result });
         } catch (error) {
             next(error);

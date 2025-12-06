@@ -12,39 +12,59 @@ import { IJobAssignmentRepository } from "repositories/interfaces/IJobAssignment
 import { IJobAssignmentDocument } from "types/jobAssignment.type";
 import { AuthPayload } from "types/auth.type";
 import { createJobSchema } from "schema/job.schema";
+import { IUserRepository } from "repositories/interfaces/IUserRepository";
 
 export class JobService implements IJobService {
 
     constructor(
-        private jobRepository: IJobRepository, 
-        private proposalRepository: IProposalRepository,
-        private jobAssignmentRepository: IJobAssignmentRepository
+        private _jobRepository: IJobRepository, 
+        private _proposalRepository: IProposalRepository,
+        private _jobAssignmentRepository: IJobAssignmentRepository,
+        private _userRepository: IUserRepository,
     ){}
 
-    async createJob(data: IJob): Promise<JobDetailDTO> {
-        const parsed = createJobSchema.safeParse(data);
+    async createJob(jobData: IJob): Promise<JobDetailDTO> {
+        const parsed = createJobSchema.safeParse(jobData);
         if(!parsed.success){
             const errors = parsed.error.format();
-            console.log("🚀 ~ JobService ~ createJob ~ errors:", errors)
             throw createHttpError(HttpStatus.BAD_REQUEST,`Job validation failed: ${JSON.stringify(errors)}`);
         }
-        const result = await this.jobRepository.create(data);
+        // const jobs = await this.jobRepository.find({ clientId: data.clientId, category: data.category });
+        // if(jobs.length > 5){
+        //     throw createHttpError(HttpStatus.CONFLICT, "same category has more than 5 jobs");
+        // }
+        const result = await this._jobRepository.create(jobData);
 
         return JobMapper.toDetailDTO(result)
     }
 
-    async getAllJobs(status?: string): Promise<JobListDTO[]> {
-            const jobs = status
-        ? await this.jobRepository.findWithSkills({ status })
-        : await this.jobRepository.findWithSkills({});
+    async getAllJobs(freelancerId?: string, status?: string): Promise<JobListDTO[]> {
+        let interestedJobIds: string[] = [];
 
-        return jobs.map(job => JobMapper.toListDTO(job));
+        if(freelancerId) {
+            const user = await this._userRepository.findById(freelancerId);
+            if(user && user.role === "freelancer") {
+                interestedJobIds = user.interests
+                ?.filter(i => i.type === "freelancerJob" && i.jobId)
+                .map(i => i.jobId!.toString()) ?? [];
+            }
+        }
+        const filter: FilterQuery<IJobDocument> = {};
+        if(status) filter.status = status;
+        filter.isDeleted = false;
+
+        const jobs = await this._jobRepository.findWithSkills(filter);
+
+        return jobs.map(job => ({
+            ...JobMapper.toListDTO(job),
+            isInterested: interestedJobIds.includes(job.id)
+        }));
     }
 
     async getJobById(jobId: string, user: AuthPayload): Promise<JobDetailDTO> {
         if(!jobId) throw createHttpError(HttpStatus.BAD_REQUEST, 'Job id is needed');
 
-        const job = await this.jobRepository.findByIdWithDetails(jobId);
+        const job = await this._jobRepository.findByIdWithDetails(jobId);
         
         if(!job) throw createHttpError(HttpStatus.NOT_FOUND, 'Job not found');
         // to prevent job detail from other clients
@@ -56,37 +76,36 @@ export class JobService implements IJobService {
         return JobMapper.toDetailDTO(job);
     }
 
-    async updateJob(jobId: string, data: IJob): Promise<IJobDocument> {
+    async updateJob(jobId: string, jobData: IJob): Promise<JobDetailDTO> {
        if(!jobId) throw createHttpError(HttpStatus.BAD_REQUEST, 'Job id is needed');
        
-       const updated = await this.jobRepository.findByIdAndUpdate(jobId,data);
+       const updated = await this._jobRepository.findByIdAndUpdate(jobId,jobData);
 
        if(!updated) throw createHttpError(HttpStatus.NOT_FOUND, 'Job not found');
 
-       return updated;
+       return JobMapper.toDetailDTO(updated);
     }
 
     async deleteJob(jobId: string): Promise<string> {
         if(!jobId) throw createHttpError(HttpStatus.BAD_REQUEST, 'Job id is needed');
 
-        const deleted = await this.jobRepository.deleteOne({ _id: jobId })
+        const result = await this._jobRepository.updateOne({ _id: jobId }, { isDeleted: true });
 
-        if(deleted.deletedCount === 0) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.JOB_NOT_FOUND);
+        if(!result) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.JOB_NOT_FOUND);
 
         return 'Job is deleted'
     }
 
     async getClientJobs(clientId: string, status?: string): Promise<JobListDTO[]> {
-        const filter: FilterQuery<IJobDocument> = { clientId };
+        const filter: FilterQuery<IJobDocument> = { clientId, isDeleted: false };
         
         if(status){
             filter.status = status;
         }
-        const jobs = await this.jobRepository.findWithSkills(filter);
+        const jobs = await this._jobRepository.findWithSkills(filter);
         
         return jobs.map(job => JobMapper.toListDTO(job));
     }
-
     
     async changeStatus(jobId: string, clientId: string, status: IJobStatus): Promise<void> {
         const allowed = ["open","active","completed","cancelled"];
@@ -94,17 +113,17 @@ export class JobService implements IJobService {
         if(!allowed.includes(status)){
             throw createHttpError(HttpStatus.BAD_REQUEST,HttpResponse.INVALID_STATUS);
         }
-        const job = await this.jobRepository.findById(jobId);
+        const job = await this._jobRepository.findById(jobId);
         if(!job) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.JOB_NOT_FOUND);
         
         if(job.clientId.toString() !== clientId){
             throw createHttpError(HttpStatus.FORBIDDEN, "Not allowed");
         }
-        await this.jobRepository.findByIdAndUpdate(jobId, { status });
+        await this._jobRepository.findByIdAndUpdate(jobId, { status });
     }
 
     async startJob(jobId: string, clientId: string): Promise<JobDetailDTO> {
-        const job = await this.jobRepository.findById(jobId);
+        const job = await this._jobRepository.findById(jobId);
 
         if(!job) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.JOB_NOT_FOUND);
         if(job.clientId.toString() !== clientId) {
@@ -117,14 +136,14 @@ export class JobService implements IJobService {
             throw createHttpError(HttpStatus.CONFLICT,"No accepted proposal exists for this job");
         }
         // to reject all other proposals
-        await this.proposalRepository.updateMany(
+        await this._proposalRepository.updateMany(
             {
                 jobId: job._id,
                 _id: { $nin: job.acceptedProposalIds }
             },
             { $set: { status: 'rejected'}}
         );
-        const proposals = await this.proposalRepository.find({
+        const proposals = await this._proposalRepository.find({
             _id: { $in: job.acceptedProposalIds }
         });
 
@@ -136,12 +155,12 @@ export class JobService implements IJobService {
             (acc,proposal) => acc + (proposal.bidAmount || 0),
             0
         );
-        await this.jobAssignmentRepository.updateMany(
+        await this._jobAssignmentRepository.updateMany(
             { proposalId: { $in: job.acceptedProposalIds }},
             { status: "active" }
         );
         
-        const updatedJob = await this.jobRepository.findByIdAndUpdate(jobId, {
+        const updatedJob = await this._jobRepository.findByIdAndUpdate(jobId, {
             $set: {
                 status: "active",
                 "payment.budget": totalAmount
@@ -159,10 +178,58 @@ export class JobService implements IJobService {
             filter.status = status
         }
 
-        const assignments = await this.jobAssignmentRepository.findWithJobDetail(filter);
+        const assignments = await this._jobAssignmentRepository.findWithJobDetail(filter);
         if(!assignments) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.JOB_NOT_FOUND);
         const jobs = assignments.map(a => a.jobId as IJobDocument);
 
         return jobs.map(job => JobMapper.toListDTO(job));
+    }
+
+    async getInterestedJobsForFreelancer(freelancerId: string): Promise<JobListDTO[]> {
+        const user = await this._userRepository.findById(freelancerId);
+        if(!user) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
+
+        const interestedJobIds = user.interests
+        ?.filter(i => i.type === "freelancerJob" && i.jobId)
+        .map(i => i.jobId?.toString());
+
+        if(!interestedJobIds?.length) return [];
+
+        const jobs = await this._jobRepository.findWithSkills({ _id: { $in: interestedJobIds }, isDeleted: false });
+
+        return jobs.map(job => ({
+            ...JobMapper.toListDTO(job),
+            isInterested: interestedJobIds.includes(job.id)
+        }));
+    }
+
+    async addJobInterest(freelancerId: string, jobId: string): Promise<void> {
+        await this._userRepository.updateOne(
+            { _id: freelancerId },
+            {
+                $addToSet: {
+                    interests: {
+                        type: "freelancerJob",
+                        jobId,
+                        createdAt: new Date(),
+                        updatedAt: new Date()
+                    }
+                }
+            }
+        );
+    }
+
+    async removeJobInterest(freelancerId: string, jobId: string): Promise<void> {
+        await this._userRepository.updateOne(
+            { _id: freelancerId },
+            {
+                $pull: {
+                    interests: {
+                        type: "freelancerJob",
+                        jobId
+                    }
+                }
+            }
+        );
     }
 }

@@ -25,7 +25,10 @@ export const endPoints = {
         LIST : (seach: string, page: number, limit:number, role?: string) => 
             `/user?search=${seach}&page=${page}&limt=${limit}${role ? `&status=${role}` : ""}`,
 
-        UPDATE_STATUS : (userId: string) => `/user/${userId}/status`
+        UPDATE_STATUS : (userId: string) => `/user/${userId}/status`,
+        GET_INTERESTED: '/user/interested',
+        ADD_INTERESTED: (freelancerId: string) => `/user/${freelancerId}/interest`,
+        REMOVE_INTERESTED: (freelancerId: string) => `/user/${freelancerId}/interest`,
     },
     SKILL: {
         GET_ACTIVE: '/skills/active',
@@ -64,6 +67,9 @@ export const endPoints = {
         ADD_PROPOSAL: (jobId: string) => `/jobs/${jobId}/proposal`, // POST
         UPDATE_STATUS: (jobId: string) => `/jobs/${jobId}/status`,// PATCH
         START_JOB: (jobId: string) =>  `/jobs/${jobId}/activate`,
+        GET_INTERESTED: '/jobs/interested',
+        ADD_INTERESTED: (jobId: string) => `/jobs/${jobId}/interest`,
+        REMOVE_INTERESTED: (jobId: string) => `/jobs/${jobId}/interest`,
     },
     PROPOSAL: {
         CREATE: "/proposal",                          // POST
@@ -72,6 +78,10 @@ export const endPoints = {
         UPDATE_STATUS: (id: string) => `/proposal/${id}/status`, // PATCH
         FOR_JOB: (jobId: string, status?: string, invitation?: boolean) => `/proposal/job/${jobId}?status=${status ?? ""}&invitation=${invitation ?? ""}`,    // GET proposals for job
         ACCEPT_PROPOSAL: (proposalId: string) => `/proposal/${proposalId}/accept`,
+        INVITE: (jobId: string, freelancerId: string) => `/proposal/job/${jobId}/invite/${freelancerId}`,
+        ACCEPT_INVITE: (jobId: string, freelancerId: string) => `/proposal/job/${jobId}/invitation/${freelancerId}/accept`,
+        MY_PROPOSAL: (isInvitation?: boolean) => `/proposal/me?isInvitation=${isInvitation}`,
+        CLIENT_PROPOSAL: (isInvitation?: boolean) => `/proposal/client?isInvitation=${isInvitation}`,
     },
     ASSIGNMENT: {
         GET_JOB_ASSIGNMENTS: (jobId: string) => `/assignment/job/${jobId}`,
@@ -88,12 +98,17 @@ export const endPoints = {
             `/assignment/${assignmentId}/${milestoneId}/approve`,
         DISPUTE: (assignmentId: string, milestoneId: string) => 
             `/assignment/${assignmentId}/${milestoneId}/dispute`,
-
     },
     PAYMENTS: {
         CREATE_ORDER: (assignmentId: string,milestoneId: string) => `/payment/milestones/${assignmentId}/${milestoneId}/fund`,
         VERIFY: '/payment/verify',
         REFUND: (paymentId: string) => `/payment/${paymentId}/refund`,
         RELEASE: (paymentId: string) => `/payment/${paymentId}/release`
+    },
+    ADDONS: {
+        CREATE: '/addOns',
+        BY_ID: (addOnId: string) => `/addOns/${addOnId}`, //PUT / GET / DELETE
+        TOGGLE_ACTIVE: (addOnId: string) => `/addOns/${addOnId}/toggle`,
+        GET_ALL: '/addOns',
     }
 }

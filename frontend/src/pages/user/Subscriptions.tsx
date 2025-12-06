@@ -49,7 +49,7 @@ const Subscriptions: React.FC = () => {
 
   const handleSubscribe = async(planId: string, planName: string, billingInterval: 'monthly' | 'yearly') => {
 
-    if (!user?.id  || !user?.email || !user.phone) {
+    if (!user?.isProfileComplete) {
       notify.warn('Please complete your profile before subscribing');
       return;
     }

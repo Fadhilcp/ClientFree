@@ -57,4 +57,5 @@ export interface FreelancerListItemDto {
   professionalTitle: string;
   status: string;
   profileImage: string;
+  isInterested?: boolean;
 }

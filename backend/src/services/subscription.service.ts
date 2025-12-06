@@ -19,9 +19,9 @@ import { FilterQuery } from "mongoose";
 
 export class SubscriptionService implements ISubscriptionService {
     constructor(
-        private subscriptionRepository: ISubscriptionRepository, private planRepostory: IPlanRepository,
-        private userRepository: IUserRepository,private paymentRepository: IPaymentRepository, 
-        private revenueRepository: IRevenueRepository
+        private _subscriptionRepository: ISubscriptionRepository, private _planRepostory: IPlanRepository,
+        private _userRepository: IUserRepository,private _paymentRepository: IPaymentRepository, 
+        private _revenueRepository: IRevenueRepository
     ) {}
 
     async getAll(search: string, status: string, page=1, limit=10): Promise<PaginatedResult<SubscriptionDto>> {
@@ -39,7 +39,7 @@ export class SubscriptionService implements ISubscriptionService {
             ]
         }
 
-        const result = await this.subscriptionRepository.paginate(filter, { page, limit, sort: { createdAt: -1 } });
+        const result = await this._subscriptionRepository.paginate(filter, { page, limit, sort: { createdAt: -1 } });
 
         return {
             ...result,
@@ -51,14 +51,14 @@ export class SubscriptionService implements ISubscriptionService {
         userId: string; email: string; contact: string 
     }): Promise<ISubscriptionDocument>{
 
-        const existing = await this.subscriptionRepository.findOne({ userId: data.userId, status: 'active' });
+        const existing = await this._subscriptionRepository.findOne({ userId: data.userId, status: 'active' });
 
         if(existing) throw createHttpError(HttpStatus.CONFLICT, HttpResponse.USER_ALREADY_ACTIVE);
 
-        const plan = await this.planRepostory.findById(String(data.planId));
+        const plan = await this._planRepostory.findById(String(data.planId));
         if (!plan) throw createHttpError(HttpStatus.NOT_FOUND, "Selected plan not found");
 
-        const lastSubscription = await this.subscriptionRepository.findOne(
+        const lastSubscription = await this._subscriptionRepository.findOne(
             { userId: data.userId },
             { sort: { createdAt: -1 } } 
         )
@@ -117,7 +117,7 @@ export class SubscriptionService implements ISubscriptionService {
             expiryDate.setFullYear(expiryDate.getFullYear() + 1);
         }
 
-        const subscription = await this.subscriptionRepository.create({
+        const subscription = await this._subscriptionRepository.create({
             userId: data.userId,
             planId: plan._id,
             startDate,
@@ -129,7 +129,7 @@ export class SubscriptionService implements ISubscriptionService {
             customerId: razorpayCustomerId,
             subscriptionId: razorSub.id
         });
-        await this.userRepository.findByIdAndUpdate(data.userId, { subscription: subscription._id });
+        await this._userRepository.findByIdAndUpdate(data.userId, { subscription: subscription._id });
         return subscription;
     }
 
@@ -159,25 +159,25 @@ export class SubscriptionService implements ISubscriptionService {
             }
         }
 
-        const subscription = await this.subscriptionRepository.updateOne(
+        const subscription = await this._subscriptionRepository.updateOne(
             { subscriptionId: razorpay_subscription_id },
             { status: 'active', updatedAt: new Date() }
         );
 
         if (!subscription) throw createHttpError(HttpStatus.NOT_FOUND, "Local subscription not found");
 
-        const subData = await this.subscriptionRepository.findOne({
+        const subData = await this._subscriptionRepository.findOne({
             subscriptionId: razorpay_subscription_id,
         });
 
         if(!subData) throw createHttpError(HttpStatus.NOT_FOUND, "Subscription record missing after update");
 
-        const plan = await this.planRepostory.findById(String(subData.planId));
+        const plan = await this._planRepostory.findById(String(subData.planId));
         if(!plan) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.PLAN_NOT_FOUND);
 
         const amount = subData.billingInterval === "monthly" ? plan.priceMonthly : plan.priceYearly;
 
-        const paymentRecord = await this.paymentRepository.create({
+        const paymentRecord = await this._paymentRepository.create({
             type: "subscription",
             status: "completed",
             amount,
@@ -188,7 +188,7 @@ export class SubscriptionService implements ISubscriptionService {
             userId: subData.userId,
             paymentDate: new Date(),
         });
-          await this.revenueRepository.create({
+          await this._revenueRepository.create({
             type: "subscription",
             source:"freelancer",
             amount,
@@ -204,7 +204,7 @@ export class SubscriptionService implements ISubscriptionService {
     }
 
     async cancelSubscription(userId: string, subscriptionId: string): Promise<{ message: string; }> {
-        const subscription = await this.subscriptionRepository.findOne({
+        const subscription = await this._subscriptionRepository.findOne({
             userId,
             subscriptionId
         });
@@ -219,7 +219,7 @@ export class SubscriptionService implements ISubscriptionService {
 
         await razorpay.subscriptions.cancel(subscriptionId, false);
         
-        await this.subscriptionRepository.updateOne(
+        await this._subscriptionRepository.updateOne(
             { subscriptionId },
             {
                 status: 'cancelled',
@@ -231,7 +231,7 @@ export class SubscriptionService implements ISubscriptionService {
     }
 
     async getCurrentPlan(userId: string): Promise<SubscriptionDto>{
-        const subscription = await this.subscriptionRepository.findOne({ userId });
+        const subscription = await this._subscriptionRepository.findOne({ userId });
 
         if (!subscription || subscription.status !== 'active') {
             throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.NO_ACTIVE_SUBSCRIPTION);

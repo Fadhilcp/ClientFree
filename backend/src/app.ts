@@ -17,6 +17,7 @@ import jobRouter from 'routes/job.route';
 import proposalRouter from 'routes/proposal.route';
 import assignmentRouter from 'routes/jobAssignment.route';
 import paymentRouter from 'routes/payment.route';
+import addOnRouter from 'routes/addOns.route';
 
 connectDB();
 
@@ -42,6 +43,7 @@ app.use("/api/jobs",jobRouter);
 app.use("/api/proposal",proposalRouter);
 app.use("/api/assignment",assignmentRouter);
 app.use("/api/payment",paymentRouter);
+app.use("/api/addOns",addOnRouter);
 
 app.use(errorHandler);
 

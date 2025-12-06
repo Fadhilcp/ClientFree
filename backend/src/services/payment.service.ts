@@ -11,12 +11,12 @@ import { env } from "config/env.config";
 
 export class PaymentService implements IPaymentService {
     constructor(
-        private paymentRepository: IPaymentRepository,
-        private jobAssignmentRepository: IJobAssignmentRepository
+        private _paymentRepository: IPaymentRepository,
+        private _jobAssignmentRepository: IJobAssignmentRepository
     ){};
 
     async createMilestoneOrder(assignmentId: string, milestoneId: string, clientId: string): Promise<any> {
-        const assignment = await this.jobAssignmentRepository.findById(assignmentId);
+        const assignment = await this._jobAssignmentRepository.findById(assignmentId);
         if(!assignment){
             throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.ASSIGNMENT_NOT_FOUND);
         }
@@ -33,7 +33,7 @@ export class PaymentService implements IPaymentService {
             throw createHttpError(HttpStatus.BAD_REQUEST, "Milestone amount invalid");
         }
 
-        const payment = await this.paymentRepository.create({
+        const payment = await this._paymentRepository.create({
             type: "milestone",
             status: "pending",
             amount: milestone.amount,
@@ -69,7 +69,7 @@ export class PaymentService implements IPaymentService {
         if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
             throw createHttpError(400, "Invalid payment verification payload");
         }
-        const payment = await this.paymentRepository.findOne({ providerOrderId: razorpay_order_id });
+        const payment = await this._paymentRepository.findOne({ providerOrderId: razorpay_order_id });
         if(!payment) throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid payment verification payload");
         //verify signature
         const signString = `${razorpay_order_id}|${razorpay_payment_id}`;
@@ -87,7 +87,7 @@ export class PaymentService implements IPaymentService {
         payment.paymentDate = new Date();
         await payment.save();
 
-        const assignment = await this.jobAssignmentRepository.findOne({
+        const assignment = await this._jobAssignmentRepository.findOne({
             "milestones._id": payment.milestoneId
         });
         if(!assignment) throw createHttpError(HttpStatus.NOT_FOUND, "Assignment for milestone not found");
@@ -107,12 +107,12 @@ export class PaymentService implements IPaymentService {
     }
 
     async refundMilestone(paymentId: string, initiatorId: string, reason?: string): Promise<any> {
-        const payment = await this.paymentRepository.findById(paymentId);
+        const payment = await this._paymentRepository.findById(paymentId);
         if(!payment) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.PAYMENT_NOT_FOUND);
         if(payment.status !== "completed" && payment.status !== "processing") {
             throw createHttpError(HttpStatus.BAD_REQUEST, "Only completed/processing payments can be refunded");
         }
-        const assignment = await this.jobAssignmentRepository.findOne({ "milestones._id": payment.milestoneId });
+        const assignment = await this._jobAssignmentRepository.findOne({ "milestones._id": payment.milestoneId });
         if(!assignment) throw createHttpError(HttpStatus.NOT_FOUND,HttpResponse.ASSIGNMENT_NOT_FOUND);
         const milestone = assignment.milestones?.find(m => m._id?.toString() === payment.milestoneId);
         if(!milestone) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.MILESTONE_NOT_FOUND);
@@ -146,12 +146,12 @@ export class PaymentService implements IPaymentService {
 
     async releaseMilestone(paymentId: string, approverId: string): Promise<any> {
 
-        const payment = await this.paymentRepository.findById(paymentId);
+        const payment = await this._paymentRepository.findById(paymentId);
         if(!payment) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.PAYMENT_NOT_FOUND);
         if(payment.status !== "completed"){
             throw createHttpError(HttpStatus.BAD_REQUEST, "Only completed payments can be released");
         }
-        const assignment = await this.jobAssignmentRepository.findOne({ "milestones._id": payment.milestoneId });
+        const assignment = await this._jobAssignmentRepository.findOne({ "milestones._id": payment.milestoneId });
 
         if(!assignment) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.ASSIGNMENT_NOT_FOUND);
         const milestone = assignment.milestones?.find(m => m._id?.toString() === payment.milestoneId?.toString());

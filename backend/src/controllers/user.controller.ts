@@ -9,8 +9,7 @@ import { IUser } from "types/user.type";
 
 
 export class ProfileController {
-
-    constructor(private service: IUserService){}
+    constructor(private _service: IUserService){}
 
     async getMe(req: Request, res:Response, next: NextFunction) : Promise<void> {
         try {
@@ -19,9 +18,9 @@ export class ProfileController {
             }
 
             const userId = req.user._id;
-   
-            const user = await this.service.getMyProfile(userId);
-            
+
+            const user = await this._service.getMyProfile(userId);
+        
             sendResponse(res, HttpStatus.OK, { user });
         } catch (error) {
             next(error);
@@ -41,7 +40,7 @@ export class ProfileController {
                 throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.INVALID_CREDENTIALS);
             }
             
-            const user = await this.service.updateProfile(userId, result.data as Partial<IUser>);
+            const user = await this._service.updateProfile(userId, result.data as Partial<IUser>);
             
             sendResponse(res, HttpStatus.OK, { user });
         } catch (error) {
@@ -53,7 +52,7 @@ export class ProfileController {
         try {
             const { id } = req.params
 
-            const user = await this.service.getUserProfileById(id);
+            const user = await this._service.getUserProfileById(id);
             
             sendResponse(res, HttpStatus.OK, { user });
         } catch (error) {
@@ -67,7 +66,7 @@ export class ProfileController {
             const page = parseInt(req.query.page as string) || 1;
             const limit = parseInt(req.query.limit as string) || 10;
 
-            const users = await this.service.getAllUsers(search, page, limit);
+            const users = await this._service.getAllUsers(search, page, limit);
             sendResponse(res, HttpStatus.OK, { users });
         } catch (error) {
             next(error);
@@ -83,7 +82,7 @@ export class ProfileController {
                 throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.NO_FILE_FOUND);
             }
 
-            const { profileImage } = await this.service.setProfileImage(req.user?._id, req.file);
+            const { profileImage } = await this._service.setProfileImage(req.user?._id, req.file);
 
             sendResponse(res, HttpStatus.OK, { profileImage });
         } catch (error) {
@@ -97,7 +96,7 @@ export class ProfileController {
                 throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.USER_NOT_FOUND);
             }
 
-            const { profileImage } = await this.service.removeProfileImage(req.user._id);
+            const { profileImage } = await this._service.removeProfileImage(req.user._id);
 
             sendResponse(res, HttpStatus.OK, { profileImage });
         } catch (error) {
@@ -112,7 +111,7 @@ export class ProfileController {
 
             if(!status) throw createHttpError(HttpStatus.BAD_REQUEST,'Status field is required');
 
-            const user = await this.service.changeUserStatus(userId, status);
+            const user = await this._service.changeUserStatus(userId, status);
 
             sendResponse(res, HttpStatus.OK, { user });
         } catch (error) {
@@ -126,9 +125,58 @@ export class ProfileController {
             const page = parseInt(req.query.page as string) || 1;
             const limit = parseInt(req.query.limit as string) || 10;
 
-            const freelancers = await this.service.getFreelancers(search, page, limit);
+            const clientId = req.user?._id;
+            if(!clientId){
+                throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
+            }
+
+            const freelancers = await this._service.getFreelancers(clientId, search, page, limit);
 
             sendResponse(res, HttpStatus.OK, { freelancers });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getInterestedFreelancer(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const clientId = req.user?._id;
+            if(!clientId){
+                throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
+            }
+
+            const freelancers = await this._service.getInterestedFreelancers(clientId);
+
+            sendResponse(res, HttpStatus.OK, { freelancers });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async addFreelancerInterest(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const clientId = req.user?._id;
+            const freelancerId = req.params.freelancerId;
+            if(!clientId) {
+                throw createHttpError(HttpStatus.UNAUTHORIZED,HttpResponse.UNAUTHORIZED);
+            }
+            await this._service.addFreelancerInterest(clientId, freelancerId);
+            sendResponse(res, HttpStatus.OK, {}, "Interested freelancer added");
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async removeFreelancerInterest(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const clientId = req.user?._id;
+            const freelancerId = req.params.freelancerId;
+            if(!clientId) {
+                throw createHttpError(HttpStatus.UNAUTHORIZED,HttpResponse.UNAUTHORIZED);
+            }
+
+            await this._service.removeFreelancerInterest(clientId, freelancerId);
+            sendResponse(res, HttpStatus.OK, {}, "Interested freelancer status updated");
         } catch (error) {
             next(error);
         }

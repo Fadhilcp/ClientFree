@@ -11,11 +11,11 @@ import { getRazorpayInstance } from "config/razorpay.config";
 import { PaginatedResult } from "types/pagination";
 
 export class PlanService implements IPlanService {
-    constructor(private planRepository: IPlanRepository) {}
+    constructor(private _planRepository: IPlanRepository) {}
 
     async getActive(userType?: string): Promise<PlanDetailUserDTO[]> {
         const filter = userType ? { userType, active: true} : { active: true };
-        const plans = await this.planRepository.find(filter);
+        const plans = await this._planRepository.find(filter);
 
         if(!plans.length){
             throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.NO_PLANS);
@@ -36,20 +36,20 @@ export class PlanService implements IPlanService {
                 { description: { $regex: search, $options: 'i' } },
             ]
         }
-        const result = await this.planRepository.paginate(filter, { page, limit, sort: { createdAt: -1 } });
+        const result = await this._planRepository.paginate(filter, { page, limit, sort: { createdAt: -1 } });
         return {
             ...result,
             data: result.data.map(plan => mapPlan(plan, false))
         };
     }
 
-    async getPlanById(id: string, role: string): Promise<PlanDetailAdminDTO | PlanDetailUserDTO> {
-        const plan = await this.planRepository.findById(id);
+    async getPlanById(planId: string, role: string): Promise<PlanDetailAdminDTO | PlanDetailUserDTO> {
+        const plan = await this._planRepository.findById(planId);
         if(!plan) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.PLAN_NOT_FOUND);
         return mapPlan(plan, true, role === 'admin');
     }
 
-    async createPlan(data: IPlan): Promise<IPlanDocument> {
+    async createPlan(planData: IPlan): Promise<IPlanDocument> {
         
         const razorpay = getRazorpayInstance();
         
@@ -57,8 +57,8 @@ export class PlanService implements IPlanService {
             period: 'monthly',
             interval: 1,
             item: {
-                name: `${data.planName} Monthly`,
-                amount: data.priceMonthly * 100, // INR to paise
+                name: `${planData.planName} Monthly`,
+                amount: planData.priceMonthly * 100, // INR to paise
                 currency: 'INR'
             }
         });
@@ -66,14 +66,14 @@ export class PlanService implements IPlanService {
             period: 'yearly',
             interval: 1,
             item: {
-                name: `${data.planName}`,
-                amount: data.priceYearly * 100,
+                name: `${planData.planName}`,
+                amount: planData.priceYearly * 100,
                 currency: 'INR'
             }
         })
 
-        const plan = await this.planRepository.create({
-            ...data,
+        const plan = await this._planRepository.create({
+            ...planData,
             razorPlanIdMonthly: monthlyPlan.id,
             razorPlanIdYearly: yearlyPlan.id
         });
@@ -81,17 +81,17 @@ export class PlanService implements IPlanService {
         return plan;
     }
 
-    async updatePlan(id: string, data: Partial<IPlan>): Promise<PlanDetailAdminDTO> {
-        const plan = await this.planRepository.findById(id);
+    async updatePlan(planId: string, planData: Partial<IPlan>): Promise<PlanDetailAdminDTO> {
+        const plan = await this._planRepository.findById(planId);
         if(!plan) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.PLAN_NOT_FOUND);
 
-        const updatedData: Partial<IPlan> = { ...data };
+        const updatedData: Partial<IPlan> = { ...planData };
         // to check any of them changed or not
         const priceChanged = 
-            (data.priceMonthly && data.priceMonthly !== plan.priceMonthly) ||
-            (data.priceYearly && data.priceYearly !== plan.priceYearly) ||
-            (data.currency && data.currency !== plan.currency) ||
-            (data.planName && data.planName !== plan.planName);
+            (planData.priceMonthly && planData.priceMonthly !== plan.priceMonthly) ||
+            (planData.priceYearly && planData.priceYearly !== plan.priceYearly) ||
+            (planData.currency && planData.currency !== plan.currency) ||
+            (planData.planName && planData.planName !== plan.planName);
         // cant edit existing plan, so creaet new plan
         if(priceChanged){
             const razorpay = getRazorpayInstance();
@@ -100,9 +100,9 @@ export class PlanService implements IPlanService {
                 period: 'monthly',
                 interval: 1,
                 item: {
-                    name: `${data.planName || plan.planName} Monthly`,
-                    amount: (data.priceMonthly ?? plan.priceMonthly) * 100,
-                    currency: data.currency || plan.currency || 'INR',
+                    name: `${planData.planName || plan.planName} Monthly`,
+                    amount: (planData.priceMonthly ?? plan.priceMonthly) * 100,
+                    currency: planData.currency || plan.currency || 'INR',
                 },
             });
 
@@ -110,22 +110,22 @@ export class PlanService implements IPlanService {
                 period: 'yearly',
                 interval: 1,
                 item: {
-                    name: `${data.planName || plan.planName}`,
-                    amount: (data.priceYearly ?? plan.priceYearly) * 100,
-                    currency: data.currency || plan.currency || 'INR',
+                    name: `${planData.planName || plan.planName}`,
+                    amount: (planData.priceYearly ?? plan.priceYearly) * 100,
+                    currency: planData.currency || plan.currency || 'INR',
                 },
             });
 
             updatedData.razorPlanIdMonthly = monthlyPlan.id;
             updatedData.razorPlanIdYearly = yearlyPlan.id;
         }
-        const updated = await this.planRepository.updateOne({ _id: id}, updatedData);
+        const updated = await this._planRepository.updateOne({ _id: planId}, updatedData);
         if (!updated) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.PLAN_NOT_FOUND);
         return mapPlan(updated, true, true);
     }
 
-    async deletePlan(id: string): Promise<DeleteResult> {
-        const deleted = await this.planRepository.deleteOne({ _id: id });
+    async deletePlan(planId: string): Promise<DeleteResult> {
+        const deleted = await this._planRepository.deleteOne({ _id: planId });
         if(!deleted) throw createHttpError(HttpStatus.OK, HttpResponse.PLAN_NOT_FOUND);
         return deleted;
     }

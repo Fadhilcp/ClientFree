@@ -26,7 +26,7 @@ export interface IProposalInvitation {
   freelancerId: Types.ObjectId | string;
 
   isInvitation: boolean;
-  invitedBy?: Types.ObjectId;
+  invitedBy?: Types.ObjectId | string;
 
   invitation?: IInvitationDetails;
 

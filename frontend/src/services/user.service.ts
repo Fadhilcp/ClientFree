@@ -34,6 +34,18 @@ class UserService {
     changeUserStatus(userId: string,data: { status: string}){
         return axios.patch(endPoints.USER.UPDATE_STATUS(userId), data)
     }
+
+    getInterestedFreelancers() {
+        return axios.get(endPoints.USER.GET_INTERESTED);
+    }
+
+    addInterestedFreelancer(jobId: string) {
+        return axios.post(endPoints.USER.ADD_INTERESTED(jobId));
+    }
+
+    removeInterestedFreelancer(jobId: string) {
+        return axios.delete(endPoints.USER.REMOVE_INTERESTED(jobId));
+    }
 }
 
 export const userService = new UserService();

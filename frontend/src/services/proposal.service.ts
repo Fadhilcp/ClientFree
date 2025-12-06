@@ -27,6 +27,22 @@ class ProposalService {
   acceptProposal(proposalId: string) {
     return axios.post(endPoints.PROPOSAL.ACCEPT_PROPOSAL(proposalId));
   }
+
+  inviteFreelancer(jobId: string, freelancerId: string, invitationData: Record<string, string>) {
+    return axios.post(endPoints.PROPOSAL.INVITE(jobId, freelancerId), invitationData);
+  }
+
+  acceptInvitation(jobId: string, freelancerId: string) {
+    return axios.post(endPoints.PROPOSAL.ACCEPT_INVITE(jobId, freelancerId));
+  }
+
+  myProposals(isInvitation: boolean) {
+    return axios.get(endPoints.PROPOSAL.MY_PROPOSAL(isInvitation));
+  }
+
+  proposalsForClient(isInvitation?: boolean) {
+    return axios.get(endPoints.PROPOSAL.CLIENT_PROPOSAL(isInvitation));
+  }
 }
 
 export const proposalService = new ProposalService();

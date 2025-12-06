@@ -15,10 +15,15 @@ const proposalService = new ProposalService(proposalRepository, jobRepository, j
 const proposalController = new ProposalController(proposalService);
 
 proposalRouter.post('/',authMiddleware,proposalController.create.bind(proposalController));
+proposalRouter.get('/me',authMiddleware,proposalController.getMyProposals.bind(proposalController));
+proposalRouter.get('/client',authMiddleware,proposalController.getProposalsForClient.bind(proposalController));
 proposalRouter.get('/job/:jobId',authMiddleware,proposalController.getProposalsForJob.bind(proposalController));
-proposalRouter.get('/:id',authMiddleware,proposalController.getById.bind(proposalController));
-proposalRouter.put('/:id',authMiddleware,proposalController.update.bind(proposalController));
-proposalRouter.patch('/:id/status',authMiddleware,proposalController.updateStatus.bind(proposalController));
-proposalRouter.post('/:id/accept',authMiddleware,proposalController.acceptProposal.bind(proposalController));
+proposalRouter.get('/:proposalId',authMiddleware,proposalController.getById.bind(proposalController));
+proposalRouter.put('/:proposalId',authMiddleware,proposalController.update.bind(proposalController));
+proposalRouter.patch('/:proposalId/status',authMiddleware,proposalController.updateStatus.bind(proposalController));
+proposalRouter.post('/:proposalId/accept',authMiddleware,proposalController.acceptProposal.bind(proposalController));
+
+proposalRouter.post('/job/:jobId/invite/:freelancerId',authMiddleware,proposalController.inviteFreelancer.bind(proposalController));
+proposalRouter.post('/job/:jobId/invitation/:freelancerId/accept',authMiddleware,proposalController.acceptInvitation.bind(proposalController));
 
 export default proposalRouter;

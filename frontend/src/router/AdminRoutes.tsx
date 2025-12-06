@@ -8,6 +8,7 @@ import NoAuthProtectedRoute from './NoAuthProtectedRoute'
 import AuthProtectedRoute from './AuthProtectedRoute'
 import Subscriptions from '../pages/admin/Subscriptions'
 import NotFoundPage from '../pages/user/NotFoundPage'
+import AddOns from '../pages/admin/addOns'
 
 const AdminRoutes: React.FC = () => {
   return (
@@ -32,6 +33,11 @@ const AdminRoutes: React.FC = () => {
             <Route path='subscriptions' element={
               <AuthProtectedRoute allowedRoles={['admin']}>
                 <Subscriptions/>
+              </AuthProtectedRoute>
+            }/>
+            <Route path='addOns' element={
+              <AuthProtectedRoute allowedRoles={['admin']}>
+                <AddOns/>
               </AuthProtectedRoute>
             }/>
             <Route path="*" element={<NotFoundPage />} />

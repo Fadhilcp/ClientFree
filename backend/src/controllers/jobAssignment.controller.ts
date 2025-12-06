@@ -6,13 +6,13 @@ import { createHttpError } from "utils/httpError.util";
 import { sendResponse } from "utils/response.util";
 
 export class JobAssignmentController {
-    constructor(private service: IJobAssignmentService){}
+    constructor(private _service: IJobAssignmentService){}
 
     async getAssignments(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const jobId = req.params.jobId;
 
-            const assignments = await this.service.getAssignments(jobId);
+            const assignments = await this._service.getAssignments(jobId);
 
             sendResponse(res, HttpStatus.OK, { assignments });
         } catch (error) {
@@ -30,7 +30,7 @@ export class JobAssignmentController {
                 throw createHttpError(HttpStatus.BAD_REQUEST, "Milestones should be Array");
             }
 
-            const assignment = await this.service.addMilestones(assignmentId, milestones);
+            const assignment = await this._service.addMilestones(assignmentId, milestones);
 
             sendResponse(res, HttpStatus.OK, { assignment });
         } catch (error) {
@@ -43,7 +43,7 @@ export class JobAssignmentController {
             const { assignmentId, milestoneId } = req.params;
             const { milestone } = req.body;
 
-            const assignment = await this.service.updateMilestone(assignmentId, milestoneId, milestone);
+            const assignment = await this._service.updateMilestone(assignmentId, milestoneId, milestone);
 
             sendResponse(res, HttpStatus.OK, { assignment });
         } catch (error) {
@@ -54,7 +54,7 @@ export class JobAssignmentController {
     async cancelMilestone(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { assignmentId, milestoneId } = req.params;
-            const assignment = await this.service.cancelMilestone(assignmentId, milestoneId);
+            const assignment = await this._service.cancelMilestone(assignmentId, milestoneId);
 
             sendResponse(res, HttpStatus.OK, { assignment });
         } catch (error) {
@@ -72,7 +72,7 @@ export class JobAssignmentController {
             const submissionNote = req.body.note;
             const submissionFiles = req.body.files || [];
 
-            const assignment = await this.service.submitWork(
+            const assignment = await this._service.submitWork(
                 assignmentId,
                 milestoneId,
                 freelancerId,
@@ -91,7 +91,7 @@ export class JobAssignmentController {
             const { assignmentId, milestoneId } = req.params;
             const { reason } = req.body;
 
-            const assignment = await this.service.requestChange(assignmentId, milestoneId, reason);
+            const assignment = await this._service.requestChange(assignmentId, milestoneId, reason);
 
             sendResponse(res, HttpStatus.OK, { assignment });
         } catch (error) {
@@ -107,7 +107,7 @@ export class JobAssignmentController {
                 throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
             }
 
-            const assignment = await this.service.approveMilestone(assignmentId, milestoneId);
+            const assignment = await this._service.approveMilestone(assignmentId, milestoneId);
 
             sendResponse(res, HttpStatus.OK, { assignment });
         } catch (error) {
@@ -120,7 +120,7 @@ export class JobAssignmentController {
             const { assignmentId, milestoneId } = req.params;
             const { reason } = req.body;
 
-            const { assignment, payment } = await this.service.disputeMilestone(assignmentId, milestoneId, reason);
+            const { assignment, payment } = await this._service.disputeMilestone(assignmentId, milestoneId, reason);
 
             sendResponse(res, HttpStatus.OK, { assignment, payment })
         } catch (error) {

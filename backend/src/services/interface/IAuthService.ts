@@ -3,7 +3,7 @@ import { IOtpUserStore } from "../../types/otpUserStore.type";
 import { UserProfileDto } from "dtos/profile.dto.types";
 
 export interface IAuthService{
-    signUp(data : Partial<IOtpUserStore>) : Promise<void>;
+    signUp(userData : Partial<IOtpUserStore>) : Promise<void>;
     verifySignupOtp(email : string, otp : string, purpose : string) : Promise<{ accessToken : string, refreshToken : string, user : UserProfileDto }>;
     accessRefreshToken(token : string) : Promise<{ accessToken : string, newRefreshToken : string }>;
     login(email : string , password : string) : Promise<{ accessToken: string; refreshToken: string; user: UserProfileDto }>;

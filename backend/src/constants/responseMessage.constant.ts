@@ -59,4 +59,6 @@ export const HttpResponse = {
     MILESTONE_NOT_FOUND: "Milestone not found",
     ASSIGNMENT_NOT_FOUND: "Job assignment not found",
     PAYMENT_NOT_FOUND: "Payment not found",
+    ADD_ON_KEY_EXISTS: "AddOn Key already exists",
+    ADD_ON_NOT_FOUND: "AddOn not found",
 };

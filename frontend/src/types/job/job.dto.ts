@@ -25,6 +25,8 @@ export interface JobBaseDTO {
   proposalCount: number;
   isFeatured: boolean;
 
+  isInterested?: boolean;
+
   createdAt: string;
   updatedAt: string;
 }
