@@ -3,8 +3,8 @@ import axios from '../lib/axios';
 import { type JobDetailDTO } from '../types/job/job.dto';
 
 class JobService {
-    getJobs(status?: string, search?: string, page?: number, limit?: number) {
-        return axios.get(endPoints.JOB.LIST(status, search, page, limit));
+    getJobs(cursor: string | undefined, limit: number, status: string) {
+        return axios.get(endPoints.JOB.LIST(status, cursor, limit));
     }
 
     createJob(data: unknown) {
@@ -43,8 +43,8 @@ class JobService {
         return axios.post(endPoints.JOB.START_JOB(jobId));
     }
 
-    getInterestedJobs() {
-        return axios.get(endPoints.JOB.GET_INTERESTED);
+    getInterestedJobs(cursor: string | undefined, limit: number,) {
+        return axios.get(endPoints.JOB.GET_INTERESTED(cursor, limit));
     }
 
     addInterestedJob(jobId: string) {

@@ -43,4 +43,18 @@ export class JobRepository
             }
         });
     }
+
+    async findWithSkillsPaginated(
+        filter: FilterQuery<IJobDocument>,
+        limit: number,
+    ): Promise<IJobDocument[]> {
+    const paginatedFilter: FilterQuery<IJobDocument> = { ...filter };
+
+    return this.model
+        .find(paginatedFilter)
+        .sort({ _id: -1 })
+        .limit(limit)
+        .populate("skills", "name _id")
+        .exec();
+    }
 }

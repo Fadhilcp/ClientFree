@@ -12,11 +12,17 @@ import { proposalService } from "../../../services/proposal.service";
 import { notify } from "../../../utils/toastService";
 import UserModal from "../../../components/ui/Modal/UserModal";
 
+const LIMIT = 20;
+
 const FreelancersPage: React.FC = () => {
   const [freelancers, setFreelancers] = useState<FreelancerListItemDto[]>([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // for infinit scroll
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(true);
 
   const isInterestedPage = location.pathname.includes("/freelancers/interested");
 
@@ -34,25 +40,38 @@ const FreelancersPage: React.FC = () => {
   const { user } = useSelector((state: RootState) => state.auth);
 
   // Load freelancers
-  const fetchFreelancers = useCallback(async () => {
+  const fetchFreelancers = useCallback(
+    async (loadMore = false) => {
     if (!user) return;
+    if(loading) return;
+
+    if(!hasMore && loadMore) return;
+
     setLoading(true);
     try {
-      const response = isInterestedPage
-        ? await userService.getInterestedFreelancers()
-        : await userService.getFreelancers("", 10, 20);
+      const safeCursor =  cursor ?? "";
+      let response; 
+      if(isInterestedPage){
+        response = await userService.getInterestedFreelancers(loadMore ? safeCursor : "", LIMIT, "")
+      }else{
+        response = await userService.getFreelancers(loadMore ? safeCursor : "" , LIMIT, "");
+      }
 
       if (response?.data.success) {
-        const { freelancers } = response.data;
-        setFreelancers(freelancers);
+        const { freelancers, nextCursor } = response.data;
+
+        setFreelancers(prev => (loadMore ? [...prev, ...freelancers] : freelancers));
+        setCursor(nextCursor);
+        setHasMore(Boolean(nextCursor));
       }
     } catch (err) {
       console.error("Failed to load freelancers:", err);
     } finally {
       setLoading(false);
     }
-  }, [user, isInterestedPage]);
+  }, [user, isInterestedPage, hasMore, loading]);
 
+  
   const fetchClientJobs = useCallback(async () => {
     if (!user || user.role !== "client") return;
     try {
@@ -66,10 +85,31 @@ const FreelancersPage: React.FC = () => {
     }
   }, [user]);
 
+  // infinit scroll even listener
   useEffect(() => {
-    fetchFreelancers();
-    fetchClientJobs();
-  }, [fetchFreelancers]);
+    const handleScroll = () => {
+      if (loading || !hasMore) return;
+      
+      const bottom =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 200;
+
+      if (bottom) {
+        fetchFreelancers(true);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [loading, hasMore, fetchFreelancers]);
+
+useEffect(() => {
+  setFreelancers([]);
+  setCursor(null);
+  setHasMore(true);
+  fetchFreelancers(false);
+  fetchClientJobs();
+}, [isInterestedPage]);
 
   const handleSearch = (query: string) => {
     console.log("Searching freelancers for:", query);
@@ -127,7 +167,8 @@ const FreelancersPage: React.FC = () => {
       } else {
         await userService.addInterestedFreelancer(freelancerId);
       }
-      fetchFreelancers();
+      
+    fetchFreelancers();
     } catch (err) {
       console.error("Failed to toggle freelancer interest:", err);
     }

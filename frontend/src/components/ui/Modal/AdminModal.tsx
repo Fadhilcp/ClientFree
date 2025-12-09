@@ -3,12 +3,12 @@ import InputSection from '../InputSection';
 import Button from '../Button';
 import DropdownSection from '../DropdownSection';
 
-interface AdminModalProps<T extends Record<string, string>> {
+interface AdminModalProps<T extends Record<string, any>> {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: T) => void;
   formData: T;
-  onChange: (field: keyof T, value: string) => void;
+  onChange: (field: keyof T, value: any) => void;
   title?: string;
   errors?: Partial<Record<keyof T, string>>;
   fields?: {
@@ -25,7 +25,7 @@ interface AdminModalProps<T extends Record<string, string>> {
   children?: React.ReactNode;
 }
 
-const AdminModal = <T extends Record<string, string>>({
+const AdminModal = <T extends Record<string, any>>({
   isOpen,
   onClose,
   onSubmit,

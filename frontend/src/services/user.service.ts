@@ -19,8 +19,8 @@ class UserService {
         return axios.get(endPoints.USER.LIST(search ,page, limit, role));
     }
 
-    getFreelancers(search: string, page: number, limit: number) {
-        return axios.get(endPoints.USER.LIST_FREELANCERS(search, page, limit));
+    getFreelancers(cursor: string, limit: number, search: string) {
+        return axios.get(endPoints.USER.LIST_FREELANCERS(cursor, limit, search));
     }
 
     setProfileImage(formData: FormData){
@@ -35,8 +35,8 @@ class UserService {
         return axios.patch(endPoints.USER.UPDATE_STATUS(userId), data)
     }
 
-    getInterestedFreelancers() {
-        return axios.get(endPoints.USER.GET_INTERESTED);
+    getInterestedFreelancers(cursor: string, limit: number, search: string) {
+        return axios.get(endPoints.USER.GET_INTERESTED(cursor, limit, search));
     }
 
     addInterestedFreelancer(jobId: string) {

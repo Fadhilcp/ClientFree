@@ -41,7 +41,7 @@ export interface ProposalDTO {
 
   optionalUpgrades?: {
     addonId?: string;
-    name: "highlight" | "sponsored" | "sealed";
+    name: string;
     price: number;
   }[];
 

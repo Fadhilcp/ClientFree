@@ -13,6 +13,7 @@ import { IJobAssignmentDocument } from "types/jobAssignment.type";
 import { AuthPayload } from "types/auth.type";
 import { createJobSchema } from "schema/job.schema";
 import { IUserRepository } from "repositories/interfaces/IUserRepository";
+import { IClarificationBoardRepository } from "repositories/interfaces/IClarificationBoardRepository";
 
 export class JobService implements IJobService {
 
@@ -21,6 +22,7 @@ export class JobService implements IJobService {
         private _proposalRepository: IProposalRepository,
         private _jobAssignmentRepository: IJobAssignmentRepository,
         private _userRepository: IUserRepository,
+        private _clarificationBoardRepository: IClarificationBoardRepository,
     ){}
 
     async createJob(jobData: IJob): Promise<JobDetailDTO> {
@@ -35,10 +37,37 @@ export class JobService implements IJobService {
         // }
         const result = await this._jobRepository.create(jobData);
 
+        const clarificationBoardExists = await this._clarificationBoardRepository.findOne({ jobId: result._id });
+        if(clarificationBoardExists) {
+            throw createHttpError(HttpStatus.CONFLICT, "Clarification board already exists");
+        }
+        //clarification board auto-created when creating job
+        await this._clarificationBoardRepository.create({ jobId: result._id })
         return JobMapper.toDetailDTO(result)
     }
 
-    async getAllJobs(freelancerId?: string, status?: string): Promise<JobListDTO[]> {
+    // async getAllJobs(freelancerId?: string, status?: string): Promise<JobListDTO[]> {
+    //     let interestedJobIds: string[] = [];
+
+    //     if(freelancerId) {
+    //         const user = await this._userRepository.findById(freelancerId);
+    //         if(user && user.role === "freelancer") {
+    //             interestedJobIds = user.interests
+    //             ?.filter(i => i.type === "freelancerJob" && i.jobId)
+    //             .map(i => i.jobId!.toString()) ?? [];
+    //         }
+    //     }
+    //     const filter: FilterQuery<IJobDocument> = { isDeleted: false };
+    //     if(status) filter.status = status;
+
+    //     const jobs = await this._jobRepository.findWithSkills(filter);
+
+    //     return jobs.map(job => ({
+    //         ...JobMapper.toListDTO(job),
+    //         isInterested: interestedJobIds.includes(job.id)
+    //     }));
+    // }
+    async getAllJobs(freelancerId: string, status: string, limit: number, cursor?: string): Promise<{ jobs: JobListDTO[], nextCursor: string | null }> {
         let interestedJobIds: string[] = [];
 
         if(freelancerId) {
@@ -49,16 +78,26 @@ export class JobService implements IJobService {
                 .map(i => i.jobId!.toString()) ?? [];
             }
         }
-        const filter: FilterQuery<IJobDocument> = {};
+        const filter: FilterQuery<IJobDocument> = { isDeleted: false };
         if(status) filter.status = status;
-        filter.isDeleted = false;
 
-        const jobs = await this._jobRepository.findWithSkills(filter);
+        if(cursor) {
+            filter._id = { $lt: cursor };
+        }
 
-        return jobs.map(job => ({
+        const jobs = await this._jobRepository.findWithSkillsPaginated(filter,limit);
+
+        const nextCursor = jobs.length > 0 
+        ? jobs[jobs.length - 1]._id.toString()
+        : null;
+
+        return {
+           jobs: jobs.map(job => ({
             ...JobMapper.toListDTO(job),
             isInterested: interestedJobIds.includes(job.id)
-        }));
+        })),
+        nextCursor
+        };
     }
 
     async getJobById(jobId: string, user: AuthPayload): Promise<JobDetailDTO> {
@@ -185,7 +224,7 @@ export class JobService implements IJobService {
         return jobs.map(job => JobMapper.toListDTO(job));
     }
 
-    async getInterestedJobsForFreelancer(freelancerId: string): Promise<JobListDTO[]> {
+    async getInterestedJobsForFreelancer(freelancerId: string, limit: number, cursor?: string): Promise<{ jobs: JobListDTO[], nextCursor: string | null }> {
         const user = await this._userRepository.findById(freelancerId);
         if(!user) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
 
@@ -193,14 +232,29 @@ export class JobService implements IJobService {
         ?.filter(i => i.type === "freelancerJob" && i.jobId)
         .map(i => i.jobId?.toString());
 
-        if(!interestedJobIds?.length) return [];
+        if(!interestedJobIds?.length) return { jobs: [], nextCursor: null };
 
-        const jobs = await this._jobRepository.findWithSkills({ _id: { $in: interestedJobIds }, isDeleted: false });
+        const filter: FilterQuery<IJobDocument> = { _id: { $in: interestedJobIds }, isDeleted: false }
+        if(cursor) {
+            filter._id = { $in: interestedJobIds, $lt: cursor };
+        }
 
-        return jobs.map(job => ({
-            ...JobMapper.toListDTO(job),
-            isInterested: interestedJobIds.includes(job.id)
-        }));
+        const jobs = await this._jobRepository.findWithSkillsPaginated(
+            filter,
+            limit
+        );
+
+        const nextCursor = jobs.length > 0 
+        ? jobs[jobs.length - 1]._id.toString()
+        : null;
+
+        return {
+            jobs: jobs.map(job => ({
+                ...JobMapper.toListDTO(job),
+                isInterested: interestedJobIds.includes(job.id)
+            })),
+            nextCursor
+        }
     }
 
     async addJobInterest(freelancerId: string, jobId: string): Promise<void> {

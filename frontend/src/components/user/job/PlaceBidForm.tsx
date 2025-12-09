@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import InputSection from "../../ui/InputSection";
 import TextAreaSection from "../../ui/TextAreaSection";
 import Button from "../../ui/Button";
@@ -6,20 +6,29 @@ import { proposalService } from "../../../services/proposal.service";
 import { notify } from "../../../utils/toastService";
 import type { IProposal, IProposalForm } from "../../../types/job/proposal.type";
 import type { Milestone } from "../../../types/job/assignment.type";
+import type { AddOn } from "../../../types/admin/addOn.type";
+import { addOnService } from "../../../services/addOns.service";
+import AddOnList from "../addOn/AddOnList";
+import type { User } from "../../../features/authSlice";
+import { env } from "../../../config/env";
 
 interface PlaceBidPageProps {
+  user: User;
   jobId: string;
   isProfileComplete: boolean;
 }
 
-const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ jobId, isProfileComplete }) => {
+const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ user, jobId, isProfileComplete }) => {
+  const [addOns, setAddOns] = useState<AddOn[]>([]);
+  const [selectedUpgradeId, setSelectedUpgradeId] = useState<string | null>(null);
+
   const [proposalState, setProposalState] = useState<IProposalForm>({
     jobId,
     bidAmount: 0,
     duration: "",
     description: "",
     milestones: [],
-    optionalUpgrades: [],
+    optionalUpgrades: "",
   });
 
   const [errors, setErrors] = useState<{
@@ -28,6 +37,26 @@ const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ jobId, isProfileComplete })
     description?: string;
     milestones?: { title?: string; amount?: string; dueDate?: string; description?: string }[];
   }>({});
+
+  useEffect(() => {
+    const fetchAddOns = async () => {
+      try {
+        const res = await addOnService.getAllAddOns();
+        console.log("🚀 ~ fetchAddOns ~ res:", res)
+        if (res.data.success) {
+          const { addOns } = res.data;
+          const activeAddOns = addOns.filter(
+            (a: AddOn) => a.isActive && a.category === "bid"
+          );
+          setAddOns(activeAddOns);
+        }
+      } catch (err: any) {
+        notify.error(err.response?.data?.error || "Failed to load add-ons");
+      }
+    };
+    fetchAddOns();
+  }, []);
+
 
   const validateProposal = (): boolean => {
     const newErrors: typeof errors = { milestones: [] };
@@ -84,6 +113,7 @@ const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ jobId, isProfileComplete })
     }));
   };
 
+
   const handleMilestoneChange = (
     index: number,
     field: "title" | "amount" | "description" | "dueDate",
@@ -104,6 +134,19 @@ const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ jobId, isProfileComplete })
     setProposalState((prev) => ({ ...prev, milestones: updated }));
   };
 
+  const resetForm = () => {
+    setProposalState({
+      jobId,
+      bidAmount: 0,
+      duration: "",
+      description: "",
+      milestones: [],
+      optionalUpgrades: "",
+    });
+    setSelectedUpgradeId(null);
+    setErrors({});
+  }
+
   const handleSubmit = async () => {
     if(!isProfileComplete){
       notify.info('Before place bid, please complete you profile');
@@ -113,31 +156,69 @@ const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ jobId, isProfileComplete })
     try {
       setLoading(true);
 
-      const payload: IProposalForm = {
-        ...proposalState,
-        bidAmount: Number(proposalState.bidAmount),
-        milestones: (proposalState.milestones || []).map((m) => ({
-          ...m,
-          amount: Number(m.amount),
-          dueDate: m.dueDate ? new Date(m.dueDate).toISOString() : undefined,
-        })),
-      };
+    const payload: IProposalForm = {
+      ...proposalState,
+      bidAmount: Number(proposalState.bidAmount),
+      milestones: (proposalState.milestones || []).map((m) => ({
+        ...m,
+        amount: Number(m.amount),
+        dueDate: m.dueDate ? new Date(m.dueDate).toISOString() : undefined,
+      })),
+      optionalUpgrades: selectedUpgradeId ? selectedUpgradeId : "",
+    };
+
 
       const res = await proposalService.createProposal(payload);
+      const { paymentOrder, paymentId, addOn } = res.data;
 
-      if (res.data.success) {
+        if (!paymentOrder) {
         notify.success("Bid placed successfully!");
-        // reset form
-        setProposalState({
-          jobId,
-          bidAmount: 0,
-          duration: "",
-          description: "",
-          milestones: [],
-          optionalUpgrades: [],
-        });
-        setErrors({});
+        resetForm();
+        return;
       }
+      const options = {
+      key: env.RAZORPAY_KEY_ID,
+      amount: paymentOrder.amount,
+      currency: paymentOrder.currency,
+      name: "ClientFree",
+      description: addOn.name,
+      order_id: paymentOrder.id,
+
+      handler: async function (response: any) {
+        try {
+          const verifyRes = await proposalService.verifyUpgrade({
+            paymentRecordId: paymentId,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+          });
+
+          if (verifyRes.data.success) {
+            notify.success("Bid placed & upgrade activated!");
+            resetForm();
+          } else {
+            notify.error("Payment verification failed");
+          }
+        } catch (err) {
+          notify.error("Payment verification error");
+        }
+      },
+
+      prefill: {
+        name: user?.name,
+        email: user?.email,
+        phone: user?.phone
+      },
+      theme: { color: "#0D6EFD" },
+    };
+
+    const razor = new (window as any).Razorpay(options);
+    razor.open();
+
+    razor.on("payment.failed", function () {
+      notify.error("Payment failed");
+    });
+
     } catch (error: any) {
       notify.error(error.response?.data?.error || "Failed to place bid");
     } finally {
@@ -146,7 +227,7 @@ const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ jobId, isProfileComplete })
   };
 
   return (
-    <section className="min-h-screen bg-white dark:bg-gray-900 p-6 relative pb-20">
+    <section className="min-h-screen bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6 relative pb-20">
       <h1 className="text-xl font-semibold text-gray-800 dark:text-white mb-6">
         Place a Bid on this Project
       </h1>
@@ -268,9 +349,17 @@ const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ jobId, isProfileComplete })
         <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
           Optional Upgrades
         </h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          (No add-ons available currently)
-        </p>
+        {addOns.length === 0 ? (
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            (No add-ons available currently)
+          </p>
+        ) : (
+          <AddOnList
+            addOns={addOns}
+            selectedUpgradeId={selectedUpgradeId}
+            onSelect={(id) => setSelectedUpgradeId(id)}
+          />
+        )}
       </div>
 
       {/* Submit Button */}

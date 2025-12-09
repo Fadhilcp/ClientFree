@@ -13,10 +13,15 @@ export interface IUserService {
     setProfileImage(userId: string, file: Express.Multer.File): Promise<{ profileImage: string }>;
     removeProfileImage(userId: string): Promise<{ profileImage: string }>;
     changeUserStatus(userId: string, status: 'active' | 'inactive' | 'banned' ): Promise<UserProfileDto>;
-    getFreelancers(clientId: string, search: string, page: number, limit: number): Promise<FreelancerListItemDto[]>;
-    getInterestedFreelancers(clientId: string): Promise<FreelancerListItemDto[]>;
     addFreelancerInterest(clientId: string, freelancerId: string): Promise<void>;
     removeFreelancerInterest(
         clientId: string, freelancerId: string
     ): Promise<void>;
+
+    getFreelancers(
+        clientId: string, search: string, limit: number, cursor?: string
+    ): Promise<{ freelancers: FreelancerListItemDto[], nextCursor: string | null }>;
+    getInterestedFreelancers(
+        clientId: string, search: string, limit: number, cursor?: string
+    ): Promise<{ freelancers: FreelancerListItemDto[], nextCursor: string | null }>;
 }

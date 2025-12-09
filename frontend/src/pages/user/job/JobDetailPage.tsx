@@ -21,6 +21,7 @@ import type { AssignmentDto } from "../../../types/job/assignment.type";
 import InvitationsSection from "../../../components/user/job/InvitationSection";
 import ProposalsSection from "../../../components/user/job/ProposalSection";
 import ClarificationBoard from "../../../components/user/job/ClarificationBoard";
+import type { User } from "../../../features/authSlice";
 
 const tabs = [
   { key: "details", label: "Job Details" },
@@ -345,7 +346,7 @@ const JobDetailPage: React.FC = () => {
                 <MilestoneForm
                   assignmentId={assignment.id}
                   initialMilestones={assignment.milestones || []}
-                  user={user}
+                  user={user as User}
                   setJobAssignments={setJobAssignments}
                   freelancerId={assignment.freelancer.id}
                 />
@@ -355,20 +356,20 @@ const JobDetailPage: React.FC = () => {
 
             {/* Place Bid Page (only for freelancer when job is open) */}
             {user?.role === "freelancer" && job.status === "open" && (
-              <PlaceBidPage jobId={job.id} isProfileComplete={user.isProfileComplete} />
+              <PlaceBidPage user={user} jobId={job.id} isProfileComplete={user.isProfileComplete} />
             )}
             <div className="border-t border-gray-200 dark:border-gray-700 my-6"></div>
-            {/* Clarification board */}
-            <ClarificationBoard userRole={'freelancer'} userName={user?.username!}/>
             {/* Start Job Button */}
             {isJobOwner &&
               job.status === "open" && canStartJob && (
                 <Button
-                  label="Start Job"
-                  onClick={() => handleStartJob()}
-                  className="mt-4 px-4 py-2 bg-indigo-600 dark:bg-indigo-600 text-white rounded-md hover:bg-indigo-700 hover:dark:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                label="Start Job"
+                onClick={() => handleStartJob()}
+                className="mt-4 px-4 py-2 bg-indigo-600 dark:bg-indigo-600 text-white rounded-md hover:bg-indigo-700 hover:dark:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-600"
                 />
               )}
+              {/* Clarification board */}
+              <ClarificationBoard jobId={job.id} />
           </div>
         )}
 

@@ -1,3 +1,4 @@
+import { ProposalDTO } from "dtos/proposal.dto";
 import { Document, Types } from "mongoose";
 
 export interface IInvitationDetails {
@@ -15,7 +16,7 @@ export interface IProposalMilestone {
 
 export interface IOptionalUpgrade {
   addonId?: Types.ObjectId;
-  name: "highlight" | "sponsored" | "sealed";
+  name: string;
   price: number;
 }
 
@@ -45,4 +46,18 @@ export interface IProposalInvitation {
 
 export interface IProposalInvitationDocument extends IProposalInvitation,Document {
   _id: Types.ObjectId;
+}
+
+
+
+// type of create proposal response 
+export interface CreateProposalResponse {
+    proposal: ProposalDTO;
+    paymentOrder: any | null;
+    paymentId: string | null;
+    addOn: {
+        id: string;
+        price: number;
+        name: string;
+    } | null;
 }

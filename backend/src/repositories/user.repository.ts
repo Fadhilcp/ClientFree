@@ -39,4 +39,18 @@ export class UserRepository
     async findByIdWithSkills(userId: string) : Promise<IUserDocument | null> {
         return this.model.findById(userId).populate("skills", "name _id");
     }
+
+    async findWithSkillsPaginated(
+        filter: FilterQuery<IUserDocument>,
+        limit: number,
+    ): Promise<IUserDocument[]> {
+    const paginatedFilter: FilterQuery<IUserDocument> = { ...filter };
+
+    return this.model
+        .find(paginatedFilter)
+        .sort({ _id: -1 })
+        .limit(limit)
+        .populate("skills", "name _id")
+        .exec();
+    }
 }

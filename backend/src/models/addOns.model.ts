@@ -21,10 +21,7 @@ const AddOnsSchema = new Schema({
   sortOrder: { type: Number, default: 100 },
 
   isActive: { type: Boolean, default: true },
-
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
-});
+}, { timestamps: true });
 
 
 export default model<IAddOnDocument>("AddOn", AddOnsSchema);

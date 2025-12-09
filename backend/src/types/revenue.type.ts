@@ -8,7 +8,7 @@ export interface IRevenue {
   currency?: string;
 
   referencePaymentId?: Types.ObjectId;
-  referenceId?: Types.ObjectId;
+  referenceId?: Types.ObjectId | string;
   invoiceId?: Types.ObjectId;
 
   method?: string;

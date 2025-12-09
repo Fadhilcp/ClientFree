@@ -110,7 +110,10 @@ export class UserService implements IUserService {
         return mapUserProfile(existingUser);
     }
 
-    async getFreelancers(clientId: string, search: string, page=1, limit=10): Promise<FreelancerListItemDto[]> {
+    async getFreelancers(
+        clientId: string, search: string, limit: number, cursor?: string
+    ): Promise<{ freelancers: FreelancerListItemDto[], nextCursor: string | null }> {
+
         const filter: FilterQuery<IUserDocument> = { role: "freelancer", isProfileCompleted: true };
 
         if(search){
@@ -120,13 +123,26 @@ export class UserService implements IUserService {
             ];
         }
 
-        const freelancers = await this._userRepository.findWithSkill(filter);
-        if (!clientId) {
-            return freelancers.map(mapUserToFreelancerListItemDto);
+        if(cursor) {
+            filter._id = { $lt: cursor };
         }
 
-        const client = await this._userRepository.findById(clientId);
-        if (!client) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
+        const freelancers = await this._userRepository.findWithSkillsPaginated(filter, limit);
+
+        const nextCursor = freelancers.length > 0
+        ? freelancers[freelancers.length - 1]._id.toString()
+        : null;
+
+        const client = clientId 
+            ? await this._userRepository.findById(clientId) 
+            : null;
+        // if no client or user is not a client, there are no interested freelancers
+        if (!client || client.role !== "client") {
+            return {
+                freelancers: freelancers.map(mapUserToFreelancerListItemDto),
+                nextCursor
+            };
+        }
 
         const interestedFreelancerIds: string[] =
             (client.interests
@@ -135,13 +151,19 @@ export class UserService implements IUserService {
                 .filter((id): id is string => Boolean(id))) ?? [];
 
 
-        return freelancers.map(f => ({
-            ...mapUserToFreelancerListItemDto(f),
-            isInterested: interestedFreelancerIds.includes(f.id.toString())
-        }));
+        return {
+            freelancers: freelancers.map(f => ({
+                ...mapUserToFreelancerListItemDto(f),
+                isInterested: interestedFreelancerIds.includes(f.id.toString())
+            })),
+            nextCursor
+        }
     }
 
-    async getInterestedFreelancers(clientId: string): Promise<FreelancerListItemDto[]> {
+    async getInterestedFreelancers(
+        clientId: string, search: string, limit: number, cursor?: string
+    ): Promise<{ freelancers: FreelancerListItemDto[], nextCursor: string | null }> {
+
         const client = await this._userRepository.findById(clientId);
         if(!client) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
 
@@ -149,14 +171,29 @@ export class UserService implements IUserService {
         ?.filter(i => i.type === "clientFreelancer")
         .map(i => i.targetUserId?.toString());
 
-        if(!freelancerIds?.length) return [];
+        if(!freelancerIds?.length) return { freelancers: [], nextCursor: null };
 
-        const freelancers = await this._userRepository.findWithSkill({ _id: { $in: freelancerIds }, role: "freelancer" });
+        const filter: FilterQuery<IUserDocument> = { _id: { $in: freelancerIds }, role: "freelancer", isProfileCompleted: true };
+        if(cursor) {
+            filter._id = { 
+                $in: freelancerIds,
+                $lt: cursor
+            };
+        }
 
-        return freelancers.map(freelancer => ({
-            ...mapUserToFreelancerListItemDto(freelancer),
-            isInterested: freelancerIds.includes(freelancer.id)
-        }));
+        const freelancers = await this._userRepository.findWithSkillsPaginated(filter, limit);
+
+        const nextCursor = freelancers.length > 0
+        ? freelancers[freelancers.length - 1]._id.toString()
+        : null
+
+        return {
+            freelancers: freelancers.map(freelancer => ({
+                ...mapUserToFreelancerListItemDto(freelancer),
+                isInterested: freelancerIds.includes(freelancer.id)
+            })),
+            nextCursor
+        }
     }
 
     async addFreelancerInterest(clientId: string, freelancerId: string): Promise<void> {

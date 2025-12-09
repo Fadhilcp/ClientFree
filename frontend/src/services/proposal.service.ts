@@ -1,6 +1,7 @@
 import { endPoints } from "../config/endpoints";
 import axios from "../lib/axios";
 import type { IProposal, IProposalForm } from "../types/job/proposal.type";
+import type { IRazoryOrderResponse } from "../types/razorpay.types";
 
 class ProposalService {
 
@@ -42,6 +43,10 @@ class ProposalService {
 
   proposalsForClient(isInvitation?: boolean) {
     return axios.get(endPoints.PROPOSAL.CLIENT_PROPOSAL(isInvitation));
+  }
+
+  verifyUpgrade(payload: IRazoryOrderResponse & { paymentRecordId: string }) {
+    return axios.post(endPoints.PROPOSAL.VERIFY, payload);
   }
 }
 

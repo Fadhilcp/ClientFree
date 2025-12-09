@@ -48,9 +48,5 @@ export interface IProposalForm {
   duration: string;
   description: string;
   milestones: Milestone[];
-  optionalUpgrades?: Array<{
-    addonId: string;
-    name: "highlight" | "sponsored" | "sealed";
-    price: number;
-  }>;
+  optionalUpgrades: string;
 }

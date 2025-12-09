@@ -21,4 +21,11 @@ export class JobAssignmentRepository
             return this.model.find(filter)
             .populate({ path: "freelancerId", model: "User"})
         }
+
+        async findApprovedMilestones(): Promise<IJobAssignmentDocument[]> {
+            return this.model.aggregate([
+                { $unwind: "$milestones" }, 
+                { $match: { "milestones.status": "approved" }}
+            ]);
+        }
 }

@@ -16,6 +16,7 @@ export interface IPayment {
 
   jobId?: Types.ObjectId | string;
   milestoneId?: Types.ObjectId | string;
+  proposalId?: Types.ObjectId | string;
 
   freelancerId?: Types.ObjectId | string;
   clientId?: Types.ObjectId | string;

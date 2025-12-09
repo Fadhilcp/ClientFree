@@ -34,6 +34,10 @@ class JobAssignmentService {
     diputeMilestone(assignmentId: string, milestoneId: string){
         return axios.patch(endPoints.ASSIGNMENT.DISPUTE(assignmentId, milestoneId));
     }
+
+    getApprovedMilestone(){
+        return axios.get(endPoints.ASSIGNMENT.GET_APPROVED)
+    }
 }
 
 export const jobAssignmentService = new JobAssignmentService();

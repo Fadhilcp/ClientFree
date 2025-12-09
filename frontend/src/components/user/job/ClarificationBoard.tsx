@@ -1,80 +1,103 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "../../ui/Button";
 import TextAreaSection from "../../ui/TextAreaSection";
+import { clarificationService } from "../../../services/clarification.service";
+import { notify } from "../../../utils/toastService";
+import MessageBubble from "../../ui/Card/MessageBubble";
 
 interface Message {
   id: string;
-  senderRole: "client" | "freelancer";
-  senderName: string;
-  content: string;
-  timestamp: string;
+  boardId: string;
+  sender: {
+    id: string;
+    username: string;
+    name: string;
+    email: string;
+    profileImage?: string;
+    role: "client" | "freelancer";
+  };
+  senderRole: "freelancer" | "client";
+  message: string;
+  isDeleted?: boolean;
+  deletedAt?: string | null;
+  sentAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface ClarificationBoardProps {
-  userRole: "client" | "freelancer"; // current logged-in role
-  userName: string;
+  jobId: string;
 }
 
-const ClarificationBoard: React.FC<ClarificationBoardProps> = ({ userRole, userName }) => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      senderRole: "client",
-      senderName: "Client A",
-      content: "Please clarify the timeline for milestone 2.",
-      timestamp: new Date().toLocaleString(),
-    },
-    {
-      id: "2",
-      senderRole: "freelancer",
-      senderName: "Freelancer B",
-      content: "Sure, I can deliver it by next Monday.",
-      timestamp: new Date().toLocaleString(),
-    },
-  ]);
+const ClarificationBoard: React.FC<ClarificationBoardProps> = ({ jobId }) => {
+  const [messages, setMessages] = useState<Message[]>([]);
 
   const [newMessage, setNewMessage] = useState("");
 
-  const handleSendMessage = () => {
-    if (!newMessage.trim()) return;
+  const [loading, setLoading] = useState(false);
 
-    const msg: Message = {
-      id: String(messages.length + 1),
-      senderRole: userRole,
-      senderName: userName,
-      content: newMessage,
-      timestamp: new Date().toLocaleString(),
+  useEffect(() => {
+    const fetchBoard = async () => {
+      try {
+        const res = await clarificationService.getClarificationBoard(jobId);
+        if (res.data.success) {
+          const { messages } = res.data;
+          setMessages(messages || []);
+        }
+      } catch (error: any) {
+        console.error("Failed to load clarification board", error);
+        notify.error(error.response?.data?.error || "Failed to load clarification board");
+      }
     };
+    fetchBoard();
+  }, [jobId]);
 
-    setMessages((prev) => [...prev, msg]);
-    setNewMessage("");
+  const handleSendMessage = async () => {
+    if (!newMessage.trim()) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await clarificationService.addMessage(jobId, newMessage.trim());
+      if (res.data.success) {
+        const { message } = res.data;
+        setMessages((prev) => [...prev, message]);
+        setNewMessage("");
+      }
+    } catch (error: any) {
+      console.error("Failed to send message", error);
+      notify.error(error.response?.data?.error || "Failed to send message");
+    } finally {
+      setLoading(false);
+    }
   };
 
+
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mt-6">
+    <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6 mt-6">
       <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
         Clarification Board
       </h2>
 
       {/* Messages */}
-      <div className="space-y-4 max-h-64 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-md p-3 mb-4">
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`p-3 rounded-md ${
-              msg.senderRole === "client"
-                ? "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300"
-                : "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300"
-            }`}
-          >
-            <div className="flex justify-between items-center mb-1">
-              <span className="font-medium">{msg.senderName} ({msg.senderRole})</span>
-              <span className="text-xs text-gray-500 dark:text-gray-400">{msg.timestamp}</span>
-            </div>
-            <p className="text-sm">{msg.content}</p>
-          </div>
-        ))}
-      </div>
+<div className="space-y-4 max-h-100 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-md p-3 mb-4">
+  {messages.length === 0 ? (
+    <p className="text-sm text-gray-500 dark:text-gray-400">No messages yet.</p>
+  ) : (
+    messages.map((msg) => (
+      <MessageBubble
+        key={msg.id}
+        senderName={msg.sender.username}
+        senderRole={msg.sender.role}
+        profileImage={msg.sender.profileImage}
+        content={msg.message}
+        timestamp={new Date(msg.sentAt || msg.createdAt).toLocaleString()}
+      />
+    ))
+  )}
+</div>
+
 
       {/* Input */}
       <TextAreaSection
@@ -88,10 +111,10 @@ const ClarificationBoard: React.FC<ClarificationBoardProps> = ({ userRole, userN
 
       <div className="flex justify-end mt-3">
         <Button
-          label="Send"
+          label={loading ? "Sending..." : "Send"}
           onClick={handleSendMessage}
           variant="primary"
-          className="px-4 py-2"
+          className="px-4 py-2 rounded-sm"
         />
       </div>
     </div>

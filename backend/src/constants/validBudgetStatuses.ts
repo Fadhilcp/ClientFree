@@ -5,5 +5,6 @@ export const VALID_BUDGET_STATUSES = [
   "submitted",
   "changes_requested",
   "approved",
+  "released",
   "disputed"
 ];

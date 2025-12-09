@@ -9,6 +9,8 @@ import { HttpResponse } from "constants/responseMessage.constant";
 import { VALID_BUDGET_STATUSES } from "constants/validBudgetStatuses";
 import { IPaymentDocument } from "types/payment.type";
 import { IPaymentRepository } from "repositories/interfaces/IPaymentRepository";
+import { AdminMilestoneMapper } from "mappers/adminMilestoneMapper";
+import { AdminApprovedMilestoneDto } from "dtos/adminApprovedMilestoneDto";
 
 export class JobAssignmentService implements IJobAssignmentService {
     constructor(
@@ -143,8 +145,8 @@ export class JobAssignmentService implements IJobAssignmentService {
         }
         const milestone = assignment.milestones?.find(m => m._id?.toString() === milestoneId);
         if(!milestone) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.MILESTONE_NOT_FOUND);
-        if(milestone.status !== "funded"){
-            throw createHttpError(HttpStatus.BAD_REQUEST,"Only funded milestones can be submitted");
+        if (milestone.status !== "funded" && milestone.status !== "changes_requested") {
+            throw createHttpError(HttpStatus.BAD_REQUEST, "Milestone cannot be submitted in its current status.");
         }
         milestone.status = "submitted";
         milestone.submissionMessage = submissionNote || null;
@@ -166,7 +168,7 @@ export class JobAssignmentService implements IJobAssignmentService {
         if(milestone.status === "approved"){
             throw createHttpError(HttpStatus.BAD_REQUEST, "Only submitted milestones can have changes requested");
         }
-        milestone.status === "changes_requested";
+        milestone.status = "changes_requested";
         milestone.updatedAt = new Date();
         await assignment.save();
 
@@ -209,5 +211,11 @@ export class JobAssignmentService implements IJobAssignmentService {
             assignment: AssignmentMapper.mapAssignment(assignment),
             payment,
         }
+    }
+
+    async getApprovedMilestones(): Promise<AdminApprovedMilestoneDto[]> {
+        const approvedMilestones = await this._jobAssignmentRepository.findApprovedMilestones();
+
+        return AdminMilestoneMapper.mapList(approvedMilestones);
     }
 }

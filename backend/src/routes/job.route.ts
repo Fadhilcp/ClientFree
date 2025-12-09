@@ -1,6 +1,7 @@
 import { JobController } from "controllers/job.controller";
 import { Router } from "express";
 import { authMiddleware } from "middlewares/authMiddleware";
+import { ClarificationBoardRepository } from "repositories/clarificationBoard.repository";
 import { JobRepository } from "repositories/job.repository";
 import { JobAssignmentRepository } from "repositories/jobAssignment.repository";
 import { ProposalRepository } from "repositories/proposalInvitation.repository";
@@ -13,7 +14,16 @@ const jobRepository = new JobRepository();
 const proposalRepository = new ProposalRepository();
 const jobAssignmentRepository = new JobAssignmentRepository();
 const userRepository = new UserRepository();
-const jobSerivce = new JobService(jobRepository, proposalRepository, jobAssignmentRepository, userRepository);
+const clarificationBoardRepository = new ClarificationBoardRepository();
+
+const jobSerivce = new JobService(
+    jobRepository, 
+    proposalRepository, 
+    jobAssignmentRepository, 
+    userRepository,
+    clarificationBoardRepository,
+);
+
 const jobController = new JobController(jobSerivce);
 
 jobRouter.post('/',authMiddleware,jobController.createJob.bind(jobController));

@@ -19,14 +19,15 @@ export const endPoints = {
         CREATE : '/user',
         UPDATE_ME : '/user/me',
         UPDATE_PROFILE_IMAGE: '/user/profile-image',
-        LIST_FREELANCERS: (seach: string, page: number, limit:number) => 
-            `/user/freelancers?search=${seach}&page=${page}&limt=${limit}`,
+        LIST_FREELANCERS: (cursor: string, limit:number, search: string) => 
+            `/user/freelancers?cursor=${cursor}&limit=${limit}&search=${search}`,
         
         LIST : (seach: string, page: number, limit:number, role?: string) => 
             `/user?search=${seach}&page=${page}&limt=${limit}${role ? `&status=${role}` : ""}`,
 
         UPDATE_STATUS : (userId: string) => `/user/${userId}/status`,
-        GET_INTERESTED: '/user/interested',
+        GET_INTERESTED: (cursor: string, limit:number, search: string) => 
+            `/user/interested?cursor=${cursor}&limit=${limit}&search=${search}`,
         ADD_INTERESTED: (freelancerId: string) => `/user/${freelancerId}/interest`,
         REMOVE_INTERESTED: (freelancerId: string) => `/user/${freelancerId}/interest`,
     },
@@ -57,8 +58,8 @@ export const endPoints = {
         CURRENT: '/subscription/current'
     },
     JOB: {
-        LIST: (status?: string, search?: string, page?: number, limit?: number) =>
-            `/jobs?status=${status}&search=${search}&page=${page}&limit=${limit}`,
+        LIST: (status?: string, cursor?: string, limit?: number) =>
+            `/jobs?status=${status || ""}&cursor=${cursor || ""}&limit=${limit || 20}`,
 
         CREATE: '/jobs',
         MY_JOBS: (status: string) => `/jobs/client/me?status=${status}`, 
@@ -67,7 +68,8 @@ export const endPoints = {
         ADD_PROPOSAL: (jobId: string) => `/jobs/${jobId}/proposal`, // POST
         UPDATE_STATUS: (jobId: string) => `/jobs/${jobId}/status`,// PATCH
         START_JOB: (jobId: string) =>  `/jobs/${jobId}/activate`,
-        GET_INTERESTED: '/jobs/interested',
+        GET_INTERESTED: (cursor?: string, limit?: number) =>
+            `/jobs/interested?cursor=${cursor || ""}&limit=${limit || 20}`,
         ADD_INTERESTED: (jobId: string) => `/jobs/${jobId}/interest`,
         REMOVE_INTERESTED: (jobId: string) => `/jobs/${jobId}/interest`,
     },
@@ -82,6 +84,7 @@ export const endPoints = {
         ACCEPT_INVITE: (jobId: string, freelancerId: string) => `/proposal/job/${jobId}/invitation/${freelancerId}/accept`,
         MY_PROPOSAL: (isInvitation?: boolean) => `/proposal/me?isInvitation=${isInvitation}`,
         CLIENT_PROPOSAL: (isInvitation?: boolean) => `/proposal/client?isInvitation=${isInvitation}`,
+        VERIFY: '/proposal/verify-upgrade-payment',
     },
     ASSIGNMENT: {
         GET_JOB_ASSIGNMENTS: (jobId: string) => `/assignment/job/${jobId}`,
@@ -98,6 +101,7 @@ export const endPoints = {
             `/assignment/${assignmentId}/${milestoneId}/approve`,
         DISPUTE: (assignmentId: string, milestoneId: string) => 
             `/assignment/${assignmentId}/${milestoneId}/dispute`,
+        GET_APPROVED: '/assignment/approved',
     },
     PAYMENTS: {
         CREATE_ORDER: (assignmentId: string,milestoneId: string) => `/payment/milestones/${assignmentId}/${milestoneId}/fund`,
@@ -110,5 +114,10 @@ export const endPoints = {
         BY_ID: (addOnId: string) => `/addOns/${addOnId}`, //PUT / GET / DELETE
         TOGGLE_ACTIVE: (addOnId: string) => `/addOns/${addOnId}/toggle`,
         GET_ALL: '/addOns',
+    },
+    CLARIFICATION: {
+        ADD_MESSAGE: (jobId: string) => `/clarification/${jobId}/message`,
+        GET_BOARD: (jobId: string) => `/clarification/${jobId}`,
+        CLOSE_BOARD: (jobId: string) => `/clarification/${jobId}/close`,
     }
 }

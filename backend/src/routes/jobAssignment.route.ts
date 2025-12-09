@@ -18,6 +18,7 @@ const assignmentRouter = Router();
 assignmentRouter.get('/job/:jobId',authMiddleware,jobAssignmentController.getAssignments.bind(jobAssignmentController));
 assignmentRouter.post('/:assignmentId/milestones',authMiddleware,jobAssignmentController.addMilestones.bind(jobAssignmentController));
 assignmentRouter.patch('/:assignmentId/:milestoneId/cancel',authMiddleware,jobAssignmentController.cancelMilestone.bind(jobAssignmentController));
+assignmentRouter.get('/approved',jobAssignmentController.getApproved.bind(jobAssignmentController));
 
 assignmentRouter.post('/:assignmentId/:milestoneId/submit',authMiddleware,upload.array("files"),jobAssignmentController.submit.bind(jobAssignmentController));
 assignmentRouter.patch('/:assignmentId/:milestoneId/request-changes',authMiddleware,jobAssignmentController.requestChange.bind(jobAssignmentController));

@@ -10,11 +10,12 @@ import { paymentService } from "../../../services/payment.service";
 import { env } from "../../../config/env";
 import SubmitModal from "./SubmitModal";
 import ConfirmationModal from "../../ui/Modal/ConfirmationModal";
+import type { User } from "../../../features/authSlice";
 
 interface MilestoneFormProps {
   assignmentId: string;
   initialMilestones?: MilestoneDto[];
-  user: any;
+  user: User;
   setJobAssignments: React.Dispatch<React.SetStateAction<any[]>>;
   freelancerId: string;
 }
@@ -26,7 +27,6 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
   setJobAssignments,
   freelancerId,
 }) => {
-
   const [milestones, setMilestones] = useState<MilestoneDto[]>(initialMilestones);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
@@ -159,21 +159,6 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
       notify.error(error.response?.data?.error || "Failed to fund milestone");
     }
   };
-  
-  // const releaseMilestone = async (paymentId: string) => {
-  //   try {
-  //     const response = await paymentService.releaseMilestone(paymentId);
-  //     console.log('release milestone - response-',response)
-  //     if(response.data.success){
-  //       const { assignment } = response.data;
-  //       setJobAssignments(prev =>
-  //         prev.map(a => a.id === assignmentId ? { ...a, milestones: assignment.milestones } : a)
-  //       );
-  //     }
-  //   } catch (error: any) {
-  //     notify.error(error.response?.data?.err0r || "Failed to release milestone");
-  //   }
-  // }
 
   const submitMilestone = async (milestoneId: string, note: string, files: File[]) => {
     try {
@@ -211,6 +196,22 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
       }
     } catch (error: any) {
       notify.error(error.response?.data?.error || "Failed to approve milestone");
+    }
+  }
+
+  const requestChangeMilestone = async (milestoneId: string) => {
+    try {
+      const response = await jobAssignmentService.requestChange(assignmentId, milestoneId);
+      if(response.data.success){
+        const { assignment } = response.data;
+        notify.success("Change requested successfully");
+
+        setJobAssignments(prev =>
+          prev.map(a => a.id === assignmentId ? { ...a, milestones: assignment.milestones } : a)
+        );
+      }
+    } catch (error: any) {
+      notify.error(error.response?.data?.error || "Failed to request change");
     }
   }
 
@@ -387,10 +388,10 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
                   }
                 : null,
 
-              user?.role === "client" && milestone.status === "funded"
+              user?.role === "client" && milestone.status === "submitted"
                 ? {
                     label: "Request Change",
-                    onClick: () => console.log("Request change for milestone:", milestone.id),
+                    onClick: () => requestChangeMilestone(milestone.id!),
                     variant: "secondary",
                   }
                 : null,
@@ -407,7 +408,8 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
                   }
                 : null,
               // freelancer actions
-              user?.role === "freelancer" && milestone.status === "funded"
+              user?.role === "freelancer" 
+              && (milestone.status === "funded" || milestone.status === "changes_requested")
               && freelancerId === user.id
                 ? {
                     label: "Submit",
@@ -434,12 +436,14 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
         </div>
       ))}
 
-      <button
-        onClick={handleAddMilestoneUI}
-        className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline mt-6"
-      >
-        + Add Milestone
-      </button>
+      {user?.role === "client" && (
+        <button
+          onClick={handleAddMilestoneUI}
+          className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline mt-6"
+        >
+          + Add Milestone
+        </button>
+      )}
     </div>
   );
 };

@@ -10,7 +10,8 @@ const paymentSchema = new Schema({
       'fullPayment',
       'refund',
       'withdrawal',
-      'subscription'
+      'subscription',
+      'addon',
     ],
     required: true
   },
@@ -43,6 +44,7 @@ const paymentSchema = new Schema({
 
   jobId: { type: Schema.Types.ObjectId, ref: 'Jobs' },
   milestoneId: { type: Schema.Types.ObjectId, ref: 'Milestones' },
+  proposalId: { type: Schema.Types.ObjectId, ref: "Proposal" },
 
   freelancerId: { type: Schema.Types.ObjectId, ref: 'User' },
   clientId: { type: Schema.Types.ObjectId, ref: 'User' },

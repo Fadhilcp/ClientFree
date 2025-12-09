@@ -31,11 +31,14 @@ export class JobController {
             if(!freelancerId) {
                 throw createHttpError(HttpStatus.UNAUTHORIZED,HttpResponse.UNAUTHORIZED);
             }
+            //for infinite scroll
+            const cursor = req.query.cursor as string | undefined;
+            const limit = parseInt(req.query.limit as string) || 20;
 
             const status  = req.query.status as string || '';
-            const jobs = await this._service.getAllJobs(freelancerId, status);
+            const { jobs, nextCursor } = await this._service.getAllJobs(freelancerId, status, limit, cursor);
     
-            sendResponse(res, HttpStatus.OK, { jobs });
+            sendResponse(res, HttpStatus.OK, { jobs, nextCursor });
         } catch (error) {
             next(error);
         }
@@ -157,9 +160,15 @@ export class JobController {
             if(!freelancerId) {
                 throw createHttpError(HttpStatus.UNAUTHORIZED,HttpResponse.UNAUTHORIZED);
             }
-            const jobs = await this._service.getInterestedJobsForFreelancer(freelancerId);
+            //for infinite scroll
+            const cursor = req.query.cursor as string | undefined;
+            const limit = parseInt(req.query.limit as string) || 20;
 
-            sendResponse(res, HttpStatus.OK, { jobs });
+            const { jobs, nextCursor } = await this._service.getInterestedJobsForFreelancer(
+                freelancerId, limit, cursor
+            );
+
+            sendResponse(res, HttpStatus.OK, { jobs, nextCursor });
         } catch (error) {
             next(error);
         }

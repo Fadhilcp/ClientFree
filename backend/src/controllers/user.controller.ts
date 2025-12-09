@@ -122,17 +122,21 @@ export class ProfileController {
     async getFreelancers(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const search = req.query.search as string || "";
-            const page = parseInt(req.query.page as string) || 1;
-            const limit = parseInt(req.query.limit as string) || 10;
+
+            //for infinite scroll
+            const cursor = req.query.cursor as string | "";
+            const limit = parseInt(req.query.limit as string) || 20;
 
             const clientId = req.user?._id;
             if(!clientId){
                 throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
             }
 
-            const freelancers = await this._service.getFreelancers(clientId, search, page, limit);
+            const { freelancers, nextCursor } = await this._service.getFreelancers(
+                clientId, search, limit, cursor
+            );
 
-            sendResponse(res, HttpStatus.OK, { freelancers });
+            sendResponse(res, HttpStatus.OK, { freelancers, nextCursor });
         } catch (error) {
             next(error);
         }
@@ -144,10 +148,16 @@ export class ProfileController {
             if(!clientId){
                 throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
             }
+            const search = req.query.search as string || "";
+            //for infinite scroll
+            const cursor = req.query.cursor as string | undefined;
+            const limit = parseInt(req.query.limit as string) || 20;
 
-            const freelancers = await this._service.getInterestedFreelancers(clientId);
+            const { freelancers, nextCursor } = await this._service.getInterestedFreelancers(
+                clientId, search, limit, cursor
+            );
 
-            sendResponse(res, HttpStatus.OK, { freelancers });
+            sendResponse(res, HttpStatus.OK, { freelancers, nextCursor });
         } catch (error) {
             next(error);
         }

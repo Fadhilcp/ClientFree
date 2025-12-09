@@ -89,9 +89,8 @@ export class JobAssignmentController {
     async requestChange(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { assignmentId, milestoneId } = req.params;
-            const { reason } = req.body;
 
-            const assignment = await this._service.requestChange(assignmentId, milestoneId, reason);
+            const assignment = await this._service.requestChange(assignmentId, milestoneId);
 
             sendResponse(res, HttpStatus.OK, { assignment });
         } catch (error) {
@@ -123,6 +122,17 @@ export class JobAssignmentController {
             const { assignment, payment } = await this._service.disputeMilestone(assignmentId, milestoneId, reason);
 
             sendResponse(res, HttpStatus.OK, { assignment, payment })
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getApproved(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            
+            const assignments = await this._service.getApprovedMilestones();
+
+            sendResponse(res, HttpStatus.OK, { milestones: assignments });
         } catch (error) {
             next(error);
         }

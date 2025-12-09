@@ -1,13 +1,16 @@
 import { PaymentController } from "controllers/payment.controller";
 import { Router } from "express";
 import { authMiddleware } from "middlewares/authMiddleware";
+import { JobRepository } from "repositories/job.repository";
 import { JobAssignmentRepository } from "repositories/jobAssignment.repository";
 import { PaymentRepository } from "repositories/payment.repository";
 import { PaymentService } from "services/payment.service";
 
 const paymentRepository = new PaymentRepository();
 const jobAssignmentRepository = new JobAssignmentRepository();
-const paymentService = new PaymentService(paymentRepository, jobAssignmentRepository);
+const jobRepository = new JobRepository();
+
+const paymentService = new PaymentService(paymentRepository, jobAssignmentRepository, jobRepository);
 const paymentController = new PaymentController(paymentService);
 
 const paymentRouter = Router();

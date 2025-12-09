@@ -42,9 +42,6 @@ export const HttpResponse = {
     INVALID_ID: "Invalid ID format",
     SKILL_NOT_FOUND: "Skill not found",
     SKILL_ID_REQUIRED: "Skill ID is required",
-    REQUIRED_TITLE: "Blog title is required",
-    REQUIRED_CONTENT: "Blog content is required",
-    BLOG_IMAGE_NOT_FOUND: "Blog thumbnail not found",
     USER_ALREADY_ACTIVE: "User already has an active subscription",
     PAYMENT_VERIFICATION_FAILED: "Payment verification failed",
     SUBSCRIPTION_NOT_FOUND: "Subscription not found",
@@ -61,4 +58,6 @@ export const HttpResponse = {
     PAYMENT_NOT_FOUND: "Payment not found",
     ADD_ON_KEY_EXISTS: "AddOn Key already exists",
     ADD_ON_NOT_FOUND: "AddOn not found",
+    CLARIFICATION_BOARD_NOT_FOUND: "Clarification board not found",
+    CLARIFICATION_BOARD_CLOSED: "Clarification board is closed",
 };

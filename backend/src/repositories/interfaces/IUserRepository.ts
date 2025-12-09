@@ -8,4 +8,8 @@ export interface IUserRepository extends IBaseRepository<IUserDocument>{
     findClients() : Promise<IUser[]>;
     findByLocation(city ?: string, country ?: string, state ?: string) : Promise<IUser[]>;
     findByIdWithSkills(userId: string) : Promise<IUserDocument | null>;
+    findWithSkillsPaginated(
+        filter: FilterQuery<IUserDocument>,
+        limit: number,
+    ): Promise<IUserDocument[]>
 }

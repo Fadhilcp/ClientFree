@@ -8,11 +8,13 @@ import { Types } from "mongoose";
 import { getRazorpayInstance } from "config/razorpay.config";
 import crypto from 'crypto'
 import { env } from "config/env.config";
+import { IJobRepository } from "repositories/interfaces/IJobRepository";
 
 export class PaymentService implements IPaymentService {
     constructor(
         private _paymentRepository: IPaymentRepository,
-        private _jobAssignmentRepository: IJobAssignmentRepository
+        private _jobAssignmentRepository: IJobAssignmentRepository,
+        private _jobRepository: IJobRepository,
     ){};
 
     async createMilestoneOrder(assignmentId: string, milestoneId: string, clientId: string): Promise<any> {
@@ -164,8 +166,33 @@ export class PaymentService implements IPaymentService {
 
         payment.status = "completed";
         payment.escrowReleaseDate = new Date();
+
         await payment.save();
+        // check if assignment is now completed
+        const allReleased = assignment.milestones?.every(
+            m => m.status === "released" || m.status === "refunded"
+        );
+
+        if(allReleased) {
+            assignment.status = "completed";
+            assignment.updatedAt = new Date();
+        }
         await assignment.save();
+        // check if job can be marked completed
+        if(allReleased) {
+            const assignments = await this._jobAssignmentRepository.find({ jobId: assignment.jobId });
+            // check every assignment is completed or not
+            const jobAllCompleted = assignments.every(a => a.status === "completed");
+            // mark job as completed
+            if(jobAllCompleted) {
+                const job = await this._jobRepository.findById(assignment.jobId.toString());
+                if(job) {
+                    job.status = "completed";
+                    job.updatedAt = new Date();
+                    await job.save();
+                }
+            }
+        }
 
         return { payment, assignment };
     }

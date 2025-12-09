@@ -23,9 +23,9 @@ export class ProposalController {
                 throw createHttpError(HttpStatus.BAD_REQUEST, "Job id is needed");
             }
 
-            const proposal = await this._service.createProposal(jobId, freelancerId, req.body);
+            const { proposal, paymentOrder, paymentId, addOn } = await this._service.createProposal(jobId, freelancerId, req.body);
 
-            sendResponse(res, HttpStatus.CREATED, { proposal });
+            sendResponse(res, HttpStatus.CREATED, { proposal, paymentOrder, paymentId, addOn });
         } catch (error) {
             next(error);
         }
@@ -181,6 +181,28 @@ export class ProposalController {
             const proposals = await this._service.getProposalsForClient(clientId, isInvitation);
 
             sendResponse(res, HttpStatus.OK, { proposals });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async verifyUpgradePayment(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const {
+                paymentRecordId,
+                razorpay_order_id,
+                razorpay_payment_id,
+                razorpay_signature,
+            } = req.body;
+
+            const success = await this._service.verifyUpgradePayment({
+                paymentRecordId,
+                razorpay_order_id,
+                razorpay_payment_id,
+                razorpay_signature,
+            })
+
+            sendResponse(res, HttpStatus.OK, {}, "Add-on payment verified", success);
         } catch (error) {
             next(error);
         }

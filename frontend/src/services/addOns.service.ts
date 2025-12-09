@@ -1,7 +1,7 @@
 import { endPoints } from '../config/endpoints'
 import axios from '../lib/axios'
 
-export class AddOnService {
+class AddOnService {
     async createAddOn(addOnData: any) {
         return axios.post(endPoints.ADDONS.CREATE, addOnData);
     }
@@ -26,3 +26,5 @@ export class AddOnService {
         return axios.delete(endPoints.ADDONS.BY_ID(addOnId));
     }
 }
+
+export const addOnService = new AddOnService();
