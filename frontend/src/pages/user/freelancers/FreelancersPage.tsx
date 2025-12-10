@@ -24,6 +24,9 @@ const FreelancersPage: React.FC = () => {
   const [cursor, setCursor] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
 
+  const [searchQuery, setSearchQuery] = useState("");
+
+
   const isInterestedPage = location.pathname.includes("/freelancers/interested");
 
   const [isInviteOpen, setIsInviteOpen] = useState(false);
@@ -52,9 +55,9 @@ const FreelancersPage: React.FC = () => {
       const safeCursor =  cursor ?? "";
       let response; 
       if(isInterestedPage){
-        response = await userService.getInterestedFreelancers(loadMore ? safeCursor : "", LIMIT, "")
+        response = await userService.getInterestedFreelancers(loadMore ? safeCursor : "", LIMIT, searchQuery)
       }else{
-        response = await userService.getFreelancers(loadMore ? safeCursor : "" , LIMIT, "");
+        response = await userService.getFreelancers(loadMore ? safeCursor : "" , LIMIT, searchQuery);
       }
 
       if (response?.data.success) {
@@ -69,13 +72,13 @@ const FreelancersPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [user, isInterestedPage, hasMore, loading]);
+  }, [user, isInterestedPage, hasMore, loading, searchQuery]);
 
   
   const fetchClientJobs = useCallback(async () => {
     if (!user || user.role !== "client") return;
     try {
-      const response = await jobService.getMyJobs("open");
+      const response = await jobService.getMyJobs("open", "");
       if (response.data.success) {
         const { jobs } = response.data;
         setClientJobs(jobs);
@@ -111,9 +114,15 @@ useEffect(() => {
   fetchClientJobs();
 }, [isInterestedPage]);
 
-  const handleSearch = (query: string) => {
-    console.log("Searching freelancers for:", query);
-  };
+  const handleSearch = useCallback((query: string) => {
+    setSearchQuery(query);
+    setCursor(null);
+    setHasMore(true);
+  }, []);
+
+  useEffect(() => {
+    fetchFreelancers(false);
+  }, [searchQuery]);
 
   const handleViewDetails = (freelancerId: string) => {
     navigate(`/users/${freelancerId}`);

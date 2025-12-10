@@ -1,5 +1,5 @@
-import React from "react";
-import Button from "./Button";
+import React, { useEffect } from "react";
+
 
 interface SearchBarProps {
   placeholder?: string;
@@ -10,7 +10,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = "Search...", onSear
   const [value, setValue] = React.useState("");
 
   // Debounce effect: waits 500ms after typing stops
-  React.useEffect(() => {
+  useEffect(() => {
     const handler = setTimeout(() => {
       if (value.trim() !== "") {
         onSearch(value);
@@ -24,7 +24,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = "Search...", onSear
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSearch(value); // immediate search on button click
+    onSearch(value);
   };
 
   return (
@@ -38,12 +38,13 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = "Search...", onSear
                    bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 
                    focus:outline-none focus:ring-1 focus:ring-indigo-500 w-64 font-light"
       />
-      <Button
-      label="Search"
-      onClick={() => {}}
-        type="submit"
-        className="px-3 py-2 text-sm rounded-md"
-      />
+      <button
+      className="px-3 py-2 text-sm rounded-md bg-indigo-600 dark:bg-indigo-500"
+      type="submit"
+      onClick={(e) => handleSubmit(e)}
+      >
+        Search
+      </button>
     </form>
   );
 };

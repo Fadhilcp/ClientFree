@@ -18,7 +18,8 @@ const paymentRouter = Router();
 paymentRouter.post('/milestones/:assignmentId/:milestoneId/fund',
     authMiddleware, paymentController.createOrder.bind(paymentController)
 );
-paymentRouter.post('/verify', authMiddleware,paymentController.verifyPayment.bind(paymentController));
+paymentRouter.post('/verify',authMiddleware,paymentController.verifyPayment.bind(paymentController));
+paymentRouter.get('/disputes',authMiddleware,paymentController.getAllDisputes.bind(paymentController));
 paymentRouter.post('/:paymentId/refund',authMiddleware,paymentController.refund.bind(paymentController));
 paymentRouter.post('/:paymentId/release',authMiddleware,paymentController.release.bind(paymentController));
 

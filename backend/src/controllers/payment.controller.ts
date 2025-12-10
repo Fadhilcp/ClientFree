@@ -72,4 +72,15 @@ export class PaymentController {
             next(error);
         }
     }
+
+    async getAllDisputes(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            
+            const disputes = await this._service.listDisputes();
+
+            sendResponse(res, HttpStatus.OK, { disputes });
+        } catch (error) {
+            next(error);
+        }
+    }
 }

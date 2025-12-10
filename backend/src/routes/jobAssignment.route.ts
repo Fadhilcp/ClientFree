@@ -23,7 +23,7 @@ assignmentRouter.get('/approved',jobAssignmentController.getApproved.bind(jobAss
 assignmentRouter.post('/:assignmentId/:milestoneId/submit',authMiddleware,upload.array("files"),jobAssignmentController.submit.bind(jobAssignmentController));
 assignmentRouter.patch('/:assignmentId/:milestoneId/request-changes',authMiddleware,jobAssignmentController.requestChange.bind(jobAssignmentController));
 assignmentRouter.patch('/:assignmentId/:milestoneId/approve',authMiddleware,jobAssignmentController.approve.bind(jobAssignmentController));
-assignmentRouter.post('/:assignmentId/:milestoneId/dispute',authMiddleware,jobAssignmentController.dispute.bind(jobAssignmentController));
+assignmentRouter.patch('/:assignmentId/:milestoneId/dispute',authMiddleware,jobAssignmentController.dispute.bind(jobAssignmentController));
 
 assignmentRouter.patch('/:assignmentId/milestones/:milestoneId',authMiddleware,jobAssignmentController.updateMilestone.bind(jobAssignmentController));
 

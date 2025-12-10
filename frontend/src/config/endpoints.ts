@@ -58,18 +58,18 @@ export const endPoints = {
         CURRENT: '/subscription/current'
     },
     JOB: {
-        LIST: (status?: string, cursor?: string, limit?: number) =>
-            `/jobs?status=${status || ""}&cursor=${cursor || ""}&limit=${limit || 20}`,
+        LIST: (search: string, status?: string, cursor?: string, limit?: number) =>
+            `/jobs?status=${status || ""}&search=${search}&cursor=${cursor}&limit=${limit}`,
 
         CREATE: '/jobs',
-        MY_JOBS: (status: string) => `/jobs/client/me?status=${status}`, 
-        FREELANCER_JOBS: (status: string) => `/jobs/freelancer/me?status=${status}`,
+        MY_JOBS: (status: string, search: string) => `/jobs/client/me?status=${status}&search=${search}`, 
+        FREELANCER_JOBS: (status: string, search: string) => `/jobs/freelancer/me?status=${status}&search=${search}`,
         BY_ID: (jobId: string) => `/jobs/${jobId}`, // GET / PUT / DELETE
         ADD_PROPOSAL: (jobId: string) => `/jobs/${jobId}/proposal`, // POST
         UPDATE_STATUS: (jobId: string) => `/jobs/${jobId}/status`,// PATCH
         START_JOB: (jobId: string) =>  `/jobs/${jobId}/activate`,
-        GET_INTERESTED: (cursor?: string, limit?: number) =>
-            `/jobs/interested?cursor=${cursor || ""}&limit=${limit || 20}`,
+        GET_INTERESTED: (search: string, cursor?: string, limit?: number) =>
+            `/jobs/interested?cursor=${cursor}&limit=${limit}&search=${search}`,
         ADD_INTERESTED: (jobId: string) => `/jobs/${jobId}/interest`,
         REMOVE_INTERESTED: (jobId: string) => `/jobs/${jobId}/interest`,
     },
@@ -107,7 +107,8 @@ export const endPoints = {
         CREATE_ORDER: (assignmentId: string,milestoneId: string) => `/payment/milestones/${assignmentId}/${milestoneId}/fund`,
         VERIFY: '/payment/verify',
         REFUND: (paymentId: string) => `/payment/${paymentId}/refund`,
-        RELEASE: (paymentId: string) => `/payment/${paymentId}/release`
+        RELEASE: (paymentId: string) => `/payment/${paymentId}/release`,
+        GET_DISPUTES: '/payment/disputes'
     },
     ADDONS: {
         CREATE: '/addOns',

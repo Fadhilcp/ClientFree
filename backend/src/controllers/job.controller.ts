@@ -31,12 +31,14 @@ export class JobController {
             if(!freelancerId) {
                 throw createHttpError(HttpStatus.UNAUTHORIZED,HttpResponse.UNAUTHORIZED);
             }
+
+            const search = req.query.search as string || "";
             //for infinite scroll
             const cursor = req.query.cursor as string | undefined;
             const limit = parseInt(req.query.limit as string) || 20;
 
             const status  = req.query.status as string || '';
-            const { jobs, nextCursor } = await this._service.getAllJobs(freelancerId, status, limit, cursor);
+            const { jobs, nextCursor } = await this._service.getAllJobs(freelancerId, status, search, limit, cursor);
     
             sendResponse(res, HttpStatus.OK, { jobs, nextCursor });
         } catch (error) {
@@ -92,12 +94,13 @@ export class JobController {
         try {
             const clientId = req.user?._id;
             const status = req.query.status as string || '';
+            const search = req.query.search as string || "";
             
             if(!clientId) throw createHttpError(HttpStatus.BAD_REQUEST,'user Id is needed');
             if (req.user?.role !== "client") {
                 throw createHttpError(HttpStatus.FORBIDDEN, "Only clients can access their jobs.");
             }
-            const jobs = await this._service.getClientJobs(clientId, status);
+            const jobs = await this._service.getClientJobs(clientId, status, search);
 
             sendResponse(res, HttpStatus.OK, { jobs });
         } catch (error) {
@@ -145,8 +148,9 @@ export class JobController {
                 throw createHttpError(HttpStatus.UNAUTHORIZED,HttpResponse.UNAUTHORIZED);
             }
             const status = req.query.status as string || "";
+            const search = req.query.search as string || "";
 
-            const jobs = await this._service.getFreelancerJobs(freelancerId, status);
+            const jobs = await this._service.getFreelancerJobs(freelancerId, status, search);
 
             sendResponse(res, HttpStatus.OK, { jobs })
         } catch (error) {
@@ -160,12 +164,13 @@ export class JobController {
             if(!freelancerId) {
                 throw createHttpError(HttpStatus.UNAUTHORIZED,HttpResponse.UNAUTHORIZED);
             }
+            const search = req.query.search as string || "";
             //for infinite scroll
             const cursor = req.query.cursor as string | undefined;
             const limit = parseInt(req.query.limit as string) || 20;
 
             const { jobs, nextCursor } = await this._service.getInterestedJobsForFreelancer(
-                freelancerId, limit, cursor
+                freelancerId, search, limit, cursor
             );
 
             sendResponse(res, HttpStatus.OK, { jobs, nextCursor });

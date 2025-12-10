@@ -11,6 +11,7 @@ import { IPaymentDocument } from "types/payment.type";
 import { IPaymentRepository } from "repositories/interfaces/IPaymentRepository";
 import { AdminMilestoneMapper } from "mappers/adminMilestoneMapper";
 import { AdminApprovedMilestoneDto } from "dtos/adminApprovedMilestoneDto";
+import { AuthPayload } from "types/auth.type";
 
 export class JobAssignmentService implements IJobAssignmentService {
     constructor(
@@ -189,18 +190,33 @@ export class JobAssignmentService implements IJobAssignmentService {
     }
 
     async disputeMilestone(
-        assignmentId: string, milestoneId: string, reason?: string
+        assignmentId: string, milestoneId: string, currentUser: AuthPayload, reason?: string
     ): Promise<{ assignment: AssignmentDto; payment: IPaymentDocument; }> {
         const assignment = await this._jobAssignmentRepository.findById(assignmentId);
         if(!assignment) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.ASSIGNMENT_NOT_FOUND);
+
         const milestone = assignment.milestones?.find(m => m._id?.toString() === milestoneId);
         if(!milestone) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.MILESTONE_NOT_FOUND);
+
         const payment = await this._paymentRepository.findOne({ milestoneId: milestone._id });
         if(!payment) throw createHttpError(HttpStatus.NOT_FOUND, "Associated payment not found");
 
-        payment.status = "disputed";
+        if(currentUser.role === 'client' && milestone.status !== 'submitted') {
+            throw createHttpError(HttpStatus.BAD_REQUEST, 'Client can only dispute after submission');
+        }
+
+        if(currentUser.role === 'freelancer' && milestone.status !== 'changes_requested') {
+            throw createHttpError(HttpStatus.BAD_REQUEST, 'Freelancer can only dispute after change request');
+        }
+
+        if(!['client','freelancer'].includes(currentUser.role)) {
+            throw createHttpError(HttpStatus.FORBIDDEN, 'Not authorized to dispute this milestone');
+        }
+
         payment.isDisputed = true;
         payment.disputeReason = reason;
+        payment.userId = currentUser._id;
+        payment.status = "disputed";
         await payment.save();
 
         milestone.status = "disputed";
@@ -218,4 +234,6 @@ export class JobAssignmentService implements IJobAssignmentService {
 
         return AdminMilestoneMapper.mapList(approvedMilestones);
     }
+
+    
 }

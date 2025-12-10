@@ -45,29 +45,10 @@ export class JobService implements IJobService {
         await this._clarificationBoardRepository.create({ jobId: result._id })
         return JobMapper.toDetailDTO(result)
     }
-
-    // async getAllJobs(freelancerId?: string, status?: string): Promise<JobListDTO[]> {
-    //     let interestedJobIds: string[] = [];
-
-    //     if(freelancerId) {
-    //         const user = await this._userRepository.findById(freelancerId);
-    //         if(user && user.role === "freelancer") {
-    //             interestedJobIds = user.interests
-    //             ?.filter(i => i.type === "freelancerJob" && i.jobId)
-    //             .map(i => i.jobId!.toString()) ?? [];
-    //         }
-    //     }
-    //     const filter: FilterQuery<IJobDocument> = { isDeleted: false };
-    //     if(status) filter.status = status;
-
-    //     const jobs = await this._jobRepository.findWithSkills(filter);
-
-    //     return jobs.map(job => ({
-    //         ...JobMapper.toListDTO(job),
-    //         isInterested: interestedJobIds.includes(job.id)
-    //     }));
-    // }
-    async getAllJobs(freelancerId: string, status: string, limit: number, cursor?: string): Promise<{ jobs: JobListDTO[], nextCursor: string | null }> {
+    
+    async getAllJobs(
+        freelancerId: string, status: string, search: string, limit: number, cursor?: string
+    ): Promise<{ jobs: JobListDTO[], nextCursor: string | null }> {
         let interestedJobIds: string[] = [];
 
         if(freelancerId) {
@@ -80,13 +61,23 @@ export class JobService implements IJobService {
         }
         const filter: FilterQuery<IJobDocument> = { isDeleted: false };
         if(status) filter.status = status;
-
+        // cursor for infinite scroll
         if(cursor) {
             filter._id = { $lt: cursor };
         }
+        // search
+        if (search && search.trim() !== "") {
+            const regex = new RegExp(search.trim(), "i");
+
+            filter.$or = [
+                { title: regex },
+                { category: regex },
+                { subcategory: regex }
+            ];
+        }
 
         const jobs = await this._jobRepository.findWithSkillsPaginated(filter,limit);
-
+        //setting cursor for infinite scroll
         const nextCursor = jobs.length > 0 
         ? jobs[jobs.length - 1]._id.toString()
         : null;
@@ -135,11 +126,19 @@ export class JobService implements IJobService {
         return 'Job is deleted'
     }
 
-    async getClientJobs(clientId: string, status?: string): Promise<JobListDTO[]> {
+    async getClientJobs(clientId: string, status?: string, search?: string): Promise<JobListDTO[]> {
         const filter: FilterQuery<IJobDocument> = { clientId, isDeleted: false };
         
         if(status){
             filter.status = status;
+        }
+
+        if (search?.trim()) {
+            filter.$or = [
+                { title: { $regex: search, $options: "i" } },
+                { category: { $regex: search, $options: "i" } },
+                { subcategory: { $regex: search, $options: "i" } }
+            ];
         }
         const jobs = await this._jobRepository.findWithSkills(filter);
         
@@ -211,10 +210,18 @@ export class JobService implements IJobService {
         return JobMapper.toDetailDTO(updatedJob);
     }
 
-    async getFreelancerJobs(freelancerId: string, status?: string): Promise<any[]> {
+    async getFreelancerJobs(freelancerId: string, status?: string, search?: string): Promise<any[]> {
         const filter: FilterQuery<IJobAssignmentDocument> = { freelancerId };
         if(status){
             filter.status = status
+        }
+
+        if (search?.trim()) {
+            filter.$or = [
+                { title: { $regex: search, $options: "i" } },
+                { category: { $regex: search, $options: "i" } },
+                { subcategory: { $regex: search, $options: "i" } }
+            ];
         }
 
         const assignments = await this._jobAssignmentRepository.findWithJobDetail(filter);
@@ -224,7 +231,7 @@ export class JobService implements IJobService {
         return jobs.map(job => JobMapper.toListDTO(job));
     }
 
-    async getInterestedJobsForFreelancer(freelancerId: string, limit: number, cursor?: string): Promise<{ jobs: JobListDTO[], nextCursor: string | null }> {
+    async getInterestedJobsForFreelancer(freelancerId: string, search: string, limit: number, cursor?: string): Promise<{ jobs: JobListDTO[], nextCursor: string | null }> {
         const user = await this._userRepository.findById(freelancerId);
         if(!user) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
 
@@ -237,6 +244,16 @@ export class JobService implements IJobService {
         const filter: FilterQuery<IJobDocument> = { _id: { $in: interestedJobIds }, isDeleted: false }
         if(cursor) {
             filter._id = { $in: interestedJobIds, $lt: cursor };
+        }
+         if (search && search.trim() !== "") {
+            const regex = new RegExp(search.trim(), "i");
+
+            filter.$or = [
+                { title: regex },
+                { category: regex },
+                { subcategory: regex },
+                { description: regex } 
+            ];
         }
 
         const jobs = await this._jobRepository.findWithSkillsPaginated(

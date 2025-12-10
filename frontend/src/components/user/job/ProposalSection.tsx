@@ -35,7 +35,6 @@ const ProposalsSection: React.FC<ProposalsSectionProps> = ({
     );
   }
 
-  // --- Case 2: Client view when job is active ---
   if (userRole === "client" && jobStatus === "active") {
     return (
       <p className="p-6 text-gray-600 dark:text-gray-300">
@@ -44,7 +43,6 @@ const ProposalsSection: React.FC<ProposalsSectionProps> = ({
     );
   }
 
-  // --- Case 3: Normal proposals list when job is open ---
   if (jobStatus === "open") {
     return (
       <div className="p-6">

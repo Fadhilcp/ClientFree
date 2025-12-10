@@ -118,8 +118,14 @@ export class JobAssignmentController {
         try {
             const { assignmentId, milestoneId } = req.params;
             const { reason } = req.body;
+            
+            const user = req.user;
 
-            const { assignment, payment } = await this._service.disputeMilestone(assignmentId, milestoneId, reason);
+            if(!user) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
+
+            const { assignment, payment } = await this._service.disputeMilestone(
+                assignmentId, milestoneId, user, reason
+            );
 
             sendResponse(res, HttpStatus.OK, { assignment, payment })
         } catch (error) {

@@ -1,5 +1,6 @@
 import { AdminApprovedMilestoneDto } from "dtos/adminApprovedMilestoneDto";
 import { AssignmentDto } from "dtos/jobAssignment.dto";
+import { AuthPayload } from "types/auth.type";
 import { IMilestone, IMilestoneFile } from "types/jobAssignment.type";
 import { IPaymentDocument } from "types/payment.type";
 
@@ -16,7 +17,7 @@ export interface IJobAssignmentService {
     requestChange(assignmentId: string, milestoneId: string, reason?: string): Promise<AssignmentDto>;
     approveMilestone(assignmentId: string, milestoneId: string): Promise<AssignmentDto>;
     disputeMilestone(
-        assignmentId: string, milestoneId: string, reason?: string
+        assignmentId: string, milestoneId: string, currentUser: AuthPayload, reason?: string
     ): Promise<{ assignment: AssignmentDto, payment: IPaymentDocument }>;
     getApprovedMilestones(): Promise<AdminApprovedMilestoneDto[]>
 }

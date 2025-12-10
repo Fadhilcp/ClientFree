@@ -11,6 +11,7 @@ import { env } from "../../../config/env";
 import SubmitModal from "./SubmitModal";
 import ConfirmationModal from "../../ui/Modal/ConfirmationModal";
 import type { User } from "../../../features/authSlice";
+import UserModal from "../../ui/Modal/UserModal";
 
 interface MilestoneFormProps {
   assignmentId: string;
@@ -39,6 +40,15 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
   const [confirmAction, setConfirmAction] = useState<() => void>(() => () => {});
   const [confirmTitle, setConfirmTitle] = useState("");
   const [confirmDescription, setConfirmDescription] = useState("");
+
+  const [isDisputeModalOpen, setIsDisputeModalOpen] = React.useState(false);
+
+  const [disputeForm, setDisputeForm] = React.useState({ reason: "" });
+  const [disputeErrors, setDisputeErrors] = React.useState<{ reason?: string }>({});
+
+  const handleDisputeChange = (field: "reason", value: string) => {
+    setDisputeForm(prev => ({ ...prev, [field]: value }));
+  }
 
   useEffect(() => {
     setMilestones(initialMilestones);
@@ -105,7 +115,6 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
     }
   };
 
-  
   const fundMilestone = async (milestoneId: string, amount: number) => {
     if (!user.isProfileComplete) {
       notify.warn("Please complete your profile before funding milestones");
@@ -212,6 +221,34 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
       }
     } catch (error: any) {
       notify.error(error.response?.data?.error || "Failed to request change");
+    }
+  }
+
+  const submitDispute = async () => {
+    if(!selectedMilestoneId) return;
+
+    if(!disputeForm.reason.trim()) {
+      setDisputeErrors({ reason: "Reason is required" });
+      return;
+    }
+
+    try {
+      const response = await jobAssignmentService.diputeMilestone(assignmentId, selectedMilestoneId, disputeForm);
+
+      if(response.data.success){
+        const { assignment } = response.data;
+        notify.success("Disputed raised successfully");
+
+        setJobAssignments(prev =>
+          prev.map(a => a.id === assignmentId ? { ...a, milestones: assignment.milestones } : a)
+        );
+
+        setIsDisputeModalOpen(false);
+        setDisputeForm({ reason: "" });
+        setDisputeErrors({});
+      }
+    } catch (error: any) {
+      notify.error(error.response?.data?.error || "Failed to raise dispute");
     }
   }
 
@@ -420,6 +457,32 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
                     variant: "primary",
                   }
                 : null,
+                  user?.role === "client" &&
+                  milestone.status === "submitted"
+                    ? {
+                        label: "Raise Dispute",
+                        onClick: () => {
+                          setSelectedMilestoneId(milestone.id!);
+                          setIsDisputeModalOpen(true);
+                        },
+                        variant: "danger",
+                      }
+                    : null,
+
+                  // freelancer disputes after change request
+                  user?.role === "freelancer" &&
+                  milestone.status === "changes_requested" &&
+                  freelancerId === user.id
+                    ? {
+                        label: "Raise Dispute",
+                        onClick: () => {
+                          setSelectedMilestoneId(milestone.id!);
+                          setIsDisputeModalOpen(true);
+                        },
+                        variant: "danger",
+                      }
+                    : null,
+
             ].filter(Boolean) as ActionItem[]}
           />
 
@@ -435,6 +498,24 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
           />
         </div>
       ))}
+
+      <UserModal
+        isOpen={isDisputeModalOpen}
+        onClose={() => {
+          setIsDisputeModalOpen(false);
+          setDisputeForm({ reason: "" });
+          setDisputeErrors({});
+        }}
+        onSubmit={submitDispute}
+        formData={disputeForm}
+        onChange={handleDisputeChange}
+        title="Raise Dispute"
+        textAreas={[
+          { name: "reason", label: "Dispute Reason", placeholder: "Enter reason for dispute", rows: 4 }
+        ]}
+        errors={disputeErrors}
+      />
+
 
       {user?.role === "client" && (
         <button

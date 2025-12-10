@@ -116,9 +116,10 @@ export class UserService implements IUserService {
 
         const filter: FilterQuery<IUserDocument> = { role: "freelancer", isProfileCompleted: true };
 
-        if(search){
+        if(search?.trim()){
             filter.$or = [
                 { username: { $regex: search, $options: "i" }},
+                { name: { $regex: search, $options: "i" }},
                 { professionalTitle: { $regex: search, $options: "i" }}
             ];
         }
@@ -173,7 +174,18 @@ export class UserService implements IUserService {
 
         if(!freelancerIds?.length) return { freelancers: [], nextCursor: null };
 
-        const filter: FilterQuery<IUserDocument> = { _id: { $in: freelancerIds }, role: "freelancer", isProfileCompleted: true };
+        const filter: FilterQuery<IUserDocument> = {
+             _id: { $in: freelancerIds }, role: "freelancer", isProfileCompleted: true 
+        };
+        // search
+        if (search?.trim()) {
+            filter.$or = [
+                { username: { $regex: search, $options: "i" } },
+                { name: { $regex: search, $options: "i" } },
+                { professionalTitle: { $regex: search, $options: "i" } }
+            ];
+        }
+        // cursor for infinite scroll
         if(cursor) {
             filter._id = { 
                 $in: freelancerIds,
@@ -182,7 +194,7 @@ export class UserService implements IUserService {
         }
 
         const freelancers = await this._userRepository.findWithSkillsPaginated(filter, limit);
-
+        // setting cursor
         const nextCursor = freelancers.length > 0
         ? freelancers[freelancers.length - 1]._id.toString()
         : null

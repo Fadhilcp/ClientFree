@@ -31,8 +31,8 @@ class JobAssignmentService {
         return axios.patch(endPoints.ASSIGNMENT.APPROVE(assignmentId, milestoneId));
     }
 
-    diputeMilestone(assignmentId: string, milestoneId: string){
-        return axios.patch(endPoints.ASSIGNMENT.DISPUTE(assignmentId, milestoneId));
+    diputeMilestone(assignmentId: string, milestoneId: string, disputeForm: { reason: string }){
+        return axios.patch(endPoints.ASSIGNMENT.DISPUTE(assignmentId, milestoneId), disputeForm);
     }
 
     getApprovedMilestone(){

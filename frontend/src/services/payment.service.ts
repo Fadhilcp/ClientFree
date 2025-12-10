@@ -18,6 +18,10 @@ export class PaymentService {
     releaseMilestone(paymentId: string){
         return axios.post(endPoints.PAYMENTS.RELEASE(paymentId));
     }
+
+    getDisputes(){
+        return axios.get(endPoints.PAYMENTS.GET_DISPUTES)
+    }
 }
 
 export const paymentService = new PaymentService();

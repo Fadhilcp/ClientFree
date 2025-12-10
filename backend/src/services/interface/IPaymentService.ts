@@ -1,3 +1,4 @@
+import { AdminDisputeDto } from "dtos/adminDispute.dto";
 export interface IPaymentService {
     createMilestoneOrder(assignmentId: string, milestoneId: string, clientId: string): Promise<any>;
     verifyMilestonePayment(
@@ -5,4 +6,6 @@ export interface IPaymentService {
     ): Promise<any>;
     refundMilestone(paymentId: string, initiatorId: string, reason?: string): Promise<any>;
     releaseMilestone(paymentId: string, approverId: string): Promise<any>;
+    listDisputes(): Promise<(AdminDisputeDto | null)[]>;
+    
 }

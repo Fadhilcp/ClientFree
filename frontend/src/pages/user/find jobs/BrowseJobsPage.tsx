@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Card, { type ActionItem } from "../../../components/ui/Card/Card";
 import SearchBar from "../../../components/ui/SearchBar";
 import type { JobListDTO } from "../../../types/job/job.dto";
@@ -16,6 +16,8 @@ const BrowseJobsPage: React.FC = () => {
   const [cursor, setCursor] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
 
+  const [searchQuery, setSearchQuery] = useState("");
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -28,18 +30,20 @@ const BrowseJobsPage: React.FC = () => {
 
     setLoading(true);
     try {
-      let response
+      let response;
       const safeCursor = cursor ?? ""
       if (isInterestedPage) {
           response = await jobService.getInterestedJobs(
             loadMore ? safeCursor : "",
-            LIMIT
+            LIMIT,
+            searchQuery
           );
         } else {
           response = await jobService.getJobs(
             loadMore ? safeCursor : "",
             LIMIT,
             "open",
+            searchQuery
           );
         }
 
@@ -86,9 +90,15 @@ const BrowseJobsPage: React.FC = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [loading, hasMore, fetchJobs]);
 
-  const handleSearch = (query: string) => {
-    console.log("Searching jobs for:", query);
-  };
+  const handleSearch = useCallback((query: string) => {
+    setSearchQuery(query);
+    setCursor(null);
+    setHasMore(true);
+  }, []);
+
+  useEffect(() => {
+  fetchJobs(false);
+}, [searchQuery]);
 
   const handleViewDetails = (jobId: string) => {
     navigate(`/job-details/${jobId}`);

@@ -3,20 +3,20 @@ import axios from '../lib/axios';
 import { type JobDetailDTO } from '../types/job/job.dto';
 
 class JobService {
-    getJobs(cursor: string | undefined, limit: number, status: string) {
-        return axios.get(endPoints.JOB.LIST(status, cursor, limit));
+    getJobs(cursor: string | undefined, limit: number, status: string, search: string) {
+        return axios.get(endPoints.JOB.LIST(search, status, cursor, limit));
     }
 
     createJob(data: unknown) {
         return axios.post(endPoints.JOB.CREATE, data);
     }
 
-    getMyJobs(status: string) {
-        return axios.get(endPoints.JOB.MY_JOBS(status));
+    getMyJobs(status: string, search: string) {
+        return axios.get(endPoints.JOB.MY_JOBS(status, search));
     }
 
-    getFreelancerJob(status: string) {
-        return axios.get(endPoints.JOB.FREELANCER_JOBS(status));
+    getFreelancerJob(status: string, search: string) {
+        return axios.get(endPoints.JOB.FREELANCER_JOBS(status, search));
     }
 
     getJob(jobId: string) {
@@ -43,8 +43,8 @@ class JobService {
         return axios.post(endPoints.JOB.START_JOB(jobId));
     }
 
-    getInterestedJobs(cursor: string | undefined, limit: number,) {
-        return axios.get(endPoints.JOB.GET_INTERESTED(cursor, limit));
+    getInterestedJobs(cursor: string | undefined, limit: number, search: string) {
+        return axios.get(endPoints.JOB.GET_INTERESTED(search, cursor, limit));
     }
 
     addInterestedJob(jobId: string) {

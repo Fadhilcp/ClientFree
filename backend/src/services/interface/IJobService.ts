@@ -4,15 +4,15 @@ import { IJob, IJobDocument } from "types/job.type";
 
 export interface IJobService {
     createJob(jobData: IJob): Promise<JobDetailDTO>;
-    getAllJobs(freelancerId: string, status: string, limit: number, cursor?: string): Promise<{ jobs: JobListDTO[], nextCursor: string | null }>;
+    getAllJobs(freelancerId: string, status: string, search: string, limit: number, cursor?: string): Promise<{ jobs: JobListDTO[], nextCursor: string | null }>;
     getJobById(jobId: string, user: AuthPayload): Promise<JobDetailDTO>;
     updateJob(jobId: string, jobData: IJob): Promise<JobDetailDTO>;
     deleteJob(jobId: string): Promise<string>;
-    getClientJobs(clientId: string, status?: string): Promise<JobListDTO[]>;
+    getClientJobs(clientId: string, status?: string, search?: string): Promise<JobListDTO[]>;
     changeStatus(jobId: string, clientId: string, status: string): Promise<void>;
     startJob(jobId: string, clientId: string): Promise<JobDetailDTO>;
-    getFreelancerJobs(freelancerId: string, status?: string): Promise<JobListDTO[]>;
-    getInterestedJobsForFreelancer(freelancerId: string, limit: number, cursor?: string): Promise<{ jobs: JobListDTO[], nextCursor: string | null }>;
+    getFreelancerJobs(freelancerId: string, status?: string, search?: string): Promise<JobListDTO[]>;
+    getInterestedJobsForFreelancer(freelancerId: string, search: string, limit: number, cursor?: string): Promise<{ jobs: JobListDTO[], nextCursor: string | null }>;
     addJobInterest(freelancerId: string, jobId: string): Promise<void>;
     removeJobInterest(freelancerId: string, jobId: string): Promise<void>;
 }

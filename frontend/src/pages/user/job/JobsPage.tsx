@@ -15,6 +15,9 @@ const JobsPage: React.FC<{ status: string; title: string }> = ({ status, title }
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
+    const [searchQuery, setSearchQuery] = useState("");
+    console.log("🚀 ~ JobsPage ~ searchQuery:", searchQuery)
+
     const updateAt = useSelector((state: RootState) => state.job.updatedAt);
     const { user } = useSelector((state: RootState) => state.auth);
 
@@ -25,9 +28,9 @@ const JobsPage: React.FC<{ status: string; title: string }> = ({ status, title }
         try {
             let response;
             if(user.role === 'client'){
-              response = await jobService.getMyJobs(status);
+              response = await jobService.getMyJobs(status, searchQuery);
             }else if(user.role === 'freelancer'){
-              response = await jobService.getFreelancerJob(status);
+              response = await jobService.getFreelancerJob(status, searchQuery);
             }
 
             if (response?.data.success) {
@@ -38,15 +41,19 @@ const JobsPage: React.FC<{ status: string; title: string }> = ({ status, title }
         }finally {
           setLoading(false);
         }
-    }, [status, user]);
+    }, [status, user, searchQuery]);
 
     useEffect(() => {
         fetchJobs();
     }, [updateAt, fetchJobs]);
 
-    const handleSearch = (query: string) => {
-        console.log("Searching jobs for:", query);
-    };
+  const handleSearch = useCallback((query: string) => {
+    setSearchQuery(query);
+  }, []);
+
+  useEffect(() => {
+    fetchJobs();
+  }, [searchQuery]);
 
     const handleViewDetails = (jobId: string) => {
       navigate(`/job-details/${jobId}`);
