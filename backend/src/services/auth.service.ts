@@ -15,11 +15,18 @@ import { createHttpError } from "../utils/httpError.util";
 import axios from "axios";
 import { mapUserProfile } from "mappers/mapUserProfile";
 import { UserProfileDto } from "dtos/profile.dto.types";
+import { IUserDocument } from "types/user.type";
+import { IWalletRepository } from "repositories/interfaces/IWalletRepository";
+import { IWalletDocument } from "types/wallet.type";
 
 
 export class AuthService implements IAuthService {
 
-    constructor(private _userRepository : IUserRepository, private _otpUserStoreRepository : IOtpUserStoreRepository){};
+    constructor(
+        private _userRepository : IUserRepository, 
+        private _otpUserStoreRepository : IOtpUserStoreRepository,
+        private _walletRepository: IWalletRepository,
+    ){};
 
     async signUp(userData : Partial<IOtpUserStore>) : Promise<void> {
 
@@ -66,14 +73,14 @@ export class AuthService implements IAuthService {
         
         if(!pendingUser || pendingUser.purpose !== purpose) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.OTP_INCORRECT);
         if(pendingUser.expiresAt < new Date()) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.OTP_EXPIRED);
-
-        const createdUser = await this._userRepository.create({
-            username : pendingUser.username,
-            email : pendingUser.email,
-            password : pendingUser.password,
-            role : pendingUser.role,
-            provider : 'local'
-        })
+        // create user and wallet with db transaction
+        const { createdUser } = await this._createUserWithWallet({
+            username: pendingUser.username,
+            email: pendingUser.email,
+            password: pendingUser.password,
+            role: pendingUser.role,
+            provider: "local",
+        });
 
         await this._otpUserStoreRepository.delete(pendingUser._id);
 
@@ -89,6 +96,35 @@ export class AuthService implements IAuthService {
         const user = mapUserProfile(createdUser);
         return { user, accessToken, refreshToken}
     }
+
+    private async _createUserWithWallet(pendingUser: Partial<IUserDocument>): Promise<{ createdUser: IUserDocument; wallet: IWalletDocument }> {
+
+        const createdUser = await this._userRepository.create({
+            username: pendingUser.username,
+            email: pendingUser.email,
+            password: pendingUser.password,
+            role: pendingUser.role,
+            provider: "local",
+        });
+
+        let wallet: IWalletDocument;
+        try {
+            wallet = await this._walletRepository.create({
+            userId: createdUser._id,
+            role: createdUser.role,
+            balance: { available: 0, escrow: 0, pending: 0 },
+            currency: "INR",
+            status: "active",
+            });
+        } catch (error) {
+            // Wallet creation failed — delete the user to avoid inconsistent state
+            await this._userRepository.delete(createdUser._id.toString());
+            throw createHttpError(HttpStatus.INTERNAL_SERVER_ERROR, "Wallet creation failed")
+        }
+
+        return { createdUser, wallet };
+    }
+
 
     async forgotPassword(email : string) : Promise<void> {
 
@@ -303,20 +339,22 @@ export class AuthService implements IAuthService {
             if(!email) throw createHttpError(HttpStatus.BAD_REQUEST,HttpResponse.EMAIL_REQUIRED);
 
             let user = await this._userRepository.findOne({email});
-
             //to identify user is new or not
             let isNewUser = false;
+
             if(!user) {
 
                 if (!role) return { needsRole: true };
 
-                user = await this._userRepository.create({
+                const { createdUser } = await this._createUserWithWallet({
                     username: name,
                     email,
-                    profileImage: picture,
+                    password: undefined,
                     role,
                     provider: 'google'
-                });
+                })
+
+                user = createdUser;
                 isNewUser = true;
             }
 

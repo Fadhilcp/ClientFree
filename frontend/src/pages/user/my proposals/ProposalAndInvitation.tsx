@@ -6,20 +6,44 @@ import { useNavigate } from "react-router-dom";
 import { proposalService } from "../../../services/proposal.service";
 import type { IProposal } from "../../../types/job/proposal.type";
 
+
+const LIMIT = 20;
+
 const ProposalAndInvitation: React.FC = () => {
   const [proposals, setProposals] = useState<IProposal[]>([]);
   const [loading, setLoading] = useState(false);
   const [isInvitation, setIsInvitation] = useState(false);
   const navigate = useNavigate();
 
-  const fetchProposals = async () => {
+  // for infinit scroll
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const fetchProposals = async (loadMore = false) => {
+    if(loading) return;
+    if(!hasMore && loadMore) return;
+
     setLoading(true);
     try {
-      const response = await proposalService.proposalsForClient(isInvitation);
-      console.log("🚀 ~ fetchProposals ~ response:", response)
+      const safeCursor = cursor ?? ""
+
+      const response = await proposalService.proposalsForClient(
+        isInvitation, 
+        searchQuery,
+        loadMore ? safeCursor : "",
+        LIMIT
+      );
       if (response.data.success) {
-        const { proposals } = response.data;
-        setProposals(proposals);
+        const { proposals, nextCursor } = response.data;
+        console.log("🚀 ~ fetchProposals ~ proposals:", proposals)
+
+
+        loadMore ? setProposals(prev => [ ...prev, ...proposals]) : setProposals(proposals);
+
+        setCursor(nextCursor);
+        setHasMore(Boolean(nextCursor));
       }
     } catch (err) {
       console.error("Failed to load proposals:", err);
@@ -29,12 +53,37 @@ const ProposalAndInvitation: React.FC = () => {
   };
 
   useEffect(() => {
+    setProposals([]);
+    setCursor(null);
+    setHasMore(true);
     fetchProposals();
   }, [isInvitation]);
 
+   // infinit scroll even listener
+    useEffect(() => {
+      const handleScroll = () => {
+        if (loading || !hasMore) return;
+        
+        const bottom =
+          window.innerHeight + window.scrollY >=
+          document.documentElement.scrollHeight - 200;
+  
+        if (bottom) {
+          fetchProposals(true);
+        }
+      };
+  
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+    }, [loading, hasMore, fetchProposals]);
+
   const handleSearch = (query: string) => {
-    console.log("Searching jobs for:", query);
+    setSearchQuery(query);
   };
+
+  useEffect(() => {
+    fetchProposals();
+  }, [searchQuery]);
 
   const handleViewDetails = (jobId: string) => {
     navigate(`/job-details/${jobId}`);
@@ -104,20 +153,24 @@ const ProposalAndInvitation: React.FC = () => {
               }
               actions={[
                 {
-                  label: "View Details",
+                  label: "View Job",
                   onClick: () => handleViewDetails(proposal.job?.id!),
                   variant: "primary",
-                },
-                !isInvitation
-                  ? {
-                      label: "Edit Proposal",
-                      onClick: () => console.log("Edit proposal", proposal.id),
-                      variant: "secondary",
-                    }
-                  : null,
+                }
               ].filter(Boolean) as ActionItem[]}
             />
           ))}
+
+            {/* infinite scroll loader */}
+          {loading && proposals.length > 0 && (
+            <div className="py-4 text-center">
+              <Loader />
+            </div>
+          )}
+
+          {!hasMore && (
+            <p className="text-center text-gray-400 py-4">{ isInvitation ? `No more invitation` : `No more proposals` }.</p>
+          )}
       </div>
     </section>
   );

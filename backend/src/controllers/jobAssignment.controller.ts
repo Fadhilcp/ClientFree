@@ -6,13 +6,13 @@ import { createHttpError } from "utils/httpError.util";
 import { sendResponse } from "utils/response.util";
 
 export class JobAssignmentController {
-    constructor(private _service: IJobAssignmentService){}
+    constructor(private _jobAssignmentService: IJobAssignmentService){}
 
     async getAssignments(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const jobId = req.params.jobId;
 
-            const assignments = await this._service.getAssignments(jobId);
+            const assignments = await this._jobAssignmentService.getAssignments(jobId);
 
             sendResponse(res, HttpStatus.OK, { assignments });
         } catch (error) {
@@ -30,7 +30,7 @@ export class JobAssignmentController {
                 throw createHttpError(HttpStatus.BAD_REQUEST, "Milestones should be Array");
             }
 
-            const assignment = await this._service.addMilestones(assignmentId, milestones);
+            const assignment = await this._jobAssignmentService.addMilestones(assignmentId, milestones);
 
             sendResponse(res, HttpStatus.OK, { assignment });
         } catch (error) {
@@ -43,7 +43,7 @@ export class JobAssignmentController {
             const { assignmentId, milestoneId } = req.params;
             const { milestone } = req.body;
 
-            const assignment = await this._service.updateMilestone(assignmentId, milestoneId, milestone);
+            const assignment = await this._jobAssignmentService.updateMilestone(assignmentId, milestoneId, milestone);
 
             sendResponse(res, HttpStatus.OK, { assignment });
         } catch (error) {
@@ -54,7 +54,7 @@ export class JobAssignmentController {
     async cancelMilestone(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { assignmentId, milestoneId } = req.params;
-            const assignment = await this._service.cancelMilestone(assignmentId, milestoneId);
+            const assignment = await this._jobAssignmentService.cancelMilestone(assignmentId, milestoneId);
 
             sendResponse(res, HttpStatus.OK, { assignment });
         } catch (error) {
@@ -70,9 +70,17 @@ export class JobAssignmentController {
                 throw createHttpError(HttpStatus.UNAUTHORIZED,HttpResponse.UNAUTHORIZED);
             }
             const submissionNote = req.body.note;
-            const submissionFiles = req.body.files || [];
+            // files from aws s3 
+            console.log("🚀 ~ JobAssignmentController ~ submit ~ req.files:", req.files)
+            const submissionFiles = (req.files as Express.MulterS3.File[]).map(file => ({
+                url: file.location,
+                name: file.originalname,
+                type: file.mimetype,
+                key: file.key
+            }));
+            console.log("🚀 ~ JobAssignmentController ~ submit ~ submissionFiles:", submissionFiles)
 
-            const assignment = await this._service.submitWork(
+            const assignment = await this._jobAssignmentService.submitWork(
                 assignmentId,
                 milestoneId,
                 freelancerId,
@@ -90,7 +98,7 @@ export class JobAssignmentController {
         try {
             const { assignmentId, milestoneId } = req.params;
 
-            const assignment = await this._service.requestChange(assignmentId, milestoneId);
+            const assignment = await this._jobAssignmentService.requestChange(assignmentId, milestoneId);
 
             sendResponse(res, HttpStatus.OK, { assignment });
         } catch (error) {
@@ -106,7 +114,7 @@ export class JobAssignmentController {
                 throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
             }
 
-            const assignment = await this._service.approveMilestone(assignmentId, milestoneId);
+            const assignment = await this._jobAssignmentService.approveMilestone(assignmentId, milestoneId);
 
             sendResponse(res, HttpStatus.OK, { assignment });
         } catch (error) {
@@ -123,7 +131,7 @@ export class JobAssignmentController {
 
             if(!user) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
 
-            const { assignment, payment } = await this._service.disputeMilestone(
+            const { assignment, payment } = await this._jobAssignmentService.disputeMilestone(
                 assignmentId, milestoneId, user, reason
             );
 
@@ -136,9 +144,26 @@ export class JobAssignmentController {
     async getApproved(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             
-            const assignments = await this._service.getApprovedMilestones();
+            const assignments = await this._jobAssignmentService.getApprovedMilestones();
 
             sendResponse(res, HttpStatus.OK, { milestones: assignments });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async downloadFile(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const { assignmentId, milestoneId, key } = req.params;
+            const userId = req.user?._id;
+
+            if(!userId) {
+                throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
+            }
+
+            const { url } = await this._jobAssignmentService.getFileUrl(userId ,assignmentId, milestoneId, key);
+
+            sendResponse(res, HttpStatus.OK, { url });
         } catch (error) {
             next(error);
         }

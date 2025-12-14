@@ -1,5 +1,6 @@
 import { ProposalDTO } from "dtos/proposal.dto";
 import { Document, Types } from "mongoose";
+import { IMilestone } from "./jobAssignment.type";
 
 export interface IInvitationDetails {
   title?: string;
@@ -60,4 +61,13 @@ export interface CreateProposalResponse {
         price: number;
         name: string;
     } | null;
+}
+
+export interface IProposalInvitationPayload {
+    jobId: string;     
+    bidAmount: number;
+    duration: string;
+    description: string;    
+    milestones: Array<IProposalMilestone>;
+    optionalUpgrades?: string; 
 }

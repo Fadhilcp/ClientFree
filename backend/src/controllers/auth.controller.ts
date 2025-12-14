@@ -8,13 +8,13 @@ import { sendResponse } from "utils/response.util";
 
 
 export class AuthController {
-    constructor(private _service : IAuthService){}
+    constructor(private _authService : IAuthService){}
 
     async signUp(req : Request, res : Response, next : NextFunction) : Promise<void>{
         try {
             const { username, email , password, role } = req.body;
 
-            await this._service.signUp({ username, email, password, role});
+            await this._authService.signUp({ username, email, password, role});
 
             sendResponse(res, HttpStatus.CREATED, {
                 email
@@ -29,7 +29,7 @@ export class AuthController {
             const { email, otp, purpose } = req.body;
             console.log(email,otp)
 
-            const { user, accessToken, refreshToken } = await this._service.verifySignupOtp(email, otp, purpose);
+            const { user, accessToken, refreshToken } = await this._authService.verifySignupOtp(email, otp, purpose);
 
             setCookie(res, refreshToken);
 
@@ -46,7 +46,7 @@ export class AuthController {
         try {
             const { email, password } = req.body;
 
-            const { user, accessToken, refreshToken } = await this._service.login(email, password);
+            const { user, accessToken, refreshToken } = await this._authService.login(email, password);
             
             setCookie(res, refreshToken);
             
@@ -69,7 +69,7 @@ export class AuthController {
              throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.INVALID_EMAIL)
             }
 
-            await this._service.forgotPassword(email);
+            await this._authService.forgotPassword(email);
 
             sendResponse(res, HttpStatus.OK, {}, "OTP sent to your email");
             
@@ -90,7 +90,7 @@ export class AuthController {
                 throw createHttpError(HttpStatus.BAD_REQUEST, 'Invalid OTP purpose')
             }
 
-            await this._service.resendOtp(email, purpose);
+            await this._authService.resendOtp(email, purpose);
 
             sendResponse(res, HttpStatus.OK, {},
                 HttpResponse.OTP_RESENT_SUCCESS,
@@ -109,7 +109,7 @@ export class AuthController {
                throw createHttpError(HttpStatus.BAD_REQUEST, 'Email, OTP, and purpose are required');
             }
         
-            await this._service.verifyOtp(email, otp, purpose);
+            await this._authService.verifyOtp(email, otp, purpose);
 
             sendResponse(res, HttpStatus.OK, {},
                 HttpResponse.OTP_VERIFIED_SUCCESS,
@@ -129,7 +129,7 @@ export class AuthController {
                throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.EMAIL_AND_PASSWORD_REQUIRED);
             }
 
-            await this._service.resetPassword(email, password);
+            await this._authService.resetPassword(email, password);
 
             sendResponse(res, HttpStatus.OK, {},
                 HttpResponse.PASSWORD_CHANGE_SUCCESS,
@@ -145,7 +145,7 @@ export class AuthController {
             const refreshToken = req.cookies.refreshToken;
             console.log("🚀 ~ AuthController ~ accessRefreshToken ~ refreshToken:", refreshToken)
 
-            const { accessToken, newRefreshToken } = await this._service.accessRefreshToken(refreshToken);
+            const { accessToken, newRefreshToken } = await this._authService.accessRefreshToken(refreshToken);
 
             setCookie(res, newRefreshToken);
 
@@ -167,7 +167,7 @@ export class AuthController {
                 throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.NO_TOKEN);
             }
 
-            const result = await this._service.googleAuth(token, role);
+            const result = await this._authService.googleAuth(token, role);
 
              if(result.needsRole){
 
@@ -201,7 +201,7 @@ export class AuthController {
                 return
             }
 
-            const { user, accessToken } = await this._service.getNewAccessToken(refreshToken);
+            const { user, accessToken } = await this._authService.getNewAccessToken(refreshToken);
 
             sendResponse(res, HttpStatus.OK, {
                     user,
@@ -222,7 +222,7 @@ export class AuthController {
             if(newPassword !== confirmPassword) {
                 throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.PASSWORD_NOT_MATCH);
             }
-            const { message } = await this._service.changePassword(userId, password, newPassword);
+            const { message } = await this._authService.changePassword(userId, password, newPassword);
             sendResponse(res, HttpStatus.OK, {}, message);
         } catch (error) {
             next(error);

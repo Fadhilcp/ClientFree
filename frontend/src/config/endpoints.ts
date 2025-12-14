@@ -20,14 +20,14 @@ export const endPoints = {
         UPDATE_ME : '/user/me',
         UPDATE_PROFILE_IMAGE: '/user/profile-image',
         LIST_FREELANCERS: (cursor: string, limit:number, search: string) => 
-            `/user/freelancers?cursor=${cursor}&limit=${limit}&search=${search}`,
+            `/user/freelancers?cursor=${cursor || ""}&limit=${limit}&search=${search}`,
         
         LIST : (seach: string, page: number, limit:number, role?: string) => 
             `/user?search=${seach}&page=${page}&limt=${limit}${role ? `&status=${role}` : ""}`,
 
         UPDATE_STATUS : (userId: string) => `/user/${userId}/status`,
         GET_INTERESTED: (cursor: string, limit:number, search: string) => 
-            `/user/interested?cursor=${cursor}&limit=${limit}&search=${search}`,
+            `/user/interested?cursor=${cursor || ""}&limit=${limit}&search=${search}`,
         ADD_INTERESTED: (freelancerId: string) => `/user/${freelancerId}/interest`,
         REMOVE_INTERESTED: (freelancerId: string) => `/user/${freelancerId}/interest`,
     },
@@ -59,11 +59,15 @@ export const endPoints = {
     },
     JOB: {
         LIST: (search: string, status?: string, cursor?: string, limit?: number) =>
-            `/jobs?status=${status || ""}&search=${search}&cursor=${cursor}&limit=${limit}`,
+            `/jobs?status=${status || ""}&search=${search}&cursor=${cursor || ""}&limit=${limit}`,
 
         CREATE: '/jobs',
-        MY_JOBS: (status: string, search: string) => `/jobs/client/me?status=${status}&search=${search}`, 
-        FREELANCER_JOBS: (status: string, search: string) => `/jobs/freelancer/me?status=${status}&search=${search}`,
+        MY_JOBS: (status: string, search: string, cursor?: string, limit?: number) => 
+            `/jobs/client/me?status=${status}&search=${search}&cursor=${cursor || ""}&limit=${limit}`,
+
+        FREELANCER_JOBS: (status: string, search: string, cursor?: string, limit?: number) => 
+            `/jobs/freelancer/me?status=${status}&search=${search}&cursor=${cursor || ""}&limit=${limit}`,
+
         BY_ID: (jobId: string) => `/jobs/${jobId}`, // GET / PUT / DELETE
         ADD_PROPOSAL: (jobId: string) => `/jobs/${jobId}/proposal`, // POST
         UPDATE_STATUS: (jobId: string) => `/jobs/${jobId}/status`,// PATCH
@@ -83,7 +87,10 @@ export const endPoints = {
         INVITE: (jobId: string, freelancerId: string) => `/proposal/job/${jobId}/invite/${freelancerId}`,
         ACCEPT_INVITE: (jobId: string, freelancerId: string) => `/proposal/job/${jobId}/invitation/${freelancerId}/accept`,
         MY_PROPOSAL: (isInvitation?: boolean) => `/proposal/me?isInvitation=${isInvitation}`,
-        CLIENT_PROPOSAL: (isInvitation?: boolean) => `/proposal/client?isInvitation=${isInvitation}`,
+
+        CLIENT_PROPOSAL: (isInvitation: boolean, search: string, cursor?: string, limit?: number) => 
+                `/proposal/client?isInvitation=${isInvitation ?? false}&search=${search}&cursor=${cursor || ""}&limit=${limit}`,
+
         VERIFY: '/proposal/verify-upgrade-payment',
     },
     ASSIGNMENT: {
@@ -108,7 +115,8 @@ export const endPoints = {
         VERIFY: '/payment/verify',
         REFUND: (paymentId: string) => `/payment/${paymentId}/refund`,
         RELEASE: (paymentId: string) => `/payment/${paymentId}/release`,
-        GET_DISPUTES: '/payment/disputes'
+        GET_DISPUTES: '/payment/disputes',
+        DISPUTE_BY_ID: (paymentId: string) => `/payment/${paymentId}/dispute`,
     },
     ADDONS: {
         CREATE: '/addOns',

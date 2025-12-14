@@ -12,6 +12,8 @@ import { IPaymentRepository } from "repositories/interfaces/IPaymentRepository";
 import { AdminMilestoneMapper } from "mappers/adminMilestoneMapper";
 import { AdminApprovedMilestoneDto } from "dtos/adminApprovedMilestoneDto";
 import { AuthPayload } from "types/auth.type";
+import { generateSignedUrl } from "utils/getSignedUrl.util";
+
 
 export class JobAssignmentService implements IJobAssignmentService {
     constructor(
@@ -151,6 +153,7 @@ export class JobAssignmentService implements IJobAssignmentService {
         }
         milestone.status = "submitted";
         milestone.submissionMessage = submissionNote || null;
+
         milestone.submissionFiles = submissionFiles || [];
         milestone.submittedAt = new Date();
         milestone.updatedAt = new Date();
@@ -235,5 +238,25 @@ export class JobAssignmentService implements IJobAssignmentService {
         return AdminMilestoneMapper.mapList(approvedMilestones);
     }
 
-    
+    async getFileUrl(userId: string, assignmentId: string, milestoneId: string, key: string): Promise<{ url: string; }> {
+        const assignment = await this._jobAssignmentRepository.findWithJobDetail({
+             _id: assignmentId,
+             milestones: {
+                $elemMatch: {
+                    _id: milestoneId,
+                    "submissionFiles.key": key
+                    }
+                },
+                $or: [
+                    { freelancerId: userId },
+                    { "jobId.clientId": userId }
+                ]
+            });
+
+        if(!assignment) throw createHttpError(HttpStatus.FORBIDDEN, HttpResponse.ACCESS_DENIED);
+        // generate temporary url for safety
+        const url = await generateSignedUrl(key);
+
+        return { url }
+    }
 }

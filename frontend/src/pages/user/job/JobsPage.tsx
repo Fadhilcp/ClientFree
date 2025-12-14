@@ -1,55 +1,112 @@
 import React, { useCallback, useEffect, useState } from "react";
-import Card from "../../../components/ui/Card/Card";
+import Card, { type ActionItem } from "../../../components/ui/Card/Card";
 import SearchBar from "../../../components/ui/SearchBar";
 import { jobService } from "../../../services/job.service";
 import type { JobListDTO } from "../../../types/job/job.dto";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../../store/store";
 import Loader from "../../../components/ui/Loader/Loader";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
+import { notify } from "../../../utils/toastService";
 
-
+const LIMIT = 20;
 
 const JobsPage: React.FC<{ status: string; title: string }> = ({ status, title }) => {
-    const [jobs, setJobs] = useState<JobListDTO[]>([]);
-    const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
+  const [jobs, setJobs] = useState<JobListDTO[]>([]);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  
+  const [searchQuery, setSearchQuery] = useState("");
 
-    const [searchQuery, setSearchQuery] = useState("");
-    console.log("🚀 ~ JobsPage ~ searchQuery:", searchQuery)
-
-    const updateAt = useSelector((state: RootState) => state.job.updatedAt);
-    const { user } = useSelector((state: RootState) => state.auth);
-
+  // for infinit scroll
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  
+  const updateAt = useSelector((state: RootState) => state.job.updatedAt);
+  const { user } = useSelector((state: RootState) => state.auth);
+  
+  const { startEditJob } = useOutletContext<{ startEditJob: (job: JobListDTO) => void }>();
     // Load active jobs
-    const fetchJobs = useCallback(async () => {
+    const fetchJobs = useCallback(
+      async (loadMore = false) => {
+
       if(!user) return;
+
+      if(loading) return;
+      if(!hasMore && loadMore) return;
+
       setLoading(true);
         try {
-            let response;
-            if(user.role === 'client'){
-              response = await jobService.getMyJobs(status, searchQuery);
-            }else if(user.role === 'freelancer'){
-              response = await jobService.getFreelancerJob(status, searchQuery);
-            }
+          const safeCursor =  cursor ?? "";
+          let response;
+          if(user.role === 'client'){
+            response = await jobService.getMyJobs(
+              status, 
+              searchQuery, 
+              loadMore ? safeCursor : "", 
+              LIMIT
+            );
+          }else if(user.role === 'freelancer'){
+            response = await jobService.getFreelancerJob(
+              status, 
+              searchQuery, 
+              loadMore ? safeCursor : "", 
+              LIMIT
+            );
+          }
 
-            if (response?.data.success) {
-                setJobs(response.data.jobs);
-            }
+          if (response?.data.success) {
+              const { jobs, nextCursor } = response.data;
+              console.log("🚀 ~ JobsPage ~ jobs:", jobs)
+
+              setJobs(prev => (loadMore ? [...prev, ...jobs] : jobs));
+              setCursor(nextCursor);
+              setHasMore(Boolean(nextCursor));
+          }
         } catch (err) {
             console.error("Failed to load active jobs:", err);
         }finally {
           setLoading(false);
         }
-    }, [status, user, searchQuery]);
+    }, [status, user, searchQuery, hasMore, loading]);
+
+    // infinite scroll event listener
+    useEffect(() => {
+      const handleScroll = () => {
+        const bottom = 
+        window.innerHeight + document.documentElement.scrollTop >= 
+        document.documentElement.offsetHeight - 200;
+
+        if(bottom && !loading && hasMore) {
+          fetchJobs(true);
+        }
+      };
+
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+    }, [loading, hasMore, fetchJobs]);
 
     useEffect(() => {
         fetchJobs();
-    }, [updateAt, fetchJobs]);
+    }, [updateAt, status]);
 
   const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
   }, []);
+
+  const handleDeleteJob = async (jobId: string) => {
+    if (!window.confirm("Are you sure you want to delete this job?")) return;
+
+    try {
+      const response = await jobService.deleteJob(jobId);
+      if (response.data.success) {
+        notify.success("Job deleted successfully");
+        fetchJobs();
+      }
+    } catch (error: any) {
+      notify.error(error.response?.data?.error || "Failed to delete job");
+    }
+  };
 
   useEffect(() => {
     fetchJobs();
@@ -99,7 +156,18 @@ const JobsPage: React.FC<{ status: string; title: string }> = ({ status, title }
                 onClick: () => handleViewDetails(job.id),
                 variant: "primary",
               },
-            ]}
+              user?.role === "client" && job.status === "open" ?
+                  {
+                    label: "Edit",
+                    onClick: () => startEditJob(job),
+                    variant: "secondary",
+                  } : null,
+              user?.role === "client" && job.status === "open" ? {
+                    label: "Delete",
+                    onClick: () => handleDeleteJob(job.id),
+                    variant: "secondary"
+                  } : null
+            ].filter(Boolean) as ActionItem[] }
           />
           ))}
       </div>

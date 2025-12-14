@@ -293,8 +293,12 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
   const hasFunded = milestones.some(m => m.status === "funded");
 
   return (
-    <div className="mb-6">
-      <h2 className="text-md font-medium text-gray-800 dark:text-white mb-4">Milestones</h2>
+    <div className="mb-8">
+      <h2 className="text-xl font-extrabold text-indigo-600 dark:text-indigo-400 mb-6 flex items-center gap-2">
+        <i className="fa-solid fa-flag-checkered"></i>
+        Milestones
+      </h2>
+
       <ConfirmationModal
         isOpen={isConfirmOpen}
         title={confirmTitle}
@@ -305,19 +309,20 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
         }}
         onCancel={() => setIsConfirmOpen(false)}
       />
+
       {milestones.map((milestone, index) => (
         <div key={index} className="mb-4">
           {editingIndex === index ? (
-            <div className="relative mb-4 p-4 rounded-md border border-gray-300 dark:border-gray-700">
+            <div className="relative mb-4 p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-md hover:shadow-lg transition-shadow duration-200">
               <button
                 type="button"
                 onClick={() => handleCancelLocal(index)}
-                className="absolute top-2 right-2 text-black dark:text-white text-sm"
+                className="absolute top-3 right-3 text-gray-500 dark:text-gray-400 hover:text-red-500 transition-colors duration-200"
               >
                 ✕
               </button>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
                 <InputSection
                   name="title"
                   value={milestone.title}
@@ -353,7 +358,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
                 error={errors[index]?.description}
               />
 
-              <div className="flex gap-3 mt-4">
+              <div className="flex gap-4 mt-6">
                 <Button
                   label="Save"
                   onClick={() => {
@@ -373,7 +378,6 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
                   }}
                   variant="primary"
                 />
-
                 <Button
                   label="Cancel"
                   onClick={() => handleCancelLocal(index)}
@@ -383,110 +387,95 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
             </div>
           ) : (
             <Card
-            title={milestone.title || "Untitled Milestone"}
-            description={milestone.description}
-            meta={[
-              { label: "Amount", value: `₹ ${milestone.amount}` },
-              {
-                label: "Due Date",
-                value: milestone.dueDate
-                  ? new Date(milestone.dueDate).toLocaleDateString()
-                  : "N/A",
-              },
-            ]}
-            status={milestone.status || "pending"}
-            actions={[
-              // client actions 
-              user?.role === "client" && milestone.status === "draft"
-                ? { label: "Edit", onClick: () => setEditingIndex(index), variant: "secondary" }
-                : null,
+              title={milestone.title || "Untitled Milestone"}
+              description={milestone.description}
+              meta={[
+                { label: "Amount", value: `₹ ${milestone.amount}` },
+                {
+                  label: "Due Date",
+                  value: milestone.dueDate
+                    ? new Date(milestone.dueDate).toLocaleDateString()
+                    : "N/A",
+                },
+              ]}
+              status={milestone.status || "pending"}
+              actions={[
+                user?.role === "client" && milestone.status === "draft"
+                  ? { label: "Edit", onClick: () => setEditingIndex(index), variant: "secondary" }
+                  : null,
+                user?.role === "client" && milestone.id && milestone.status === "draft"
+                  ? {
+                      label: "Cancel",
+                      onClick: () => {
+                        setConfirmTitle("Cancel Milestone");
+                        setConfirmDescription("Are you sure you want to cancel this milestone?");
+                        setConfirmAction(() => () => cancelMilestone(milestone.id!));
+                        setIsConfirmOpen(true);
+                      },
+                      variant: "secondary",
+                    }
+                  : null,
+                user?.role === "client" &&
+                !hasFunded && milestone.id && milestone.status === "draft" && index === firstDraftIndex
+                  ? {
+                      label: "Fund",
+                      onClick: () => fundMilestone(milestone.id!, milestone.amount),
+                      variant: "primary",
+                    }
+                  : null,
+                user?.role === "client" && milestone.status === "submitted"
+                  ? { label: "Request Change", onClick: () => requestChangeMilestone(milestone.id!), variant: "secondary" }
+                  : null,
+                user?.role === "client" && milestone.status === "submitted"
+                  ? {
+                      label: "Approve",
+                      onClick: () => {
+                        setConfirmTitle("Approve Milestone");
+                        setConfirmDescription("Do you want to approve this submitted milestone?");
+                        setConfirmAction(() => () => approveMilestone(milestone.id!));
+                        setIsConfirmOpen(true);
+                      },
+                      variant: "primary",
+                    }
+                  : null,
+                user?.role === "freelancer" &&
+                (milestone.status === "funded" || milestone.status === "changes_requested") &&
+                freelancerId === user.id
+                  ? {
+                      label: "Submit",
+                      onClick: () => {
+                        setSelectedMilestoneId(milestone.id!);
+                        setIsSubmitModalOpen(true);
+                      },
+                      variant: "primary",
+                    }
+                  : null,
+                user?.role === "client" && milestone.status === "submitted"
+                  ? {
+                      label: "Raise Dispute",
+                      onClick: () => {
+                        setSelectedMilestoneId(milestone.id!);
+                        setIsDisputeModalOpen(true);
+                      },
+                      variant: "danger",
+                    }
+                  : null,
+                user?.role === "freelancer" &&
+                milestone.status === "changes_requested" &&
+                freelancerId === user.id
+                  ? {
+                      label: "Raise Dispute",
+                      onClick: () => {
+                        setSelectedMilestoneId(milestone.id!);
+                        setIsDisputeModalOpen(true);
+                      },
+                      variant: "secondary",
+                    }
+                  : null,
+              ].filter(Boolean) as ActionItem[]}
+            />
+          )}
 
-              user?.role === "client" && milestone.id && milestone.status === "draft"
-                ? {
-                    label: "Cancel",
-                    onClick: () => {
-                      setConfirmTitle("Cancel Milestone");
-                      setConfirmDescription("Are you sure you want to cancel this milestone?");
-                      setConfirmAction(() => () => cancelMilestone(milestone.id!));
-                      setIsConfirmOpen(true);
-                    },
-                    variant: "secondary",
-                  }
-                : null,
-
-              user?.role === "client" &&
-              !hasFunded && milestone.id &&
-              milestone.status === "draft" &&
-              index === firstDraftIndex
-                ? {
-                    label: "Fund",
-                    onClick: () => fundMilestone(milestone.id!, milestone.amount),
-                    variant: "primary",
-                  }
-                : null,
-
-              user?.role === "client" && milestone.status === "submitted"
-                ? {
-                    label: "Request Change",
-                    onClick: () => requestChangeMilestone(milestone.id!),
-                    variant: "secondary",
-                  }
-                : null,
-              user?.role === "client" && milestone.status === "submitted"
-                ? {
-                    label: "Approve",
-                    onClick: () => {
-                      setConfirmTitle("Approve Milestone");
-                      setConfirmDescription("Do you want to approve this submitted milestone?");
-                      setConfirmAction(() => () => approveMilestone(milestone.id!));
-                      setIsConfirmOpen(true);
-                    },
-                    variant: "primary",
-                  }
-                : null,
-              // freelancer actions
-              user?.role === "freelancer" 
-              && (milestone.status === "funded" || milestone.status === "changes_requested")
-              && freelancerId === user.id
-                ? {
-                    label: "Submit",
-                    onClick: () => {
-                      setSelectedMilestoneId(milestone.id!);
-                      setIsSubmitModalOpen(true);
-                    },
-                    variant: "primary",
-                  }
-                : null,
-                  user?.role === "client" &&
-                  milestone.status === "submitted"
-                    ? {
-                        label: "Raise Dispute",
-                        onClick: () => {
-                          setSelectedMilestoneId(milestone.id!);
-                          setIsDisputeModalOpen(true);
-                        },
-                        variant: "danger",
-                      }
-                    : null,
-
-                  // freelancer disputes after change request
-                  user?.role === "freelancer" &&
-                  milestone.status === "changes_requested" &&
-                  freelancerId === user.id
-                    ? {
-                        label: "Raise Dispute",
-                        onClick: () => {
-                          setSelectedMilestoneId(milestone.id!);
-                          setIsDisputeModalOpen(true);
-                        },
-                        variant: "danger",
-                      }
-                    : null,
-
-            ].filter(Boolean) as ActionItem[]}
-          />
-
-            )}
           <SubmitModal
             isOpen={isSubmitModalOpen}
             onClose={() => setIsSubmitModalOpen(false)}
@@ -511,18 +500,17 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
         onChange={handleDisputeChange}
         title="Raise Dispute"
         textAreas={[
-          { name: "reason", label: "Dispute Reason", placeholder: "Enter reason for dispute", rows: 4 }
+          { name: "reason", label: "Dispute Reason", placeholder: "Enter reason for dispute", rows: 4 },
         ]}
         errors={disputeErrors}
       />
 
-
       {user?.role === "client" && (
         <button
           onClick={handleAddMilestoneUI}
-          className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline mt-6"
+          className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline mt-6 flex items-center gap-1"
         >
-          + Add Milestone
+          <i className="fa-solid fa-plus"></i> Add Milestone
         </button>
       )}
     </div>

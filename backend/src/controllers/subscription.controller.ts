@@ -7,7 +7,7 @@ import { sendResponse } from "utils/response.util";
 
 
 export class SubscriptionController {
-    constructor(private _service: ISubscriptionService){}
+    constructor(private _subscriptionService: ISubscriptionService){}
 
     async getAllSubscription(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
@@ -16,7 +16,7 @@ export class SubscriptionController {
             const page = parseInt(req.query.page as string) || 1;
             const limit = parseInt(req.query.limit as string) || 10;
 
-            const subscriptions = await this._service.getAll(search, status, page, limit);
+            const subscriptions = await this._subscriptionService.getAll(search, status, page, limit);
 
             sendResponse(res, HttpStatus.OK, { subscriptions });
         } catch (error) {
@@ -32,7 +32,7 @@ export class SubscriptionController {
                 throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.MISSING_REQUIRED_FIELDS);
             }
 
-            const subscription = await this._service.createSubscription({
+            const subscription = await this._subscriptionService.createSubscription({
                 userId,
                 planId,
                 billingInterval,
@@ -62,7 +62,7 @@ export class SubscriptionController {
                 throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.MISSING_REQUIRED_FIELDS)
             }
 
-            const result = await this._service.verifyPayment({
+            const result = await this._subscriptionService.verifyPayment({
                 razorpay_subscription_id,
                 razorpay_payment_id,
                 razorpay_signature,
@@ -81,7 +81,7 @@ export class SubscriptionController {
 
             if(!userId) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.USER_NOT_FOUND);
 
-            const result = await this._service.cancelSubscription(userId, subscriptionId);
+            const result = await this._subscriptionService.cancelSubscription(userId, subscriptionId);
 
             sendResponse(res, HttpStatus.OK, {}, result.message);
         } catch (error) {
@@ -97,7 +97,7 @@ export class SubscriptionController {
                 throw createHttpError(HttpStatus.BAD_REQUEST, 'User ID is required');
             }
 
-            const plan = await this._service.getCurrentPlan(_id);
+            const plan = await this._subscriptionService.getCurrentPlan(_id);
             sendResponse(res, HttpStatus.OK, { plan });
         } catch (error) {
             next(error);

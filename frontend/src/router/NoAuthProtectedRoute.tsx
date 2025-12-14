@@ -14,6 +14,7 @@ const NoAuthProtectedRoute: React.FC<NoAuthProtectedRouteProps> = ({ children })
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log(token, user)
     if (token && user) {
       console.log("🚀 ~ NoAuthProtectedRoute ~ token:", token);
       console.log("🚀 ~ NoAuthProtectedRoute ~ user:", user);

@@ -11,7 +11,6 @@ interface UserDetailModalProps {
 }
 
 const UserDetailModal: React.FC<UserDetailModalProps> = ({ isOpen, onClose, user }) => {
-  console.log("🚀 ~ UserDetailModal ~ user:", user)
   if (!isOpen || !user) return null;
 
   function isFreelancer(user: FreelancerProfileDto | ClientProfileDto) : user is FreelancerProfileDto {

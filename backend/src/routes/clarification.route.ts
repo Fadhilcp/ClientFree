@@ -1,6 +1,7 @@
 import { ClarificationController } from "controllers/clarification.controller";
 import { Router } from "express";
 import { authMiddleware } from "middlewares/authMiddleware";
+import { verifyUserNotBanned } from "middlewares/verifyUserNotBanned.middleware";
 import { ClarificationBoardRepository } from "repositories/clarificationBoard.repository";
 import { ClarificationMessageRepository } from "repositories/clarificationMessage.repository";
 import { JobRepository } from "repositories/job.repository";
@@ -19,8 +20,10 @@ const clarificationService = new ClarificationService(
 );
 const clarificationController = new ClarificationController(clarificationService);
 
-clarificationRouter.post('/:jobId/message',authMiddleware,clarificationController.addMessage.bind(clarificationController));
-clarificationRouter.get('/:jobId',authMiddleware,clarificationController.getBoard.bind(clarificationController));
-clarificationRouter.patch('/:jobId/close',authMiddleware,clarificationController.closeBoard.bind(clarificationController));
+clarificationRouter.use(authMiddleware, verifyUserNotBanned);
+
+clarificationRouter.post('/:jobId/message',clarificationController.addMessage.bind(clarificationController));
+clarificationRouter.get('/:jobId',clarificationController.getBoard.bind(clarificationController));
+clarificationRouter.patch('/:jobId/close',clarificationController.closeBoard.bind(clarificationController));
 
 export default clarificationRouter;

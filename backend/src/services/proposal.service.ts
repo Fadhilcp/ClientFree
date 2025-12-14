@@ -2,7 +2,7 @@ import { createHttpError } from "../utils/httpError.util";
 import { HttpStatus } from "../constants/status.constants";
 import { IProposalRepository } from "repositories/interfaces/IProposalInvitation";
 import { IJobRepository } from "repositories/interfaces/IJobRepository";
-import { CreateProposalResponse, IInvitationDetails, IProposalInvitation, IProposalInvitationDocument, ProposalStatus } from "types/proposalInvitation.type";
+import { CreateProposalResponse, IInvitationDetails, IProposalInvitation, IProposalInvitationDocument, IProposalInvitationPayload, ProposalStatus } from "types/proposalInvitation.type";
 import { IProposalService } from "./interface/IProposalService";
 import { mapProposal } from "mappers/proposal.mapper";
 import { ProposalDTO } from "dtos/proposal.dto";
@@ -13,10 +13,14 @@ import { IJobAssignmentRepository } from "repositories/interfaces/IJobAssignment
 import { IAddOnRepository } from "repositories/interfaces/IAddOnsRepository";
 import { IPaymentRepository } from "repositories/interfaces/IPaymentRepository";
 import { getRazorpayInstance } from "config/razorpay.config";
-import { IRazoryOrderResponse } from "types/razorpay.types";
+import { IRazoryPaymentResponse } from "types/razorpay.types";
 import { env } from "config/env.config";
 import crypto from 'crypto';
 import { IRevenueRepository } from "repositories/interfaces/IRevenueRepository";
+import { IAddOnDocument } from "types/addOns.type";
+import { Orders } from "razorpay/dist/types/orders";
+import { IPaymentDocument } from "types/payment.type";
+import { IUserRepository } from "repositories/interfaces/IUserRepository";
 
 export class ProposalService implements IProposalService {
     constructor(
@@ -26,81 +30,86 @@ export class ProposalService implements IProposalService {
         private _addOnRepository: IAddOnRepository,
         private _paymentRepository: IPaymentRepository,
         private _revenueRepository: IRevenueRepository,
+        private _userRepository: IUserRepository,
     ){};
 
-    async createProposal(jobId: string, freelancerId: string, payload: IProposalInvitation): Promise<CreateProposalResponse> {
+    async createProposal(
+        jobId: string, freelancerId: string, payload: IProposalInvitationPayload
+    ): Promise<CreateProposalResponse> {
+
         const job = await this._jobRepository.findById(jobId);
         if (!job) throw createHttpError(HttpStatus.NOT_FOUND, "Job not found");
-        const { bidAmount, duration, description, milestones, optionalUpgrades } = payload;
-
-        let selectedAddOn = null;
-
-        if(optionalUpgrades) {
-            selectedAddOn = await this._addOnRepository.findOne({
-                _id: optionalUpgrades,
-                category: "bid",
-                userType: { $in: ["freelancer"]},
-                isActive: true
-            });
-
-            if(!selectedAddOn) {
-                throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid or inactive add-on");
-            }
-        }
-
+        // passing option upgrade id
+        const addOn = await this._validateOptionalUpgrade(payload.optionalUpgrades)
+        // check the proposal is comes through invitation
         const invitation = await this._proposalRepository.findOne({
             jobId,
             freelancerId,
             isInvitation: true
         });
-
+        // if it is invitation
         if (invitation) {
-            invitation.isInvitation = false;
-            invitation.status = "pending";
-            invitation.bidAmount = bidAmount;
-            invitation.duration = duration;
-            invitation.description = description;
-            invitation.milestones = milestones;
-            invitation.optionalUpgrades = optionalUpgrades;
-
-            const updated = await invitation.save();
-            // add to job proposals
-            await this._jobRepository.findByIdAndUpdate(jobId, {
-                $push: { proposals: updated._id },
-                $inc: { proposalCount: 1 }
-            } as UpdateQuery<IJobDocument>);
-
-            return {
-                proposal: mapProposal(updated),
-                paymentOrder: null,
-                paymentId: null,
-                addOn: null
-            };
+            const proposal = await this._handleInvitation(invitation, jobId, payload);
+            return await this._finalizeProposalResponse(proposal, freelancerId, jobId, addOn);
         }
-
-        const exists = await this._proposalRepository.findOne({ jobId, freelancerId });
-        if (exists) {
+        // check the freelancer already submitted or not
+        const existing = await this._proposalRepository.findOne({ jobId, freelancerId });
+        if (existing) {
             throw createHttpError(HttpStatus.BAD_REQUEST, "Proposal already submitted");
         }
 
-        const proposal = await this._proposalRepository.create({
-            bidAmount,
-            duration,
-            description,
-            milestones,
-            jobId,
-            freelancerId,
-            status: "pending",
-            isInvitation: false,
-            optionalUpgrades: [],
-        });
-        // increment proposalCount on job
-        await this._jobRepository.findByIdAndUpdate(jobId, {
-            $push: { proposals: proposal._id },
-            $inc: { proposalCount: 1 }
-        } as UpdateQuery<IJobDocument> );
+        const proposal = await this._createFreshProposal(jobId, freelancerId, payload);
+        return await this._finalizeProposalResponse(proposal, freelancerId, jobId, addOn)
+    }
 
-        if (!selectedAddOn) {
+    private async _validateOptionalUpgrade(addonId?: string): Promise<IAddOnDocument | null> {
+        if (!addonId) return null;
+
+        const addon = await this._addOnRepository.findOne({
+            _id: addonId,
+            category: "bid",
+            userType: { $in: ["freelancer"] },
+            isActive: true,
+        });
+
+        if (!addon) {
+            throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid or inactive add-on");
+        }
+
+        return addon;
+    }
+
+    private async _handleInvitation(
+        invitation: IProposalInvitationDocument,
+        jobId: string,
+        payload: IProposalInvitationPayload
+    ): Promise<IProposalInvitationDocument> {
+        invitation.isInvitation = false;
+        invitation.status = "pending";
+        invitation.bidAmount = payload.bidAmount;
+        invitation.duration = payload.duration;
+        invitation.description = payload.description;
+        invitation.milestones = payload.milestones;
+        invitation.optionalUpgrades = [];
+
+        const updated = await invitation.save();
+
+        await this._jobRepository.findByIdAndUpdate(jobId, {
+            $push: { proposals: updated._id },
+            $inc: { proposalCount: 1 }
+        } as UpdateQuery<IJobDocument>);
+
+        return updated;
+    }
+
+    private async _finalizeProposalResponse(
+        proposal: IProposalInvitationDocument,
+        freelancerId: string,
+        jobId: string,
+        addon: IAddOnDocument | null,
+    ): Promise<CreateProposalResponse> {
+
+        if (!addon) {
             return {
                 proposal: mapProposal(proposal),
                 paymentOrder: null,
@@ -109,43 +118,81 @@ export class ProposalService implements IProposalService {
             };
         }
 
-        const razorpay = getRazorpayInstance();
-
-        const razorpayOrder = await razorpay.orders.create({
-            amount: selectedAddOn.price * 100,
-            currency: "INR",
-            receipt: `addon_${proposal._id}`,
-            notes: {
-                proposalId: proposal._id.toString(),
-                freelancerId,
-                addonId: selectedAddOn._id.toString()
-            }
-        });
-
-        const payment = await this._paymentRepository.create({
-            type: "subscription",
-            status: "pending",
-            amount: selectedAddOn.price,
-            currency: "INR",
-            provider: "razorpay",
-            providerOrderId: razorpayOrder.id,
-            jobId,
+        const { razorpayOrder, payment } = await this._createAddOnPayment(
+            proposal,
             freelancerId,
-            userId: freelancerId,
-            referenceId: selectedAddOn._id.toString(),
-            proposalId: proposal._id,
-        });
+            addon,
+            jobId
+        );
 
         return {
             proposal: mapProposal(proposal),
             paymentOrder: razorpayOrder,
             paymentId: payment._id.toString(),
             addOn: {
-                id: selectedAddOn._id.toString(),
-                price: selectedAddOn.price,
-                name: selectedAddOn.displayName
+                id: addon._id.toString(),
+                price: addon.price,
+                name: addon.displayName
             }
         };
+    }
+
+    private async _createAddOnPayment(
+        proposal: IProposalInvitationDocument, freelancerId: string, addon: IAddOnDocument, jobId: string
+    ): Promise<{ razorpayOrder: Orders.RazorpayOrder, payment: IPaymentDocument }> {
+        const razorpay = getRazorpayInstance();
+
+        const razorpayOrder = await razorpay.orders.create({
+            amount: addon.price * 100,
+            currency: "INR",
+            receipt: `addon_${proposal._id}`,
+            notes: {
+                proposalId: proposal._id.toString(),
+                freelancerId,
+                addonId: addon._id.toString(),
+            },
+        });
+
+        const payment = await this._paymentRepository.create({
+            type: "subscription",
+            status: "pending",
+            amount: addon.price,
+            currency: "INR",
+            provider: "razorpay",
+            providerOrderId: razorpayOrder.id,
+            freelancerId,
+            userId: freelancerId,
+            jobId,
+            referenceId: addon._id.toString(),
+            proposalId: proposal._id,
+        });
+
+        return { razorpayOrder, payment };
+    }
+    
+    private async _createFreshProposal(
+        jobId: string,
+        freelancerId: string,
+        payload: IProposalInvitationPayload
+    ): Promise<IProposalInvitationDocument> {
+        const proposal = await this._proposalRepository.create({
+            bidAmount: payload.bidAmount,
+            duration: payload.duration,
+            description: payload.description,
+            milestones: payload.milestones,
+            jobId,
+            freelancerId,
+            status: "pending",
+            isInvitation: false,
+            optionalUpgrades: [],
+        });
+
+        await this._jobRepository.findByIdAndUpdate(jobId, {
+            $push: { proposals: proposal._id },
+            $inc: { proposalCount: 1 },
+        } as UpdateQuery<IJobDocument> );
+
+        return proposal;
     }
 
     async verifyUpgradePayment({
@@ -153,7 +200,7 @@ export class ProposalService implements IProposalService {
                 razorpay_order_id,
                 razorpay_payment_id,
                 razorpay_signature,
-            }: IRazoryOrderResponse) {
+            }: IRazoryPaymentResponse ) {
         // payment document id(db)
         if(!paymentRecordId) throw createHttpError(HttpStatus.BAD_REQUEST, "Payment record id is needed");
         const payment = await this._paymentRepository.findById(paymentRecordId);
@@ -281,9 +328,9 @@ export class ProposalService implements IProposalService {
         );
     }
 
-        async inviteFreelancer(
-            jobId: string, clientId: string, freelancerId: string, invitationData: IInvitationDetails
-        ): Promise<ProposalDTO> {
+    async inviteFreelancer(
+        jobId: string, clientId: string, freelancerId: string, invitationData: IInvitationDetails
+    ): Promise<ProposalDTO> {
         const job = await this._jobRepository.findById(jobId);
         if(!job) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.JOB_NOT_FOUND);
         if(job.clientId.toString() !== clientId){
@@ -344,20 +391,70 @@ export class ProposalService implements IProposalService {
         return proposals.map(mapProposal);
     }
 
-    async getProposalsForClient(clientId: string, isInvitation: boolean): Promise<ProposalDTO[]> {
+    async getProposalsForClient(
+        clientId: string, isInvitation: boolean, search: string, limit: number, cursor?: string
+    ): Promise<{ proposals: ProposalDTO[], nextCursor: string | null }> {
+
         const jobs = await  this._jobRepository.find({ clientId });
-        if(!jobs.length) return [];
+        if(!jobs.length) return { proposals: [], nextCursor: null };
 
         const jobIds = jobs.map((j) => j._id);
 
         const query: FilterQuery<IProposalInvitationDocument> = { jobId: { $in: jobIds }};
 
+        if(cursor && cursor !== "undefined" && cursor !== "null") {
+            query._id = { $lt: cursor };
+        }
+        
         if(typeof isInvitation === "boolean") {
             query.isInvitation = isInvitation
         };
+        
+        // search
+        if (search && search.trim() !== "") {
+            const regex = new RegExp(search.trim(), "i");
 
-        const proposals = await this._proposalRepository.findWithDetail(query);
+            // search jobs by title
+            const matchedJobs = await this._jobRepository.find({
+                _id: { $in: jobIds },
+                title: regex
+            });
 
-        return proposals.map(mapProposal);
+            const matchedJobIds = matchedJobs.map(j => j._id);
+
+            // search freelancers by name
+            const matchedFreelancers = await this._userRepository.find({
+                $or: [
+                    { username: regex },
+                    { name: regex }
+                ]
+            });
+
+            const matchedFreelancerIds = matchedFreelancers.map(f => f._id);
+            // to search
+            query.$or = [];
+
+            if (matchedJobIds.length > 0) {
+                query.$or.push({ jobId: { $in: matchedJobIds } });
+            }
+
+            if (matchedFreelancerIds.length > 0) {
+                query.$or.push({ freelancerId: { $in: matchedFreelancerIds } });
+            }
+
+            if (query.$or.length === 0) {
+                return { proposals: [], nextCursor: null };
+            }
+        }
+        const proposals = await this._proposalRepository.findWithDetailPaginated(query, limit);
+        
+        const nextCursor = proposals.length > 0 
+        ? proposals[proposals.length - 1]._id.toString()
+        : null;
+
+        return {
+            proposals: proposals.map(mapProposal), 
+            nextCursor
+        }
     }
 }

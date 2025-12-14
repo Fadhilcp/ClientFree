@@ -5,7 +5,13 @@ import UserRoutes from "./router/UserRoutes";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AdminRoutes from "./router/AdminRoutes";
+// import Lenis from "lenis";
 
+// const lenis = new Lenis({
+//   autoRaf: true,
+// });
+
+// lenis.on('scroll', () => {});
 
 const App: React.FC = () => {
   return (

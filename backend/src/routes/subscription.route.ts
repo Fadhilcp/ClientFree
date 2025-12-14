@@ -7,6 +7,7 @@ import { authMiddleware } from 'middlewares/authMiddleware';
 import { PaymentRepository } from 'repositories/payment.repository';
 import { RevenueRepository } from 'repositories/revenue.repository';
 import { UserRepository } from 'repositories/user.repository';
+import { verifyUserNotBanned } from 'middlewares/verifyUserNotBanned.middleware';
 
 const subscriptionRouter = express.Router()
 
@@ -21,10 +22,12 @@ const subscriptionService = new SubscriptionService(
 );
 const subscriptionController = new SubscriptionController(subscriptionService);
 
-subscriptionRouter.get('/', authMiddleware,subscriptionController.getAllSubscription.bind(subscriptionController))
-subscriptionRouter.post('/', authMiddleware,subscriptionController.createSubscription.bind(subscriptionController));
-subscriptionRouter.post('/verify', authMiddleware,subscriptionController.verifySubscription.bind(subscriptionController));
-subscriptionRouter.patch('/cancel', authMiddleware,subscriptionController.cancelSubscription.bind(subscriptionController));
-subscriptionRouter.get('/current', authMiddleware,subscriptionController.getCurrentPlan.bind(subscriptionController));
+subscriptionRouter.use(authMiddleware, verifyUserNotBanned);
+
+subscriptionRouter.get('/',subscriptionController.getAllSubscription.bind(subscriptionController))
+subscriptionRouter.post('/',subscriptionController.createSubscription.bind(subscriptionController));
+subscriptionRouter.post('/verify',subscriptionController.verifySubscription.bind(subscriptionController));
+subscriptionRouter.patch('/cancel',subscriptionController.cancelSubscription.bind(subscriptionController));
+subscriptionRouter.get('/current',subscriptionController.getCurrentPlan.bind(subscriptionController));
 
 export default subscriptionRouter;

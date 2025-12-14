@@ -10,7 +10,7 @@ const AdminLayout: React.FC = () => {
       <AdminSidebar />
 
       {/* Main Content Area */}
-      <div className="lg:pl-64 transition-all">
+      <div className="lg:pl-50 transition-all">
         <AdminNavbar />
         <main className="p-6">
           <Outlet />

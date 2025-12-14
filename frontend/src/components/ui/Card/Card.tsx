@@ -45,110 +45,117 @@ const Card: React.FC<CardProps> = ({
   footer,
   actions = [],
 }) => {
-  return (
-    <div className="mb-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-sm p-6">
-      {/* User section */}
-      {user && (
-        <div className="mb-4">
-          <UserInfo
-            username={user.username}
-            email={user.email}
-            profileImage={user.profileImage}
-            size={40}
+return (
+  <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 
+                  rounded-2xl p-8 border border-gray-100 dark:border-gray-700">
+    {/* User section */}
+    {user && (
+      <div className="mb-5">
+        <UserInfo
+          username={user.username}
+          email={user.email}
+          profileImage={user.profileImage}
+          size={48}
+        />
+      </div>
+    )}
+
+    <div className="flex flex-col lg:flex-row items-start gap-8">
+      {/* Image / Logo */}
+      {image && (
+        <div className="flex-shrink-0 w-24 h-24 rounded-xl overflow-hidden shadow-md ring-1 ring-gray-200 dark:ring-gray-700">
+          <img
+            src={image}
+            alt={title}
+            className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-300"
           />
         </div>
       )}
 
-      <div className="flex flex-col lg:flex-row items-start gap-6">
-        {/* Image / Logo */}
-        {image && (
-          <div className="flex-shrink-0 w-20 h-20">
-            <img
-              src={image}
-              alt={title}
-              className="w-full h-full object-cover rounded"
-            />
-          </div>
+      {/* Details */}
+      <div className="flex-1">
+        <h5 className="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400 mb-2 tracking-tight">
+          {title}
+        </h5>
+        {subtitle && (
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+            {subtitle}
+          </p>
         )}
 
-        {/* Details */}
-        <div className="flex-1">
-          <h5 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400">
-            {title}
-          </h5>
-          {subtitle && (
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-              {subtitle}
-            </p>
-          )}
-
-          {/* Meta info */}
-          {meta.length > 0 && (
-            <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-700 dark:text-gray-300 mb-2">
-              {meta.map((item, i) => (
-                <span key={i}>
-                  <span className="font-medium">{item.label}:</span>{" "}
-                  <span className="text-indigo-600 dark:text-indigo-400">
-                    {item.value}
-                  </span>
+        {/* Meta info */}
+        {meta.length > 0 && (
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-700 dark:text-gray-300 mb-4">
+            {meta.map((item, i) => (
+              <span key={i} className="flex items-center gap-1">
+                <span className="font-semibold">{item.label}:</span>
+                <span className="text-indigo-600 dark:text-indigo-400 font-medium">
+                  {item.value}
                 </span>
-              ))}
-            </div>
-          )}
-
-          {/* Tags */}
-          {tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-2">
-              {tags.map((tag, i) => (
-                <span
-                  key={i}
-                  className="px-2 py-1 text-xs rounded bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* Description */}
-          {description && (
-            <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
-              {description}
-            </p>
-          )}
-
-          {/* Status */}
-          {status && (
-            <p className="text-xs font-medium text-green-600 dark:text-green-400 mt-2">
-              Status: {status}
-            </p>
-          )}
-
-          {/* Footer */}
-          {footer && (
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              {footer}
-            </p>
-          )}
-        </div>
-
-        {/* Actions */}
-        {actions.length > 0 && (
-          <div className="flex-shrink-0 lg:pl-6 mt-3 lg:mt-0 flex flex-col gap-2">
-            {actions.map((action, i) => (
-              <Button
-                key={i}
-                label={action.label}
-                onClick={action.onClick}
-                variant={action.variant}
-                className="text-sm font-medium px-3 py-1 rounded-sm"
-              />
+              </span>
             ))}
           </div>
         )}
+
+        {/* Tags */}
+        {tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {tags.map((tag, i) => (
+              <span
+                key={i}
+                className="px-3 py-1 text-xs font-semibold rounded-full 
+                           bg-gradient-to-r from-indigo-100 to-indigo-50 text-indigo-700 
+                           dark:from-indigo-900/40 dark:to-indigo-800/40 dark:text-indigo-300 
+                           shadow-sm hover:shadow-md transition-all duration-200"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Description */}
+        {description && (
+          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-3">
+            {description}
+          </p>
+        )}
+
+        {/* Status */}
+        {status && (
+          <span className="mt-4 inline-block px-3 py-1 text-xs font-semibold rounded-full 
+                           bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-200 
+                           shadow-sm ring-1 ring-green-200 dark:ring-green-700">
+            {status}
+          </span>
+        )}
+
+        {/* Footer */}
+        {footer && (
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 italic">
+            {footer}
+          </p>
+        )}
       </div>
+
+      {/* Actions */}
+      {actions.length > 0 && (
+        <div className="flex-shrink-0 lg:pl-8 mt-6 lg:mt-0 flex flex-col gap-3">
+          {actions.map((action, i) => (
+            <Button
+              key={i}
+              label={action.label}
+              onClick={action.onClick}
+              variant={action.variant}
+              className="text-sm font-semibold px-5 py-2 rounded-lg shadow-md 
+                         transition-all duration-200"
+            />
+          ))}
+        </div>
+      )}
     </div>
-  );
+  </div>
+);
 };
 
 export default Card;

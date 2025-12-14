@@ -16,8 +16,7 @@ const InvitationsSection: React.FC<InvitationsSectionProps> = ({
   activeTab,
   jobStatus,
   invitations,
-  invitationsLoading,
-  onViewInvitation,
+  invitationsLoading
 }) => {
   if (activeTab !== "invitations" || jobStatus !== "open") return null;
 
@@ -39,13 +38,6 @@ const InvitationsSection: React.FC<InvitationsSectionProps> = ({
               description={p.invitation.message || "This freelancer was invited to bid."}
               status={p.status}
               footer={`Invited on: ${new Date(p.createdAt).toLocaleDateString()}`}
-              actions={[
-                {
-                  label: "View",
-                  onClick: () => onViewInvitation?.(p.id),
-                  variant: "secondary" as const,
-                },
-              ]}
             />
           ))}
         </div>

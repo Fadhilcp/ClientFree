@@ -16,6 +16,7 @@ export function mapProposal(
         ? freelancerObj._id.toString()
         : doc.freelancerId.toString(),
       username: freelancerObj.username ?? "",
+      name: freelancerObj.name ?? "",
       email: freelancerObj.email ?? "",
       profileImage: freelancerObj.profileImage ?? null,
     },

@@ -21,4 +21,18 @@ export class ProposalRepository
         return this.model.find(filter)
             .populate("freelancerId", "username email profileImage")
     }
+    async findWithDetailPaginated(
+        filter: FilterQuery<IProposalInvitationDocument>,
+        limit: number,
+    ): Promise<IProposalInvitationDocument[]> {
+    const paginatedFilter: FilterQuery<IProposalInvitationDocument> = { ...filter };
+
+    return this.model
+        .find(paginatedFilter)
+        .populate("freelancerId")
+        .populate("jobId")
+        .sort({ _id: -1 })
+        .limit(limit)
+        .exec();
+    }
 }

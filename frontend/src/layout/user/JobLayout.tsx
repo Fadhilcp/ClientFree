@@ -7,7 +7,7 @@ import { skillService } from "../../services/skill.service";
 import { notify } from "../../utils/toastService";
 import SkillsSelect from "../../components/user/profileModal/SkillSelect";
 import Loader from "../../components/ui/Loader/Loader";
-import { type JobForm } from "../../types/job/job.dto";
+import { type JobDetailDTO, type JobForm } from "../../types/job/job.dto";
 import { jobService } from "../../services/job.service";
 import { validateJobForm } from "../../utils/validators/jobForm";
 import { useDispatch, useSelector } from "react-redux";
@@ -101,6 +101,9 @@ const JobLayout: React.FC = () => {
     const [availableSkills, setAvailableSkills] = useState<[]>([]);
     const [loading, setLoading] = useState(false);
 
+    const [isEditing, setIsEditing] = useState(false);
+    const [editingJobId, setEditingJobId] = useState<string | null>(null);
+
     const [formData, setFormData] = useState<JobForm>({
         title: "",
         category: "",
@@ -116,6 +119,7 @@ const JobLayout: React.FC = () => {
         locationType: "specific",
         isFeatured: false,
     });
+    console.log("🚀 ~ JobLayout ~ formData:", formData)
 
     const [errors, setErrors] = useState<Partial<Record<keyof JobForm, string>>>({});
 
@@ -163,6 +167,31 @@ const JobLayout: React.FC = () => {
       ...jobFields,
       ...(formData.locationType === "specific" ? locationFields : [])
     ];
+
+    const startEditJob = (job: JobDetailDTO) => {
+      console.log("🚀 ~ startEditJob ~ job:", job)
+      setIsEditing(true);
+      setEditingJobId(job.id);
+
+      setFormData({
+        title: job.title,
+        category: job.category || "",
+        subcategory: job.subcategory || "",
+        skills: job.skills?.map(s => s.id) || [],
+        duration: job.duration || "",
+        paymentBudget: job.payment?.budget?.toString() || "",
+        paymentType: job.payment?.type || "fixed",
+        description: job.description || "",
+        visibility: job.visibility,
+        locationCity: job.locationPreference?.city || "",
+        locationCountry: job.locationPreference?.country || "",
+        locationType: job.locationPreference?.type || "specific",
+        isFeatured: job.isFeatured,
+      });
+
+      setIsModalOpen(true);
+    };
+
     
     const handleSubmit = async() => {
 
@@ -194,15 +223,25 @@ const JobLayout: React.FC = () => {
       };
 
       try {
-          const response = await jobService.createJob(payload);
+          let response;
+
+          if(isEditing && editingJobId) {
+            response = await jobService.updateJob(editingJobId, payload);
+            notify.success("Job updated successfully");
+          } else {
+            response = await jobService.createJob(payload);
+            notify.success("Job created successfully");
+          }
           if(response.data.success){
-              notify.success('Job created successfully');
               //to reload the new jobs list in child components
               dispatch(refreshJobs());
               resetForm();
           }
       } catch (error: any) {
-          notify.error(error.response?.data?.error || "Failed to create job");
+          notify.error(
+            error.response?.data?.error || 
+            (isEditing ? "Failed to update job" : "Failed to create job") 
+          );
       }
     };
 
@@ -231,6 +270,8 @@ const JobLayout: React.FC = () => {
           isFeatured: false,
       });
       setErrors({});
+      setIsModalOpen(false);
+      setEditingJobId(null);
       setIsModalOpen(false);
     };
 
@@ -283,7 +324,7 @@ const JobLayout: React.FC = () => {
 
       {/* Main content */}
       <main className="flex-1 p-6 overflow-y-auto text-gray-800 dark:text-gray-200">
-        <Outlet />
+        <Outlet context={{ startEditJob }}/>
       </main>
     </div>
   );

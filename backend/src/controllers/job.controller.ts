@@ -6,7 +6,7 @@ import { createHttpError } from "utils/httpError.util";
 import { sendResponse } from "utils/response.util";
 
 export class JobController {
-    constructor(private _service: IJobService){}
+    constructor(private _jobService: IJobService){}
 
     async createJob(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
@@ -17,7 +17,7 @@ export class JobController {
 
             const data = req.body;
 
-            const job = await this._service.createJob({ ...data, clientId });
+            const job = await this._jobService.createJob({ ...data, clientId });
 
             sendResponse(res,HttpStatus.CREATED, { job });
         } catch (error) {
@@ -38,7 +38,7 @@ export class JobController {
             const limit = parseInt(req.query.limit as string) || 20;
 
             const status  = req.query.status as string || '';
-            const { jobs, nextCursor } = await this._service.getAllJobs(freelancerId, status, search, limit, cursor);
+            const { jobs, nextCursor } = await this._jobService.getAllJobs(freelancerId, status, search, limit, cursor);
     
             sendResponse(res, HttpStatus.OK, { jobs, nextCursor });
         } catch (error) {
@@ -52,7 +52,7 @@ export class JobController {
 
             if(!id) throw createHttpError(HttpStatus.BAD_REQUEST,'job id is needed');
 
-            const job = await this._service.getJobById(id, req.user!);
+            const job = await this._jobService.getJobById(id, req.user!);
 
             sendResponse(res, HttpStatus.OK, { job });
         } catch (error) {
@@ -62,12 +62,12 @@ export class JobController {
 
     async update(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const id = req.params.id;
-            const data = req.body;
+            const jobId = req.params.id;
+            const jobData = req.body;
 
-            if(!id) throw createHttpError(HttpStatus.BAD_REQUEST, 'job id is needed');
+            if(!jobId) throw createHttpError(HttpStatus.BAD_REQUEST, 'job id is needed');
 
-            const job = await this._service.updateJob(id, data);
+            const job = await this._jobService.updateJob(jobId, jobData);
 
             sendResponse(res, HttpStatus.OK, { job });
         } catch (error) {
@@ -78,11 +78,11 @@ export class JobController {
     async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
 
-            const id = req.params.id;
+            const jobId = req.params.id;
 
-            if(!id) throw createHttpError(HttpStatus.BAD_REQUEST,'Job id is needed');
+            if(!jobId) throw createHttpError(HttpStatus.BAD_REQUEST,'Job id is needed');
 
-            const message = await this._service.deleteJob(id);
+            const message = await this._jobService.deleteJob(jobId);
 
             sendResponse(res, HttpStatus.OK, {}, message);
         } catch (error) {
@@ -100,9 +100,13 @@ export class JobController {
             if (req.user?.role !== "client") {
                 throw createHttpError(HttpStatus.FORBIDDEN, "Only clients can access their jobs.");
             }
-            const jobs = await this._service.getClientJobs(clientId, status, search);
+            //for infinite scroll
+            const cursor = req.query.cursor as string | undefined;
+            const limit = parseInt(req.query.limit as string) || 20;
 
-            sendResponse(res, HttpStatus.OK, { jobs });
+            const { jobs, nextCursor }= await this._jobService.getClientJobs(clientId, status, search, limit, cursor);
+
+            sendResponse(res, HttpStatus.OK, { jobs, nextCursor });
         } catch (error) {
             next(error);
         }
@@ -117,7 +121,7 @@ export class JobController {
             }
             const { status } = req.body;
 
-            await this._service.changeStatus(jobId, clientId, status);
+            await this._jobService.changeStatus(jobId, clientId, status);
 
             sendResponse(res, HttpStatus.OK, {}, "Job status updated");
         } catch (error) {
@@ -133,7 +137,7 @@ export class JobController {
                 throw createHttpError(HttpStatus.UNAUTHORIZED,HttpResponse.UNAUTHORIZED);
             }
 
-            const job  = await this._service.startJob(jobId, clientId);
+            const job  = await this._jobService.startJob(jobId, clientId);
 
             sendResponse(res, HttpStatus.OK, { job }, "Job activated successfully");
         } catch (error) {
@@ -150,9 +154,19 @@ export class JobController {
             const status = req.query.status as string || "";
             const search = req.query.search as string || "";
 
-            const jobs = await this._service.getFreelancerJobs(freelancerId, status, search);
+            //for infinite scroll
+            const cursor = req.query.cursor as string | undefined;
+            const limit = parseInt(req.query.limit as string) || 20;
 
-            sendResponse(res, HttpStatus.OK, { jobs })
+            const { jobs, nextCursor } = await this._jobService.getFreelancerJobs(
+                freelancerId, 
+                status, 
+                search, 
+                limit, 
+                cursor
+            );
+
+            sendResponse(res, HttpStatus.OK, { jobs, nextCursor })
         } catch (error) {
             next(error);
         }
@@ -169,7 +183,7 @@ export class JobController {
             const cursor = req.query.cursor as string | undefined;
             const limit = parseInt(req.query.limit as string) || 20;
 
-            const { jobs, nextCursor } = await this._service.getInterestedJobsForFreelancer(
+            const { jobs, nextCursor } = await this._jobService.getInterestedJobsForFreelancer(
                 freelancerId, search, limit, cursor
             );
 
@@ -187,7 +201,7 @@ export class JobController {
             }
             const jobId = req.params.jobId;
 
-            await this._service.addJobInterest(freelancerId, jobId);
+            await this._jobService.addJobInterest(freelancerId, jobId);
 
             sendResponse(res, HttpStatus.OK, {}, "Interested Job added");
         } catch (error) {
@@ -203,7 +217,7 @@ export class JobController {
                 throw createHttpError(HttpStatus.UNAUTHORIZED,HttpResponse.UNAUTHORIZED);
             }
 
-            await this._service.removeJobInterest(freelancerId, jobId);
+            await this._jobService.removeJobInterest(freelancerId, jobId);
             sendResponse(res, HttpStatus.OK, {}, "Interested job status updated");
         } catch (error) {
             next(error);

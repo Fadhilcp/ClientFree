@@ -5,12 +5,22 @@ import { AuthController } from "../controllers/auth.controller";
 import { UserRepository } from "../repositories/user.repository";
 import { OtpUserStoreRepository } from "../repositories/otpUserStore.repository";
 import { authMiddleware } from "middlewares/authMiddleware";
+import { verifyUserNotBanned } from "middlewares/verifyUserNotBanned.middleware";
+import { WalletRepository } from "repositories/wallet.repository";
+import { MongooseSessionProvider } from "repositories/db/session-provider";
 
 const authRouter = Router()
 
 const userRepository = new UserRepository();
 const otpUserRespository = new OtpUserStoreRepository();
-const authService = new AuthService(userRepository, otpUserRespository);
+const walletRepository = new WalletRepository();
+
+const authService = new AuthService(
+    userRepository, 
+    otpUserRespository,
+    walletRepository,
+);
+
 const authController = new AuthController(authService);
 
 
@@ -29,6 +39,6 @@ authRouter.post('/reset-password',authController.resetPassword.bind(authControll
 authRouter.post('/google',authController.googleAuth.bind(authController));
 authRouter.post('/logout',authController.logout.bind(authController));
 
-authRouter.put('/change-password',authMiddleware,authController.changePassword.bind(authController));
+authRouter.put('/change-password',authMiddleware,verifyUserNotBanned,authController.changePassword.bind(authController));
 
 export default authRouter;

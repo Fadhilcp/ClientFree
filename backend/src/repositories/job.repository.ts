@@ -52,9 +52,9 @@ export class JobRepository
 
     return this.model
         .find(paginatedFilter)
+        .populate("skills", "name _id")
         .sort({ _id: -1 })
         .limit(limit)
-        .populate("skills", "name _id")
         .exec();
     }
 }

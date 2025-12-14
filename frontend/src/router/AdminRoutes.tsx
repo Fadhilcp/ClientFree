@@ -10,7 +10,8 @@ import Subscriptions from '../pages/admin/Subscriptions'
 import NotFoundPage from '../pages/user/NotFoundPage'
 import AddOns from '../pages/admin/AddOns'
 import MilestonePayouts from '../pages/admin/MilestonePayouts'
-import DisputesPage from '../pages/admin/Disputes'
+import DisputesPage from '../pages/admin/dispute/Disputes'
+import DisputeDetailPage from '../pages/admin/dispute/DisputeDetailPage'
 
 const AdminRoutes: React.FC = () => {
   return (
@@ -50,6 +51,11 @@ const AdminRoutes: React.FC = () => {
             <Route path='disputes' element={
               <AuthProtectedRoute allowedRoles={['admin']}>
                 <DisputesPage/>
+              </AuthProtectedRoute>
+            }/>
+            <Route path='dispute/:id' element={
+              <AuthProtectedRoute allowedRoles={['admin']}>
+                <DisputeDetailPage/>
               </AuthProtectedRoute>
             }/>
 

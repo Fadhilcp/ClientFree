@@ -4,13 +4,13 @@ import { IAddOnService } from "services/interface/IAddOnsService";
 import { sendResponse } from "utils/response.util";
 
 export class AddonController {
-    constructor(private _service: IAddOnService){}
+    constructor(private _addOnService: IAddOnService){}
 
 
     async create(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const addOnData = req.body;
-            const addOn = await this._service.createAddOn(addOnData);
+            const addOn = await this._addOnService.createAddOn(addOnData);
 
             sendResponse(res, HttpStatus.OK, { addOn });
         } catch (error) {
@@ -23,7 +23,7 @@ export class AddonController {
             const { addOnId } = req.params;
             const addOnData = req.body;
 
-            const addOn = await this._service.updateAddOn(addOnId, addOnData);
+            const addOn = await this._addOnService.updateAddOn(addOnId, addOnData);
 
             sendResponse(res, HttpStatus.OK, { addOn });
         } catch (error) {
@@ -33,7 +33,7 @@ export class AddonController {
 
     async toggleActive(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const addOns = await this._service.getAll();
+            const addOns = await this._addOnService.getAll();
 
             sendResponse(res, HttpStatus.OK, { addOns });
         } catch (error) {
@@ -43,7 +43,7 @@ export class AddonController {
 
     async getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const addOns = await this._service.getAll();
+            const addOns = await this._addOnService.getAll();
 
             sendResponse(res, HttpStatus.OK, { addOns });
         } catch (error) {
@@ -54,7 +54,7 @@ export class AddonController {
     async getById(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { addOnId } = req.params;
-            const addOn = await this._service.getById(addOnId);
+            const addOn = await this._addOnService.getById(addOnId);
 
             sendResponse(res, HttpStatus.OK, { addOn });
         } catch (error) {
@@ -65,7 +65,7 @@ export class AddonController {
     async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { addOnId } = req.params;
-            const deleted: boolean = await this._service.deleteAddOn(addOnId);
+            const deleted: boolean = await this._addOnService.deleteAddOn(addOnId);
 
             sendResponse(res, HttpStatus.OK, {}, "AddOn deleted successfully", deleted)
         } catch (error) {

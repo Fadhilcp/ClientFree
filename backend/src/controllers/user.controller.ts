@@ -9,7 +9,7 @@ import { IUser } from "types/user.type";
 
 
 export class ProfileController {
-    constructor(private _service: IUserService){}
+    constructor(private _userService: IUserService){}
 
     async getMe(req: Request, res:Response, next: NextFunction) : Promise<void> {
         try {
@@ -19,7 +19,7 @@ export class ProfileController {
 
             const userId = req.user._id;
 
-            const user = await this._service.getMyProfile(userId);
+            const user = await this._userService.getMyProfile(userId);
         
             sendResponse(res, HttpStatus.OK, { user });
         } catch (error) {
@@ -40,7 +40,7 @@ export class ProfileController {
                 throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.INVALID_CREDENTIALS);
             }
             
-            const user = await this._service.updateProfile(userId, result.data as Partial<IUser>);
+            const user = await this._userService.updateProfile(userId, result.data as Partial<IUser>);
             
             sendResponse(res, HttpStatus.OK, { user });
         } catch (error) {
@@ -52,7 +52,7 @@ export class ProfileController {
         try {
             const { id } = req.params
 
-            const user = await this._service.getUserProfileById(id);
+            const user = await this._userService.getUserProfileById(id);
             
             sendResponse(res, HttpStatus.OK, { user });
         } catch (error) {
@@ -66,7 +66,7 @@ export class ProfileController {
             const page = parseInt(req.query.page as string) || 1;
             const limit = parseInt(req.query.limit as string) || 10;
 
-            const users = await this._service.getAllUsers(search, page, limit);
+            const users = await this._userService.getAllUsers(search, page, limit);
             sendResponse(res, HttpStatus.OK, { users });
         } catch (error) {
             next(error);
@@ -82,7 +82,7 @@ export class ProfileController {
                 throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.NO_FILE_FOUND);
             }
 
-            const { profileImage } = await this._service.setProfileImage(req.user?._id, req.file);
+            const { profileImage } = await this._userService.setProfileImage(req.user?._id, req.file);
 
             sendResponse(res, HttpStatus.OK, { profileImage });
         } catch (error) {
@@ -96,7 +96,7 @@ export class ProfileController {
                 throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.USER_NOT_FOUND);
             }
 
-            const { profileImage } = await this._service.removeProfileImage(req.user._id);
+            const { profileImage } = await this._userService.removeProfileImage(req.user._id);
 
             sendResponse(res, HttpStatus.OK, { profileImage });
         } catch (error) {
@@ -111,7 +111,7 @@ export class ProfileController {
 
             if(!status) throw createHttpError(HttpStatus.BAD_REQUEST,'Status field is required');
 
-            const user = await this._service.changeUserStatus(userId, status);
+            const user = await this._userService.changeUserStatus(userId, status);
 
             sendResponse(res, HttpStatus.OK, { user });
         } catch (error) {
@@ -132,7 +132,7 @@ export class ProfileController {
                 throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
             }
 
-            const { freelancers, nextCursor } = await this._service.getFreelancers(
+            const { freelancers, nextCursor } = await this._userService.getFreelancers(
                 clientId, search, limit, cursor
             );
 
@@ -153,7 +153,7 @@ export class ProfileController {
             const cursor = req.query.cursor as string | undefined;
             const limit = parseInt(req.query.limit as string) || 20;
 
-            const { freelancers, nextCursor } = await this._service.getInterestedFreelancers(
+            const { freelancers, nextCursor } = await this._userService.getInterestedFreelancers(
                 clientId, search, limit, cursor
             );
 
@@ -170,7 +170,7 @@ export class ProfileController {
             if(!clientId) {
                 throw createHttpError(HttpStatus.UNAUTHORIZED,HttpResponse.UNAUTHORIZED);
             }
-            await this._service.addFreelancerInterest(clientId, freelancerId);
+            await this._userService.addFreelancerInterest(clientId, freelancerId);
             sendResponse(res, HttpStatus.OK, {}, "Interested freelancer added");
         } catch (error) {
             next(error);
@@ -185,7 +185,7 @@ export class ProfileController {
                 throw createHttpError(HttpStatus.UNAUTHORIZED,HttpResponse.UNAUTHORIZED);
             }
 
-            await this._service.removeFreelancerInterest(clientId, freelancerId);
+            await this._userService.removeFreelancerInterest(clientId, freelancerId);
             sendResponse(res, HttpStatus.OK, {}, "Interested freelancer status updated");
         } catch (error) {
             next(error);

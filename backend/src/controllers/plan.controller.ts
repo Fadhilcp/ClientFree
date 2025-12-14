@@ -6,12 +6,12 @@ import { createHttpError } from 'utils/httpError.util';
 import { sendResponse } from 'utils/response.util';
 
 export class PlanController {
-    constructor(private _service: IPlanService) {}
+    constructor(private _planService: IPlanService) {}
 
     async getActivePlans(req: Request, res: Response, next: NextFunction): Promise<void> {
       try {
         const { userType } = req.query;
-        const plans = await this._service.getActive(userType as string);
+        const plans = await this._planService.getActive(userType as string);
         sendResponse(res, HttpStatus.OK, { plans });
       } catch (error) {
         next(error);
@@ -25,7 +25,7 @@ export class PlanController {
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
 
-        const plans = await this._service.getPlans(search, status, page, limit);
+        const plans = await this._planService.getPlans(search, status, page, limit);
         
         sendResponse(res, HttpStatus.OK, { plans });
       } catch (error) {
@@ -40,7 +40,7 @@ export class PlanController {
         if(!role){
           throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.ROLE_NOT_FOUND);
         }
-        const plan = await this._service.getPlanById(id, role);
+        const plan = await this._planService.getPlanById(id, role);
         sendResponse(res, HttpStatus.OK, { plan });
       } catch (error) {
         next(error);
@@ -50,7 +50,7 @@ export class PlanController {
     async createPlan(req: Request, res: Response, next: NextFunction): Promise<void> {
       try {
         const data = req.body;
-        const plan = await this._service.createPlan(data);
+        const plan = await this._planService.createPlan(data);
         sendResponse(res, HttpStatus.CREATED, { plan });
       } catch (error) {
         next(error);
@@ -62,7 +62,7 @@ export class PlanController {
         const { id } = req.params;
         const data = req.body
 
-        const plan = await this._service.updatePlan(id, data);
+        const plan = await this._planService.updatePlan(id, data);
         sendResponse(res, HttpStatus.OK, { plan });
       } catch (error) {
         next(error);
@@ -72,7 +72,7 @@ export class PlanController {
     async deletePlan(req: Request, res: Response, next: NextFunction): Promise<void> {
       try {
         const { id } = req.params
-        await this._service.deletePlan(id);
+        await this._planService.deletePlan(id);
         sendResponse(res, HttpStatus.NO_CONTENT, {});
       } catch (error) {
         next(error);

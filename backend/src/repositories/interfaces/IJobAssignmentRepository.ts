@@ -6,4 +6,7 @@ export interface IJobAssignmentRepository extends IBaseRepository<IJobAssignment
     findWithJobDetail(filter: FilterQuery<IJobAssignmentDocument>): Promise<IJobAssignmentDocument[] | null>
     findWithFreelancer(filter: FilterQuery<IJobAssignmentDocument>): Promise<IJobAssignmentDocument[]>
     findApprovedMilestones(): Promise<IJobAssignmentDocument[]>;
+    findWithJobDetailPaginated(
+                filter: FilterQuery<IJobAssignmentDocument>, limit: number
+            ): Promise<IJobAssignmentDocument[]>;
 };

@@ -1,3 +1,4 @@
+import { ISkillDocument } from "types/skill.type";
 import { FreelancerProfileDto } from "./freelancerProfile.dto";
 
 export interface JobBaseDTO {
@@ -8,7 +9,7 @@ export interface JobBaseDTO {
   category?: string;
   subcategory?: string;
 
-  skills?: string[];
+  skills?: { id: string, name: string }[];
 
   duration?: string;
 

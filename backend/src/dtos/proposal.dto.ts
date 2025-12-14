@@ -5,6 +5,7 @@ export interface ProposalDTO {
   freelancer: {
     id: string;
     username: string;
+    name: string;
     email: string;
     profileImage?: string | null;
   };

@@ -33,7 +33,6 @@ const FreelancersPage: React.FC = () => {
   const [selectedFreelancer, setSelectedFreelancer] = useState<FreelancerListItemDto | null>(null);
 
   const [formData, setFormData] = useState({
-    title: "",
     message: "",
     jobId: "",
   });
@@ -78,7 +77,7 @@ const FreelancersPage: React.FC = () => {
   const fetchClientJobs = useCallback(async () => {
     if (!user || user.role !== "client") return;
     try {
-      const response = await jobService.getMyJobs("open", "");
+      const response = await jobService.getMyJobs("open", "", "", 0);
       if (response.data.success) {
         const { jobs } = response.data;
         setClientJobs(jobs);
@@ -139,7 +138,7 @@ useEffect(() => {
 
   const handleCloseModal = () => {
     setIsInviteOpen(false);
-    setFormData({ title: "", message: "", jobId: "" });
+    setFormData({ message: "", jobId: "" });
     setSelectedFreelancer(null);
   };
 
@@ -147,7 +146,6 @@ useEffect(() => {
     if (!selectedFreelancer) return;
 
     const newErrors: Partial<typeof formData> = {};
-    if (!data.title) newErrors.title = "Title is required";
     if (!data.message) newErrors.message = "Message is required";
     if (!data.jobId) newErrors.jobId = "Please select a job";
 
@@ -158,7 +156,7 @@ useEffect(() => {
       const response = await proposalService.inviteFreelancer(
         data.jobId,
         selectedFreelancer.id,
-        { title: data.title, message: data.message }
+        { message: data.message }
       );
       if (response.data.success) {
         notify.success(`Invitation sent to Freelancer ${selectedFreelancer.name}`);
@@ -225,7 +223,7 @@ useEffect(() => {
                 {
                   label: freelancer.isInterested ? <i className="fa-solid fa-thumbs-up text-indigo-600"></i> : <i className="fa-regular fa-thumbs-up"></i>,
                   onClick: () => handleToggleInterest(freelancer.id, freelancer.isInterested!),
-                  variant: freelancer.isInterested ? "danger" : "secondary",
+                  variant: "secondary",
                 },
                 {
                   label: "View Profile",
@@ -252,9 +250,6 @@ useEffect(() => {
             onChange={handleFormChange}
             title={`Invite ${selectedFreelancer?.name || selectedFreelancer?.username}`}
             errors={errors}
-            fields={[
-              { name: "title", label: "Title", placeholder: "Enter invite title" },
-            ]}
             textAreas={[
               { name: "message", label: "Message", placeholder: "Write your message...", rows: 4 },
             ]}

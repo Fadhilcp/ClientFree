@@ -5,6 +5,7 @@ export interface IProposal {
   freelancer: {
     id: string;
     username: string;
+    name: string;
     email: string;
     profileImage?: string | null;
   };

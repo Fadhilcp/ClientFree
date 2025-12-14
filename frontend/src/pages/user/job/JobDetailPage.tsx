@@ -254,8 +254,9 @@ const JobDetailPage: React.FC = () => {
     }
 
   return (
-    <section className="bg-white dark:bg-gray-900 min-h-screen flex justify-center py-6">
-      <div className="w-full max-w-6xl border border-gray-200 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-900 shadow-sm">
+    <section className="bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 min-h-screen flex justify-center py-10 px-4">
+      <div className="w-full max-w-6xl rounded-xl bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+        
         {/* Top Section */}
         <JobHeader
           activeTab={activeTab}
@@ -267,9 +268,10 @@ const JobDetailPage: React.FC = () => {
 
         {/* Job Details */}
         {activeTab === "details" && (
-          <div className="p-6">
+          <div className="p-8">
             <JobDetails job={job} />
-            <div className="border-t border-gray-200 dark:border-gray-700 my-6"></div>
+
+            <div className="my-8 border-t border-gray-200 dark:border-gray-700 opacity-70"></div>
 
             {/* Freelancer not selected notice */}
             {user?.role === "freelancer" &&
@@ -277,29 +279,27 @@ const JobDetailPage: React.FC = () => {
               !(job.acceptedProposals ?? []).some(
                 (p) => p.freelancer && p.freelancer.id === user.id
               ) && (
-                <div className="p-4 mb-4 text-red-600 dark:text-red-400 font-medium">
+                <div className="p-4 mb-6 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-md shadow-sm">
                   You were not selected for this job.
                 </div>
               )}
 
-            {/* Hired / Accepted Freelancer Section (only for client) */}
+            {/* Hired Freelancers */}
             {isJobOwner &&
               job.acceptedProposals &&
               job.acceptedProposals.length > 0 && (
-                <div className="mb-6">
-                  <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-3">
+                <div className="mb-10">
+                  <h2 className="text-xl font-bold text-indigo-600 dark:text-indigo-400 mb-4">
                     {job.acceptedProposals.length > 1
                       ? "Hired Freelancers"
                       : "Hired Freelancer"}
                   </h2>
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     {job.acceptedProposals.map((p: any) => (
                       <Card
                         key={p.id}
                         user={p.freelancer ?? undefined}
-                        title={
-                          p.freelancer.professionalTitle || p.freelancer.name
-                        }
+                        title={p.freelancer.professionalTitle || p.freelancer.name}
                         subtitle={`Bid: ₹${p.bidAmount} • Duration: ${p.duration}`}
                         description={p.description}
                         status={p.status}
@@ -309,14 +309,8 @@ const JobDetailPage: React.FC = () => {
                             : []
                         }
                         meta={[
-                          {
-                            label: "Experience",
-                            value: p.freelancer.experienceLevel,
-                          },
-                          {
-                            label: "Hourly Rate",
-                            value: p.freelancer.hourlyRate,
-                          },
+                          { label: "Experience", value: p.freelancer.experienceLevel },
+                          { label: "Hourly Rate", value: p.freelancer.hourlyRate },
                         ]}
                         footer={`Accepted on: ${new Date(
                           p.updatedAt
@@ -324,25 +318,23 @@ const JobDetailPage: React.FC = () => {
                         actions={[
                           {
                             label: "View Profile",
-                            onClick: () =>
-                              console.log("View freelancer", p.freelancer.id),
+                            onClick: () => console.log("View freelancer", p.freelancer.id),
                             variant: "secondary" as const,
                           },
                         ]}
                       />
                     ))}
                   </div>
-                  <div className="border-t border-gray-200 dark:border-gray-700 my-6"></div>
+                  <div className="my-8 border-t border-gray-200 dark:border-gray-700 opacity-70"></div>
                 </div>
               )}
 
-            {/* Milestones Section (visible to both client and freelancer) */}
+            {/* Milestones */}
             {jobAssignments?.map((assignment) => (
-              <div key={assignment.id} className="mb-8">
-                <h2 className="text-md font-bold text-gray-800 dark:text-gray-100 mb-3">
-                  Milestones for {assignment.freelancer.name}
+              <div key={assignment.id} className="mb-10">
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
+                  Milestones for <span className="text-indigo-600 dark:text-indigo-500">{assignment.freelancer.name}</span>
                 </h2>
-                {/* Milestone form */}
                 <MilestoneForm
                   assignmentId={assignment.id}
                   initialMilestones={assignment.milestones || []}
@@ -353,23 +345,32 @@ const JobDetailPage: React.FC = () => {
               </div>
             ))}
 
-
-            {/* Place Bid Page (only for freelancer when job is open) */}
+            {/* Place Bid */}
             {user?.role === "freelancer" && job.status === "open" && (
-              <PlaceBidPage user={user} jobId={job.id} isProfileComplete={user.isProfileComplete} />
+              <div className="mt-8">
+                <PlaceBidPage
+                  user={user}
+                  jobId={job.id}
+                  isProfileComplete={user.isProfileComplete}
+                />
+              </div>
             )}
-            <div className="border-t border-gray-200 dark:border-gray-700 my-6"></div>
+
+            <div className="my-8 border-t border-gray-200 dark:border-gray-700 opacity-70"></div>
+
             {/* Start Job Button */}
-            {isJobOwner &&
-              job.status === "open" && canStartJob && (
-                <Button
+            {isJobOwner && job.status === "open" && canStartJob && (
+              <Button
                 label="Start Job"
                 onClick={() => handleStartJob()}
-                className="mt-4 px-4 py-2 bg-indigo-600 dark:bg-indigo-600 text-white rounded-md hover:bg-indigo-700 hover:dark:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-600"
-                />
-              )}
-              {/* Clarification board */}
+                className="mt-6 px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white rounded-lg shadow-md hover:from-indigo-700 hover:to-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all duration-200"
+              />
+            )}
+
+            {/* Clarification Board */}
+            <div className="mt-10">
               <ClarificationBoard jobId={job.id} />
+            </div>
           </div>
         )}
 

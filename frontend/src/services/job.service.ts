@@ -1,6 +1,6 @@
 import { endPoints } from '../config/endpoints';
 import axios from '../lib/axios';
-import { type JobDetailDTO } from '../types/job/job.dto';
+import { type JobForm } from '../types/job/job.dto';
 
 class JobService {
     getJobs(cursor: string | undefined, limit: number, status: string, search: string) {
@@ -11,19 +11,19 @@ class JobService {
         return axios.post(endPoints.JOB.CREATE, data);
     }
 
-    getMyJobs(status: string, search: string) {
-        return axios.get(endPoints.JOB.MY_JOBS(status, search));
+    getMyJobs(status: string, search: string, cursor: string | undefined, limit: number,) {
+        return axios.get(endPoints.JOB.MY_JOBS(status, search, cursor, limit));
     }
 
-    getFreelancerJob(status: string, search: string) {
-        return axios.get(endPoints.JOB.FREELANCER_JOBS(status, search));
+    getFreelancerJob(status: string, search: string, cursor: string | undefined, limit: number,) {
+        return axios.get(endPoints.JOB.FREELANCER_JOBS(status, search, cursor, limit));
     }
 
     getJob(jobId: string) {
         return axios.get(endPoints.JOB.BY_ID(jobId));
     }
 
-    updateJob(jobId: string, data: Partial<JobDetailDTO>) {
+    updateJob(jobId: string, data: Partial<JobForm>) {
         return axios.put(endPoints.JOB.BY_ID(jobId), data);
     }
 

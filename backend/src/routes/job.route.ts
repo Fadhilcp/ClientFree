@@ -1,6 +1,7 @@
 import { JobController } from "controllers/job.controller";
 import { Router } from "express";
 import { authMiddleware } from "middlewares/authMiddleware";
+import { verifyUserNotBanned } from "middlewares/verifyUserNotBanned.middleware";
 import { ClarificationBoardRepository } from "repositories/clarificationBoard.repository";
 import { JobRepository } from "repositories/job.repository";
 import { JobAssignmentRepository } from "repositories/jobAssignment.repository";
@@ -26,19 +27,21 @@ const jobSerivce = new JobService(
 
 const jobController = new JobController(jobSerivce);
 
-jobRouter.post('/',authMiddleware,jobController.createJob.bind(jobController));
-jobRouter.get('/',authMiddleware,jobController.getAll.bind(jobController));
-jobRouter.get('/client/me',authMiddleware,jobController.getClientJobs.bind(jobController));
+jobRouter.use(authMiddleware, verifyUserNotBanned);
 
-jobRouter.get('/interested',authMiddleware,jobController.getInterestedJobs.bind(jobController));
-jobRouter.post('/:jobId/interest',authMiddleware,jobController.addJobInterest.bind(jobController));
-jobRouter.delete('/:jobId/interest',authMiddleware,jobController.removeJobInterest.bind(jobController));
+jobRouter.post('/',jobController.createJob.bind(jobController));
+jobRouter.get('/',jobController.getAll.bind(jobController));
+jobRouter.get('/client/me',jobController.getClientJobs.bind(jobController));
 
-jobRouter.get('/freelancer/me',authMiddleware,jobController.getFreelancerJobs.bind(jobController));
-jobRouter.patch('/:id/status',authMiddleware,jobController.changeStatus.bind(jobController));
-jobRouter.post('/:id/activate',authMiddleware,jobController.startJob.bind(jobController));
-jobRouter.get('/:id',authMiddleware,jobController.getById.bind(jobController));
-jobRouter.put('/:id',authMiddleware,jobController.update.bind(jobController));
-jobRouter.delete('/:id',authMiddleware,jobController.delete.bind(jobController));
+jobRouter.get('/interested',jobController.getInterestedJobs.bind(jobController));
+jobRouter.post('/:jobId/interest',jobController.addJobInterest.bind(jobController));
+jobRouter.delete('/:jobId/interest',jobController.removeJobInterest.bind(jobController));
+
+jobRouter.get('/freelancer/me',jobController.getFreelancerJobs.bind(jobController));
+jobRouter.patch('/:id/status',jobController.changeStatus.bind(jobController));
+jobRouter.post('/:id/activate',jobController.startJob.bind(jobController));
+jobRouter.get('/:id',jobController.getById.bind(jobController));
+jobRouter.put('/:id',jobController.update.bind(jobController));
+jobRouter.delete('/:id',jobController.delete.bind(jobController));
 
 export default jobRouter;

@@ -135,7 +135,7 @@ const AdminSidebar: React.FC = () => {
   return (
     <div
       id="sidebar"
-      className="lg:block lg:translate-x-0 w-64 -translate-x-full transition-all duration-300 transform h-full hidden fixed top-0 left-0 bottom-0 z-60 bg-white border-e border-gray-200 dark:bg-gray-900 dark:border-gray-700"
+      className="lg:block lg:translate-x-0 w-50 -translate-x-full transition-all duration-300 transform h-full hidden fixed top-0 left-0 bottom-0 z-60 bg-white border-e border-gray-200 dark:bg-gray-900 dark:border-gray-700"
       role="dialog"
       tabIndex={-1}
       aria-label="Sidebar"

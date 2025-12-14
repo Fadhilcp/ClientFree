@@ -10,7 +10,7 @@ const proposalInvitationSchema = new Schema({
 
   jobId: {
     type: Schema.Types.ObjectId,
-    ref: "Jobs",
+    ref: "Job",
     required: true
   },
 

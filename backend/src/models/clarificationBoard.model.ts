@@ -4,7 +4,7 @@ import { IClarificationBoardDocument } from "types/clarificationBoard";
 const clarificationBoardSchema = new Schema({
   jobId: { 
     type: Schema.Types.ObjectId, 
-    ref: "Jobs", 
+    ref: "Job", 
     required: true 
   },
 

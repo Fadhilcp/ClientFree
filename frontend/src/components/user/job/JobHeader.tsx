@@ -8,37 +8,49 @@ interface JobHeaderProps {
 
 const JobHeader: React.FC<JobHeaderProps> = ({ activeTab, setActiveTab, tabs, status, onBack }) => {
   return (
-    <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-      <button onClick={onBack} className="px-3 py-1 text-sm rounded bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600">
+    <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
+      {/* Back Button */}
+      <button
+        onClick={onBack}
+        className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg 
+                  bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 
+                  hover:bg-gray-200 dark:hover:bg-gray-600 
+                  transition-colors duration-200 shadow-sm"
+      >
         <i className="fa-solid fa-arrow-left"></i>
+        <span className="hidden sm:inline">Back</span>
       </button>
 
-      <div className="flex gap-6">
+      {/* Tabs */}
+      <div className="flex gap-4">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`text-sm font-medium ${
+            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-200 ${
               activeTab === tab.key
-                ? "text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600"
-                : "text-gray-600 dark:text-gray-300"
-            } pb-1`}
+                ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 border-b-2 border-indigo-600"
+                : "text-gray-600 dark:text-gray-300 hover:text-indigo-500 dark:hover:text-indigo-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+            }`}
           >
             {tab.label}
           </button>
         ))}
       </div>
 
-      <span className={`px-3 py-1 text-sm rounded ${
-        status === "open"
-          ? "bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-200"
-          : status === "completed"
-          ? "bg-blue-100 text-blue-700 dark:bg-blue-800 dark:text-blue-200"
-          : status === "cancelled"
-          ? "bg-red-100 text-red-700 dark:bg-red-800 dark:text-red-200"
-          : "bg-yellow-100 text-yellow-700 dark:bg-yellow-800 dark:text-yellow-200"
-      }`}>
-        {status}
+      {/* Status Badge */}
+      <span
+        className={`px-3 py-1.5 text-sm font-semibold rounded-full shadow-sm transition-colors duration-200 ${
+          status === "open"
+            ? "bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-200"
+            : status === "completed"
+            ? "bg-blue-100 text-blue-700 dark:bg-blue-800 dark:text-blue-200"
+            : status === "cancelled"
+            ? "bg-red-100 text-red-700 dark:bg-red-800 dark:text-red-200"
+            : "bg-yellow-100 text-yellow-700 dark:bg-yellow-800 dark:text-yellow-200"
+        }`}
+      >
+        {status.charAt(0).toUpperCase() + status.slice(1)}
       </span>
     </div>
   );

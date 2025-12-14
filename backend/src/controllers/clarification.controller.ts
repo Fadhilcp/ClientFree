@@ -6,7 +6,7 @@ import { createHttpError } from "utils/httpError.util";
 import { sendResponse } from "utils/response.util";
 
 export class ClarificationController {
-    constructor(private _service: IClarificationService){}
+    constructor(private _clarificationService: IClarificationService){}
 
     async addMessage(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
@@ -24,7 +24,7 @@ export class ClarificationController {
                 throw createHttpError(HttpStatus.BAD_REQUEST, "Now allowed")
             }
 
-            const newMessage = await this._service.addMessage(
+            const newMessage = await this._clarificationService.addMessage(
                 jobId,
                 senderId,
                 senderRole as "freelancer" | "client",
@@ -41,7 +41,7 @@ export class ClarificationController {
         try {
             const { jobId } = req.params;
 
-            const { board, messages } = await this._service.getBoard(jobId);
+            const { board, messages } = await this._clarificationService.getBoard(jobId);
 
             sendResponse(res, HttpStatus.OK, { board, messages });
         } catch (error) {
@@ -57,7 +57,7 @@ export class ClarificationController {
                 throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
             }
 
-            const board = await this._service.closeBoard(jobId, requesterId);
+            const board = await this._clarificationService.closeBoard(jobId, requesterId);
 
             sendResponse(res, HttpStatus.OK, { board });
         } catch (error) {

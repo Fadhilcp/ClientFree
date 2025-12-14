@@ -226,150 +226,146 @@ const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ user, jobId, isProfileCompl
     }
   };
 
-  return (
-    <section className="min-h-screen bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6 relative pb-20">
-      <h1 className="text-xl font-semibold text-gray-800 dark:text-white mb-6">
-        Place a Bid on this Project
-      </h1>
+return (
+  <section className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 rounded-xl shadow-lg p-8 relative pb-24">
+    <h1 className="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400 mb-8">
+      Place a Bid on this Project
+    </h1>
 
-      {/* Bid Amount + Duration side by side */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <InputSection<IProposal>
-          name="bidAmount"
-          type="number"
-          value={String(proposalState.bidAmount)}
-          onChange={(val: string) => handleChange("bidAmount", Number(val))}
-          placeholder="₹ 56200.00"
-          label="Bid Amount (INR)"
-          error={errors.bidAmount}
-        />
-        <InputSection<IProposal>
-          name="duration"
-          type="text"
-          value={proposalState.duration}
-          onChange={(val: string) => handleChange("duration", val)}
-          placeholder="e.g. 7 Days"
-          label="Duration"
-          error={errors.duration}
-        />
-      </div>
+    {/* Bid Amount + Duration */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <InputSection<IProposal>
+        name="bidAmount"
+        type="number"
+        value={String(proposalState.bidAmount)}
+        onChange={(val: string) => handleChange("bidAmount", Number(val))}
+        placeholder="₹ 56200.00"
+        label="Bid Amount (INR)"
+        error={errors.bidAmount}
+      />
+      <InputSection<IProposal>
+        name="duration"
+        type="text"
+        value={proposalState.duration}
+        onChange={(val: string) => handleChange("duration", val)}
+        placeholder="e.g. 7 Days"
+        label="Duration"
+        error={errors.duration}
+      />
+    </div>
 
-      {/* Proposal Description */}
-      <div className="mb-6">
-        <TextAreaSection<IProposal>
-          name="description"
-          value={proposalState.description}
-          onChange={(val: string) => handleChange("description", val)}
-          placeholder="What makes you the best candidate for this project?"
-          label="Describe Your Proposal"
-          rows={5}
-          error={errors.description}
-        />
-      </div>
+    {/* Proposal Description */}
+    <div className="mb-8">
+      <TextAreaSection<IProposal>
+        name="description"
+        value={proposalState.description}
+        onChange={(val: string) => handleChange("description", val)}
+        placeholder="What makes you the best candidate for this project?"
+        label="Describe Your Proposal"
+        rows={5}
+        error={errors.description}
+      />
+    </div>
 
-      {/* Milestone Payments */}
-      <div className="mb-6">
-        <h2 className="text-md font-semibold text-gray-800 dark:text-white mb-4">
-          Request Milestone Payments
-        </h2>
-        {proposalState.milestones?.map((milestone, index) => (
-          <div
-            key={index}
-            className="relative mb-4 p-4 rounded-md border border-gray-300 dark:border-gray-700"
-          >
-            {/* Close Button */}
-            <Button
+    {/* Milestone Payments */}
+    <div className="mb-8">
+      <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+        <i className="fa-solid fa-flag-checkered text-indigo-500"></i>
+        Request Milestone Payments
+      </h2>
+      {proposalState.milestones?.map((milestone, index) => (
+        <div
+          key={index}
+          className="relative mb-6 p-6 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow duration-200"
+        >
+          {/* Close Button */}
+          <Button
               type="button"
               onClick={() => handleRemoveMilestone(index)}
               className="absolute top-2 right-2 bg-transparent dark:bg-transparent hover:dark:bg-transparent hover:bg-transparent text-sm"
               aria-label="Remove milestone"
             >
               <i className="fa-solid fa-xmark text-black hover:text-indigo-500 dark:text-gray-400 dark:hover:text-indigo-400"></i>
-            </Button>
+          </Button>
 
-            {/* Title + Amount + Due Date */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <InputSection<Milestone>
-                name="title"
-                value={milestone.title}
-                onChange={(val: string) =>
-                  handleMilestoneChange(index, "title", val)
-                }
-                placeholder="Add Title"
-                label="Title"
-                error={errors.milestones?.[index]?.title}
-              />
-              <InputSection<Milestone>
-                name="amount"
-                type="number"
-                value={String(milestone.amount)}
-                onChange={(val: string) =>
-                  handleMilestoneChange(index, "amount", val)
-                }
-                placeholder="₹ 5620.00"
-                label="Amount (INR)"
-                error={errors.milestones?.[index]?.amount}
-              />
-              <InputSection<Milestone>
-                name="dueDate"
-                type="date"
-                value={milestone.dueDate || ""}
-                onChange={(val: string) =>
-                  handleMilestoneChange(index, "dueDate", val)
-                }
-                label="Due Date"
-                error={errors.milestones?.[index]?.dueDate}
-              />
-            </div>
-
-            {/* Description */}
-            <TextAreaSection<IProposal>
-              name="description"
-              value={milestone.description || ""}
-              onChange={(val: string) =>
-                handleMilestoneChange(index, "description", val)
-              }
-              placeholder="Describe milestone..."
-              label="Description"
-              rows={3}
-              error={errors.milestones?.[index]?.description}
+          {/* Title + Amount + Due Date */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+            <InputSection<Milestone>
+              name="title"
+              value={milestone.title}
+              onChange={(val: string) => handleMilestoneChange(index, "title", val)}
+              placeholder="Add Title"
+              label="Title"
+              error={errors.milestones?.[index]?.title}
+            />
+            <InputSection<Milestone>
+              name="amount"
+              type="number"
+              value={String(milestone.amount)}
+              onChange={(val: string) => handleMilestoneChange(index, "amount", val)}
+              placeholder="₹ 5620.00"
+              label="Amount (INR)"
+              error={errors.milestones?.[index]?.amount}
+            />
+            <InputSection<Milestone>
+              name="dueDate"
+              type="date"
+              value={milestone.dueDate || ""}
+              onChange={(val: string) => handleMilestoneChange(index, "dueDate", val)}
+              label="Due Date"
+              error={errors.milestones?.[index]?.dueDate}
             />
           </div>
-        ))}
-        <button
-          onClick={handleAddMilestone}
-          className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
-        >
-          + Add Milestone
-        </button>
-      </div>
 
-      {/* Optional Upgrades */}
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
-          Optional Upgrades
-        </h2>
-        {addOns.length === 0 ? (
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            (No add-ons available currently)
-          </p>
-        ) : (
-          <AddOnList
-            addOns={addOns}
-            selectedUpgradeId={selectedUpgradeId}
-            onSelect={(id) => setSelectedUpgradeId(id)}
+          {/* Description */}
+          <TextAreaSection<IProposal>
+            name="description"
+            value={milestone.description || ""}
+            onChange={(val: string) => handleMilestoneChange(index, "description", val)}
+            placeholder="Describe milestone..."
+            label="Description"
+            rows={3}
+            error={errors.milestones?.[index]?.description}
           />
-        )}
-      </div>
+        </div>
+      ))}
+      <button
+        onClick={handleAddMilestone}
+        className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+      >
+        <i className="fa-solid fa-plus"></i> Add Milestone
+      </button>
+    </div>
 
-      {/* Submit Button */}
+    {/* Optional Upgrades */}
+    <div className="mb-8">
+      <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-3 flex items-center gap-2">
+        <i className="fa-solid fa-star text-indigo-500"></i>
+        Optional Upgrades
+      </h2>
+      {addOns.length === 0 ? (
+        <p className="text-sm text-gray-500 dark:text-gray-400 italic"> 
+          (No add-ons available currently)
+        </p>
+      ) : (
+        <AddOnList
+          addOns={addOns}
+          selectedUpgradeId={selectedUpgradeId}
+          onSelect={(id) => setSelectedUpgradeId(id)}
+        />
+      )}
+    </div>
+
+    {/* Submit Button */}
+    <div className="flex justify-end">
       <Button
         label={loading ? "Submitting..." : "Place Bid"}
         onClick={handleSubmit}
-        className="rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500"
+        className="rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-500 px-6 py-3 text-sm font-semibold text-white shadow-md hover:from-indigo-700 hover:to-indigo-600 transition-all duration-200"
       />
-    </section>
-  );
+    </div>
+  </section>
+);
 };
 
 export default PlaceBidPage;

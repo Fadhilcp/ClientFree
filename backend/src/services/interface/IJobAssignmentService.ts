@@ -20,4 +20,5 @@ export interface IJobAssignmentService {
         assignmentId: string, milestoneId: string, currentUser: AuthPayload, reason?: string
     ): Promise<{ assignment: AssignmentDto, payment: IPaymentDocument }>;
     getApprovedMilestones(): Promise<AdminApprovedMilestoneDto[]>
+    getFileUrl(userId: string, assignmentId: string, milestoneId: string, key: string): Promise<{ url: string }>
 }

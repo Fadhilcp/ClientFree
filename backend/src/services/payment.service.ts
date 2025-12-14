@@ -11,7 +11,7 @@ import { env } from "config/env.config";
 import { IJobRepository } from "repositories/interfaces/IJobRepository";
 import { IPaymentDocument } from "types/payment.type";
 import { AdminDisputeMapper } from "mappers/adminDispute.mapper";
-import { AdminDisputeDto } from "dtos/adminDispute.dto";
+import { AdminDisputeDto, AdminDisputeListDto } from "dtos/adminDispute.dto";
 
 export class PaymentService implements IPaymentService {
     constructor(
@@ -200,9 +200,19 @@ export class PaymentService implements IPaymentService {
         return { payment, assignment };
     }
 
-    async listDisputes(): Promise<(AdminDisputeDto | null)[]> {
+    async listDisputes(): Promise<AdminDisputeListDto[]> {
         const disputes = await this._paymentRepository.findDisputes({ isDisputed: true, status: "disputed" });
 
         return AdminDisputeMapper.mapList(disputes);
+    }
+
+    async getDisputeById(paymentId: string): Promise<AdminDisputeDto> {
+        const dispute = await this._paymentRepository.disputeByIdWithDetail(paymentId);
+
+        if(!dispute) {
+            throw createHttpError(HttpStatus.NOT_FOUND, "Dispute not found");
+        }
+
+        return AdminDisputeMapper.map(dispute)
     }
 }

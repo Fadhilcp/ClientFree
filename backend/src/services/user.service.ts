@@ -124,7 +124,7 @@ export class UserService implements IUserService {
             ];
         }
 
-        if(cursor) {
+        if(cursor && cursor !== "undefined" && cursor !== "null") {
             filter._id = { $lt: cursor };
         }
 
@@ -186,7 +186,7 @@ export class UserService implements IUserService {
             ];
         }
         // cursor for infinite scroll
-        if(cursor) {
+        if(cursor && cursor !== "undefined" && cursor !== "null") {
             filter._id = { 
                 $in: freelancerIds,
                 $lt: cursor

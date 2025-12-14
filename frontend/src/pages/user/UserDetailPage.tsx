@@ -60,170 +60,166 @@ const UserDetailPage: React.FC = () => {
   if (loading) return <Loader />;
   if (!user) return <p className="text-center text-gray-500 py-10">User not found.</p>;
 
-  return (
-  <section className="bg-white dark:bg-gray-900 min-h-screen p-6">
-    {/* Back Button full width */}
-    <div className="max-w-6xl mx-auto mb-4 flex">
+return (
+  <section className="bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 min-h-screen p-8">
+    {/* Back Button */}
+    <div className="max-w-6xl mx-auto mb-6 flex">
       <Button
         onClick={() => navigate(-1)}
         variant="secondary"
-        className="px-3 py-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 
-                   dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700"
+        className="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 
+                   dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 shadow-sm transition-all duration-200"
       >
         <i className="fa-solid fa-arrow-left mr-2"></i> Back
       </Button>
     </div>
 
     {/* Profile Card */}
-    <div className="max-w-6xl mx-auto rounded-lg shadow-md bg-gray-50 dark:bg-gray-800 p-6">
+    <div className="max-w-6xl mx-auto rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 bg-white dark:bg-gray-800 p-8 border border-gray-100 dark:border-gray-700">
       {/* Profile Header */}
-      <div className="flex items-center gap-6 mb-6">
-        <ProfileImage src={user.profileImage} useAuthFallback size={100} />
+      <div className="flex items-center gap-8 mb-8">
+        <ProfileImage src={user.profileImage} useAuthFallback size={120} className="rounded-full shadow-md ring-2 ring-indigo-500" />
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
             {user.name || user.username}
           </h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            {user.professionalTitle || user.role}
-          </p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">{user.professionalTitle || user.role}</p>
           <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
           {user.phone && (
-            <p className="text-sm text-gray-500 dark:text-gray-400"><i className="fa-solid fa-phone"></i> {user.phone}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+              <i className="fa-solid fa-phone text-indigo-500"></i> {user.phone}
+            </p>
           )}
         </div>
       </div>
 
+      {/* About / Description */}
+      {user.about && (
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2">About</h2>
+          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{user.about}</p>
+        </div>
+      )}
+      {user.description && (
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2">Description</h2>
+          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{user.description}</p>
+        </div>
+      )}
 
-        {/* About / Description */}
-        {user.about && (
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">About</h2>
-            <p className="text-gray-700 dark:text-gray-300">{user.about}</p>
+      {/* Skills */}
+      {user.skills && user.skills.length > 0 && (
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2">Skills</h2>
+          <div className="flex flex-wrap gap-2">
+            {user.skills.map((skill) => (
+              <span
+                key={skill._id}
+                className="px-3 py-1 text-xs font-semibold rounded-full bg-indigo-50 text-indigo-700 
+                           dark:bg-indigo-900/40 dark:text-indigo-300 shadow-sm hover:shadow-md transition-all duration-200"
+              >
+                {skill.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Experience + Hourly Rate */}
+      <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        {user.experienceLevel && (
+          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 shadow-sm">
+            <h2 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2">Experience Level</h2>
+            <p className="text-gray-700 dark:text-gray-300">{user.experienceLevel}</p>
           </div>
         )}
-        {user.description && (
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Description</h2>
-            <p className="text-gray-700 dark:text-gray-300">{user.description}</p>
+        {user.hourlyRate && (
+          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 shadow-sm">
+            <h2 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2">Hourly Rate</h2>
+            <p className="text-gray-700 dark:text-gray-300">₹ {user.hourlyRate}</p>
           </div>
         )}
+      </div>
 
-        {/* Skills */}
-        {user.skills && user.skills.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Skills</h2>
-            <div className="flex flex-wrap gap-2">
-              {user.skills.map((skill) => (
-                <span
-                  key={skill._id}
-                  className="px-3 py-1 rounded-md bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 text-sm"
+      {/* Location */}
+      {user.location && (
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2">Location</h2>
+          <p className="text-gray-700 dark:text-gray-300">
+            {user.location.city}, {user.location.state}, {user.location.country}
+          </p>
+        </div>
+      )}
+
+      {/* Portfolio */}
+      {user.portfolio && (
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2">Portfolio</h2>
+          <p className="text-gray-700 dark:text-gray-300">
+            Resume: {user.portfolio.resume} | Portfolio File: {user.portfolio.portfolioFile}
+          </p>
+        </div>
+      )}
+
+      {/* External Links */}
+      {user.externalLinks && user.externalLinks.length > 0 && (
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2">External Links</h2>
+          <ul className="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-1">
+            {user.externalLinks.map((link, idx) => (
+              <li key={idx}>
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-indigo-600 dark:text-indigo-400 hover:underline"
                 >
-                  {skill.name}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Experience + Hourly Rate */}
-        <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-          {user.experienceLevel && (
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                Experience Level
-              </h2>
-              <p className="text-gray-700 dark:text-gray-300">{user.experienceLevel}</p>
-            </div>
-          )}
-          {user.hourlyRate && (
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                Hourly Rate
-              </h2>
-              <p className="text-gray-700 dark:text-gray-300">₹ {user.hourlyRate}</p>
-            </div>
-          )}
+                  {link.label || link.url}
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
+      )}
 
-        {/* Location */}
-        {user.location && (
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Location</h2>
-            <p className="text-gray-700 dark:text-gray-300">
-              {user.location.city}, {user.location.state}, {user.location.country}
-            </p>
-          </div>
-        )}
+      {/* Stats */}
+      {user.stats && (
+        <div className="mb-6 bg-gray-50 dark:bg-gray-700 rounded-lg p-4 shadow-sm">
+          <h2 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2">Stats</h2>
+          <p className="text-gray-700 dark:text-gray-300">
+            Jobs Completed: {user.stats.jobsCompleted} | Reviews: {user.stats.reviewsCount} | Earnings: ₹{user.stats.earningTotal}
+          </p>
+        </div>
+      )}
 
-        {/* Portfolio */}
-        {user.portfolio && (
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Portfolio</h2>
-            <p className="text-gray-700 dark:text-gray-300">
-              Resume: {user.portfolio.resume} | Portfolio File: {user.portfolio.portfolioFile}
-            </p>
-          </div>
-        )}
+      {/* Ratings */}
+      {user.ratings && (
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2">Ratings</h2>
+          <p className="text-gray-700 dark:text-gray-300">{user.ratings.asFreelancer} / 5</p>
+        </div>
+      )}
 
-        {/* External Links */}
-        {user.externalLinks && user.externalLinks.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">External Links</h2>
-            <ul className="list-disc list-inside text-gray-700 dark:text-gray-300">
-              {user.externalLinks.map((link, idx) => (
-                <li key={idx}>
-                  <a
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-indigo-600 dark:text-indigo-400 hover:underline"
-                  >
-                    {link.label || link.url}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+      {/* Status */}
+      {user.status && (
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2">Status</h2>
+          <p className="text-gray-700 dark:text-gray-300">{user.status}</p>
+        </div>
+      )}
 
-        {/* Stats */}
-        {user.stats && (
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Stats</h2>
-            <p className="text-gray-700 dark:text-gray-300">
-              Jobs Completed: {user.stats.jobsCompleted} | Reviews: {user.stats.reviewsCount} | Earnings: ₹{user.stats.earningTotal}
-            </p>
-          </div>
-        )}
-
-        {/* Ratings */}
-        {user.ratings && (
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Ratings</h2>
-            <p className="text-gray-700 dark:text-gray-300">{user.ratings.asFreelancer} / 5</p>
-          </div>
-        )}
-
-        {/* Status */}
-        {user.status && (
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Status</h2>
-            <p className="text-gray-700 dark:text-gray-300">{user.status}</p>
-          </div>
-        )}
-
-        {/* Created At */}
-        {user.createdAt && (
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Joined</h2>
-            <p className="text-gray-700 dark:text-gray-300">
-              {new Date(user.createdAt).toLocaleDateString()}
-            </p>
-          </div>
-        )}
-      </div>
-    </section>
-  );
+      {/* Created At */}
+      {user.createdAt && (
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2">Joined</h2>
+          <p className="text-gray-700 dark:text-gray-300">
+            {new Date(user.createdAt).toLocaleDateString()}
+          </p>
+        </div>
+      )}
+    </div>
+  </section>
+);
 };
 
 export default UserDetailPage;

@@ -22,6 +22,10 @@ export class PaymentService {
     getDisputes(){
         return axios.get(endPoints.PAYMENTS.GET_DISPUTES)
     }
+
+    getDisputeById(paymentId: string){
+        return axios.get(endPoints.PAYMENTS.DISPUTE_BY_ID(paymentId));
+    }
 }
 
 export const paymentService = new PaymentService();

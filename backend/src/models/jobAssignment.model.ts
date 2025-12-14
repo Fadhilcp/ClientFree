@@ -2,7 +2,7 @@ import { model, Schema } from "mongoose";
 import { IJobAssignmentDocument } from "types/jobAssignment.type";
 
 const jobAssignmentSchema = new Schema({
-  jobId: { type: Schema.Types.ObjectId, ref: "Jobs", required: true },
+  jobId: { type: Schema.Types.ObjectId, ref: "Job", required: true },
   freelancerId: { type: Schema.Types.ObjectId, ref: "Users", required: true },
   proposalId: { type: Schema.Types.ObjectId, ref: "ProposalInvitation", required: true },
 
@@ -30,9 +30,10 @@ const jobAssignmentSchema = new Schema({
     },
     submissionMessage: { type: String },
     submissionFiles: [{
-      url: String,
-      name: String,
-      type: String
+      url: { type: String },
+      name: { type: String },
+      type: { type: String },
+      key: { type: String },
     }],
     submittedAt: Date,
 

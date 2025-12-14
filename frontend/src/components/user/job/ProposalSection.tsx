@@ -26,7 +26,7 @@ const ProposalsSection: React.FC<ProposalsSectionProps> = ({
 }) => {
   if (activeTab !== "proposals") return null;
 
-  // --- Case 1: Freelancer view when job is active ---
+  // freelancer view when job is active
   if (userRole === "freelancer" && jobStatus === "active") {
     return (
       <p className="p-6 text-gray-600 dark:text-gray-300">

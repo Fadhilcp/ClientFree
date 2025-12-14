@@ -8,10 +8,18 @@ export interface IJobService {
     getJobById(jobId: string, user: AuthPayload): Promise<JobDetailDTO>;
     updateJob(jobId: string, jobData: IJob): Promise<JobDetailDTO>;
     deleteJob(jobId: string): Promise<string>;
-    getClientJobs(clientId: string, status?: string, search?: string): Promise<JobListDTO[]>;
+
+    getClientJobs(
+            freelancerId: string, status: string, search: string, limit: number, cursor?: string
+        ): Promise<{ jobs: JobDetailDTO[], nextCursor: string | null }>;
+
     changeStatus(jobId: string, clientId: string, status: string): Promise<void>;
     startJob(jobId: string, clientId: string): Promise<JobDetailDTO>;
-    getFreelancerJobs(freelancerId: string, status?: string, search?: string): Promise<JobListDTO[]>;
+
+    getFreelancerJobs(
+        freelancerId: string, status: string, search: string, limit: number, cursor?: string
+    ): Promise<{ jobs: JobListDTO[], nextCursor: string | null }>;
+    
     getInterestedJobsForFreelancer(freelancerId: string, search: string, limit: number, cursor?: string): Promise<{ jobs: JobListDTO[], nextCursor: string | null }>;
     addJobInterest(freelancerId: string, jobId: string): Promise<void>;
     removeJobInterest(freelancerId: string, jobId: string): Promise<void>;

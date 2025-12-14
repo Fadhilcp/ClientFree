@@ -31,10 +31,7 @@ export class JobService implements IJobService {
             const errors = parsed.error.format();
             throw createHttpError(HttpStatus.BAD_REQUEST,`Job validation failed: ${JSON.stringify(errors)}`);
         }
-        // const jobs = await this.jobRepository.find({ clientId: data.clientId, category: data.category });
-        // if(jobs.length > 5){
-        //     throw createHttpError(HttpStatus.CONFLICT, "same category has more than 5 jobs");
-        // }
+        
         const result = await this._jobRepository.create(jobData);
 
         const clarificationBoardExists = await this._clarificationBoardRepository.findOne({ jobId: result._id });
@@ -45,7 +42,7 @@ export class JobService implements IJobService {
         await this._clarificationBoardRepository.create({ jobId: result._id })
         return JobMapper.toDetailDTO(result)
     }
-    
+
     async getAllJobs(
         freelancerId: string, status: string, search: string, limit: number, cursor?: string
     ): Promise<{ jobs: JobListDTO[], nextCursor: string | null }> {
@@ -62,7 +59,7 @@ export class JobService implements IJobService {
         const filter: FilterQuery<IJobDocument> = { isDeleted: false };
         if(status) filter.status = status;
         // cursor for infinite scroll
-        if(cursor) {
+        if(cursor && cursor !== "undefined" && cursor !== "null") {
             filter._id = { $lt: cursor };
         }
         // search
@@ -126,11 +123,18 @@ export class JobService implements IJobService {
         return 'Job is deleted'
     }
 
-    async getClientJobs(clientId: string, status?: string, search?: string): Promise<JobListDTO[]> {
+    async getClientJobs(
+        clientId: string, status: string, search: string, limit: number, cursor?: string
+    ): Promise<{ jobs: JobDetailDTO[], nextCursor: string | null }> {
         const filter: FilterQuery<IJobDocument> = { clientId, isDeleted: false };
         
         if(status){
             filter.status = status;
+        }
+
+        // cursor for infinite scroll
+        if(cursor && cursor !== "undefined" && cursor !== "null") {
+            filter._id = { $lt: cursor };
         }
 
         if (search?.trim()) {
@@ -140,9 +144,17 @@ export class JobService implements IJobService {
                 { subcategory: { $regex: search, $options: "i" } }
             ];
         }
-        const jobs = await this._jobRepository.findWithSkills(filter);
+        const jobs = await this._jobRepository.findWithSkillsPaginated(filter, limit);
+
+        //setting cursor for infinite scroll
+        const nextCursor = jobs.length > 0 
+        ? jobs[jobs.length - 1]._id.toString()
+        : null;
         
-        return jobs.map(job => JobMapper.toListDTO(job));
+        return {
+            jobs: jobs.map(job => JobMapper.toDetailDTO(job)),
+            nextCursor
+        }
     }
     
     async changeStatus(jobId: string, clientId: string, status: IJobStatus): Promise<void> {
@@ -210,10 +222,17 @@ export class JobService implements IJobService {
         return JobMapper.toDetailDTO(updatedJob);
     }
 
-    async getFreelancerJobs(freelancerId: string, status?: string, search?: string): Promise<any[]> {
+    async getFreelancerJobs(
+        freelancerId: string, status: string, search: string, limit: number, cursor?: string
+    ): Promise<{ jobs: JobListDTO[], nextCursor: string | null }> {
         const filter: FilterQuery<IJobAssignmentDocument> = { freelancerId };
         if(status){
             filter.status = status
+        }
+
+        // cursor for infinite scroll
+        if(cursor && cursor !== "undefined" && cursor !== "null") {
+            filter._id = { $lt: cursor };
         }
 
         if (search?.trim()) {
@@ -224,11 +243,19 @@ export class JobService implements IJobService {
             ];
         }
 
-        const assignments = await this._jobAssignmentRepository.findWithJobDetail(filter);
+        const assignments = await this._jobAssignmentRepository.findWithJobDetailPaginated(filter, limit);
         if(!assignments) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.JOB_NOT_FOUND);
         const jobs = assignments.map(a => a.jobId as IJobDocument);
 
-        return jobs.map(job => JobMapper.toListDTO(job));
+        //setting cursor for infinite scroll
+        const nextCursor = jobs.length > 0 
+        ? jobs[jobs.length - 1]._id.toString()
+        : null;
+
+        return {
+            jobs: jobs.map(job => JobMapper.toListDTO(job)),
+            nextCursor
+        }
     }
 
     async getInterestedJobsForFreelancer(freelancerId: string, search: string, limit: number, cursor?: string): Promise<{ jobs: JobListDTO[], nextCursor: string | null }> {
@@ -242,7 +269,7 @@ export class JobService implements IJobService {
         if(!interestedJobIds?.length) return { jobs: [], nextCursor: null };
 
         const filter: FilterQuery<IJobDocument> = { _id: { $in: interestedJobIds }, isDeleted: false }
-        if(cursor) {
+        if(cursor && cursor !== "undefined" && cursor !== "null") {
             filter._id = { $in: interestedJobIds, $lt: cursor };
         }
          if (search && search.trim() !== "") {

@@ -54,4 +54,4 @@ const JobSchema = new Schema({
   deletedAt: { type: Date, default: null },
 },{ timestamps: true });
 
-export default model<IJobDocument>("Jobs", JobSchema);
+export default model<IJobDocument>("Job", JobSchema);

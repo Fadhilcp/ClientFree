@@ -23,6 +23,7 @@ export interface IMilestoneFile {
   url: string;
   name: string;
   type: string;
+  key: string
 }
 
 export interface IMilestone{

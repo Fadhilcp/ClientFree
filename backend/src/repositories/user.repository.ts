@@ -2,7 +2,7 @@ import { BaseRepository } from "./base.repository";
 import { IUserDocument } from "../types/user.type";
 import userModel from "./../models/user.model"
 import { IUserRepository } from "./interfaces/IUserRepository";
-import { FilterQuery } from "mongoose";
+import { ClientSession, FilterQuery, ObjectId } from "mongoose";
 
 export class UserRepository 
    extends BaseRepository<IUserDocument>
@@ -14,6 +14,10 @@ export class UserRepository
 
     async findByEmail(email : string) : Promise<IUserDocument | null>{
         return this.model.findOne({ email });
+    }
+
+    async findStatusById(id: ObjectId | string): Promise<IUserDocument> {
+        return this.model.findById(id).select("status");
     }
 
     async findWithSkill(filter: FilterQuery<IUserDocument>) : Promise<IUserDocument[]>{
@@ -52,5 +56,10 @@ export class UserRepository
         .limit(limit)
         .populate("skills", "name _id")
         .exec();
+    }
+
+    async createWithSession(data: Partial<IUserDocument>, session: ClientSession): Promise<IUserDocument> {
+        const docs = await this.model.create([data], { session });
+        return docs[0]; 
     }
 }

@@ -41,8 +41,8 @@ class ProposalService {
     return axios.get(endPoints.PROPOSAL.MY_PROPOSAL(isInvitation));
   }
 
-  proposalsForClient(isInvitation?: boolean) {
-    return axios.get(endPoints.PROPOSAL.CLIENT_PROPOSAL(isInvitation));
+  proposalsForClient(isInvitation: boolean, search: string, cursor: string | undefined, limit: number) {
+    return axios.get(endPoints.PROPOSAL.CLIENT_PROPOSAL(isInvitation, search, cursor, limit));
   }
 
   verifyUpgrade(payload: IRazoryOrderResponse & { paymentRecordId: string }) {

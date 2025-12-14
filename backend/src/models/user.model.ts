@@ -115,7 +115,7 @@ const userSchema = new Schema({
         },
         jobId : {
             type : Schema.Types.ObjectId,
-            ref : "Jobs"
+            ref : "Job"
         },
         targetUserId : {
             type : Schema.Types.ObjectId,

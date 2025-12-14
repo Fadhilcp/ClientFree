@@ -25,7 +25,11 @@ export class JobMapper {
             category: job.category,
             subcategory: job.subcategory,
 
-            skills: job.skills,
+            skills: job.skills?.map(s =>
+            isPopulatedSkill(s) 
+                ? { id: s._id.toString(), name: s.name }
+                : { id: s.toString(), name: "" }
+            ) ?? [],
 
             duration: job.duration,
 

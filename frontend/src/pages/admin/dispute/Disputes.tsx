@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from "react";
-import SearchFilter from "../../components/admin/SearchFilter";
-import ReusableTable from "../../components/ui/Table";
-import FilterTabs from "../../components/admin/FilterTabs";
-import Button from "../../components/ui/Button";
+import SearchFilter from "../../../components/admin/SearchFilter";
+import ReusableTable from "../../../components/ui/Table";
+import FilterTabs from "../../../components/admin/FilterTabs";
+import Button from "../../../components/ui/Button";
 
-import { notify } from "../../utils/toastService";
-import Pagination from "../../components/ui/Pagination";
-import ConfirmationModal from "../../components/ui/Modal/ConfirmationModal";
+import { notify } from "../../../utils/toastService";
+import Pagination from "../../../components/ui/Pagination";
+import ConfirmationModal from "../../../components/ui/Modal/ConfirmationModal";
 
-import type { AdminDisputeDto } from "../../types/admin/Dispute.type";
-import { paymentService } from "../../services/payment.service";
+import type { AdminDisputeDto } from "../../../types/admin/Dispute.type";
+import { paymentService } from "../../../services/payment.service";
+import Loader from "../../../components/ui/Loader/Loader";
+import { useNavigate } from "react-router-dom";
 
 export interface Column<T> {
   key: keyof T;
@@ -23,6 +25,8 @@ const DisputesPage = () => {
   const [disputes, setDisputes] = useState<AdminDisputeDto[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const navigate = useNavigate();
+
   const [selectedDispute, setSelectedDispute] = useState<AdminDisputeDto | null>(null);
   const [resolveModal, setResolveModal] = useState(false);
 
@@ -35,7 +39,10 @@ const DisputesPage = () => {
     try {
       setLoading(true);
       const res = await paymentService.getDisputes();
-      setDisputes(res.data.disputes || []);
+      if(res.data.success){
+        const { disputes } = res.data;
+        setDisputes(disputes || []);
+      }
     } catch (err: any) {
       notify.error(err.response?.data?.error || "Failed to load disputes");
     } finally {
@@ -72,15 +79,15 @@ const DisputesPage = () => {
     return true;
   });
 
-  const handleResolveClick = (d: AdminDisputeDto) => {
-    setSelectedDispute(d);
-    setResolveModal(true);
+  const handleViewDetails = (paymentId: string) => {
+    navigate(`/admin/dispute/${paymentId}`);
   };
 
   // table columns
   const columns: Column<AdminDisputeDto>[] = [
     { key: "job", header: "Job", render: (_, row) => row.job?.title },
     { key: "amount", header: "Amount", render: (_value, row) => `₹ ${row.amount} ${row.currency}` },
+    { key: "raisedBy", header: "Raised By", render: (_, row) => row.raisedBy?.name},
     { key: "disputeReason", header: "Reason" },
     {
       key: "status",
@@ -103,20 +110,22 @@ const DisputesPage = () => {
       key: "id",
       header: "Actions",
       render: (_, row) =>
-        row.status === "disputed" ? (
+        <div className=" gap-2">
           <Button
-            label="Resolve"
-            onClick={() => handleResolveClick(row)}
+            label="View"
+            onClick={() => handleViewDetails(row.id)}
             className="mx-1 px-3 py-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 
               bg-transparent border border-indigo-600 dark:border-indigo-400 rounded 
               hover:bg-indigo-50 dark:bg-transparent dark:hover:bg-indigo-900"
           />
-        ) : null,
+        </div>
     },
   ];
 
   return (
     <>
+    { loading && <Loader/> }
+
       {/* Resolve confirmation modal */}
       <ConfirmationModal
         isOpen={resolveModal}

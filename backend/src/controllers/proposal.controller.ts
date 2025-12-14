@@ -6,7 +6,7 @@ import { createHttpError, HttpError } from "../utils/httpError.util";
 import { HttpResponse } from "constants/responseMessage.constant";
 
 export class ProposalController {
-    constructor(private _service: IProposalService) {}
+    constructor(private _proposalService: IProposalService) {}
 
     async create(req: Request, res: Response, next: NextFunction) {
         try {
@@ -23,7 +23,7 @@ export class ProposalController {
                 throw createHttpError(HttpStatus.BAD_REQUEST, "Job id is needed");
             }
 
-            const { proposal, paymentOrder, paymentId, addOn } = await this._service.createProposal(jobId, freelancerId, req.body);
+            const { proposal, paymentOrder, paymentId, addOn } = await this._proposalService.createProposal(jobId, freelancerId, req.body);
 
             sendResponse(res, HttpStatus.CREATED, { proposal, paymentOrder, paymentId, addOn });
         } catch (error) {
@@ -40,7 +40,7 @@ export class ProposalController {
             if (!jobId) {
                 throw createHttpError(HttpStatus.BAD_REQUEST, "Job id is needed");
             }
-            const proposals = await this._service.getProposalsForJob(jobId,status,invitation);
+            const proposals = await this._proposalService.getProposalsForJob(jobId,status,invitation);
 
             sendResponse(res, HttpStatus.OK, { proposals });
         } catch (error) {
@@ -56,7 +56,7 @@ export class ProposalController {
                 throw createHttpError(HttpStatus.BAD_REQUEST, "Proposal id is needed");
             }
 
-            const proposal = await this._service.getById(proposalId);
+            const proposal = await this._proposalService.getById(proposalId);
 
             sendResponse(res, HttpStatus.OK, { proposal });
         } catch (error) {
@@ -72,7 +72,7 @@ export class ProposalController {
                 throw createHttpError(HttpStatus.BAD_REQUEST, "Proposal id is needed");
             }
 
-            const updated = await this._service.updateProposal(proposalId, req.body);
+            const updated = await this._proposalService.updateProposal(proposalId, req.body);
 
             sendResponse(res, HttpStatus.OK, { updated });
         } catch (error) {
@@ -93,7 +93,7 @@ export class ProposalController {
                 throw createHttpError(HttpStatus.BAD_REQUEST, "Status is required");
             }
 
-            const result = await this._service.updateStatus(proposalId, status);
+            const result = await this._proposalService.updateStatus(proposalId, status);
 
             sendResponse(res, HttpStatus.OK, { result });
         } catch (error) {
@@ -107,7 +107,7 @@ export class ProposalController {
             const { proposalId } = req.params;
             if(!proposalId) throw createHttpError(HttpStatus.BAD_REQUEST, 'Proposal id is needed');
 
-            await this._service.acceptProposal(proposalId);
+            await this._proposalService.acceptProposal(proposalId);
 
             sendResponse(res, HttpStatus.OK, {} , 'Proposal accepted');
             
@@ -124,7 +124,7 @@ export class ProposalController {
                 throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
             }
             const invitationData = req.body;
-            const invitation = await this._service.inviteFreelancer(
+            const invitation = await this._proposalService.inviteFreelancer(
                 jobId, 
                 clientId, 
                 freelancerId, 
@@ -140,7 +140,7 @@ export class ProposalController {
     async acceptInvitation(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { jobId, freelancerId } = req.params;
-            const { message } = await this._service.acceptInvitation(jobId, freelancerId);
+            const { message } = await this._proposalService.acceptInvitation(jobId, freelancerId);
 
             sendResponse(res, HttpStatus.OK, {}, message);
         } catch (error) {
@@ -159,7 +159,7 @@ export class ProposalController {
             ? rawIsInvitation.toLowerCase() === "true" 
             : false;
 
-            const proposals = await this._service.getMyProposals(freelancerId, isInvitation);
+            const proposals = await this._proposalService.getMyProposals(freelancerId, isInvitation);
 
             sendResponse(res, HttpStatus.OK, { proposals });
         } catch (error) {
@@ -177,10 +177,15 @@ export class ProposalController {
             const isInvitation = typeof rawIsInvitation === "string" 
             ? rawIsInvitation.toLowerCase() === "true" 
             : false;
-            
-            const proposals = await this._service.getProposalsForClient(clientId, isInvitation);
 
-            sendResponse(res, HttpStatus.OK, { proposals });
+            const search = req.query.search as string || "";
+            //for infinite scroll
+            const cursor = req.query.cursor as string | undefined;
+            const limit = parseInt(req.query.limit as string) || 20;
+            
+            const { proposals, nextCursor} = await this._proposalService.getProposalsForClient(clientId, isInvitation, search, limit, cursor);
+
+            sendResponse(res, HttpStatus.OK, { proposals, nextCursor });
         } catch (error) {
             next(error);
         }
@@ -195,7 +200,7 @@ export class ProposalController {
                 razorpay_signature,
             } = req.body;
 
-            const success = await this._service.verifyUpgradePayment({
+            const success = await this._proposalService.verifyUpgradePayment({
                 paymentRecordId,
                 razorpay_order_id,
                 razorpay_payment_id,

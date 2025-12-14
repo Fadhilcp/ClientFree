@@ -42,7 +42,7 @@ const paymentSchema = new Schema({
   providerOrderId: { type: String }, 
   providerSignature: { type: String },
 
-  jobId: { type: Schema.Types.ObjectId, ref: 'Jobs' },
+  jobId: { type: Schema.Types.ObjectId, ref: 'Job' },
   milestoneId: { type: Schema.Types.ObjectId, ref: 'Milestones' },
   proposalId: { type: Schema.Types.ObjectId, ref: "Proposal" },
 
