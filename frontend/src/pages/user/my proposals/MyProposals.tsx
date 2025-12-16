@@ -6,23 +6,37 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { proposalService } from "../../../services/proposal.service";
 import type { IProposal } from "../../../types/job/proposal.type";
 
+const LIMIT=20;
+
 const MyProposals: React.FC = () => {
   const [proposals, setProposals] = useState<IProposal[]>([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
+  // for infinit scroll
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+
   // derive invitation state from URL
   const isInvitation = location.pathname.includes("/invites");
 
-  const fetchProposals = async () => {
+  const fetchProposals = async (loadMore = false) => {
+
+    if(loading) return;
+    if(!hasMore && loadMore) return;
+
     setLoading(true);
     try {
-      const response = await proposalService.myProposals(isInvitation);
+      const safeCursor =  cursor ?? "";
+
+      const response = await proposalService.myProposals(isInvitation, loadMore ? safeCursor : "", LIMIT);
       if (response.data.success) {
-        const { proposals } = response.data;
-        console.log("🚀 ~ fetchProposals ~ proposals:", proposals)
-        setProposals(proposals);
+        const { proposals, nextCursor } = response.data;
+
+        setProposals(prev => (loadMore ? [...prev, ...proposals] : proposals));
+        setCursor(nextCursor);
+        setHasMore(Boolean(nextCursor));
       }
     } catch (err) {
       console.error("Failed to load proposals:", err);
@@ -30,6 +44,22 @@ const MyProposals: React.FC = () => {
       setLoading(false);
     }
   };
+
+      useEffect(() => {
+        const handleScroll = () => {
+          const bottom = 
+          window.innerHeight + document.documentElement.scrollTop >= 
+          document.documentElement.offsetHeight - 200;
+  
+          if(bottom && !loading && hasMore) {
+            fetchProposals(true);
+          }
+        };
+  
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+      }, [loading, hasMore, fetchProposals]);
+ 
 
   useEffect(() => {
     fetchProposals();

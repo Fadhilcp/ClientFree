@@ -11,6 +11,15 @@ export interface AdminDisputeDto {
   job: {
     id: string;
     title: string;
+    category: string;
+    subcategory: string;
+    description: string;
+    duration: string;
+    payment: {
+      budget: number;
+      type: "fixed" | "hourly";
+    };
+    skills: string[]; // ObjectId strings (can later be expanded)
   } | null;
 
   milestoneId: string | null;
@@ -19,12 +28,23 @@ export interface AdminDisputeDto {
     id: string;
     name: string;
     email: string;
+    profileImage: string | null;
+    company: {
+      name: string;
+      industry: string;
+      website: string;
+    } | null;
   } | null;
 
   freelancer: {
     id: string;
     name: string;
     email: string;
+    profileImage: string | null;
+    professionalTitle: string | null;
+    experienceLevel: string | null;
+    hourlyRate: string | null;
+    about: string | null;
   } | null;
 
   raisedBy: {
@@ -41,6 +61,9 @@ export interface AdminDisputeDto {
     providerPaymentId: string | null;
     providerSignature: string | null;
     paymentDate: Date | null;
+    platformFee: number;
+    paymentGatewayFee: number;
+    taxAmount: number;
   };
 
   createdAt: Date;

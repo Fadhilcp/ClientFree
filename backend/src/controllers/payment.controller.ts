@@ -52,6 +52,7 @@ export class PaymentController {
             if(!initiatorId) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
 
             const result = await this._paymentService.refundMilestone(paymentId, initiatorId, reason);
+            console.log("🚀 ~ PaymentController ~ refund ~ result:", result)
 
             sendResponse(res, HttpStatus.OK, result);
         } catch (error) {
@@ -75,9 +76,11 @@ export class PaymentController {
 
     async getAllDisputes(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            
-            const disputes = await this._paymentService.listDisputes();
-            console.log("🚀 ~ PaymentController ~ getAllDisputes ~ disputes:", disputes)
+            const search = typeof req.query.search === 'string' ? req.query.search : '';
+            const page = parseInt(req.query.page as string) || 1;
+            const limit = parseInt(req.query.limit as string) || 10;
+
+            const disputes = await this._paymentService.listDisputes(search, page, limit);
 
             sendResponse(res, HttpStatus.OK, { disputes });
         } catch (error) {

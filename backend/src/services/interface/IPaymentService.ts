@@ -1,4 +1,5 @@
 import { AdminDisputeDto, AdminDisputeListDto } from "dtos/adminDispute.dto";
+import { PaginatedResult } from "types/pagination";
 export interface IPaymentService {
     createMilestoneOrder(assignmentId: string, milestoneId: string, clientId: string): Promise<any>;
     verifyMilestonePayment(
@@ -6,6 +7,6 @@ export interface IPaymentService {
     ): Promise<any>;
     refundMilestone(paymentId: string, initiatorId: string, reason?: string): Promise<any>;
     releaseMilestone(paymentId: string, approverId: string): Promise<any>;
-    listDisputes(): Promise<AdminDisputeListDto[]>;
+    listDisputes(search: string, page: number, limit: number): Promise<PaginatedResult<AdminDisputeListDto>>;
     getDisputeById(paymentId: string): Promise<AdminDisputeDto>;
 }

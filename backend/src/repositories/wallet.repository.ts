@@ -11,9 +11,4 @@ export class WalletRepository
         constructor(){
             super(walletModel)
         }
-
-    async createWithSession(data: Partial<IWalletDocument>, session: ClientSession): Promise<IWalletDocument> {
-        const docs = await this.model.create([data], { session });
-        return docs[0];
-    }
 }

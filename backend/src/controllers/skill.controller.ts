@@ -34,7 +34,6 @@ export class SkillController {
             const filters: { category?: string, status?: string} = {};
             if (category) filters.category = category;
             if (status) filters.status = status;
-
             const skills = await this._skillService.getAllSkills(filters, search, page, limit);
             sendResponse(res, HttpStatus.OK, { skills });
         } catch (error) {

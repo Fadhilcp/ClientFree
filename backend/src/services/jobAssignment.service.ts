@@ -2,7 +2,7 @@ import { IJobAssignmentRepository } from "repositories/interfaces/IJobAssignment
 import { IJobAssignmentService } from "./interface/IJobAssignmentService";
 import { AssignmentMapper } from "mappers/jobAssignment.mapper";
 import { AssignmentDto } from "dtos/jobAssignment.dto";
-import { IMilestone, IMilestoneFile } from "types/jobAssignment.type";
+import { IJobAssignmentDocument, IMilestone, IMilestoneFile } from "types/jobAssignment.type";
 import { createHttpError } from "utils/httpError.util";
 import { HttpStatus } from "constants/status.constants";
 import { HttpResponse } from "constants/responseMessage.constant";
@@ -13,6 +13,8 @@ import { AdminMilestoneMapper } from "mappers/adminMilestoneMapper";
 import { AdminApprovedMilestoneDto } from "dtos/adminApprovedMilestoneDto";
 import { AuthPayload } from "types/auth.type";
 import { generateSignedUrl } from "utils/getSignedUrl.util";
+import { FilterQuery } from "mongoose";
+import { PaginatedResult } from "types/pagination";
 
 
 export class JobAssignmentService implements IJobAssignmentService {
@@ -204,14 +206,18 @@ export class JobAssignmentService implements IJobAssignmentService {
         const payment = await this._paymentRepository.findOne({ milestoneId: milestone._id });
         if(!payment) throw createHttpError(HttpStatus.NOT_FOUND, "Associated payment not found");
 
+        if (payment.status !== "completed") {
+            throw createHttpError(HttpStatus.BAD_REQUEST, "Only completed payments can be disputed");
+        }
+        if (payment.isDisputed) {
+            throw createHttpError(HttpStatus.BAD_REQUEST, "Milestone is already under dispute");
+        }
         if(currentUser.role === 'client' && milestone.status !== 'submitted') {
             throw createHttpError(HttpStatus.BAD_REQUEST, 'Client can only dispute after submission');
         }
-
         if(currentUser.role === 'freelancer' && milestone.status !== 'changes_requested') {
             throw createHttpError(HttpStatus.BAD_REQUEST, 'Freelancer can only dispute after change request');
         }
-
         if(!['client','freelancer'].includes(currentUser.role)) {
             throw createHttpError(HttpStatus.FORBIDDEN, 'Not authorized to dispute this milestone');
         }
@@ -219,7 +225,6 @@ export class JobAssignmentService implements IJobAssignmentService {
         payment.isDisputed = true;
         payment.disputeReason = reason;
         payment.userId = currentUser._id;
-        payment.status = "disputed";
         await payment.save();
 
         milestone.status = "disputed";
@@ -232,10 +237,27 @@ export class JobAssignmentService implements IJobAssignmentService {
         }
     }
 
-    async getApprovedMilestones(): Promise<AdminApprovedMilestoneDto[]> {
-        const approvedMilestones = await this._jobAssignmentRepository.findApprovedMilestones();
+    async getApprovedMilestones(search: string, page: number, limit: number): Promise<PaginatedResult<AdminApprovedMilestoneDto>> {
+        const filter: FilterQuery<IJobAssignmentDocument> = {};
+        if(search){
+            filter.$or = [
+                { "milestones.title": { $regex: search, $options: "i" } },
+            ];
 
-        return AdminMilestoneMapper.mapList(approvedMilestones);
+            const amount = Number(search);
+            if (!Number.isNaN(amount)) {
+                filter.$or.push({ "milestones.amount": amount });
+            }
+        }
+        const result = await this._jobAssignmentRepository.findApprovedMilestonesPaginated(
+            filter,
+            { page, limit, sort: { createdAt: -1 } }
+        );
+
+        return {
+            ...result,
+            data: AdminMilestoneMapper.mapList(result.data)
+        };
     }
 
     async getFileUrl(userId: string, assignmentId: string, milestoneId: string, key: string): Promise<{ url: string; }> {
@@ -258,5 +280,5 @@ export class JobAssignmentService implements IJobAssignmentService {
         const url = await generateSignedUrl(key);
 
         return { url }
-    }
+    }   
 }

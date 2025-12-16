@@ -11,16 +11,16 @@ export class PaymentService {
         return axios.post(endPoints.PAYMENTS.VERIFY, response);
     }
 
-    refundMilestone(paymentId: string){
-        return axios.post(endPoints.PAYMENTS.REFUND(paymentId));
+    refundMilestone(paymentId: string, reason: { reason: string }){
+        return axios.post(endPoints.PAYMENTS.REFUND(paymentId), reason);
     }
 
     releaseMilestone(paymentId: string){
         return axios.post(endPoints.PAYMENTS.RELEASE(paymentId));
     }
 
-    getDisputes(){
-        return axios.get(endPoints.PAYMENTS.GET_DISPUTES)
+    getDisputes(search: string, page: number, limit: number){
+        return axios.get(endPoints.PAYMENTS.GET_DISPUTES(search, page, limit))
     }
 
     getDisputeById(paymentId: string){

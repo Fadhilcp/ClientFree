@@ -24,6 +24,16 @@ export interface AssignmentMilestoneDto {
         | "refunded"
         | "disputed"
         | "cancelled";
+    submissionMessage?: string | null;
+
+    submissionFiles: {
+        url: string;
+        name: string;
+        type: string;
+        key: string;
+    }[];
+
+    submittedAt?: string | null;
     createdAt: string;
     updatedAt: string;
 }

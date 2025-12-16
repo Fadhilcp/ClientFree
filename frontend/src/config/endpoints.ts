@@ -35,7 +35,7 @@ export const endPoints = {
         GET_ACTIVE: '/skills/active',
         CREATE: '/skills',
         GET_ALL: (search: string, page: number, limit:number) => 
-            `/skills?search=${search}&page=${page}&limt=${limit}`,
+            `/skills?search=${search}&page=${page}&limit=${limit}`,
 
         BY_CATEGORY: (category: string) => `/skills?category=${category}`, //GET
         BY_ID: (skillId: string) => `/skills/${skillId}`, //PATCH/DELETE
@@ -86,7 +86,8 @@ export const endPoints = {
         ACCEPT_PROPOSAL: (proposalId: string) => `/proposal/${proposalId}/accept`,
         INVITE: (jobId: string, freelancerId: string) => `/proposal/job/${jobId}/invite/${freelancerId}`,
         ACCEPT_INVITE: (jobId: string, freelancerId: string) => `/proposal/job/${jobId}/invitation/${freelancerId}/accept`,
-        MY_PROPOSAL: (isInvitation?: boolean) => `/proposal/me?isInvitation=${isInvitation}`,
+        MY_PROPOSAL: (isInvitation: boolean, cursor: string, limit:number) => 
+            `/proposal/me?isInvitation=${isInvitation}&cursor=${cursor || ""}&limit=${limit}`,
 
         CLIENT_PROPOSAL: (isInvitation: boolean, search: string, cursor?: string, limit?: number) => 
                 `/proposal/client?isInvitation=${isInvitation ?? false}&search=${search}&cursor=${cursor || ""}&limit=${limit}`,
@@ -108,21 +109,29 @@ export const endPoints = {
             `/assignment/${assignmentId}/${milestoneId}/approve`,
         DISPUTE: (assignmentId: string, milestoneId: string) => 
             `/assignment/${assignmentId}/${milestoneId}/dispute`,
-        GET_APPROVED: '/assignment/approved',
+        GET_APPROVED:(search: string, page: number, limit:number) => 
+            `/assignment/approved?search=${search}&page=${page}&limit=${limit}`,
+
+        GET_FILE_URL: (assignmentId: string, milestoneId: string, key: string) => 
+            `/assignment/${assignmentId}/${milestoneId}/file/${key}`,
     },
     PAYMENTS: {
         CREATE_ORDER: (assignmentId: string,milestoneId: string) => `/payment/milestones/${assignmentId}/${milestoneId}/fund`,
         VERIFY: '/payment/verify',
         REFUND: (paymentId: string) => `/payment/${paymentId}/refund`,
         RELEASE: (paymentId: string) => `/payment/${paymentId}/release`,
-        GET_DISPUTES: '/payment/disputes',
+        GET_DISPUTES:(search: string, page: number, limit:number) =>
+            `/payment/disputes?search=${search}&page=${page}&limit=${limit}`,
+        
         DISPUTE_BY_ID: (paymentId: string) => `/payment/${paymentId}/dispute`,
     },
     ADDONS: {
         CREATE: '/addOns',
         BY_ID: (addOnId: string) => `/addOns/${addOnId}`, //PUT / GET / DELETE
         TOGGLE_ACTIVE: (addOnId: string) => `/addOns/${addOnId}/toggle`,
-        GET_ALL: '/addOns',
+        GET_ALL:(search: string, page: number, limit:number) =>
+            `/addOns?search=${search}&page=${page}&limit=${limit}`,
+        GET_ACTIVE: '/addOns/active',
     },
     CLARIFICATION: {
         ADD_MESSAGE: (jobId: string) => `/clarification/${jobId}/message`,

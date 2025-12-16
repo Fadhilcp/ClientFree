@@ -2,6 +2,7 @@ import { AdminApprovedMilestoneDto } from "dtos/adminApprovedMilestoneDto";
 import { AssignmentDto } from "dtos/jobAssignment.dto";
 import { AuthPayload } from "types/auth.type";
 import { IMilestone, IMilestoneFile } from "types/jobAssignment.type";
+import { PaginatedResult } from "types/pagination";
 import { IPaymentDocument } from "types/payment.type";
 
 export interface IJobAssignmentService { 
@@ -19,6 +20,8 @@ export interface IJobAssignmentService {
     disputeMilestone(
         assignmentId: string, milestoneId: string, currentUser: AuthPayload, reason?: string
     ): Promise<{ assignment: AssignmentDto, payment: IPaymentDocument }>;
-    getApprovedMilestones(): Promise<AdminApprovedMilestoneDto[]>
-    getFileUrl(userId: string, assignmentId: string, milestoneId: string, key: string): Promise<{ url: string }>
+
+    getApprovedMilestones(search: string, page: number, limit: number): Promise<PaginatedResult<AdminApprovedMilestoneDto>>;
+
+    getFileUrl(userId: string, assignmentId: string, milestoneId: string, key: string): Promise<{ url: string }>;
 }

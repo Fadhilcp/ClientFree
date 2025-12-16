@@ -37,7 +37,6 @@ const AdminModal = <T extends Record<string, any>>({
   dropdowns,
   children
 }: AdminModalProps<T>) => {
-  console.log('admin modal - formdata -',formData);
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {

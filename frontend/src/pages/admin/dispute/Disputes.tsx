@@ -33,15 +33,19 @@ const DisputesPage = () => {
   const [activeTab, setActiveTab] = useState("All");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [limit] = useState(10); 
   const [totalPages, setTotalPages] = useState(1);
 
   const fetchDisputes = async () => {
     try {
       setLoading(true);
-      const res = await paymentService.getDisputes();
+      const res = await paymentService.getDisputes(search, page, limit);
       if(res.data.success){
         const { disputes } = res.data;
-        setDisputes(disputes || []);
+        if(res.data.success){
+          setDisputes(disputes.data);
+          setTotalPages(disputes.totalPages);
+        }
       }
     } catch (err: any) {
       notify.error(err.response?.data?.error || "Failed to load disputes");
@@ -86,7 +90,7 @@ const DisputesPage = () => {
   // table columns
   const columns: Column<AdminDisputeDto>[] = [
     { key: "job", header: "Job", render: (_, row) => row.job?.title },
-    { key: "amount", header: "Amount", render: (_value, row) => `₹ ${row.amount} ${row.currency}` },
+    { key: "amount", header: "Amount", render: (_value, row) => `₹ ${row.amount}` },
     { key: "raisedBy", header: "Raised By", render: (_, row) => row.raisedBy?.name},
     { key: "disputeReason", header: "Reason" },
     {

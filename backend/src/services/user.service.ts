@@ -111,7 +111,7 @@ export class UserService implements IUserService {
     }
 
     async getFreelancers(
-        clientId: string, search: string, limit: number, cursor?: string
+        clientId: string, search: string, limit: number, cursor?: string, location?: string
     ): Promise<{ freelancers: FreelancerListItemDto[], nextCursor: string | null }> {
 
         const filter: FilterQuery<IUserDocument> = { role: "freelancer", isProfileCompleted: true };
@@ -121,6 +121,17 @@ export class UserService implements IUserService {
                 { username: { $regex: search, $options: "i" }},
                 { name: { $regex: search, $options: "i" }},
                 { professionalTitle: { $regex: search, $options: "i" }}
+            ];
+        }
+
+        if (location?.trim()) {
+            const loc = location.trim();
+
+            filter.$or = [
+                ...(filter.$or ?? []),
+                { "location.city": { $regex: loc, $options: "i" } },
+                { "location.state": { $regex: loc, $options: "i" } },
+                { "location.country": { $regex: loc, $options: "i" } },
             ];
         }
 
@@ -162,7 +173,7 @@ export class UserService implements IUserService {
     }
 
     async getInterestedFreelancers(
-        clientId: string, search: string, limit: number, cursor?: string
+        clientId: string, search: string, limit: number, cursor?: string, location?: string
     ): Promise<{ freelancers: FreelancerListItemDto[], nextCursor: string | null }> {
 
         const client = await this._userRepository.findById(clientId);
@@ -185,6 +196,17 @@ export class UserService implements IUserService {
                 { professionalTitle: { $regex: search, $options: "i" } }
             ];
         }
+        if (location?.trim()) {
+            const loc = location.trim();
+
+            filter.$or = [
+                ...(filter.$or ?? []),
+                { "location.city": { $regex: loc, $options: "i" } },
+                { "location.state": { $regex: loc, $options: "i" } },
+                { "location.country": { $regex: loc, $options: "i" } },
+            ];
+        }
+
         // cursor for infinite scroll
         if(cursor && cursor !== "undefined" && cursor !== "null") {
             filter._id = { 

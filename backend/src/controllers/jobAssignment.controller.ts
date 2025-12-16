@@ -71,14 +71,12 @@ export class JobAssignmentController {
             }
             const submissionNote = req.body.note;
             // files from aws s3 
-            console.log("🚀 ~ JobAssignmentController ~ submit ~ req.files:", req.files)
             const submissionFiles = (req.files as Express.MulterS3.File[]).map(file => ({
                 url: file.location,
                 name: file.originalname,
                 type: file.mimetype,
                 key: file.key
             }));
-            console.log("🚀 ~ JobAssignmentController ~ submit ~ submissionFiles:", submissionFiles)
 
             const assignment = await this._jobAssignmentService.submitWork(
                 assignmentId,
@@ -143,8 +141,11 @@ export class JobAssignmentController {
 
     async getApproved(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            
-            const assignments = await this._jobAssignmentService.getApprovedMilestones();
+            const search = typeof req.query.search === 'string' ? req.query.search : '';
+            const page = parseInt(req.query.page as string) || 1;
+            const limit = parseInt(req.query.limit as string) || 10;
+
+            const assignments = await this._jobAssignmentService.getApprovedMilestones(search, page, limit);
 
             sendResponse(res, HttpStatus.OK, { milestones: assignments });
         } catch (error) {

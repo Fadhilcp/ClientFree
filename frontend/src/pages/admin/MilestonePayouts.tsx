@@ -11,6 +11,7 @@ import ConfirmationModal from '../../components/ui/Modal/ConfirmationModal';
 import { jobAssignmentService } from '../../services/jobAssignments.service';
 import { paymentService } from '../../services/payment.service';
 import type { AdminApprovedMilestoneDto } from '../../types/admin/ApprovedMilestone.type';
+import Loader from '../../components/ui/Loader/Loader';
 
 export interface Column<T> {
   key: keyof T;
@@ -29,15 +30,21 @@ const MilestonePayouts = () => {
 
   const [activeTab, setActiveTab] = useState('All');
   const [search, setSearch] = useState('');
+
   const [page, setPage] = useState(1);
+  const [limit] = useState(10); 
   const [totalPages, setTotalPages] = useState(1);
 
   const fetchMilestones = async () => {
     try {
       setLoading(true);
       // TODO: pass jobId or pagination params
-      const res = await jobAssignmentService.getApprovedMilestone();
-      setMilestones(res.data.milestones || []);
+      const res = await jobAssignmentService.getApprovedMilestone(search, page, limit);
+      if(res.data.success){
+        const { milestones } = res.data;
+        setMilestones(milestones.data);
+        setTotalPages(milestones.totalPages);
+      }
     } catch (err: any) {
       notify.error(err.response?.data?.error || 'Failed to load milestones');
     } finally {
@@ -118,6 +125,7 @@ const MilestonePayouts = () => {
 
   return (
     <>
+    { loading && <Loader/> }
       {/* Release confirmation modal */}
       <ConfirmationModal
         isOpen={releaseModal}

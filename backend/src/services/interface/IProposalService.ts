@@ -16,7 +16,10 @@ export interface IProposalService {
         jobId: string, clientId: string, freelancerId: string, invitation: IInvitationDetails
     ): Promise<ProposalDTO>;
     acceptInvitation(jobId: string, freelancerId: string): Promise<{ message: string }>;
-    getMyProposals(freelancerId: string, isInvitation: boolean): Promise<ProposalDTO[]>;
+    getMyProposals(
+        freelancerId: string, isInvitation: boolean, limit: number, cursor?: string
+    ): Promise<{ proposals: ProposalDTO[], nextCursor: string | null }>;
+
     getProposalsForClient(
         clientId: string, isInvitation: boolean, search: string, limit: number, cursor?: string
     ): Promise<{ proposals: ProposalDTO[], nextCursor: string | null }>;

@@ -23,6 +23,16 @@ export interface MilestoneDto {
     | "refunded"
     | "disputed"
     | "cancelled";
+      submissionMessage?: string;
+
+  submissionFiles?: {
+      url: string;
+      name: string;
+      type: string;
+      key: string;
+  }[];
+
+  submittedAt?: string;
   createdAt?: string;
   updateAt?: string;
   paymentId?: string;

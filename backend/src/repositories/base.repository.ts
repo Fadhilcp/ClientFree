@@ -8,7 +8,8 @@ import {
     DeleteResult,
     ObjectId,
     SortOrder,
-    PopulateOptions
+    PopulateOptions,
+    ClientSession
 } from "mongoose";
 import { IBaseRepository } from "./interfaces/IBaseRepository";
 
@@ -58,8 +59,8 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T>{
         return query;
     }
 
-    async find(filter : FilterQuery<T>) : Promise<T[]>{
-        return this.model.find(filter)
+    async find(filter : FilterQuery<T>, options?: { sort?: Record<string, SortOrder> }) : Promise<T[]>{
+        return this.model.find(filter).sort(options?.sort);
     }
 
     async count() {
@@ -106,5 +107,35 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T>{
             limit,
             totalPages: Math.ceil(total / limit)
         };
+    }
+
+    // session 
+    async createWithSession(data: Partial<T>, session: ClientSession): Promise<T> {
+        const docs = await this.model.create([data], { session });
+        return docs[0];
+    }
+
+    async findOneWithSession(
+        filter: FilterQuery<T>,
+        session: ClientSession,
+        options?: { sort?: Record<string, SortOrder> }
+    ): Promise<T | null> {
+        let query = this.model.findOne(filter).session(session);
+        if (options?.sort) query = query.sort(options.sort);
+        return query;
+    }
+
+    async findByIdWithSession(
+        id: string,
+        session: ClientSession
+    ): Promise<T | null> {
+       return this.model.findById(id).session(session);
+    }
+
+    async findWithSession(
+        filter: FilterQuery<T>,
+        session: ClientSession
+    ): Promise<T[]> {
+        return this.model.find(filter).session(session);
     }
 }

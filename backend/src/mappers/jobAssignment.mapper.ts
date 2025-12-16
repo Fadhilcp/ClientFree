@@ -13,6 +13,16 @@ export class AssignmentMapper {
             dueDate: m.dueDate ? m.dueDate.toISOString() : null,
             paymentId: m.paymentId ? m.paymentId.toString() : null,
             status: m.status,
+            submissionMessage: m.submissionMessage ?? null,
+
+            submissionFiles: m.submissionFiles?.map(f => ({
+                url: f.url,
+                name: f.name,
+                type: f.type,
+                key: f.key
+            })) ?? [],
+
+            submittedAt: m.submittedAt ? m.submittedAt.toISOString() : null,
             createdAt: m.createdAt ? m.createdAt.toISOString() : "",
             updatedAt: m.updatedAt ? m.updatedAt.toISOString() : ""
         }

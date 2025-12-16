@@ -2,7 +2,7 @@ import { Document, Types } from "mongoose";
 
 export interface IPayment {
   type: 'escrow' | 'milestone' | 'fullPayment' | 'refund' | 'withdrawal' | 'subscription';
-  status: 'pending' | 'processing' | 'completed' | 'refunded' | 'cancelled' | 'onHold' | 'failed' | 'disputed';
+  status: 'pending' | 'processing' | 'completed' | 'refunded' | 'cancelled' | 'failed';
 
   amount: number;
   currency?: string;

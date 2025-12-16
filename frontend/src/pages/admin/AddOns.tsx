@@ -57,6 +57,17 @@ const AddOns = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const [confirmModal, setConfirmModal] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const [addOns, setAddOns] = useState<AddOn[]>([]);
+  const [activeTab, setActiveTab] = useState('All');
+
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+
   const validateAll = () => {
     const newErrors: Record<string, string> = {};
     if (formData.key.trim() === '') {
@@ -132,9 +143,6 @@ const AddOns = () => {
   };
 
 
-  const [confirmModal, setConfirmModal] = useState(false);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
-
   const handleConfirm = () => {
     if (!deleteId) return;
     setConfirmModal(false);
@@ -170,19 +178,13 @@ const AddOns = () => {
     setModalOpen(true);
   };
 
-  const [addOns, setAddOns] = useState<AddOn[]>([]);
-  const [activeTab, setActiveTab] = useState('All');
-  const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
-  // const [limit] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
-
 
   const fetchAddOns = async () => {
     try {
-      const response = await addOnService.getAllAddOns();
+      const response = await addOnService.getAllAddOns(search, page, limit);
       const { addOns } = response.data;
-      const mapped = addOns.map((a: any) => ({
+
+      const mapped = addOns.data.map((a: any) => ({
         ...a,
         status: a.isActive ? "active" : "inactive"
       }));

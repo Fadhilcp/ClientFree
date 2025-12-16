@@ -18,9 +18,13 @@ class UserService {
     getProfiles(search: string ,page: number, limit: number, role?: string) {
         return axios.get(endPoints.USER.LIST(search ,page, limit, role));
     }
-
-    getFreelancers(cursor: string, limit: number, search: string) {
-        return axios.get(endPoints.USER.LIST_FREELANCERS(cursor, limit, search));
+    // adding filterquery to apply filter as query params
+    getFreelancers(cursor: string, limit: number, search: string, filterQeury: string) {
+        return axios.get(
+            endPoints.USER.LIST_FREELANCERS(
+                cursor, limit, search
+            ) + (filterQeury ? `&${filterQeury}` : "")
+        );
     }
 
     setProfileImage(formData: FormData){
@@ -34,9 +38,13 @@ class UserService {
     changeUserStatus(userId: string,data: { status: string}){
         return axios.patch(endPoints.USER.UPDATE_STATUS(userId), data)
     }
-
-    getInterestedFreelancers(cursor: string, limit: number, search: string) {
-        return axios.get(endPoints.USER.GET_INTERESTED(cursor, limit, search));
+    // adding filterquery to apply filter as query params
+    getInterestedFreelancers(cursor: string, limit: number, search: string, filterQeury: string) {
+        return axios.get(
+            endPoints.USER.GET_INTERESTED(
+                cursor, limit, search
+            ) + (filterQeury ? `&${filterQeury}` : "")
+        );
     }
 
     addInterestedFreelancer(jobId: string) {

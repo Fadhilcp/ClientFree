@@ -44,7 +44,13 @@ export class JobService implements IJobService {
     }
 
     async getAllJobs(
-        freelancerId: string, status: string, search: string, limit: number, cursor?: string
+        freelancerId: string, status: string, search: string, limit: number, cursor?: string,
+        filters?: {
+            category?: string;
+            budgetMin?: number;
+            budgetMax?: number;
+            location?: string;
+        }
     ): Promise<{ jobs: JobListDTO[], nextCursor: string | null }> {
         let interestedJobIds: string[] = [];
 
@@ -70,6 +76,26 @@ export class JobService implements IJobService {
                 { title: regex },
                 { category: regex },
                 { subcategory: regex }
+            ];
+        }
+
+        // filter category
+        if (filters?.category) {
+            filter.category = filters.category;
+        }
+        // filter budget
+        if (filters?.budgetMin !== undefined || filters?.budgetMax !== undefined) {
+            filter["payment.budget"] = {};
+            if (filters.budgetMin !== undefined) filter["payment.budget"].$gte = filters.budgetMin;
+            if (filters.budgetMax !== undefined) filter["payment.budget"].$lte = filters.budgetMax;
+        }
+        // filter location
+        if (filters?.location?.trim()) {
+            const loc = filters.location.trim();
+            filter.$or = [
+                ...(filter.$or ?? []),
+                { "locationPreference.city": { $regex: loc, $options: "i" } },
+                { "locationPreference.country": { $regex: loc, $options: "i" } },
             ];
         }
 
@@ -258,7 +284,16 @@ export class JobService implements IJobService {
         }
     }
 
-    async getInterestedJobsForFreelancer(freelancerId: string, search: string, limit: number, cursor?: string): Promise<{ jobs: JobListDTO[], nextCursor: string | null }> {
+    async getInterestedJobsForFreelancer(
+        freelancerId: string, search: string, limit: number, cursor?: string, 
+        filters?: {
+            category?: string;
+            budgetMin?: number;
+            budgetMax?: number;
+            location?: string;
+        }
+    ): Promise<{ jobs: JobListDTO[], nextCursor: string | null }> {
+
         const user = await this._userRepository.findById(freelancerId);
         if(!user) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
 
@@ -280,6 +315,25 @@ export class JobService implements IJobService {
                 { category: regex },
                 { subcategory: regex },
                 { description: regex } 
+            ];
+        }
+        // filter category
+        if (filters?.category) {
+            filter.category = filters.category;
+        }
+        // filter budget
+        if (filters?.budgetMin !== undefined || filters?.budgetMax !== undefined) {
+            filter["payment.budget"] = {};
+            if (filters.budgetMin !== undefined) filter["payment.budget"].$gte = filters.budgetMin;
+            if (filters.budgetMax !== undefined) filter["payment.budget"].$lte = filters.budgetMax;
+        }
+        // filter location
+        if (filters?.location?.trim()) {
+            const loc = filters.location.trim();
+            filter.$or = [
+                ...(filter.$or ?? []),
+                { "locationPreference.city": { $regex: loc, $options: "i" } },
+                { "locationPreference.country": { $regex: loc, $options: "i" } },
             ];
         }
 

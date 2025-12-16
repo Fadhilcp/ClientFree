@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Card, { type ActionItem } from "../../../components/ui/Card/Card";
 import SearchBar from "../../../components/ui/SearchBar";
 import type { JobListDTO } from "../../../types/job/job.dto";
 import Loader from "../../../components/ui/Loader/Loader";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { jobService } from "../../../services/job.service";
 import { notify } from "../../../utils/toastService";
 
@@ -23,8 +23,32 @@ const BrowseJobsPage: React.FC = () => {
 
   const isInterestedPage = location.pathname.includes("/find-jobs/interested");
 
-  const fetchJobs = async (loadMore = false) => {
+  const [searchParams] = useSearchParams();
+    const filters = {
+      category: searchParams.get("category") || undefined,
+      location: searchParams.get("location") || undefined,
+      budgetMin: searchParams.get("budgetMin")
+        ? Number(searchParams.get("budgetMin"))
+        : undefined,
+      budgetMax: searchParams.get("budgetMax")
+        ? Number(searchParams.get("budgetMax"))
+        : undefined,
+    };
+    // to convert object filter fields into query params
+      const filterQuery = useMemo(() => {
+        const params = new URLSearchParams();
 
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value !== undefined && !Number.isNaN(value)) {
+            params.append(key, String(value));
+          }
+        });
+
+        return params.toString(); 
+      }, [filters]);
+
+  const fetchJobs = async (loadMore = false) => {
+console.log('console from fetchjobs ')
     if(loading) return;
     if(!hasMore && loadMore) return;
 
@@ -36,14 +60,16 @@ const BrowseJobsPage: React.FC = () => {
           response = await jobService.getInterestedJobs(
             loadMore ? safeCursor : "",
             LIMIT,
-            searchQuery
+            searchQuery,
+            filterQuery
           );
         } else {
           response = await jobService.getJobs(
             loadMore ? safeCursor : "",
             LIMIT,
             "open",
-            searchQuery
+            searchQuery,
+            filterQuery
           );
         }
 
@@ -97,8 +123,8 @@ const BrowseJobsPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-  fetchJobs(false);
-}, [searchQuery]);
+    fetchJobs(false);
+  }, [searchQuery, filterQuery]);
 
   const handleViewDetails = (jobId: string) => {
     navigate(`/job-details/${jobId}`);

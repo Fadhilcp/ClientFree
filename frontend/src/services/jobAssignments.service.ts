@@ -35,8 +35,12 @@ class JobAssignmentService {
         return axios.patch(endPoints.ASSIGNMENT.DISPUTE(assignmentId, milestoneId), disputeForm);
     }
 
-    getApprovedMilestone(){
-        return axios.get(endPoints.ASSIGNMENT.GET_APPROVED)
+    getApprovedMilestone(search: string, page: number, limit: number){
+        return axios.get(endPoints.ASSIGNMENT.GET_APPROVED(search, page, limit))
+    }
+
+    getFileUrl(assignmentId: string, milestoneId: string, key: string){
+        return axios.get(endPoints.ASSIGNMENT.GET_FILE_URL(assignmentId, milestoneId, key));
     }
 }
 

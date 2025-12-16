@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Card, { type ActionItem } from "../../../components/ui/Card/Card";
 import SearchBar from "../../../components/ui/SearchBar";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../../store/store";
 import Loader from "../../../components/ui/Loader/Loader";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { userService } from "../../../services/user.service";
 import type { FreelancerListItemDto } from "../../../types/user/freelancerProfile.dto";
 import { jobService } from "../../../services/job.service";
@@ -41,6 +41,29 @@ const FreelancersPage: React.FC = () => {
 
   const { user } = useSelector((state: RootState) => state.auth);
 
+  const [searchParams] = useSearchParams();
+  const filters = {
+      category: searchParams.get("category") || undefined,
+      location: searchParams.get("location") || undefined,
+      budgetMin: searchParams.get("budgetMin")
+        ? Number(searchParams.get("budgetMin"))
+        : undefined,
+      budgetMax: searchParams.get("budgetMax")
+        ? Number(searchParams.get("budgetMax"))
+        : undefined,
+    };
+// to convert object filter fields into query params
+  const filterQuery = useMemo(() => {
+    const params = new URLSearchParams();
+
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && !Number.isNaN(value)) {
+        params.append(key, String(value));
+      }
+    });
+
+    return params.toString(); 
+  }, [filters]);
   // Load freelancers
   const fetchFreelancers = useCallback(
     async (loadMore = false) => {
@@ -54,9 +77,13 @@ const FreelancersPage: React.FC = () => {
       const safeCursor =  cursor ?? "";
       let response; 
       if(isInterestedPage){
-        response = await userService.getInterestedFreelancers(loadMore ? safeCursor : "", LIMIT, searchQuery)
+        response = await userService.getInterestedFreelancers(
+          loadMore ? safeCursor : "", LIMIT, searchQuery, filterQuery
+        );
       }else{
-        response = await userService.getFreelancers(loadMore ? safeCursor : "" , LIMIT, searchQuery);
+        response = await userService.getFreelancers(
+          loadMore ? safeCursor : "" , LIMIT, searchQuery, filterQuery
+        );
       }
 
       if (response?.data.success) {
@@ -71,7 +98,7 @@ const FreelancersPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [user, isInterestedPage, hasMore, loading, searchQuery]);
+  }, [user, isInterestedPage, hasMore, loading, searchQuery, filterQuery]);
 
   
   const fetchClientJobs = useCallback(async () => {
@@ -105,6 +132,7 @@ const FreelancersPage: React.FC = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [loading, hasMore, fetchFreelancers]);
 
+
 useEffect(() => {
   setFreelancers([]);
   setCursor(null);
@@ -121,7 +149,7 @@ useEffect(() => {
 
   useEffect(() => {
     fetchFreelancers(false);
-  }, [searchQuery]);
+  }, [searchQuery, filterQuery]);
 
   const handleViewDetails = (freelancerId: string) => {
     navigate(`/users/${freelancerId}`);

@@ -33,7 +33,8 @@ export class AddonController {
 
     async toggleActive(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const addOns = await this._addOnService.getAll();
+            const { addOnId } = req.params;
+            const addOns = await this._addOnService.toggleActive(addOnId);
 
             sendResponse(res, HttpStatus.OK, { addOns });
         } catch (error) {
@@ -43,7 +44,11 @@ export class AddonController {
 
     async getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const addOns = await this._addOnService.getAll();
+            const search = typeof req.query.search === 'string' ? req.query.search : '';
+            const page = parseInt(req.query.page as string) || 1;
+            const limit = parseInt(req.query.limit as string) || 10;
+
+            const addOns = await this._addOnService.getAll(search, page, limit);
 
             sendResponse(res, HttpStatus.OK, { addOns });
         } catch (error) {
@@ -68,6 +73,16 @@ export class AddonController {
             const deleted: boolean = await this._addOnService.deleteAddOn(addOnId);
 
             sendResponse(res, HttpStatus.OK, {}, "AddOn deleted successfully", deleted)
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getActive(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const addOns = await this._addOnService.getActive();
+
+            sendResponse(res, HttpStatus.OK, { addOns });
         } catch (error) {
             next(error);
         }

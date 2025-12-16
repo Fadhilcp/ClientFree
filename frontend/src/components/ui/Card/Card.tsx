@@ -31,6 +31,7 @@ interface CardProps {
   status?: string;
   footer?: string;
   actions?: ActionItem[];
+  extraContent?: React.ReactNode;
 }
 
 const Card: React.FC<CardProps> = ({
@@ -44,10 +45,11 @@ const Card: React.FC<CardProps> = ({
   status,
   footer,
   actions = [],
+  extraContent,
 }) => {
 return (
   <div className="bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 
-                  rounded-2xl p-8 border border-gray-100 dark:border-gray-700">
+                  rounded-2xl p-8 mb-4  border border-gray-100 dark:border-gray-700">
     {/* User section */}
     {user && (
       <div className="mb-5">
@@ -129,6 +131,8 @@ return (
             {status}
           </span>
         )}
+        {/* to render extra content */}
+        {extraContent}
 
         {/* Footer */}
         {footer && (
@@ -137,6 +141,7 @@ return (
           </p>
         )}
       </div>
+      
 
       {/* Actions */}
       {actions.length > 0 && (

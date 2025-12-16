@@ -159,9 +159,13 @@ export class ProposalController {
             ? rawIsInvitation.toLowerCase() === "true" 
             : false;
 
-            const proposals = await this._proposalService.getMyProposals(freelancerId, isInvitation);
+            //for infinite scroll
+            const cursor = req.query.cursor as string | "";
+            const limit = parseInt(req.query.limit as string) || 20;
 
-            sendResponse(res, HttpStatus.OK, { proposals });
+            const { proposals, nextCursor } = await this._proposalService.getMyProposals(freelancerId, isInvitation, limit, cursor);
+
+            sendResponse(res, HttpStatus.OK, { proposals, nextCursor });
         } catch (error) {
             next(error);
         }

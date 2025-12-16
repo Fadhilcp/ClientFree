@@ -382,13 +382,30 @@ export class ProposalService implements IProposalService {
         };
     }
 
-    async getMyProposals(freelancerId: string, isInvitation: boolean): Promise<ProposalDTO[]> {
+    async getMyProposals(
+        freelancerId: string, isInvitation: boolean, limit: number, cursor?: string
+    ): Promise<{ proposals : ProposalDTO[], nextCursor: string | null }> {
+
         const filter: FilterQuery<IProposalInvitationDocument> = { freelancerId };
         if (typeof isInvitation === "boolean") {
             filter.isInvitation = isInvitation;
         }
-        const proposals = await this._proposalRepository.findWithDetail(filter);
-        return proposals.map(mapProposal);
+        //cursor - for infinite scroll
+        if(cursor && cursor !== "undefined" && cursor !== "null") {
+            filter._id = { $lt: cursor };
+        }
+
+
+        const proposals = await this._proposalRepository.findWithDetailPaginated(filter, limit);
+
+        const nextCursor = proposals.length > 0 
+        ? proposals[proposals.length - 1]._id.toString()
+        : null;
+
+        return {
+            proposals: proposals.map(mapProposal),
+            nextCursor
+        };
     }
 
     async getProposalsForClient(

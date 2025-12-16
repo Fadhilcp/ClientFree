@@ -1,8 +1,5 @@
 import mongoose, { ClientSession } from "mongoose";
-
-export interface IDatabaseSessionProvider {
-  startSession(): Promise<ClientSession>;
-}
+import { IDatabaseSessionProvider } from "./session-provider.interface";
 
 export class MongooseSessionProvider implements IDatabaseSessionProvider {
   async startSession(): Promise<ClientSession> {

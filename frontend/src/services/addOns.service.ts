@@ -10,8 +10,8 @@ class AddOnService {
         return axios.put(endPoints.ADDONS.BY_ID(addOnId), addOnData);
     }
 
-    async getAllAddOns(){
-        return axios.get(endPoints.ADDONS.GET_ALL);
+    async getAllAddOns(search: string, page: number, limit: number){
+        return axios.get(endPoints.ADDONS.GET_ALL(search, page, limit));
     }
 
     async toggleActive(addOnId: string) {
@@ -24,6 +24,10 @@ class AddOnService {
 
     async deleteAddOn(addOnId: string) {
         return axios.delete(endPoints.ADDONS.BY_ID(addOnId));
+    }
+
+    async getActiveAddOns() {
+        return axios.get(endPoints.ADDONS.GET_ACTIVE)
     }
 }
 

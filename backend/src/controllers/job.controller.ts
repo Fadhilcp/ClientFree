@@ -38,7 +38,23 @@ export class JobController {
             const limit = parseInt(req.query.limit as string) || 20;
 
             const status  = req.query.status as string || '';
-            const { jobs, nextCursor } = await this._jobService.getAllJobs(freelancerId, status, search, limit, cursor);
+            // filter
+            const category = req.query.category as string | undefined;
+            const location = req.query.location as string | undefined;
+            const budgetMin = req.query.budgetMin ? Number(req.query.budgetMin) : undefined;
+            const budgetMax = req.query.budgetMax ? Number(req.query.budgetMax) : undefined;
+
+            if (
+                (budgetMin !== undefined && Number.isNaN(budgetMin)) ||
+                (budgetMax !== undefined && Number.isNaN(budgetMax))
+            ) {
+                throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid budget values");
+            }
+
+            const { jobs, nextCursor } = await this._jobService.getAllJobs(
+                freelancerId, status, search, limit, cursor,
+                { category, location, budgetMin, budgetMax }
+            );
     
             sendResponse(res, HttpStatus.OK, { jobs, nextCursor });
         } catch (error) {
@@ -183,8 +199,21 @@ export class JobController {
             const cursor = req.query.cursor as string | undefined;
             const limit = parseInt(req.query.limit as string) || 20;
 
+            const category = req.query.category as string | undefined;
+            const location = req.query.location as string | undefined;
+            const budgetMin = req.query.budgetMin ? Number(req.query.budgetMin) : undefined;
+            const budgetMax = req.query.budgetMax ? Number(req.query.budgetMax) : undefined;
+
+            if (
+                (budgetMin !== undefined && Number.isNaN(budgetMin)) ||
+                (budgetMax !== undefined && Number.isNaN(budgetMax))
+            ) {
+                throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid budget values");
+            }
+
             const { jobs, nextCursor } = await this._jobService.getInterestedJobsForFreelancer(
-                freelancerId, search, limit, cursor
+                freelancerId, search, limit, cursor,
+                { category, location, budgetMin, budgetMax }
             );
 
             sendResponse(res, HttpStatus.OK, { jobs, nextCursor });

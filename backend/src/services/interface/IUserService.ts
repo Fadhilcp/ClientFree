@@ -19,9 +19,9 @@ export interface IUserService {
     ): Promise<void>;
 
     getFreelancers(
-        clientId: string, search: string, limit: number, cursor?: string
+        clientId: string, search: string, limit: number, cursor?: string, location?: string
     ): Promise<{ freelancers: FreelancerListItemDto[], nextCursor: string | null }>;
     getInterestedFreelancers(
-        clientId: string, search: string, limit: number, cursor?: string
+        clientId: string, search: string, limit: number, cursor?: string, location?: string
     ): Promise<{ freelancers: FreelancerListItemDto[], nextCursor: string | null }>;
 }

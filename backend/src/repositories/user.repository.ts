@@ -57,9 +57,4 @@ export class UserRepository
         .populate("skills", "name _id")
         .exec();
     }
-
-    async createWithSession(data: Partial<IUserDocument>, session: ClientSession): Promise<IUserDocument> {
-        const docs = await this.model.create([data], { session });
-        return docs[0]; 
-    }
 }

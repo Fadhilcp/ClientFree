@@ -41,8 +41,7 @@ const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ user, jobId, isProfileCompl
   useEffect(() => {
     const fetchAddOns = async () => {
       try {
-        const res = await addOnService.getAllAddOns();
-        console.log("🚀 ~ fetchAddOns ~ res:", res)
+        const res = await addOnService.getActiveAddOns();
         if (res.data.success) {
           const { addOns } = res.data;
           const activeAddOns = addOns.filter(

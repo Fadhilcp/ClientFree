@@ -1,4 +1,4 @@
-import { DeleteResult, Document, FilterQuery, ObjectId, PopulateOptions, SortOrder, UpdateQuery, UpdateResult } from "mongoose";
+import { ClientSession, DeleteResult, Document, FilterQuery, ObjectId, PopulateOptions, SortOrder, UpdateQuery, UpdateResult } from "mongoose";
 
 
 export interface IBaseRepository<TDocument extends Document> {
@@ -12,7 +12,7 @@ export interface IBaseRepository<TDocument extends Document> {
   deleteMany(filter: FilterQuery<TDocument>): Promise<DeleteResult>;
   deleteOne(filter: FilterQuery<TDocument>): Promise<DeleteResult>;
   findOne(filter: FilterQuery<TDocument>, options?: { sort?: Record<string, SortOrder> }): Promise<TDocument | null>;
-  find(filter: FilterQuery<TDocument>): Promise<TDocument[]>;
+  find(filter: FilterQuery<TDocument>, options?: { sort?: Record<string, SortOrder> }): Promise<TDocument[]>;
   paginate(filter: FilterQuery<TDocument>,options: {
         page?: number;
         limit?: number;
@@ -26,4 +26,16 @@ export interface IBaseRepository<TDocument extends Document> {
         limit: number;
         totalPages: number;
     }>
+
+    //session
+    createWithSession(data: Partial<TDocument>, session: ClientSession): Promise<TDocument>;
+    
+    findOneWithSession(
+        filter: FilterQuery<TDocument>,
+        session: ClientSession,
+        options?: { sort?: Record<string, SortOrder> }
+    ): Promise<TDocument | null>;
+
+    findByIdWithSession(id: string, session: ClientSession): Promise<TDocument | null>;
+    findWithSession(filter: FilterQuery<TDocument>, session: ClientSession): Promise<TDocument[]>;
 }

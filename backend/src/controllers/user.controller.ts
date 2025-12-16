@@ -131,9 +131,11 @@ export class ProfileController {
             if(!clientId){
                 throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
             }
+            // filter
+            const location = req.query.location as string | undefined;
 
             const { freelancers, nextCursor } = await this._userService.getFreelancers(
-                clientId, search, limit, cursor
+                clientId, search, limit, cursor, location
             );
 
             sendResponse(res, HttpStatus.OK, { freelancers, nextCursor });
@@ -152,9 +154,11 @@ export class ProfileController {
             //for infinite scroll
             const cursor = req.query.cursor as string | undefined;
             const limit = parseInt(req.query.limit as string) || 20;
+            // filter
+            const location = req.query.location as string | undefined;
 
             const { freelancers, nextCursor } = await this._userService.getInterestedFreelancers(
-                clientId, search, limit, cursor
+                clientId, search, limit, cursor, location
             );
 
             sendResponse(res, HttpStatus.OK, { freelancers, nextCursor });

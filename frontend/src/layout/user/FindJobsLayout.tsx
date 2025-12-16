@@ -7,7 +7,7 @@ const findJobsMenuItems = [
 ];
 
 const JobFilters = () => (
-  <FiilterBox/>
+  <FiilterBox enabledFilters={["category", "budgetMin", "budgetMax", "location"]}/>
 );
 
 const FindJobsLayout: React.FC = () => {

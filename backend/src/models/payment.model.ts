@@ -24,9 +24,7 @@ const paymentSchema = new Schema({
       'completed',
       'refunded',
       'cancelled',
-      'onHold',
-      'failed',
-      'disputed'
+      'failed'
     ],
     default: 'pending'
   },
@@ -52,6 +50,7 @@ const paymentSchema = new Schema({
 
   isDisputed: { type: Boolean, default: false },
   disputeReason: { type: String },
+  
   adminNotes: { type: String },
 
   // financial tracking

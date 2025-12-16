@@ -3,8 +3,12 @@ import axios from '../lib/axios';
 import { type JobForm } from '../types/job/job.dto';
 
 class JobService {
-    getJobs(cursor: string | undefined, limit: number, status: string, search: string) {
-        return axios.get(endPoints.JOB.LIST(search, status, cursor, limit));
+    getJobs(cursor: string | undefined, limit: number, status: string, search: string, filterQeury: string) {
+        return axios.get(
+            endPoints.JOB.LIST(
+                search, status, cursor, limit
+            ) + (filterQeury ? `&${filterQeury}` : "")
+        );
     }
 
     createJob(data: unknown) {
@@ -43,8 +47,12 @@ class JobService {
         return axios.post(endPoints.JOB.START_JOB(jobId));
     }
 
-    getInterestedJobs(cursor: string | undefined, limit: number, search: string) {
-        return axios.get(endPoints.JOB.GET_INTERESTED(search, cursor, limit));
+    getInterestedJobs(cursor: string | undefined, limit: number, search: string, filterQeury: string) {
+        return axios.get(
+            endPoints.JOB.GET_INTERESTED(
+                search, cursor, limit
+            ) + (filterQeury ? `&${filterQeury}` : "")
+        );
     }
 
     addInterestedJob(jobId: string) {

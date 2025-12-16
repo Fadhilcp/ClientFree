@@ -13,6 +13,7 @@ import { validateJobForm } from "../../utils/validators/jobForm";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../store/store";
 import { refreshJobs } from "../../features/jobSlice";
+import { JOB_CATEGORIES } from "../../constants/jobCategories";
 
 const clientMenuItems = [
   { label: "Active Jobs", path: "/my-jobs/active-jobs" },
@@ -46,14 +47,7 @@ const jobDropdowns = [
   {
     name: "category",
     label: "Category",
-    options: [
-      "Web Development",
-      "Mobile Development",
-      "Design",
-      "Marketing",
-      "Writing",
-      "Other",
-    ],
+    options: [...JOB_CATEGORIES],
   },
   {
     name: "subcategory",
@@ -119,7 +113,6 @@ const JobLayout: React.FC = () => {
         locationType: "specific",
         isFeatured: false,
     });
-    console.log("🚀 ~ JobLayout ~ formData:", formData)
 
     const [errors, setErrors] = useState<Partial<Record<keyof JobForm, string>>>({});
 
