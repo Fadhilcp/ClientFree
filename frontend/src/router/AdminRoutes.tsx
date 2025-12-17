@@ -12,6 +12,7 @@ import AddOns from '../pages/admin/AddOns'
 import MilestonePayouts from '../pages/admin/MilestonePayouts'
 import DisputesPage from '../pages/admin/dispute/Disputes'
 import DisputeDetailPage from '../pages/admin/dispute/DisputeDetailPage'
+import PayoutDetailPage from '../pages/admin/PayoutDetailPage'
 
 const AdminRoutes: React.FC = () => {
   return (
@@ -46,6 +47,11 @@ const AdminRoutes: React.FC = () => {
             <Route path='payouts' element={
               <AuthProtectedRoute allowedRoles={['admin']}>
                 <MilestonePayouts/>
+              </AuthProtectedRoute>
+            }/>
+            <Route path='payouts/:assignmentId/:milestoneId' element={
+              <AuthProtectedRoute allowedRoles={['admin']}>
+                <PayoutDetailPage/>
               </AuthProtectedRoute>
             }/>
             <Route path='disputes' element={

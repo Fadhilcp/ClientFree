@@ -1,4 +1,4 @@
-import { AdminApprovedMilestoneDto } from "dtos/adminApprovedMilestoneDto";
+import { AdminApprovedMilestoneDetailDto, AdminApprovedMilestoneDto } from "dtos/adminApprovedMilestoneDto";
 import { AssignmentDto } from "dtos/jobAssignment.dto";
 import { AuthPayload } from "types/auth.type";
 import { IMilestone, IMilestoneFile } from "types/jobAssignment.type";
@@ -22,6 +22,6 @@ export interface IJobAssignmentService {
     ): Promise<{ assignment: AssignmentDto, payment: IPaymentDocument }>;
 
     getApprovedMilestones(search: string, page: number, limit: number): Promise<PaginatedResult<AdminApprovedMilestoneDto>>;
-
     getFileUrl(userId: string, assignmentId: string, milestoneId: string, key: string): Promise<{ url: string }>;
+    getApprovedMilestoneById(assignmentId: string, milestoneId: string): Promise<AdminApprovedMilestoneDetailDto>;
 }

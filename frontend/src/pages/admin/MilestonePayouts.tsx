@@ -12,6 +12,7 @@ import { jobAssignmentService } from '../../services/jobAssignments.service';
 import { paymentService } from '../../services/payment.service';
 import type { AdminApprovedMilestoneDto } from '../../types/admin/ApprovedMilestone.type';
 import Loader from '../../components/ui/Loader/Loader';
+import { useNavigate } from 'react-router-dom';
 
 export interface Column<T> {
   key: keyof T;
@@ -23,6 +24,7 @@ const milestoneTabs: string[] = ['All', 'Approved', 'Released'];
 
 const MilestonePayouts = () => {
   const [milestones, setMilestones] = useState<AdminApprovedMilestoneDto[]>([]);
+  console.log("🚀 ~ MilestonePayouts ~ milestones:", milestones)
   const [loading, setLoading] = useState(false);
 
   const [selectedMilestone, setSelectedMilestone] = useState<AdminApprovedMilestoneDto | null>(null);
@@ -35,10 +37,11 @@ const MilestonePayouts = () => {
   const [limit] = useState(10); 
   const [totalPages, setTotalPages] = useState(1);
 
+  const navigate = useNavigate();
+
   const fetchMilestones = async () => {
     try {
       setLoading(true);
-      // TODO: pass jobId or pagination params
       const res = await jobAssignmentService.getApprovedMilestone(search, page, limit);
       if(res.data.success){
         const { milestones } = res.data;
@@ -86,6 +89,10 @@ const MilestonePayouts = () => {
     setReleaseModal(true);
   };
 
+  const handleViewDetail = (m: AdminApprovedMilestoneDto) => {
+    navigate(`/admin/payouts/${m.assignmentId}/${m.milestoneId}`)
+  }
+
   // table columns
   const columns: Column<AdminApprovedMilestoneDto>[] = [
     { key: 'title', header: 'Milestone' },
@@ -111,15 +118,26 @@ const MilestonePayouts = () => {
       key: 'id',
       header: 'Actions',
       render: (_, row) =>
-        row.status === 'approved' ? (
+        <span>
+          {
+            row.status === 'approved' ? (
+              <Button
+                label="Release"
+                onClick={() => handleReleaseClick(row)}
+                className="mx-1 px-3 py-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 
+                  bg-transparent border border-indigo-600 dark:border-indigo-400 rounded 
+                  hover:bg-indigo-50 dark:bg-transparent dark:hover:bg-indigo-900"
+              />
+            ) : null
+          }
           <Button
-            label="Release"
-            onClick={() => handleReleaseClick(row)}
+            label="View"
+            onClick={() => handleViewDetail(row)}
             className="mx-1 px-3 py-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 
               bg-transparent border border-indigo-600 dark:border-indigo-400 rounded 
               hover:bg-indigo-50 dark:bg-transparent dark:hover:bg-indigo-900"
           />
-        ) : null,
+        </span>
     },
   ];
 

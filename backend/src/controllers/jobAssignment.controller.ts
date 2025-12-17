@@ -169,4 +169,16 @@ export class JobAssignmentController {
             next(error);
         }
     }
+
+    async getApprovedMilestoneDetail(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const { assignmentId, milestoneId } = req.params;
+
+            const assignment = await this._jobAssignmentService.getApprovedMilestoneById(assignmentId, milestoneId);
+
+            sendResponse(res, HttpStatus.OK, { assignment });
+        } catch (error) {
+            next(error);
+        }
+    }
 }

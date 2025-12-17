@@ -112,6 +112,9 @@ export const endPoints = {
         GET_APPROVED:(search: string, page: number, limit:number) => 
             `/assignment/approved?search=${search}&page=${page}&limit=${limit}`,
 
+        GET_APPROVED_BY_ID:(assignmentId: string, milestoneId: string) => 
+            `/assignment/${assignmentId}/${milestoneId}/approved`,
+
         GET_FILE_URL: (assignmentId: string, milestoneId: string, key: string) => 
             `/assignment/${assignmentId}/${milestoneId}/file/${key}`,
     },

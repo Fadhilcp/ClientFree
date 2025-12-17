@@ -42,6 +42,10 @@ class JobAssignmentService {
     getFileUrl(assignmentId: string, milestoneId: string, key: string){
         return axios.get(endPoints.ASSIGNMENT.GET_FILE_URL(assignmentId, milestoneId, key));
     }
+
+    getApprovedMilestoneById(assignmentId: string, milestoneId: string){
+        return axios.get(endPoints.ASSIGNMENT.GET_APPROVED_BY_ID(assignmentId, milestoneId));
+    }
 }
 
 export const jobAssignmentService = new JobAssignmentService();

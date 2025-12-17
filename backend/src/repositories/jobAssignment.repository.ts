@@ -109,4 +109,29 @@ export class JobAssignmentRepository
             .limit(limit)
             .exec();
         }
+
+        async findApprovedMilestoneDetail(
+            assignmentId: string,
+            milestoneId: string
+        ): Promise<IJobAssignmentDocument | null> {
+            return this.model.findOne(
+                {
+                    _id: assignmentId,
+                    milestones: {
+                        $elemMatch: {
+                                _id: milestoneId,
+                                status: "approved"
+                        }
+                    }
+                },
+                {
+                    jobId: 1,
+                    freelancerId: 1,
+                    "milestones.$": 1
+                }
+            )
+            .populate("jobId")
+            .populate("freelancerId")
+            .populate("milestones.paymentId");
+        }
 }

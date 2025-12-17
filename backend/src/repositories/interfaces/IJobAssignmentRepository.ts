@@ -23,4 +23,6 @@ export interface IJobAssignmentRepository extends IBaseRepository<IJobAssignment
             limit: number;
             totalPages: number;
         }>;
+
+    findApprovedMilestoneDetail(assignmentId: string, milestoneId: string): Promise<IJobAssignmentDocument | null>;
 };

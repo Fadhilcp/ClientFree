@@ -9,12 +9,13 @@ import { HttpResponse } from "constants/responseMessage.constant";
 import { VALID_BUDGET_STATUSES } from "constants/validBudgetStatuses";
 import { IPaymentDocument } from "types/payment.type";
 import { IPaymentRepository } from "repositories/interfaces/IPaymentRepository";
-import { AdminMilestoneMapper } from "mappers/adminMilestoneMapper";
-import { AdminApprovedMilestoneDto } from "dtos/adminApprovedMilestoneDto";
+import { AdminMilestoneMapper } from "mappers/adminMilestone.mapper";
+import { AdminApprovedMilestoneDetailDto, AdminApprovedMilestoneDto } from "dtos/adminApprovedMilestoneDto";
 import { AuthPayload } from "types/auth.type";
 import { generateSignedUrl } from "utils/getSignedUrl.util";
 import { FilterQuery } from "mongoose";
 import { PaginatedResult } from "types/pagination";
+import { AdminApprovedMilestoneDetailMapper } from "mappers/adminApprovedMilestone.mapper";
 
 
 export class JobAssignmentService implements IJobAssignmentService {
@@ -260,6 +261,36 @@ export class JobAssignmentService implements IJobAssignmentService {
         };
     }
 
+    async getApprovedMilestoneById(
+        assignmentId: string,
+        milestoneId: string
+    ): Promise<AdminApprovedMilestoneDetailDto> {
+
+        const assignment =
+            await this._jobAssignmentRepository.findApprovedMilestoneDetail(
+            assignmentId,
+            milestoneId
+            );
+
+        if (!assignment) {
+            throw createHttpError(
+            HttpStatus.NOT_FOUND,
+            HttpResponse.MILESTONE_NOT_FOUND
+            );
+        }
+        if(!assignment.milestones){
+            throw createHttpError(HttpStatus.NOT_FOUND, "There are no milestones");
+        }
+        const milestone = assignment.milestones[0];
+
+        if (!milestone.paymentId) {
+            throw createHttpError(HttpStatus.BAD_REQUEST, "Payment not created for this milestone");
+        }
+
+        return AdminApprovedMilestoneDetailMapper.map(assignment);
+    }
+
+
     async getFileUrl(userId: string, assignmentId: string, milestoneId: string, key: string): Promise<{ url: string; }> {
         const assignment = await this._jobAssignmentRepository.findWithJobDetail({
              _id: assignmentId,
@@ -280,5 +311,5 @@ export class JobAssignmentService implements IJobAssignmentService {
         const url = await generateSignedUrl(key);
 
         return { url }
-    }   
+    }
 }

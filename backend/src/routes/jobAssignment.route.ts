@@ -21,6 +21,7 @@ assignmentRouter.get('/job/:jobId',jobAssignmentController.getAssignments.bind(j
 assignmentRouter.post('/:assignmentId/milestones',jobAssignmentController.addMilestones.bind(jobAssignmentController));
 assignmentRouter.patch('/:assignmentId/:milestoneId/cancel',jobAssignmentController.cancelMilestone.bind(jobAssignmentController));
 assignmentRouter.get('/approved',jobAssignmentController.getApproved.bind(jobAssignmentController));
+assignmentRouter.get('/:assignmentId/:milestoneId/approved',jobAssignmentController.getApprovedMilestoneDetail.bind(jobAssignmentController));
 
 assignmentRouter.post('/:assignmentId/:milestoneId/submit',upload.array("files"),jobAssignmentController.submit.bind(jobAssignmentController));
 assignmentRouter.get('/:assignmentId/:milestoneId/file/:key',jobAssignmentController.downloadFile.bind(jobAssignmentController));

@@ -236,6 +236,10 @@ export class ProposalService implements IProposalService {
             gatewayFee: 0,
             status: "completed"
         });
+
+        const startDay = new Date();
+        startDay.setUTCHours(0, 0, 0, 0)
+        
         
         if(!payment.referenceId) throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid payment record: missing referenceId");
         const addOn = await this._addOnRepository.findById(payment.referenceId);

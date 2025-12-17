@@ -14,7 +14,7 @@ const MyProposals: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // for infinit scroll
+  // for infinit scroll==
   const [cursor, setCursor] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
 

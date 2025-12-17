@@ -3,7 +3,7 @@ import { IJobAssignmentDocument } from "types/jobAssignment.type";
 
 const jobAssignmentSchema = new Schema({
   jobId: { type: Schema.Types.ObjectId, ref: "Job", required: true },
-  freelancerId: { type: Schema.Types.ObjectId, ref: "Users", required: true },
+  freelancerId: { type: Schema.Types.ObjectId, ref: "User", required: true },
   proposalId: { type: Schema.Types.ObjectId, ref: "ProposalInvitation", required: true },
 
   amount: { type: Number, required: true },
@@ -21,7 +21,7 @@ const jobAssignmentSchema = new Schema({
     amount: { type: Number, required: true },
     dueDate: Date,
 
-    paymentId: { type: Schema.Types.ObjectId, ref: "Payments" },
+    paymentId: { type: Schema.Types.ObjectId, ref: "Payment" },
 
     status: {
       type: String,
