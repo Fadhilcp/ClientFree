@@ -3,10 +3,14 @@ import { Router } from "express";
 import { authMiddleware } from "middlewares/authMiddleware";
 import { verifyUserNotBanned } from "middlewares/verifyUserNotBanned.middleware";
 import { ClarificationBoardRepository } from "repositories/clarificationBoard.repository";
+import { MongooseSessionProvider } from "repositories/db/session-provider";
 import { JobRepository } from "repositories/job.repository";
 import { JobAssignmentRepository } from "repositories/jobAssignment.repository";
+import { PaymentRepository } from "repositories/payment.repository";
 import { ProposalRepository } from "repositories/proposalInvitation.repository";
 import { UserRepository } from "repositories/user.repository";
+import { WalletRepository } from "repositories/wallet.repository";
+import { WalletTransactionRepository } from "repositories/walletTransaction.repository";
 import { JobService } from "services/job.service";
 
 const jobRouter = Router();
@@ -16,6 +20,10 @@ const proposalRepository = new ProposalRepository();
 const jobAssignmentRepository = new JobAssignmentRepository();
 const userRepository = new UserRepository();
 const clarificationBoardRepository = new ClarificationBoardRepository();
+const paymentRepository = new PaymentRepository();
+const walletRepository = new WalletRepository();
+const walletTransactionRepository = new WalletTransactionRepository();
+const sessionProvider = new MongooseSessionProvider;
 
 const jobSerivce = new JobService(
     jobRepository, 
@@ -23,6 +31,10 @@ const jobSerivce = new JobService(
     jobAssignmentRepository, 
     userRepository,
     clarificationBoardRepository,
+    paymentRepository,
+    walletRepository,
+    walletTransactionRepository,
+    sessionProvider
 );
 
 const jobController = new JobController(jobSerivce);
@@ -41,6 +53,7 @@ jobRouter.get('/freelancer/me',jobController.getFreelancerJobs.bind(jobControlle
 jobRouter.patch('/:id/status',jobController.changeStatus.bind(jobController));
 jobRouter.post('/:id/activate',jobController.startJob.bind(jobController));
 jobRouter.get('/:id',jobController.getById.bind(jobController));
+jobRouter.patch('/:jobId/cancel',jobController.cancelJob.bind(jobController));
 jobRouter.put('/:id',jobController.update.bind(jobController));
 jobRouter.delete('/:id',jobController.delete.bind(jobController));
 

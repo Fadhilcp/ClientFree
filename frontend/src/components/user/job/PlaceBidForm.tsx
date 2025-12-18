@@ -28,7 +28,7 @@ const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ user, jobId, isProfileCompl
     duration: "",
     description: "",
     milestones: [],
-    optionalUpgrades: "",
+    optionalUpgradeId: "",
   });
 
   const [errors, setErrors] = useState<{
@@ -140,7 +140,7 @@ const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ user, jobId, isProfileCompl
       duration: "",
       description: "",
       milestones: [],
-      optionalUpgrades: "",
+      optionalUpgradeId: "",
     });
     setSelectedUpgradeId(null);
     setErrors({});
@@ -163,7 +163,7 @@ const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ user, jobId, isProfileCompl
         amount: Number(m.amount),
         dueDate: m.dueDate ? new Date(m.dueDate).toISOString() : undefined,
       })),
-      optionalUpgrades: selectedUpgradeId ? selectedUpgradeId : "",
+      optionalUpgradeId: selectedUpgradeId ? selectedUpgradeId : "",
     };
 
 

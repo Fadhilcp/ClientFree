@@ -22,6 +22,7 @@ const paymentSchema = new Schema({
       'pending',
       'processing',
       'completed',
+      'refund_processing',
       'refunded',
       'cancelled',
       'failed'

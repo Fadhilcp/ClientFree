@@ -18,6 +18,7 @@ interface MilestoneCardProps {
   onSubmit: (id: string) => void;
   onRaiseDispute: (id: string) => void;
   handleFileClick: (fileKey: string, milestoneId: string) => void;
+  jobStatus: string;
 }
 
 const MilestoneCard: React.FC<MilestoneCardProps> = ({
@@ -35,6 +36,7 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({
   onSubmit,
   onRaiseDispute,
   handleFileClick,
+  jobStatus,
 }) => {
   const meta = [
     { label: "Amount", value: `₹ ${milestone.amount}` },
@@ -54,7 +56,7 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({
         }
       : null,
   ].filter((m): m is { label: string; value: string } => m !== null);
-
+  // button actions
   const actions: ActionItem[] = [
     user?.role === "client" && milestone.status === "draft"
       ? { label: "Edit", onClick: () => onEdit(index), variant: "secondary" }
@@ -73,21 +75,21 @@ const MilestoneCard: React.FC<MilestoneCardProps> = ({
       ? { label: "Request Change", onClick: () => onRequestChange(milestone.id!), variant: "secondary" }
       : null,
 
-    user?.role === "client" && milestone.status === "submitted"
+    user?.role === "client" && jobStatus === "active" && milestone.status === "submitted"
       ? { label: "Approve", onClick: () => onApprove(milestone.id!), variant: "primary" }
       : null,
 
-    user?.role === "freelancer" &&
+    user?.role === "freelancer" && jobStatus === "active" && 
     (milestone.status === "funded" || milestone.status === "changes_requested") &&
     freelancerId === user.id
       ? { label: "Submit", onClick: () => onSubmit(milestone.id!), variant: "primary" }
       : null,
 
-    user?.role === "client" && milestone.status === "submitted"
+    user?.role === "client" && milestone.status === "submitted" && jobStatus === "active"
       ? { label: "Raise Dispute", onClick: () => onRaiseDispute(milestone.id!), variant: "danger" }
       : null,
 
-    user?.role === "freelancer" &&
+    user?.role === "freelancer" && jobStatus === "active" &&
     milestone.status === "changes_requested" &&
     freelancerId === user.id
       ? { label: "Raise Dispute", onClick: () => onRaiseDispute(milestone.id!), variant: "secondary" }

@@ -175,68 +175,37 @@ export class PaymentService implements IPaymentService {
       });
     }
 
-    async refundMilestone(paymentId: string, initiatorId: string, reason?: string): Promise<any> {
+    async refundMilestone(paymentId: string, initiatorId: string, reason?: string) {
 
       const payment = await this._paymentRepository.findById(paymentId);
-      if (!payment) {
-        throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.PAYMENT_NOT_FOUND);
-      }
+      if (!payment) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.PAYMENT_NOT_FOUND);
 
-      if (payment.status === "refunded") {
-        return { payment };
-      }
-
-      if (payment.status !== "completed") {
-        throw createHttpError(
-          HttpStatus.BAD_REQUEST,
-          "Only completed payments can be refunded"
-        );
-      }
-
-      const assignment = await this._jobAssignmentRepository.findOne({
-        "milestones._id": payment.milestoneId
-      });
-
-      if (!assignment) {
-        throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.ASSIGNMENT_NOT_FOUND);
-      }
-
-      const milestone = assignment.milestones?.find(
-        m => m._id?.toString() === payment.milestoneId?.toString()
+      if (payment.status === "refunded") return { payment };
+      if (payment.status !== "completed") throw createHttpError(
+        HttpStatus.BAD_REQUEST,
+        "Only completed payments can be refunded"
       );
+      // transaction session
+      return this._sessionProvider.runInTransaction(async (session) => {
 
-      if (!milestone) {
-        throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.MILESTONE_NOT_FOUND);
-      }
-
-      if (milestone.status === "released") {
-        throw createHttpError(
-          HttpStatus.BAD_REQUEST,
-          "Cannot refund a released milestone"
+        const assignment = await this._jobAssignmentRepository.findOneWithSession(
+          { "milestones._id": payment.milestoneId },
+          session
         );
-      }
 
-      if (!payment.providerPaymentId) {
-        throw createHttpError(
-          HttpStatus.BAD_REQUEST,
-          "No provider payment id found for refund"
+        if(!assignment) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.ASSIGNMENT_NOT_FOUND);
+
+        const milestone = assignment.milestones?.find(
+          m => m._id?.toString() === payment.milestoneId?.toString()
         );
-      }
 
-      const razorpay = getRazorpayInstance();
-
-      const refund = await razorpay.payments.refund(
-        payment.providerPaymentId,
-        {
-          amount: Math.round(payment.amount * 100),
-          notes: {
-            reason: reason ?? "milestone_refund",
-            paymentId: payment._id.toString(),
-          }
+        if (!milestone) {
+          throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.MILESTONE_NOT_FOUND);
         }
-      );
 
-      return this._sessionProvider.runInTransaction(async (session: any) => {
+        if (milestone.status === "released") {
+          throw createHttpError(HttpStatus.BAD_REQUEST, "Cannot refund a released milestone");
+        }
 
         const clientWallet = await this._walletRepository.findOneWithSession(
           { userId: payment.clientId, role: "client", status: "active" },
@@ -255,6 +224,8 @@ export class PaymentService implements IPaymentService {
         }
 
         clientWallet.balance.escrow -= payment.amount;
+        clientWallet.balance.available += payment.amount;
+
         await clientWallet.save({ session });
 
         await this._walletTransactionRepository.createWithSession({
@@ -262,12 +233,12 @@ export class PaymentService implements IPaymentService {
           userId: clientWallet.userId,
           paymentId: payment._id,
           type: "refund",
-          direction: "debit",
+          direction: "credit",
           amount: payment.amount,
           balanceAfter: clientWallet.balance,
         }, session);
 
-        payment.status = "refunded";
+        payment.status = "refund_processing";
         payment.refundReason = reason;
         payment.refundDate = new Date();
 
@@ -278,9 +249,10 @@ export class PaymentService implements IPaymentService {
 
         await assignment.save({ session });
 
-        return { payment, refund, assignment };
+        return { payment };
       });
     }
+
 
 
     async releaseMilestone(paymentId: string, approverId: string): Promise<any> {

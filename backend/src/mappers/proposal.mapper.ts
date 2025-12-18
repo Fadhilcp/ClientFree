@@ -48,11 +48,13 @@ export function mapProposal(
       dueDate: m.dueDate,
       description: m.description,
     })),
-    optionalUpgrades: doc.optionalUpgrades?.map((o) => ({
-      addonId: o.addonId ? o.addonId.toString() : undefined,
-      name: o.name,
-      price: o.price,
-    })),
+    optionalUpgrade: doc.optionalUpgrade
+      ? {
+          addonId: doc.optionalUpgrade.addonId?.toString(),
+          name: doc.optionalUpgrade.name,
+          price: doc.optionalUpgrade.price,
+        }
+      : undefined,
     status: doc.status,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,

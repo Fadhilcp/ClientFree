@@ -40,11 +40,11 @@ export interface ProposalDTO {
     description?: string;
   }[];
 
-  optionalUpgrades?: {
+  optionalUpgrade?: {
     addonId?: string;
     name: string;
     price: number;
-  }[];
+  };
 
   status: ProposalStatus;
 

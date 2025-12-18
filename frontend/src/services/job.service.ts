@@ -62,6 +62,10 @@ class JobService {
     removeInterestedJob(jobId: string) {
         return axios.delete(endPoints.JOB.REMOVE_INTERESTED(jobId))
     }
+
+    cancelJob(jobId: string) {
+        return axios.patch(endPoints.JOB.CANCEL_JOB(jobId));
+    }
 }
 
 export const jobService = new JobService();

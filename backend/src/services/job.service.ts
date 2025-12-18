@@ -3,7 +3,7 @@ import { IJobService } from "./interface/IJobService";
 import { IJob, IJobDocument, IJobStatus } from "types/job.type";
 import { createHttpError } from "utils/httpError.util";
 import { HttpStatus } from "constants/status.constants";
-import { FilterQuery } from "mongoose";
+import { ClientSession, FilterQuery } from "mongoose";
 import { JobMapper } from "mappers/job.mapper";
 import { JobDetailDTO, JobListDTO } from "dtos/job.dto";
 import { HttpResponse } from "constants/responseMessage.constant";
@@ -14,6 +14,10 @@ import { AuthPayload } from "types/auth.type";
 import { createJobSchema } from "schema/job.schema";
 import { IUserRepository } from "repositories/interfaces/IUserRepository";
 import { IClarificationBoardRepository } from "repositories/interfaces/IClarificationBoardRepository";
+import { IPaymentRepository } from "repositories/interfaces/IPaymentRepository";
+import { IWalletRepository } from "repositories/interfaces/IWalletRepository";
+import { IWalletTransactionRepository } from "repositories/interfaces/IWalletTransactionRepository";
+import { IDatabaseSessionProvider } from "repositories/db/session-provider.interface";
 
 export class JobService implements IJobService {
 
@@ -23,6 +27,10 @@ export class JobService implements IJobService {
         private _jobAssignmentRepository: IJobAssignmentRepository,
         private _userRepository: IUserRepository,
         private _clarificationBoardRepository: IClarificationBoardRepository,
+        private _paymentRepository: IPaymentRepository,
+        private _walletRepository: IWalletRepository,
+        private _walletTransactionRepository: IWalletTransactionRepository,
+        private _sessionProvider: IDatabaseSessionProvider
     ){}
 
     async createJob(jobData: IJob): Promise<JobDetailDTO> {
@@ -384,4 +392,95 @@ export class JobService implements IJobService {
             }
         );
     }
+
+    async cancelJob(jobId: string, user: AuthPayload): Promise<string> {
+        if (!jobId) {
+            throw createHttpError(HttpStatus.BAD_REQUEST, 'Job id is required');
+        }
+        // transaction session
+        return this._sessionProvider.runInTransaction(async (session: ClientSession) => {
+
+            const job = await this._jobRepository.findByIdWithSession(jobId, session);
+            if (!job) {
+                throw createHttpError(HttpStatus.NOT_FOUND, 'Job not found');
+            }
+
+            if (user.role !== 'client' || job.clientId.toString() !== user._id.toString()) {
+                throw createHttpError(HttpStatus.FORBIDDEN, 'You are not allowed to cancel this job');
+            }
+
+            if (job.status !== 'open') {
+                throw createHttpError(HttpStatus.BAD_REQUEST, 'Only open jobs can be cancelled');
+            }
+
+            const assignments = await this._jobAssignmentRepository.findWithSession(
+                { jobId: job._id },
+                session
+            );
+
+            for (const assignment of assignments) {
+                // if milestones is empty
+                if (!assignment.milestones || assignment.milestones.length === 0) {
+                    assignment.status = 'cancelled';
+                    await assignment.save({ session });
+                    continue;
+                }
+
+            for (const milestone of assignment.milestones) {
+
+                if (milestone.status === 'funded' && milestone.paymentId) {
+
+                const payment = await this._paymentRepository.findByIdWithSession(
+                    milestone.paymentId.toString(),
+                    session
+                );
+
+                if (payment && payment.status === 'completed') {
+
+                    const clientWallet = await this._walletRepository.findOneWithSession(
+                    { userId: payment.clientId, role: 'client', status: 'active' },
+                    session
+                    );
+
+                    if (!clientWallet) {
+                    throw createHttpError(HttpStatus.BAD_REQUEST, 'Client wallet not found');
+                    }
+
+                    clientWallet.balance.escrow -= payment.amount;
+                    clientWallet.balance.available += payment.amount;
+                    await clientWallet.save({ session });
+
+                    await this._walletTransactionRepository.createWithSession({
+                        walletId: clientWallet._id,
+                        userId: clientWallet.userId,
+                        paymentId: payment._id,
+                        type: 'refund',
+                        direction: 'credit',
+                        amount: payment.amount,
+                        balanceAfter: clientWallet.balance,
+                    }, session);
+
+                    payment.status = 'refund_processing';
+                    payment.refundReason = 'Job cancelled before start';
+                    payment.refundDate = new Date();
+                    await payment.save({ session });
+
+                    milestone.status = 'refunded';
+                    milestone.updatedAt = new Date();
+                }
+              }
+            }
+
+            assignment.status = 'cancelled';
+            await assignment.save({ session });
+            }
+
+            job.status = 'cancelled';
+            await job.save({ session });
+
+            return 'Job cancelled and escrow refunded successfully';
+        });
+    }
+
+
 }

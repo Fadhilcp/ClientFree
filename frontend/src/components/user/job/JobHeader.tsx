@@ -1,12 +1,24 @@
+import { useState } from "react";
+
 interface JobHeaderProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   tabs: { key: string; label: string }[];
   status: string;
   onBack: () => void;
+  isJobOwner?: boolean;
+  onCancelJob?: () => void;
+  onDeleteJob?: () => void;
 }
 
-const JobHeader: React.FC<JobHeaderProps> = ({ activeTab, setActiveTab, tabs, status, onBack }) => {
+const JobHeader: React.FC<JobHeaderProps> = ({
+   activeTab, setActiveTab, tabs, status, onBack, isJobOwner, onCancelJob, onDeleteJob
+  }) => {
+    const [menuOpen, setMenuOpen] = useState<boolean>(false);
+
+    const handleMenuToggle = () => setMenuOpen((prev) => !prev);
+
+    const closeMenu = () => setMenuOpen(false);
   return (
     <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
       {/* Back Button */}
@@ -38,20 +50,62 @@ const JobHeader: React.FC<JobHeaderProps> = ({ activeTab, setActiveTab, tabs, st
         ))}
       </div>
 
-      {/* Status Badge */}
-      <span
-        className={`px-3 py-1.5 text-sm font-semibold rounded-full shadow-sm transition-colors duration-200 ${
-          status === "open"
-            ? "bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-200"
-            : status === "completed"
-            ? "bg-blue-100 text-blue-700 dark:bg-blue-800 dark:text-blue-200"
-            : status === "cancelled"
-            ? "bg-red-100 text-red-700 dark:bg-red-800 dark:text-red-200"
-            : "bg-yellow-100 text-yellow-700 dark:bg-yellow-800 dark:text-yellow-200"
-        }`}
-      >
-        {status.charAt(0).toUpperCase() + status.slice(1)}
-      </span>
+      {/* Status + Menu grouped */}
+      <div className="flex items-center gap-3">
+        <span
+          className={`px-3 py-1.5 text-sm font-semibold rounded-full shadow-sm transition-colors duration-200 ${
+            status === "open"
+              ? "bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-200"
+              : status === "completed"
+              ? "bg-blue-100 text-blue-700 dark:bg-blue-800 dark:text-blue-200"
+              : status === "cancelled"
+              ? "bg-red-100 text-red-700 dark:bg-red-800 dark:text-red-200"
+              : "bg-yellow-100 text-yellow-700 dark:bg-yellow-800 dark:text-yellow-200"
+          }`}
+        >
+          {status.charAt(0).toUpperCase() + status.slice(1)}
+        </span>
+
+        {isJobOwner && status === "open" && (
+          <div className="relative">
+            <button
+              onClick={handleMenuToggle}
+              className="p-2 rounded-full 
+                        hover:bg-indigo-500 dark:hover:bg-indigo-600 
+                        transition-colors duration-200"
+            >
+              <i className="fa-solid fa-ellipsis-vertical dark:text-gray-100 text-gray-800"></i>
+            </button>
+
+            {menuOpen && (
+              <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-700 z-20">
+                {onCancelJob && (
+                  <button
+                    onClick={() => {
+                      onCancelJob();
+                      closeMenu();
+                    }}
+                    className="w-full text-left px-4 py-2 text-orange-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
+                  >
+                    Cancel Job
+                  </button>
+                )}
+                {onDeleteJob && (
+                  <button
+                    onClick={() => {
+                      onDeleteJob();
+                      closeMenu();
+                    }}
+                    className="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
+                  >
+                    Delete Job
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

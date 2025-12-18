@@ -3,4 +3,9 @@ export interface FreelancerFilters {
   budgetMin?: number;
   budgetMax?: number;
   location?: string;
+
+  experience?: string;
+  hourlyRateMin?: number;
+  hourlyRateMax?: number;
+  ratingMin?: number;
 }

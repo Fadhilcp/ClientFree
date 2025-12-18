@@ -2,7 +2,7 @@ import { Request, Response, NextFunction, raw } from "express";
 import { IProposalService } from "services/interface/IProposalService";
 import { sendResponse } from "../utils/response.util";
 import { HttpStatus } from "../constants/status.constants";
-import { createHttpError, HttpError } from "../utils/httpError.util";
+import { createHttpError } from "../utils/httpError.util";
 import { HttpResponse } from "constants/responseMessage.constant";
 
 export class ProposalController {

@@ -71,7 +71,7 @@ export interface IUserProfile {
         resume?: string;
     };
 
-    hourlyRate?: string;
+    hourlyRate?: number;
     experienceLevel?: string;
 
     company?: {

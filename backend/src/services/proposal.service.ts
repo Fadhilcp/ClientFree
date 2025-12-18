@@ -36,11 +36,15 @@ export class ProposalService implements IProposalService {
     async createProposal(
         jobId: string, freelancerId: string, payload: IProposalInvitationPayload
     ): Promise<CreateProposalResponse> {
+        console.log("🚀 ~ ProposalService ~ createProposal ~ payload:", payload)
 
         const job = await this._jobRepository.findById(jobId);
         if (!job) throw createHttpError(HttpStatus.NOT_FOUND, "Job not found");
+        if(job.status !== "open") {
+            throw createHttpError(HttpStatus.CONFLICT, "Proposals can only be submitted to open jobs");
+        }
         // passing option upgrade id
-        const addOn = await this._validateOptionalUpgrade(payload.optionalUpgrades)
+        const addOn = await this._validateOptionalUpgrade(payload.optionalUpgradeId)
         // check the proposal is comes through invitation
         const invitation = await this._proposalRepository.findOne({
             jobId,
@@ -90,7 +94,7 @@ export class ProposalService implements IProposalService {
         invitation.duration = payload.duration;
         invitation.description = payload.description;
         invitation.milestones = payload.milestones;
-        invitation.optionalUpgrades = [];
+        invitation.optionalUpgrade = undefined;
 
         const updated = await invitation.save();
 
@@ -184,7 +188,7 @@ export class ProposalService implements IProposalService {
             freelancerId,
             status: "pending",
             isInvitation: false,
-            optionalUpgrades: [],
+            optionalUpgrade: undefined,
         });
 
         await this._jobRepository.findByIdAndUpdate(jobId, {
@@ -249,13 +253,11 @@ export class ProposalService implements IProposalService {
         if(!proposalId) throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid payment: missing proposal reference");
 
         await this._proposalRepository.findByIdAndUpdate(proposalId.toString(), {
-            optionalUpgrades: [
-                {
-                    addonId: addOn._id,
-                    name: addOn.key,
-                    price: addOn.price
-                }
-            ]
+            optionalUpgrade: {
+                addonId: addOn._id,
+                name: addOn.key,
+                price: addOn.price
+            }
         });
         return true;
     }

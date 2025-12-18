@@ -252,4 +252,21 @@ export class JobController {
             next(error);
         }
     }
+
+    async cancelJob(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const { jobId } = req.params;
+
+            const user = req.user;
+            if(!user){
+                throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
+            }
+
+            const message = await this._jobService.cancelJob(jobId, user);
+
+            sendResponse(res, HttpStatus.OK, {}, message);
+        } catch (error) {
+            next(error);
+        }
+    }
 }

@@ -133,9 +133,14 @@ export class ProfileController {
             }
             // filter
             const location = req.query.location as string | undefined;
+            const experience = req.query.experience as string | undefined;
+            const hourlyRateMin = req.query.hourlyRateMin ? Number(req.query.hourlyRateMin) : undefined;
+            const hourlyRateMax = req.query.hourlyRateMax ? Number(req.query.hourlyRateMax) : undefined;
+            const ratingMin = req.query.ratingMin ? Number(req.query.ratingMin) : undefined;
 
             const { freelancers, nextCursor } = await this._userService.getFreelancers(
-                clientId, search, limit, cursor, location
+                clientId, search, limit, cursor,
+                { location, experience, hourlyRateMin, hourlyRateMax, ratingMin }
             );
 
             sendResponse(res, HttpStatus.OK, { freelancers, nextCursor });
@@ -156,9 +161,14 @@ export class ProfileController {
             const limit = parseInt(req.query.limit as string) || 20;
             // filter
             const location = req.query.location as string | undefined;
+            const experience = req.query.experience as string | undefined;
+            const hourlyRateMin = req.query.hourlyRateMin ? Number(req.query.hourlyRateMin) : undefined;
+            const hourlyRateMax = req.query.hourlyRateMax ? Number(req.query.hourlyRateMax) : undefined;
+            const ratingMin = req.query.ratingMin ? Number(req.query.ratingMin) : undefined;
 
             const { freelancers, nextCursor } = await this._userService.getInterestedFreelancers(
-                clientId, search, limit, cursor, location
+                clientId, search, limit, cursor,
+                { location, experience, hourlyRateMin, hourlyRateMax, ratingMin }
             );
 
             sendResponse(res, HttpStatus.OK, { freelancers, nextCursor });

@@ -111,7 +111,13 @@ export class UserService implements IUserService {
     }
 
     async getFreelancers(
-        clientId: string, search: string, limit: number, cursor?: string, location?: string
+        clientId: string, search: string, limit: number, cursor?: string, filters?: {
+            location?: string;
+            experience?: string;
+            hourlyRateMin?: number;
+            hourlyRateMax?: number;
+            ratingMin?: number;
+        }
     ): Promise<{ freelancers: FreelancerListItemDto[], nextCursor: string | null }> {
 
         const filter: FilterQuery<IUserDocument> = { role: "freelancer", isProfileCompleted: true };
@@ -124,8 +130,8 @@ export class UserService implements IUserService {
             ];
         }
 
-        if (location?.trim()) {
-            const loc = location.trim();
+        if (filters?.location?.trim()) {
+            const loc = filters.location.trim();
 
             filter.$or = [
                 ...(filter.$or ?? []),
@@ -135,11 +141,35 @@ export class UserService implements IUserService {
             ];
         }
 
+        if (filters?.experience) {
+            filter.experienceLevel = filters.experience;
+        }
+
+        if (
+            filters?.hourlyRateMin !== undefined ||
+            filters?.hourlyRateMax !== undefined
+        ) {
+            filter.hourlyRate = {};
+            if (filters.hourlyRateMin !== undefined) {
+                filter.hourlyRate.$gte = filters.hourlyRateMin;
+            }
+            if (filters.hourlyRateMax !== undefined) {
+                filter.hourlyRate.$lte = filters.hourlyRateMax;
+            }
+        }
+
+        if (filters?.ratingMin !== undefined) {
+            filter["ratings.asFreelancer"] = { $gte: filters.ratingMin };
+        }
+
+
         if(cursor && cursor !== "undefined" && cursor !== "null") {
             filter._id = { $lt: cursor };
         }
 
         const freelancers = await this._userRepository.findWithSkillsPaginated(filter, limit);
+        console.log("🚀 ~ UserService ~ getFreelancers ~ filter:", filter)
+        console.log("🚀 ~ UserService ~ getFreelancers ~ freelancers:", freelancers)
 
         const nextCursor = freelancers.length > 0
         ? freelancers[freelancers.length - 1]._id.toString()
@@ -173,7 +203,13 @@ export class UserService implements IUserService {
     }
 
     async getInterestedFreelancers(
-        clientId: string, search: string, limit: number, cursor?: string, location?: string
+        clientId: string, search: string, limit: number, cursor?: string, filters?: {
+            location?: string;
+            experience?: string;
+            hourlyRateMin?: number;
+            hourlyRateMax?: number;
+            ratingMin?: number;
+        }
     ): Promise<{ freelancers: FreelancerListItemDto[], nextCursor: string | null }> {
 
         const client = await this._userRepository.findById(clientId);
@@ -196,8 +232,8 @@ export class UserService implements IUserService {
                 { professionalTitle: { $regex: search, $options: "i" } }
             ];
         }
-        if (location?.trim()) {
-            const loc = location.trim();
+        if (filters?.location?.trim()) {
+            const loc = filters.location.trim();
 
             filter.$or = [
                 ...(filter.$or ?? []),
@@ -205,6 +241,27 @@ export class UserService implements IUserService {
                 { "location.state": { $regex: loc, $options: "i" } },
                 { "location.country": { $regex: loc, $options: "i" } },
             ];
+        }
+
+        if (filters?.experience) {
+            filter.experience = filters.experience;
+        }
+
+        if (
+            filters?.hourlyRateMin !== undefined ||
+            filters?.hourlyRateMax !== undefined
+        ) {
+            filter.hourlyRate = {};
+            if (filters.hourlyRateMin !== undefined) {
+                filter.hourlyRate.$gte = filters.hourlyRateMin;
+            }
+            if (filters.hourlyRateMax !== undefined) {
+                filter.hourlyRate.$lte = filters.hourlyRateMax;
+            }
+        }
+
+        if (filters?.ratingMin !== undefined) {
+            filter["ratings.asFreelancer"] = { $gte: filters.ratingMin };
         }
 
         // cursor for infinite scroll
@@ -216,6 +273,7 @@ export class UserService implements IUserService {
         }
 
         const freelancers = await this._userRepository.findWithSkillsPaginated(filter, limit);
+        console.log("🚀 ~ UserService ~ getInterestedFreelancers ~ freelancers:", freelancers)
         // setting cursor
         const nextCursor = freelancers.length > 0
         ? freelancers[freelancers.length - 1]._id.toString()

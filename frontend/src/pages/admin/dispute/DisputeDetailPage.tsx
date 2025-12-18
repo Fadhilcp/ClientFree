@@ -128,11 +128,6 @@ const DisputeDetailPage: React.FC = () => {
       variant: "primary",
       onClick: handleReleaseToFreelancer,
     },
-    {
-      label: "Split Half",
-      variant: "secondary",
-      onClick: () => {},
-    },
   ] : [];
 
 return (

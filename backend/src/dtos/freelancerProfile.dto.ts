@@ -8,7 +8,7 @@ export interface FreelancerProfileDto {
   name?: string;
   phone?: string;
   professionalTitle?: string;
-  hourlyRate?: string;
+  hourlyRate?: number;
   experienceLevel?: string;
   about?: string;
   description?: string

@@ -24,6 +24,7 @@ const ProposalsSection: React.FC<ProposalsSectionProps> = ({
   setProposalFilter,
   getCardProps,
 }) => {
+
   if (activeTab !== "proposals") return null;
 
   // freelancer view when job is active

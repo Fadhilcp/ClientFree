@@ -37,7 +37,7 @@ export interface IProposalInvitation {
   description?: string;
 
   milestones?: IProposalMilestone[];
-  optionalUpgrades?: IOptionalUpgrade[];
+  optionalUpgrade?: IOptionalUpgrade;
 
   status: ProposalStatus;
 
@@ -69,5 +69,5 @@ export interface IProposalInvitationPayload {
     duration: string;
     description: string;    
     milestones: Array<IProposalMilestone>;
-    optionalUpgrades?: string; 
+    optionalUpgradeId?: string; 
 }

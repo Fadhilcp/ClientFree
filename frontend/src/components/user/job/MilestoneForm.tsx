@@ -17,6 +17,7 @@ interface MilestoneFormProps {
   user: User;
   setJobAssignments: React.Dispatch<React.SetStateAction<any[]>>;
   freelancerId: string;
+  jobStatus: string;
 }
 
 const MilestoneForm: React.FC<MilestoneFormProps> = ({
@@ -25,6 +26,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
   user,
   setJobAssignments,
   freelancerId,
+  jobStatus,
 }) => {
   const [milestones, setMilestones] = useState<MilestoneDto[]>(initialMilestones);
 
@@ -55,6 +57,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
     requestChangeMilestone,
     submitDispute,
   } = useMilestoneActions(assignmentId, setJobAssignments, user);
+
 
 
   const handleDisputeChange = (field: "reason", value: string) => {
@@ -227,6 +230,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
               freelancerId={freelancerId}
               hasFunded={hasFunded}
               firstDraftIndex={firstDraftIndex}
+              jobStatus={jobStatus}
               onEdit={(i) => setEditingIndex(i)}
               onCancel={(id) => {
                 setConfirmTitle("Cancel Milestone");
@@ -289,7 +293,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
         errors={disputeErrors}
       />
 
-      {user?.role === "client" && (
+      {user?.role === "client" && (jobStatus === "open" || jobStatus === "active") &&  (
         <button
           onClick={handleAddMilestoneUI}
           className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline mt-6 flex items-center gap-1"

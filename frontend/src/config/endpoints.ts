@@ -76,6 +76,7 @@ export const endPoints = {
             `/jobs/interested?cursor=${cursor}&limit=${limit}&search=${search}`,
         ADD_INTERESTED: (jobId: string) => `/jobs/${jobId}/interest`,
         REMOVE_INTERESTED: (jobId: string) => `/jobs/${jobId}/interest`,
+        CANCEL_JOB: (jobId: string) => `/jobs/${jobId}/cancel`,
     },
     PROPOSAL: {
         CREATE: "/proposal",                          // POST

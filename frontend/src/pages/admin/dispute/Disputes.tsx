@@ -3,11 +3,8 @@ import SearchFilter from "../../../components/admin/SearchFilter";
 import ReusableTable from "../../../components/ui/Table";
 import FilterTabs from "../../../components/admin/FilterTabs";
 import Button from "../../../components/ui/Button";
-
 import { notify } from "../../../utils/toastService";
 import Pagination from "../../../components/ui/Pagination";
-import ConfirmationModal from "../../../components/ui/Modal/ConfirmationModal";
-
 import type { AdminDisputeDto } from "../../../types/admin/Dispute.type";
 import { paymentService } from "../../../services/payment.service";
 import Loader from "../../../components/ui/Loader/Loader";
@@ -27,8 +24,6 @@ const DisputesPage = () => {
 
   const navigate = useNavigate();
 
-  const [selectedDispute, setSelectedDispute] = useState<AdminDisputeDto | null>(null);
-  const [resolveModal, setResolveModal] = useState(false);
 
   const [activeTab, setActiveTab] = useState("All");
   const [search, setSearch] = useState("");
@@ -52,21 +47,6 @@ const DisputesPage = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleConfirmResolve = async () => {
-    if (!selectedDispute) return;
-
-    try {
-    //   await jobAssignmentService.resolveDispute(selectedDispute.id);
-    //   notify.success("Dispute resolved successfully");
-    //   fetchDisputes();
-    } catch (err: any) {
-      notify.error(err.response?.data?.error || "Failed to resolve dispute");
-    }
-
-    setResolveModal(false);
-    setSelectedDispute(null);
   };
 
   useEffect(() => {
@@ -95,7 +75,7 @@ const DisputesPage = () => {
     { key: "disputeReason", header: "Reason" },
     {
       key: "status",
-      header: "Status",
+      header: "Payment Status",
       render: (value: string) => (
         <span
           className={`px-2 py-1 rounded-full text-xs font-semibold ${
@@ -129,15 +109,6 @@ const DisputesPage = () => {
   return (
     <>
     { loading && <Loader/> }
-
-      {/* Resolve confirmation modal */}
-      <ConfirmationModal
-        isOpen={resolveModal}
-        title="Confirm Resolve"
-        description={`Are you sure you want to resolve dispute for job "${selectedDispute?.job!.title}"?`}
-        onCancel={() => setResolveModal(false)}
-        onConfirm={handleConfirmResolve}
-      />
 
       <div className="p-4 bg-white dark:bg-gray-900 min-h-screen">
         <div className="flex justify-between items-center mb-4">

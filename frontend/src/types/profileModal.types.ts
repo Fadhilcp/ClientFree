@@ -29,7 +29,7 @@ export interface ProfileFormData {
   portfolio: Portfolio;
   skills: string[];
   professionalTitle: string;
-  hourlyRate: string;
+  hourlyRate: number | null;
   about: string;
   experienceLevel: string;
   externalLinks: ExternalLink[];

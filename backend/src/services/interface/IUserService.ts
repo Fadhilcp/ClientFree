@@ -19,9 +19,21 @@ export interface IUserService {
     ): Promise<void>;
 
     getFreelancers(
-        clientId: string, search: string, limit: number, cursor?: string, location?: string
+        clientId: string, search: string, limit: number, cursor?: string, filters?: {
+            location?: string;
+            experience?: string;
+            hourlyRateMin?: number;
+            hourlyRateMax?: number;
+            ratingMin?: number;
+        }
     ): Promise<{ freelancers: FreelancerListItemDto[], nextCursor: string | null }>;
     getInterestedFreelancers(
-        clientId: string, search: string, limit: number, cursor?: string, location?: string
+        clientId: string, search: string, limit: number, cursor?: string, filters?: {
+            location?: string;
+            experience?: string;
+            hourlyRateMin?: number;
+            hourlyRateMax?: number;
+            ratingMin?: number;
+        }
     ): Promise<{ freelancers: FreelancerListItemDto[], nextCursor: string | null }>;
 }

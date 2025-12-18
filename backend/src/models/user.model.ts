@@ -97,7 +97,7 @@ const userSchema = new Schema({
         resume: { type: String }
     },
 
-    hourlyRate : { type : String },
+    hourlyRate : { type : Number },
     experienceLevel : { type : String },
 
     company : {

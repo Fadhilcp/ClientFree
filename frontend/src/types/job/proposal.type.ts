@@ -23,11 +23,11 @@ export interface IProposal {
   duration: string;
   description: string;
   milestones?: Milestone[];
-  optionalUpgrades?: Array<{
+  optionalUpgrade?: {
     addonId: string;
     name: "highlight" | "sponsored" | "sealed";
     price: number;
-  }>;
+  };
   status: ProposalStatus;
   isInvitation: boolean;
   invitation: IInvitationDetails;
@@ -49,5 +49,5 @@ export interface IProposalForm {
   duration: string;
   description: string;
   milestones: Milestone[];
-  optionalUpgrades: string;
+  optionalUpgradeId: string;
 }

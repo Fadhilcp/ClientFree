@@ -3,7 +3,15 @@ import { useSearchParams } from 'react-router-dom';
 import { filtersToSearchParams } from '../../utils/filtersToSearchParams';
 import { JOB_CATEGORIES } from '../../constants/jobCategories';
 
-type FilterKey = "category" | "budgetMin" | "budgetMax" | "location";
+type FilterKey =
+  | "category"
+  | "budgetMin"
+  | "budgetMax"
+  | "location"
+  | "experience"
+  | "hourlyRateMin"
+  | "hourlyRateMax"
+  | "ratingMin";
 
 type FilterBoxProps = {
   enabledFilters: FilterKey[];
@@ -19,6 +27,20 @@ const FiilterBox: React.FC<FilterBoxProps> = ({ enabledFilters = [] }) => {
     const [budgetMin, setBudgetMin] = useState<string>(searchParams.get("budgetMin") || "");
     const [budgetMax, setBudgetMax] = useState<string>(searchParams.get("budgetMax") || "");
     const [location, setLocation] = useState(searchParams.get("location") || "");
+    const [experience, setExperience] = useState(
+      searchParams.get("experience") || "all"
+    );
+
+    const [hourlyRateMin, setHourlyRateMin] = useState(
+      searchParams.get("hourlyRateMin") || ""
+    );
+    const [hourlyRateMax, setHourlyRateMax] = useState(
+      searchParams.get("hourlyRateMax") || ""
+    );
+
+    const [ratingMin, setRatingMin] = useState(
+      searchParams.get("ratingMin") || "all"
+    );
 
     const applyFilters = () => {
 
@@ -27,7 +49,20 @@ const FiilterBox: React.FC<FilterBoxProps> = ({ enabledFilters = [] }) => {
         ...(has("budgetMin") && budgetMin ? { budgetMin: Number(budgetMin) } : {}),
         ...(has("budgetMax") && budgetMax ? { budgetMax: Number(budgetMax) } : {}),
         ...(has("location") && location.trim() ? { location: location.trim() } : {}),
+        ...(has("experience") && experience !== "all" ? { experience } : {}),
+
+        ...(has("hourlyRateMin") && hourlyRateMin
+          ? { hourlyRateMin: Number(hourlyRateMin) }
+          : {}),
+        ...(has("hourlyRateMax") && hourlyRateMax
+          ? { hourlyRateMax: Number(hourlyRateMax) }
+          : {}),
+
+        ...(has("ratingMin") && ratingMin !== "all"
+          ? { ratingMin: Number(ratingMin) }
+          : {}),
       });
+      console.log("🚀 ~ applyFilters ~ params:", params)
 
       params.delete("cursor");
       setSearchParams(params);
@@ -88,6 +123,72 @@ const FiilterBox: React.FC<FilterBoxProps> = ({ enabledFilters = [] }) => {
                     />
                   )}
                 </div>
+              </div>
+            )}
+            
+            {/* experience */}
+            {has("experience") && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Experience
+                </label>
+                <select
+                  value={experience}
+                  onChange={(e) => setExperience(e.target.value)}
+                  className="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 bg-white dark:text-gray-200"
+                >
+                  <option value="all">All</option>
+                  <option value="beginner">Beginner</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="expert">Expert</option>
+                </select>
+              </div>
+            )}
+
+            {(has("hourlyRateMin") || has("hourlyRateMax")) && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Hourly Rate
+                </label>
+                <div className="flex gap-2">
+                  {has("hourlyRateMin") && (
+                    <input
+                      type="number"
+                      min={0}
+                      placeholder="Min"
+                      value={hourlyRateMin}
+                      onChange={(e) => setHourlyRateMin(e.target.value)}
+                      className="w-1/2 rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 bg-white dark:text-gray-200"
+                    />
+                  )}
+                  {has("hourlyRateMax") && (
+                    <input
+                      type="number"
+                      min={0}
+                      placeholder="Max"
+                      value={hourlyRateMax}
+                      onChange={(e) => setHourlyRateMax(e.target.value)}
+                      className="w-1/2 rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 bg-white dark:text-gray-200"
+                    />
+                  )}
+                </div>
+              </div>
+            )}
+
+            {has("ratingMin") && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Rating
+                </label>
+                <select
+                  value={ratingMin}
+                  onChange={(e) => setRatingMin(e.target.value)}
+                  className="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 bg-white dark:text-gray-200"
+                >
+                  <option value="all">Any</option>
+                  <option value="4">4★ & up</option>
+                  <option value="3">3★ & up</option>
+                </select>
               </div>
             )}
 

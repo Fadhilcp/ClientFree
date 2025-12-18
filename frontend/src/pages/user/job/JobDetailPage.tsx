@@ -22,6 +22,7 @@ import InvitationsSection from "../../../components/user/job/InvitationSection";
 import ProposalsSection from "../../../components/user/job/ProposalSection";
 import ClarificationBoard from "../../../components/user/job/ClarificationBoard";
 import type { User } from "../../../features/authSlice";
+import ConfirmationModal from "../../../components/ui/Modal/ConfirmationModal";
 
 const tabs = [
   { key: "details", label: "Job Details" },
@@ -43,12 +44,27 @@ const JobDetailPage: React.FC = () => {
   const [invitationsLoading, setInvitationsLoading] = useState(false);
   
   const [jobAssignments, setJobAssignments] = useState<AssignmentDto[]>([]);
+
+  // confirmation modal state
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [confirmTitle, setConfirmTitle] = useState("");
+  const [confirmDescription, setConfirmDescription] = useState("");
+  const [confirmAction, setConfirmAction] = useState<() => void>(() => () => {});
+
   // to find the user who post job
   const isJobOwner = user?.id === job?.clientId;
   const canStartJob = job?.status === "open" && 
   jobAssignments.some((a) =>
     a.milestones.some((m) => m.status === "funded")
   );
+  // open confirm modal 
+    const openConfirmModal = (title: string, description: string, action: () => void) => {
+      setConfirmTitle(title);
+      setConfirmDescription(description);
+      setConfirmAction(() => action);
+      setIsConfirmOpen(true);
+    };
+
   
   useEffect(() => {
     if (!id) return;
@@ -223,25 +239,104 @@ const JobDetailPage: React.FC = () => {
   
   return actions;
   };
-// propos of cards
-  const getCardProps = (p: IProposal) => ({
-    user: p.freelancer ?? undefined,
-      title: `Bid: ₹${p.bidAmount}`,
-      subtitle: `Duration: ${p.duration}`,
-      description: p.description,
-      status: p.status,
-      meta: [{ label: "Bid Amount", value: `₹${p.bidAmount}` }],
-      tags:
-        p.milestones?.map(
-          m => `${m.title} - ₹${m.amount} - ${m.dueDate ? formatDate(m.dueDate) : ""}`
-        ) || [],
-      footer: `Created: ${new Date(
-        p.createdAt
-      ).toLocaleDateString()} • Updated: ${new Date(
-        p.updatedAt
-      ).toLocaleDateString()}`,
-      actions: getProposalActions(p),
-  });
+
+  const getUpgradeProps = (p: IProposal) => {
+    const upgrade = p.optionalUpgrade?.name;
+
+    switch (upgrade) {
+      case "sealed":
+        return {
+          title: undefined,
+          description: undefined,
+          meta: undefined,
+          subtitle: undefined,
+          extraContent: (
+            <span className="mt-5 mr-3 float-start text-xs font-bold text-indigo-400">
+              SEALED 
+            </span>
+          ),
+        };
+
+      case "highlight":
+        return {
+          className: `
+            border-2 border-indigo-400 dark:border-indigo-400
+            from-gray-50 via-indigo-200 to-gray-50 
+            dark:from-gray-800 dark:via-indigo-900 dark:to-gray-800
+            shadow-md
+          `,
+        };
+
+
+      case "sponsored":
+        return {
+          className: "ring-1 ring-yellow-500 shadow-xl",
+          extraContent: (
+            <span className="mt-5 mr-3 float-start text-xs font-bold text-yellow-500">
+              SPONSORED
+            </span>
+          ),
+        };
+
+      default:
+        return {};
+    }
+  };
+
+// props of proposal cards
+  const getCardProps = (p: IProposal) => {
+    const upgradeProps = getUpgradeProps(p);
+      
+      return {
+      user: p.freelancer ?? undefined,
+        title: `Bid: ₹${p.bidAmount}`,
+        subtitle: `Duration: ${p.duration}`,
+        description: p.description,
+        status: p.status,
+        meta: [{ label: "Bid Amount", value: `₹${p.bidAmount}` }],
+        tags:
+          p.milestones?.map(
+            m => `${m.title} - ₹${m.amount} - ${m.dueDate ? formatDate(m.dueDate) : ""}`
+          ) || [],
+        footer: `Created: ${new Date(
+          p.createdAt
+        ).toLocaleDateString()} • Updated: ${new Date(
+          p.updatedAt
+        ).toLocaleDateString()}`,
+        actions: getProposalActions(p),
+        ...upgradeProps
+     }
+  };
+
+  const handleViewProfile = (freelancerId: string) => {
+    navigate(`/users/${freelancerId}`);
+  }
+
+  const handleCancelJob = async () => {
+    if (!id) return;
+    try {
+      const res = await jobService.cancelJob(id);
+      if (res.data.success) {
+        notify.success("Job cancelled and escrow refunded successfully");
+        setJob((prev) => (prev ? { ...prev, status: "cancelled" } : prev));
+      }
+    } catch (err: any) {
+      notify.error(err.response?.data?.error || "Failed to cancel job");
+    }
+  };
+
+  const handleDeleteJob = async () => {
+    if (!id) return;
+    try {
+      const res = await jobService.deleteJob(id);
+      if (res.data.success) {
+        notify.success("Job deleted successfully");
+        navigate(-1);
+      }
+    } catch (err: any) {
+      notify.error(err.response?.data?.error || "Failed to delete job");
+    }
+  };
 
     if (loading) {
       return <CenteredMessage message="Loading job details..." />;
@@ -256,7 +351,18 @@ const JobDetailPage: React.FC = () => {
   return (
     <section className="bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 min-h-screen flex justify-center py-10 px-4">
       <div className="w-full max-w-6xl rounded-xl bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-        
+        {/* Confirmation Modal */}
+        <ConfirmationModal
+          isOpen={isConfirmOpen}
+          title={confirmTitle}
+          description={confirmDescription}
+          onConfirm={() => {
+            confirmAction();
+            setIsConfirmOpen(false);
+          }}
+          onCancel={() => setIsConfirmOpen(false)}
+        />
+
         {/* Top Section */}
         <JobHeader
           activeTab={activeTab}
@@ -264,6 +370,21 @@ const JobDetailPage: React.FC = () => {
           tabs={tabs}
           status={job.status}
           onBack={() => navigate(-1)}
+          isJobOwner={isJobOwner}
+          onCancelJob={() =>
+          openConfirmModal(
+              "Cancel Job",
+              "Are you sure you want to cancel this job?",
+              handleCancelJob
+            )
+          }
+          onDeleteJob={() =>
+            openConfirmModal(
+              "Delete Job",
+              "Are you sure you want to delete this job?",
+              handleDeleteJob
+            )
+          }
         />
 
         {/* Job Details */}
@@ -318,7 +439,7 @@ const JobDetailPage: React.FC = () => {
                         actions={[
                           {
                             label: "View Profile",
-                            onClick: () => console.log("View freelancer", p.freelancer.id),
+                            onClick: () => handleViewProfile(p.freelancer.id),
                             variant: "secondary" as const,
                           },
                         ]}
@@ -330,20 +451,30 @@ const JobDetailPage: React.FC = () => {
               )}
 
             {/* Milestones */}
-            {jobAssignments?.map((assignment) => (
-              <div key={assignment.id} className="mb-10">
-                <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
-                  Milestones for <span className="text-indigo-600 dark:text-indigo-500">{assignment.freelancer.name}</span>
-                </h2>
-                <MilestoneForm
-                  assignmentId={assignment.id}
-                  initialMilestones={assignment.milestones || []}
-                  user={user as User}
-                  setJobAssignments={setJobAssignments}
-                  freelancerId={assignment.freelancer.id}
-                />
-              </div>
-            ))}
+            {jobAssignments?.map((assignment) => {
+                const canViewMilestones =
+                  user?.role === "client" ||
+                  (user?.role === "freelancer" &&
+                    assignment.freelancer.id === user.id);
+
+                if (!canViewMilestones) return null;
+
+              return (
+                <div key={assignment.id} className="mb-10">
+                  <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
+                    Milestones for <span className="text-indigo-600 dark:text-indigo-500">{assignment.freelancer.name}</span>
+                  </h2>
+                  <MilestoneForm
+                    assignmentId={assignment.id}
+                    initialMilestones={assignment.milestones || []}
+                    user={user as User}
+                    setJobAssignments={setJobAssignments}
+                    freelancerId={assignment.freelancer.id}
+                    jobStatus={job.status}
+                  />
+                </div>
+              )
+            })}
 
             {/* Place Bid */}
             {user?.role === "freelancer" && job.status === "open" && (
