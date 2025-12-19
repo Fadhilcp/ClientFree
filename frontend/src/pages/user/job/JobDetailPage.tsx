@@ -23,6 +23,7 @@ import ProposalsSection from "../../../components/user/job/ProposalSection";
 import ClarificationBoard from "../../../components/user/job/ClarificationBoard";
 import type { User } from "../../../features/authSlice";
 import ConfirmationModal from "../../../components/ui/Modal/ConfirmationModal";
+import { getUpgradeProposal } from "../../../utils/getUpgradeProposal";
 
 const tabs = [
   { key: "details", label: "Job Details" },
@@ -240,52 +241,14 @@ const JobDetailPage: React.FC = () => {
   return actions;
   };
 
-  const getUpgradeProps = (p: IProposal) => {
-    const upgrade = p.optionalUpgrade?.name;
-
-    switch (upgrade) {
-      case "sealed":
-        return {
-          title: undefined,
-          description: undefined,
-          meta: undefined,
-          subtitle: undefined,
-          extraContent: (
-            <span className="mt-5 mr-3 float-start text-xs font-bold text-indigo-400">
-              SEALED 
-            </span>
-          ),
-        };
-
-      case "highlight":
-        return {
-          className: `
-            border-2 border-indigo-400 dark:border-indigo-400
-            from-gray-50 via-indigo-200 to-gray-50 
-            dark:from-gray-800 dark:via-indigo-900 dark:to-gray-800
-            shadow-md
-          `,
-        };
-
-
-      case "sponsored":
-        return {
-          className: "ring-1 ring-yellow-500 shadow-xl",
-          extraContent: (
-            <span className="mt-5 mr-3 float-start text-xs font-bold text-yellow-500">
-              SPONSORED
-            </span>
-          ),
-        };
-
-      default:
-        return {};
-    }
-  };
 
 // props of proposal cards
   const getCardProps = (p: IProposal) => {
-    const upgradeProps = getUpgradeProps(p);
+    const upgradeProps = getUpgradeProposal({
+      proposal: p,
+      userId: user?.id,
+      isJobOwner,
+    });
       
       return {
       user: p.freelancer ?? undefined,

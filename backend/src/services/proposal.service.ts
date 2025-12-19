@@ -36,7 +36,6 @@ export class ProposalService implements IProposalService {
     async createProposal(
         jobId: string, freelancerId: string, payload: IProposalInvitationPayload
     ): Promise<CreateProposalResponse> {
-        console.log("🚀 ~ ProposalService ~ createProposal ~ payload:", payload)
 
         const job = await this._jobRepository.findById(jobId);
         if (!job) throw createHttpError(HttpStatus.NOT_FOUND, "Job not found");
