@@ -23,7 +23,7 @@ interface CardUser {
 interface CardProps {
   user?: CardUser;
   image?: string;
-  title: string;
+  title?: string;
   subtitle?: string;
   meta?: MetaItem[];
   tags?: string[];

@@ -74,7 +74,7 @@ export class ProposalController {
 
             const updated = await this._proposalService.updateProposal(proposalId, req.body);
 
-            sendResponse(res, HttpStatus.OK, { updated });
+            sendResponse(res, HttpStatus.OK, { proposal: updated });
         } catch (error) {
             next(error);
         }
@@ -212,6 +212,41 @@ export class ProposalController {
             })
 
             sendResponse(res, HttpStatus.OK, {}, "Add-on payment verified", success);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async aiShortlistProposals(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            console.log('hello world')
+            const { jobId } = req.params;
+            const { top } = req.query;
+
+            const topN = Number(top);
+
+            const result = await this._proposalService.aiShortlistTopProposals(jobId, topN);
+
+            sendResponse(res, HttpStatus.OK, { result }, "Proposals shortlisted with ai");
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async cancelProposal(req: Request, res: Response, next: NextFunction) {
+        try {
+            const proposalId = req.params.proposalId;
+
+            if (!proposalId) {
+                throw createHttpError(HttpStatus.BAD_REQUEST, "Proposal id is needed");
+            }
+
+            const freelancerId = req.user?._id;
+            if(!freelancerId) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
+
+            const cancelled = await this._proposalService.cancelProposal(proposalId, freelancerId);
+
+            sendResponse(res, HttpStatus.OK, { proposal: cancelled });
         } catch (error) {
             next(error);
         }

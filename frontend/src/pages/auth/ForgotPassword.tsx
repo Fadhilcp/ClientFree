@@ -60,10 +60,6 @@ const ForgotPassword : React.FC = () => {
         }
     };
 
-
-
-
-
     return (
     <>
         {loading && <Loader />}

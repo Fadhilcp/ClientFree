@@ -14,6 +14,7 @@ import AdminRoutes from "./router/AdminRoutes";
 // lenis.on('scroll', () => {});
 
 const App: React.FC = () => {
+  
   return (
     <Provider store={store}>
 

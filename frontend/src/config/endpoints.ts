@@ -85,6 +85,7 @@ export const endPoints = {
         UPDATE_STATUS: (id: string) => `/proposal/${id}/status`, // PATCH
         FOR_JOB: (jobId: string, status?: string, invitation?: boolean) => `/proposal/job/${jobId}?status=${status ?? ""}&invitation=${invitation ?? ""}`,    // GET proposals for job
         ACCEPT_PROPOSAL: (proposalId: string) => `/proposal/${proposalId}/accept`,
+        CANCEL_PROPOSAL: (proposalId: string) => `/proposal/${proposalId}/cancel`,
         INVITE: (jobId: string, freelancerId: string) => `/proposal/job/${jobId}/invite/${freelancerId}`,
         ACCEPT_INVITE: (jobId: string, freelancerId: string) => `/proposal/job/${jobId}/invitation/${freelancerId}/accept`,
         MY_PROPOSAL: (isInvitation: boolean, cursor: string, limit:number) => 

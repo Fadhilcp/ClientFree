@@ -5,12 +5,9 @@ import type { JobDetailDTO } from "../../../types/job/job.dto";
 import PlaceBidPage from "../../../components/user/job/PlaceBidForm";
 import JobDetails from "../../../components/user/job/JobDetails";
 import JobHeader from "../../../components/user/job/JobHeader";
-import { proposalService } from "../../../services/proposal.service";
-import Card, { type ActionItem } from "../../../components/ui/Card/Card";
-import { formatDate } from "../../../utils/formatters";
+import Card from "../../../components/ui/Card/Card";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../../store/store";
-import type { IProposal, ProposalStatus } from "../../../types/job/proposal.type";
 import { notify } from "../../../utils/toastService";
 import type { SkillItem } from "../../../types/skill.types";
 import CenteredMessage from "../../../components/user/CenteredMessage";
@@ -23,7 +20,6 @@ import ProposalsSection from "../../../components/user/job/ProposalSection";
 import ClarificationBoard from "../../../components/user/job/ClarificationBoard";
 import type { User } from "../../../features/authSlice";
 import ConfirmationModal from "../../../components/ui/Modal/ConfirmationModal";
-import { getUpgradeProposal } from "../../../utils/getUpgradeProposal";
 
 const tabs = [
   { key: "details", label: "Job Details" },
@@ -38,11 +34,6 @@ const JobDetailPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("details");
   const [job, setJob] = useState<JobDetailDTO | null>(null);
   const [loading, setLoading] = useState(true);
-  const [proposals, setProposals] = useState<IProposal[]>([]);
-  const [proposalsLoading, setProposalsLoading] = useState(false);
-  const [proposalFilter, setProposalFilter] = useState("all");
-  const [invitations, setInvitations] = useState<IProposal[]>([]);
-  const [invitationsLoading, setInvitationsLoading] = useState(false);
   
   const [jobAssignments, setJobAssignments] = useState<AssignmentDto[]>([]);
 
@@ -66,61 +57,6 @@ const JobDetailPage: React.FC = () => {
       setIsConfirmOpen(true);
     };
 
-  
-  useEffect(() => {
-    if (!id) return;
-    if (job?.status === "active" && 
-      (activeTab === "proposals" || activeTab === "invitations")) {
-      setProposals([]);
-      setInvitations([]);
-      return; 
-    }
-  // for proposal and invitation 
-  const fetchData = async () => {
-    try {
-      if (activeTab === "proposals") {
-        setProposalsLoading(true);
-        const res = await proposalService.getProposalsForJob(
-          id,
-          proposalFilter !== "all" ? proposalFilter : "",
-          false
-        );
-        if (res.data.success) setProposals(res.data.proposals);
-        setProposalsLoading(false);
-      }
-      if (activeTab === "invitations") {
-        setInvitationsLoading(true);
-        const res = await proposalService.getProposalsForJob(id, "", true);
-        if (res.data.success) setInvitations(res.data.proposals);
-        setInvitationsLoading(false);
-      }
-    } catch (err) {
-      notify.error('Pleaes try again!')
-      console.error("Failed:", err);
-      setProposalsLoading(false);
-      setInvitationsLoading(false);
-    }
-  };
-
-  fetchData();
-  }, [id, activeTab, proposalFilter, job?.status]);
-  // polling of new proposal( every 20 seconds )
-  useEffect(() => {
-    if (!id || activeTab !== "proposals"|| job?.status !== "open") return;
-    const interval = setInterval(async () => {
-      try {
-        const response = await proposalService.getProposalsForJob(
-          id,
-          proposalFilter !== "all" ? proposalFilter : "",
-          false
-        );
-        if (response.data.success) setProposals(response.data.proposals);
-      } catch (err) {
-        console.error("Polling failed:", err);
-      }
-    }, 20000); // 20 seconds
-    return () => clearInterval(interval);
-  }, [id, activeTab, proposalFilter, job?.status]);
   // Fetch job details
   useEffect(() => {
     if (!id || activeTab !== 'details') return;
@@ -148,36 +84,6 @@ const JobDetailPage: React.FC = () => {
     return () => { cancelled = true };
   }, [id, activeTab]);
 
-  const handleChangeStatus = async(proposalId: string, status: ProposalStatus) => {
-    try { 
-      let response = null
-      if(status === 'accepted'){
-        response = await proposalService.acceptProposal(proposalId);
-      }else{
-        response = await proposalService.updateProposalStatus(proposalId, status);
-      }
-      
-      if(response.data.success){
-        notify.success(`Proposal ${status}`);
-       
-        setProposals(prev =>
-          prev.map(p => 
-            p.id === proposalId ? { ...p, status } : p
-          )
-        );
-        
-        setInvitations(prev =>
-          prev.map(p =>
-            p.id === proposalId ? { ...p, status } : p
-          )
-        );
-      }
-    } catch (error: any) {
-      console.error("Failed to update status:", error);
-      notify.error(error.response?.data?.error || "Failed to update proposal status");
-    }
-  }
-
   const handleStartJob = async() => {
     try {
       if(!id) return;
@@ -195,81 +101,6 @@ const JobDetailPage: React.FC = () => {
       notify.error(error.response?.data?.error || 'Failed to activate job, Please try again');
     }
   }
-  
-  const getProposalActions = (p: IProposal): ActionItem[] => {
-    const viewAction = {
-      label: "View",
-    onClick: () => console.log("View proposal", p.id),
-    variant: "secondary" as const,
-  };
-  
-  if (!isJobOwner) return [viewAction];
-  const actions: ActionItem[] = [viewAction];
-
-  switch (p.status) {
-    case "pending":
-      case "invited":
-      actions.push(
-        {
-          label: "Shortlist",
-          onClick: () => handleChangeStatus(p.id, "shortlisted"),
-          variant: "secondary" as const,
-        },
-        {
-          label: "Accept",
-          onClick: () => handleChangeStatus(p.id, "accepted"),
-          variant: "primary" as const,
-        }
-      );
-      break;
-
-    case "shortlisted":
-      actions.push({
-        label: "Accept",
-        onClick: () => handleChangeStatus(p.id, "accepted"),
-        variant: "primary" as const,
-      });
-      break;
-
-    case "accepted":
-      break;
-
-    case "rejected":
-      break;
-  }
-  
-  return actions;
-  };
-
-
-// props of proposal cards
-  const getCardProps = (p: IProposal) => {
-    const upgradeProps = getUpgradeProposal({
-      proposal: p,
-      userId: user?.id,
-      isJobOwner,
-    });
-      
-      return {
-      user: p.freelancer ?? undefined,
-        title: `Bid: ₹${p.bidAmount}`,
-        subtitle: `Duration: ${p.duration}`,
-        description: p.description,
-        status: p.status,
-        meta: [{ label: "Bid Amount", value: `₹${p.bidAmount}` }],
-        tags:
-          p.milestones?.map(
-            m => `${m.title} - ₹${m.amount} - ${m.dueDate ? formatDate(m.dueDate) : ""}`
-          ) || [],
-        footer: `Created: ${new Date(
-          p.createdAt
-        ).toLocaleDateString()} • Updated: ${new Date(
-          p.updatedAt
-        ).toLocaleDateString()}`,
-        actions: getProposalActions(p),
-        ...upgradeProps
-     }
-  };
 
   const handleViewProfile = (freelancerId: string) => {
     navigate(`/users/${freelancerId}`);
@@ -469,27 +300,23 @@ const JobDetailPage: React.FC = () => {
         )}
 
         {/* Proposals Section */}
-        <ProposalsSection
-          activeTab={activeTab}
-          jobStatus={job.status}
-          userRole={user?.role}
-          proposals={proposals}
-          proposalsLoading={proposalsLoading}
-          proposalFilter={proposalFilter}
-          setProposalFilter={setProposalFilter}
-          getCardProps={getCardProps}
-        />
+        {activeTab === "proposals" && (
+          <ProposalsSection
+            jobId={job.id}
+            jobStatus={job.status}
+            isJobOwner={isJobOwner}
+            user={user}
+          />
+        )}
 
         {/* Invitations Section */}
-        <InvitationsSection
-          activeTab={activeTab}
-          jobStatus={job.status}
-          invitations={invitations}
-          invitationsLoading={invitationsLoading}
-          isJobOwner={isJobOwner}
-          onViewInvitation={(id) => console.log("View invitation", id)}
-          onCancelInvitation={(id) => console.log("Cancel invitation", id)}
-        />
+        {activeTab === "invitations" && (
+          <InvitationsSection
+            jobStatus={job.status}
+            jobId={job.id}
+            // isJobOwner={isJobOwner}
+          />
+        )}
       </div>
     </section>
   );

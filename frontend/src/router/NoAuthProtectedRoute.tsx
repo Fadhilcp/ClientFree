@@ -15,13 +15,12 @@ const NoAuthProtectedRoute: React.FC<NoAuthProtectedRouteProps> = ({ children })
 
   useEffect(() => {
     console.log(token, user)
+
     if (token && user) {
-      console.log("🚀 ~ NoAuthProtectedRoute ~ token:", token);
-      console.log("🚀 ~ NoAuthProtectedRoute ~ user:", user);
       if (user.role === "admin") {
-        navigate("/admin/users");
+        navigate("/admin/users", { replace: true });
       } else {
-        navigate("/home");
+        navigate("/home", { replace: true });
       }
     } else {
       setLoading(false);

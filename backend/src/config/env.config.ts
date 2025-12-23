@@ -69,5 +69,9 @@ export const env = {
 
     get AWS_BUCKET() {
         return process.env.AWS_BUCKET_NAME
+    },
+
+    get OPENAI_API_KEY() {
+        return process.env.OPENAI_API_KEY
     }
 }

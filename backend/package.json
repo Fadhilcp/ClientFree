@@ -47,6 +47,7 @@
     "multer": "^2.0.2",
     "multer-s3": "^3.0.1",
     "nodemailer": "^7.0.6",
+    "openai": "^6.15.0",
     "otp-generator": "^4.0.1",
     "razorpay": "^2.9.6",
     "streamifier": "^0.1.1",

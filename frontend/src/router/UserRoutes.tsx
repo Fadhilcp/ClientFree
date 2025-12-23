@@ -81,7 +81,12 @@ const UserRoutes: React.FC = () => {
                 </ProtectedRoute>
                 }
             />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
+            {/* <Route path="/forgot-password" element={<ForgotPassword />} /> */}
+            <Route path="/forgot-password" element={
+                <NoAuthProtectedRoute>
+                    <ForgotPassword/>
+                </NoAuthProtectedRoute>
+            }/>
             {/* public routes - end */}
             {/* Authenticated user routes - start */}
             <Route

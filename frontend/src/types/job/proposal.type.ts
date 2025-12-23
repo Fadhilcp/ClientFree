@@ -41,7 +41,7 @@ export interface IInvitationDetails {
 }
 
 
-export type ProposalStatus = "pending" | "shortlisted" | "accepted" | "rejected" | "invited";
+export type ProposalStatus = "pending" | "shortlisted" | "accepted" | "rejected" | "invited" | "withdrawn";
 
 export interface IProposalForm {
   jobId: string;

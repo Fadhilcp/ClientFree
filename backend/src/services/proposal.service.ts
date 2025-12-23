@@ -21,6 +21,8 @@ import { IAddOnDocument } from "types/addOns.type";
 import { Orders } from "razorpay/dist/types/orders";
 import { IPaymentDocument } from "types/payment.type";
 import { IUserRepository } from "repositories/interfaces/IUserRepository";
+import { getEmbedding } from "helpers/embedding.helper";
+import { cosineSimilarity } from "helpers/similarity.helper";
 
 export class ProposalService implements IProposalService {
     constructor(
@@ -478,5 +480,93 @@ export class ProposalService implements IProposalService {
             proposals: proposals.map(mapProposal), 
             nextCursor
         }
+    }
+
+    async aiShortlistTopProposals(jobId: string, topN: number): Promise<any> {
+        if(topN > 10){
+            throw createHttpError(HttpStatus.BAD_REQUEST, "Maximum ten is allowed");
+        }
+
+        const job = await this._jobRepository.findById(jobId);
+        if(!job) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.JOB_NOT_FOUND);
+
+        const proposals = await this._proposalRepository.find({
+            jobId,
+            status: "pending",
+        });
+
+        if(proposals.length === 0){
+            return { shortlisted: 0 };
+        }
+
+        const jobText = `${job.title}\n${job.description || ''}`;
+        console.log("🚀 ~ ProposalService ~ aiShortlistTopProposals ~ jobText:", jobText)
+        const jobEmbedding = await getEmbedding(jobText);
+        console.log("🚀 ~ ProposalService ~ aiShortlistTopProposals ~ jobEmbedding:", jobEmbedding)
+
+        const scored = [];
+
+        for(const proposal of proposals){
+            const proposalText = proposal.description || "";
+            console.log("🚀 ~ ProposalService ~ aiShortlistTopProposals ~ proposalText:", proposalText)
+            const proposalEmbedding = await getEmbedding(proposalText);
+            console.log("🚀 ~ ProposalService ~ aiShortlistTopProposals ~ proposalEmbedding:", proposalEmbedding)
+
+            const score = cosineSimilarity(jobEmbedding, proposalEmbedding);
+            console.log("🚀 ~ ProposalService ~ aiShortlistTopProposals ~ score:", score)
+
+            scored.push({
+                proposalId: proposal._id,
+                score,
+            });
+        }
+
+        scored.sort((a, b) => b.score - a.score);
+        const shortlistedIds = scored
+        .slice(0, topN)
+        .map((p) => p.proposalId);
+
+        const result = await this._proposalRepository.updateMany(
+            { _id: { $in: shortlistedIds }},
+            { status: "shortlisted" }
+        );
+
+        return { 
+            shortlisted: result.modifiedCount,
+            proposalIds: shortlistedIds,
+        };
+    }
+
+    async cancelProposal(proposalId: string, freelancerId: string): Promise<ProposalDTO> {
+        const proposal = await this._proposalRepository.findById(proposalId);
+        if(!proposal){
+            throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.PROPOSAL_NOT_FOUND);
+        }
+
+        if(proposal.freelancerId.toString() !== freelancerId){
+            throw createHttpError(HttpStatus.FORBIDDEN, "Not allowed to cancel this proposal");
+        }
+        
+        if (proposal.status === "withdrawn") {
+            throw createHttpError(HttpStatus.BAD_REQUEST, "Proposal already withdrawn");
+        }
+
+        if(!["pending", "shortlisted"].includes(proposal.status)){
+            throw createHttpError(HttpStatus.BAD_REQUEST, "Only pending or shortlisted proposals can be cancelled");
+        }
+
+
+        const job = await this._jobRepository.findById(proposal.jobId.toString());
+        if(!job) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.JOB_NOT_FOUND);
+
+        if(job.status !== "open"){
+            throw createHttpError(HttpStatus.BAD_REQUEST, "Cannot cancel proposal");
+        }
+
+        proposal.status = "withdrawn";
+
+        await proposal.save();
+
+        return mapProposal(proposal);
     }
 }

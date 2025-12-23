@@ -41,10 +41,13 @@ proposalRouter.get('/client',proposalController.getProposalsForClient.bind(propo
 proposalRouter.get('/job/:jobId',proposalController.getProposalsForJob.bind(proposalController));
 proposalRouter.get('/:proposalId',proposalController.getById.bind(proposalController));
 proposalRouter.put('/:proposalId',proposalController.update.bind(proposalController));
+proposalRouter.post('/:proposalId/cancel',proposalController.cancelProposal.bind(proposalController));
 proposalRouter.patch('/:proposalId/status',proposalController.updateStatus.bind(proposalController));
 proposalRouter.post('/:proposalId/accept',proposalController.acceptProposal.bind(proposalController));
 
 proposalRouter.post('/job/:jobId/invite/:freelancerId',proposalController.inviteFreelancer.bind(proposalController));
 proposalRouter.post('/job/:jobId/invitation/:freelancerId/accept',proposalController.acceptInvitation.bind(proposalController));
+
+proposalRouter.post('/job/:jobId/ai-shortlist',proposalController.aiShortlistProposals.bind(proposalController));
 
 export default proposalRouter;

@@ -24,7 +24,7 @@ const AuthProtectedRoute: React.FC<AuthProtectedRouteProps> = ({
     if (token === undefined || user === undefined) return;
 
     if (!token) {
-      navigate("/login");
+      navigate("/login", { replace: true });
       return;
     }
 

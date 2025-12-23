@@ -11,8 +11,8 @@ const addOnController = new AddonController(addOnService);
 
 const addOnRouter = Router();
 
-// addOnRouter.use(authMiddleware);
-// addOnRouter.use(verifyUserNotBanned);
+addOnRouter.use(authMiddleware);
+addOnRouter.use(verifyUserNotBanned);
 
 addOnRouter.post('/',addOnController.create.bind(addOnController));
 addOnRouter.get('/',addOnController.getAll.bind(addOnController));

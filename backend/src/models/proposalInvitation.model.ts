@@ -49,7 +49,7 @@ const proposalInvitationSchema = new Schema({
 
   status: {
     type: String,
-    enum: ["pending", "accepted", "rejected", "invited", "shortlisted"],
+    enum: ["pending", "accepted", "rejected", "invited", "shortlisted", "withdrawn"],
     default: "pending"
   }
 },{ timestamps: true });

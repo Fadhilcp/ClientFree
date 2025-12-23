@@ -62,6 +62,7 @@ const ResetPassword: React.FC = () => {
         setLoading(true);
         try {
             await authService.resetPassword(email,values.password);
+            notify.success("Password reseted");
             navigate('/login');
         
         } catch (error : any) {

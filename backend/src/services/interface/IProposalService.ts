@@ -30,4 +30,8 @@ export interface IProposalService {
         razorpay_payment_id,
         razorpay_signature,
     }: IRazoryPaymentResponse): Promise<boolean>;
+    cancelProposal(proposalId: string, freelancerId: string): Promise<ProposalDTO>;
+
+    aiShortlistTopProposals(jobId: string, topN: number): Promise<any>
+
 }

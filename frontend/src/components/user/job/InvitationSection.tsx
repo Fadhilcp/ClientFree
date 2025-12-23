@@ -1,24 +1,43 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Card from "../../ui/Card/Card";
 import type { IProposal } from "../../../types/job/proposal.type";
+import { proposalService } from "../../../services/proposal.service";
+import { notify } from "../../../utils/toastService";
 
 interface InvitationsSectionProps {
-  activeTab: string;
+  jobId: string;
   jobStatus: string;
-  invitations: IProposal[];
-  invitationsLoading: boolean;
-  isJobOwner: boolean;
-  onViewInvitation?: (invitationId: string) => void;
-  onCancelInvitation?: (invitationId: string) => void;
+  // isJobOwner: boolean;
 }
 
 const InvitationsSection: React.FC<InvitationsSectionProps> = ({
-  activeTab,
+  jobId,
   jobStatus,
-  invitations,
-  invitationsLoading
+  // isJobOwner,
 }) => {
-  if (activeTab !== "invitations" || jobStatus !== "open") return null;
+
+  const [invitations, setInvitations] = useState<IProposal[]>([]);
+  const [invitationsLoading, setInvitationsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!jobId) return;
+
+    // for proposal and invitation 
+    const fetchData = async () => {
+      try {
+          setInvitationsLoading(true);
+          const res = await proposalService.getProposalsForJob(jobId, "", true);
+          if (res.data.success) setInvitations(res.data.proposals);
+          setInvitationsLoading(false);
+      } catch (err) {
+        notify.error('Pleaes try again!')
+        console.error("Failed:", err);
+        setInvitationsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [jobId, jobStatus]);
 
   return (
     <div className="p-6">

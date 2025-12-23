@@ -29,6 +29,10 @@ class ProposalService {
     return axios.post(endPoints.PROPOSAL.ACCEPT_PROPOSAL(proposalId));
   }
 
+  cancelProposal(proposalId: string) {
+    return axios.post(endPoints.PROPOSAL.CANCEL_PROPOSAL(proposalId));
+  }
+
   inviteFreelancer(jobId: string, freelancerId: string, invitationData: Record<string, string>) {
     return axios.post(endPoints.PROPOSAL.INVITE(jobId, freelancerId), invitationData);
   }

@@ -65,8 +65,8 @@ const AdminRoutes: React.FC = () => {
               </AuthProtectedRoute>
             }/>
 
-            <Route path="*" element={<NotFoundPage />} />
         </Route>
+        <Route path="*" element={<NotFoundPage />} />
     </Routes>
   )
 }
