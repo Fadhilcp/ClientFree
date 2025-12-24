@@ -1,8 +1,9 @@
-import { IPaymentDocument } from "types/payment.type";
+import { IPaymentDocument } from "types/payment/payment.type";
 import { BaseRepository } from "./base.repository";
 import paymentModel from "models/payment.model";
 import { IPaymentRepository } from "./interfaces/IPaymentRepository";
 import { FilterQuery, ObjectId } from "mongoose";
+import { PopulatedPayment } from "types/payment/payment.populated";
 
 export class PaymentRepository 
    extends BaseRepository<IPaymentDocument>
@@ -21,11 +22,12 @@ export class PaymentRepository
         .sort({ createdAt: -1 });
     }
 
-    async disputeByIdWithDetail(id: string | ObjectId): Promise<IPaymentDocument | null> {
+    async disputeByIdWithDetail(id: string | ObjectId): Promise<PopulatedPayment | null> {
         return this.model.findById(id)
         .populate("clientId")
         .populate("freelancerId")
         .populate("userId")
         .populate("jobId")
+        .exec() as Promise<PopulatedPayment | null>;
     }
 }

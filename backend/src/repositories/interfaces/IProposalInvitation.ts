@@ -1,4 +1,4 @@
-import { FilterQuery, Types } from "mongoose";
+import { FilterQuery } from "mongoose";
 import { IBaseRepository } from "./IBaseRepository";
 import { IProposalInvitationDocument } from "types/proposalInvitation.type";
 

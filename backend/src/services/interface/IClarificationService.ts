@@ -1,7 +1,5 @@
 import { ClarificationBoardDto } from "dtos/clarificationBoard.dto";
 import { ClarificationMessageDto } from "dtos/clarificationMessage.dto";
-import { IClarificationBoardDocument } from "types/clarificationBoard";
-import { IClarificationMessageDocument } from "types/clarificationMessage";
 
 export interface IClarificationService {
     addMessage(

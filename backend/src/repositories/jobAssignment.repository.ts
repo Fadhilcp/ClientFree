@@ -1,9 +1,11 @@
 import jobAssignmentModel from "models/jobAssignment.model";
-import { IJobAssignmentDocument } from "types/jobAssignment.type";
+import { IJobAssignmentDocument } from "types/jobAssignment/jobAssignment.type";
 import { IJobAssignmentRepository } from "./interfaces/IJobAssignmentRepository";
 import { BaseRepository } from "./base.repository";
 import { FilterQuery, PopulateOptions } from "mongoose";
 import { SortOrder } from "mongoose";
+import { PopulatedAssignment } from "types/jobAssignment/jobAssignment.populated";
+import { ApprovedMilestoneAssignment } from "types/jobAssignment/jobAssignment.approvedMilestone";
 
 export class JobAssignmentRepository 
     extends BaseRepository<IJobAssignmentDocument> 
@@ -32,7 +34,7 @@ export class JobAssignmentRepository
                 populate?: PopulateOptions | (string | PopulateOptions)[];
         } = {}
         ): Promise<{
-            data: IJobAssignmentDocument[];
+            data: ApprovedMilestoneAssignment[];
             total: number;
             page: number;
             limit: number;
@@ -64,7 +66,7 @@ export class JobAssignmentRepository
                 { $limit: limit }
             );
 
-            const dataPromise = this.model.aggregate(pipeline);
+            const dataPromise = this.model.aggregate<ApprovedMilestoneAssignment>(pipeline);
 
             const countPipeline = [
                 { $unwind: "$milestones" },
@@ -113,7 +115,7 @@ export class JobAssignmentRepository
         async findApprovedMilestoneDetail(
             assignmentId: string,
             milestoneId: string
-        ): Promise<IJobAssignmentDocument | null> {
+        ): Promise<PopulatedAssignment | null> {
             return this.model.findOne(
                 {
                     _id: assignmentId,
@@ -132,6 +134,7 @@ export class JobAssignmentRepository
             )
             .populate("jobId")
             .populate("freelancerId")
-            .populate("milestones.paymentId");
+            .populate("milestones.paymentId")
+            .exec() as Promise<PopulatedAssignment | null>;
         }
 }

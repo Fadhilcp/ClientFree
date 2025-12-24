@@ -1,6 +1,6 @@
 import { FreelancerProfileDto } from "dtos/freelancerProfile.dto";
-import { AssignmentDto, AssignmentMilestoneDto, FreelancerDto } from "dtos/jobAssignment.dto";
-import { IJobAssignmentDocument, IMilestone } from "types/jobAssignment.type";
+import { AssignmentDto, AssignmentMilestoneDto, AssignmentTaskDto } from "dtos/jobAssignment.dto";
+import { IJobAssignmentDocument, IMilestone, ITask } from "types/jobAssignment/jobAssignment.type";
 import { IUserDocument } from "types/user.type";
 
 export class AssignmentMapper {
@@ -38,20 +38,33 @@ export class AssignmentMapper {
         } as FreelancerProfileDto;
     }
 
-    static mapAssignment(a: any): AssignmentDto {
+    static mapTask(t: ITask): AssignmentTaskDto {
+        if (!t.id) {
+            throw new Error("Task id is missing");
+        }
+
+        return {
+            id: t.id,
+            title: t.title ?? "",
+            status: t.status ?? "pending",
+            dueDate: t.dueDate ? t.dueDate.toISOString() : null,
+        };
+    }
+
+    static mapAssignment(a:any): AssignmentDto {
         return {
             id: a._id.toString(),
             amount: a.amount,
             tasks: a.tasks ?? [],
             status: a.status,
-            createdAt: a.createdAt.toISOString(),
-            updatedAt: a.updatedAt.toISOString(),
-            milestones: a.milestones.map((m: IMilestone) => this.mapMilestone(m)),
+            createdAt: a.createdAt?.toISOString() ?? "",
+            updatedAt: a.updatedAt?.toISOString() ?? "",
+            milestones: a.milestones?.map((m: IMilestone) => this.mapMilestone(m)) ?? [],
             freelancer: this.mapFreelancer(a.freelancerId),
         };
     }
 
-    static mapList(assignments: any[]): AssignmentDto[] {
+    static mapList(assignments: IJobAssignmentDocument[]): AssignmentDto[] {
         return assignments.map(a => this.mapAssignment(a));
     }
 }

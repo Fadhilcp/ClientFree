@@ -7,7 +7,6 @@ import { OtpUserStoreRepository } from "../repositories/otpUserStore.repository"
 import { authMiddleware } from "middlewares/authMiddleware";
 import { verifyUserNotBanned } from "middlewares/verifyUserNotBanned.middleware";
 import { WalletRepository } from "repositories/wallet.repository";
-import { MongooseSessionProvider } from "repositories/db/session-provider";
 
 const authRouter = Router()
 

@@ -64,6 +64,7 @@ const DisputeDetailPage: React.FC = () => {
         dispute.id,
         formData
       );
+      notify.success("Payment Refunded");
 
       setModalOpen(false);
       setFormData({ reason: "" });
@@ -89,6 +90,7 @@ const DisputeDetailPage: React.FC = () => {
       setSubmitting(true);
 
       await paymentService.releaseMilestone(dispute.id);
+      notify.success("Payment Released");
 
       const res = await paymentService.getDisputeById(id!);
       if (res.data.success) {

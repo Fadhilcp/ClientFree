@@ -8,7 +8,7 @@ export const errorHandler = (
     err : HttpError | Error,
     req : Request,
     res : Response,
-    next : NextFunction
+    _next : NextFunction
 ) => {
     let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = HttpResponse.SERVER_ERROR;

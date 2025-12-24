@@ -1,4 +1,3 @@
-import { ISkillDocument } from "types/skill.type";
 import { FreelancerProfileDto } from "./freelancerProfile.dto";
 
 export interface JobBaseDTO {
@@ -30,7 +29,7 @@ export interface JobBaseDTO {
   updatedAt: string;
 }
 
-export interface JobListDTO extends JobBaseDTO {}
+export type JobListDTO = JobBaseDTO;
 
 export interface AcceptedProposalDTO {
   id: string;

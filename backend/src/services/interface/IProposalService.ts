@@ -1,7 +1,8 @@
 import { ProposalDTO } from "dtos/proposal.dto";
-import { CreateProposalResponse, IInvitationDetails, IProposalInvitationDocument, IProposalInvitationPayload } from "../../types/proposalInvitation.type";
+import { CreateProposalResponse, IInvitationDetails, IProposalInvitationPayload } from "../../types/proposalInvitation.type";
 import { IProposalInvitation, ProposalStatus } from "../../types/proposalInvitation.type";
 import { IRazoryPaymentResponse } from "types/razorpay.types";
+import { Types } from "mongoose";
 
 export interface IProposalService {
     createProposal(
@@ -32,6 +33,7 @@ export interface IProposalService {
     }: IRazoryPaymentResponse): Promise<boolean>;
     cancelProposal(proposalId: string, freelancerId: string): Promise<ProposalDTO>;
 
-    aiShortlistTopProposals(jobId: string, topN: number): Promise<any>
+    aiShortlistTopProposals(jobId: string, topN: number)
+    : Promise<{ shortlisted: number, proposalIds?: Types.ObjectId[] }>;
 
 }

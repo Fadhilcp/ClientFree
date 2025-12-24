@@ -1,8 +1,8 @@
 import { AdminApprovedMilestoneDto } from "dtos/adminApprovedMilestoneDto";
-import { IJobAssignmentDocument } from "types/jobAssignment.type";
+import { ApprovedMilestoneAssignment } from "types/jobAssignment/jobAssignment.approvedMilestone";
 
 export class AdminMilestoneMapper {
-  static mapApproved(doc: any): AdminApprovedMilestoneDto {
+  static mapApproved(doc: ApprovedMilestoneAssignment): AdminApprovedMilestoneDto {
     const m = doc.milestones;
 
     return {
@@ -26,7 +26,7 @@ export class AdminMilestoneMapper {
     };
   }
 
-  static mapList(list: IJobAssignmentDocument[]): AdminApprovedMilestoneDto[] {
+  static mapList(list: ApprovedMilestoneAssignment[]): AdminApprovedMilestoneDto[] {
     return list.map(item => this.mapApproved(item));
   }
 }

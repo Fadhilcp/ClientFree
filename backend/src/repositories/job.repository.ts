@@ -2,7 +2,7 @@ import { IJobDocument } from "types/job.type";
 import { IJobRepository } from "./interfaces/IJobRepository";
 import { BaseRepository } from "./base.repository";
 import jobModel from "../models/job.model";
-import { FilterQuery, ObjectId, UpdateQuery } from "mongoose";
+import { FilterQuery } from "mongoose";
 
 export class JobRepository 
    extends BaseRepository<IJobDocument>

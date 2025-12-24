@@ -1,6 +1,6 @@
 import { ProposalDTO } from "dtos/proposal.dto";
 import { Document, Types } from "mongoose";
-import { IMilestone } from "./jobAssignment.type";
+import { Orders } from "razorpay/dist/types/orders";
 
 export interface IInvitationDetails {
   title?: string;
@@ -54,7 +54,7 @@ export interface IProposalInvitationDocument extends IProposalInvitation,Documen
 // type of create proposal response 
 export interface CreateProposalResponse {
     proposal: ProposalDTO;
-    paymentOrder: any | null;
+    paymentOrder: Orders.RazorpayOrder | null;
     paymentId: string | null;
     addOn: {
         id: string;

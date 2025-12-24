@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { IJobAssignmentDocument } from "types/jobAssignment.type";
+import { IJobAssignmentDocument } from "types/jobAssignment/jobAssignment.type";
 
 const jobAssignmentSchema = new Schema({
   jobId: { type: Schema.Types.ObjectId, ref: "Job", required: true },

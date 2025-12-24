@@ -1,8 +1,8 @@
 import { AdminApprovedMilestoneDetailDto } from "dtos/adminApprovedMilestoneDto";
-import { IJobAssignmentDocument } from "types/jobAssignment.type";
+import { PopulatedAssignment } from "types/jobAssignment/jobAssignment.populated";
 
 export class AdminApprovedMilestoneDetailMapper {
-  static map(doc: any): AdminApprovedMilestoneDetailDto {
+  static map(doc: PopulatedAssignment): AdminApprovedMilestoneDetailDto {
     const m = doc.milestones[0];
 
     if (!m) throw new Error("Milestone missing in detail mapper");
@@ -14,8 +14,8 @@ export class AdminApprovedMilestoneDetailMapper {
         id: doc.jobId._id.toString(),
         title: doc.jobId.title,
         payment: {
-          budget: doc.jobId.payment?.budget,
-          type: doc.jobId.payment?.type
+          budget: doc.jobId.payment?.budget ?? 0,
+          type: doc.jobId.payment?.type ?? ""
         }
       },
 
@@ -28,11 +28,11 @@ export class AdminApprovedMilestoneDetailMapper {
       milestone: {
         id: m._id.toString(),
         title: m.title,
-        description: m.description,
+        description: m.description ?? undefined,
         amount: m.amount,
         status: m.status,
-        submittedAt: m.submittedAt,
-        submissionMessage: m.submissionMessage,
+        submittedAt: m.submittedAt ?? undefined,
+        submissionMessage: m.submissionMessage ?? undefined,
         submissionFiles: m.submissionFiles ?? []
       },
 

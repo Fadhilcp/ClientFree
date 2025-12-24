@@ -2,12 +2,12 @@ import { IJobAssignmentRepository } from "repositories/interfaces/IJobAssignment
 import { IJobAssignmentService } from "./interface/IJobAssignmentService";
 import { AssignmentMapper } from "mappers/jobAssignment.mapper";
 import { AssignmentDto } from "dtos/jobAssignment.dto";
-import { IJobAssignmentDocument, IMilestone, IMilestoneFile } from "types/jobAssignment.type";
+import { IJobAssignmentDocument, IMilestone, IMilestoneFile } from "types/jobAssignment/jobAssignment.type";
 import { createHttpError } from "utils/httpError.util";
 import { HttpStatus } from "constants/status.constants";
 import { HttpResponse } from "constants/responseMessage.constant";
 import { VALID_BUDGET_STATUSES } from "constants/validBudgetStatuses";
-import { IPaymentDocument } from "types/payment.type";
+import { IPaymentDocument } from "types/payment/payment.type";
 import { IPaymentRepository } from "repositories/interfaces/IPaymentRepository";
 import { AdminMilestoneMapper } from "mappers/adminMilestone.mapper";
 import { AdminApprovedMilestoneDetailDto, AdminApprovedMilestoneDto } from "dtos/adminApprovedMilestoneDto";

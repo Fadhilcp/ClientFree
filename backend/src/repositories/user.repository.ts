@@ -2,7 +2,7 @@ import { BaseRepository } from "./base.repository";
 import { IUserDocument } from "../types/user.type";
 import userModel from "./../models/user.model"
 import { IUserRepository } from "./interfaces/IUserRepository";
-import { ClientSession, FilterQuery, ObjectId } from "mongoose";
+import { FilterQuery, ObjectId } from "mongoose";
 
 export class UserRepository 
    extends BaseRepository<IUserDocument>

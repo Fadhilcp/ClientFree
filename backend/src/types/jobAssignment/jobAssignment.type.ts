@@ -1,5 +1,5 @@
 import { Document, Types } from "mongoose";
-import { IJobDocument } from "./job.type";
+import { IJobDocument } from "../job.type";
 
 export interface ITask {
   id?: string;

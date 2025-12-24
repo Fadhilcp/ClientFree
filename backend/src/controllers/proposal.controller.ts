@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction, raw } from "express";
+import { Request, Response, NextFunction } from "express";
 import { IProposalService } from "services/interface/IProposalService";
 import { sendResponse } from "../utils/response.util";
 import { HttpStatus } from "../constants/status.constants";

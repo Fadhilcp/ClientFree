@@ -1,17 +1,18 @@
 import { AdminDisputeDto, AdminDisputeListDto } from "dtos/adminDispute.dto";
+import { PopulatedPayment } from "types/payment/payment.populated";
 
 export class AdminDisputeMapper {
-  static map(dispute: any): AdminDisputeDto {
+  static map(dispute: PopulatedPayment): AdminDisputeDto {
 
     return {
       id: dispute._id.toString(),
       type: dispute.type,
       status: dispute.status,
       amount: dispute.amount,
-      currency: dispute.currency,
+      currency: dispute.currency ?? "",
 
       disputeReason: dispute.disputeReason || null,
-      isDisputed: dispute.isDisputed,
+      isDisputed: dispute.isDisputed ?? false,
 
       job: dispute.jobId
         ? {
@@ -64,8 +65,8 @@ export class AdminDisputeMapper {
 
       payment: {
         id: dispute._id.toString(),
-        provider: dispute.provider,
-        method: dispute.method,
+        provider: dispute.provider ?? "",
+        method: dispute.method ?? "",
         providerOrderId: dispute.providerOrderId || null,
         providerPaymentId: dispute.providerPaymentId || null,
         providerSignature: dispute.providerSignature || null,
@@ -80,7 +81,7 @@ export class AdminDisputeMapper {
     };
   }
 
-  static toListDto(dispute: any): AdminDisputeListDto {
+  static toListDto(dispute: PopulatedPayment): AdminDisputeListDto {
     return {
       id: dispute._id.toString(),
       amount: dispute.amount,

@@ -116,7 +116,7 @@ export class AuthService implements IAuthService {
             currency: "INR",
             status: "active",
             });
-        } catch (error) {
+        } catch {
             // Wallet creation failed — delete the user to avoid inconsistent state
             await this._userRepository.delete(createdUser._id.toString());
             throw createHttpError(HttpStatus.INTERNAL_SERVER_ERROR, "Wallet creation failed")
@@ -334,7 +334,7 @@ export class AuthService implements IAuthService {
                 headers: { Authorization: `Bearer ${access_token}`},
             });
 
-            const { email, name, picture } = data;
+            const { email, name } = data;
 
             if(!email) throw createHttpError(HttpStatus.BAD_REQUEST,HttpResponse.EMAIL_REQUIRED);
 

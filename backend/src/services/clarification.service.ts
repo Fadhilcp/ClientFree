@@ -1,11 +1,9 @@
 import { IClarificationBoardRepository } from "repositories/interfaces/IClarificationBoardRepository";
 import { IClarificationService } from "./interface/IClarificationService";
 import { IClarificationMessageRepository } from "repositories/interfaces/IClarificationMessageRepository";
-import { IClarificationMessageDocument } from "types/clarificationMessage";
 import { createHttpError } from "utils/httpError.util";
 import { HttpStatus } from "constants/status.constants";
 import { HttpResponse } from "constants/responseMessage.constant";
-import { IClarificationBoardDocument } from "types/clarificationBoard";
 import { IJobRepository } from "repositories/interfaces/IJobRepository";
 import { ClarificationMessageDto } from "dtos/clarificationMessage.dto";
 import { ClarificationBoardDto } from "dtos/clarificationBoard.dto";

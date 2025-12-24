@@ -6,7 +6,7 @@ import { CreateProposalResponse, IInvitationDetails, IProposalInvitation, IPropo
 import { IProposalService } from "./interface/IProposalService";
 import { mapProposal } from "mappers/proposal.mapper";
 import { ProposalDTO } from "dtos/proposal.dto";
-import { FilterQuery, UpdateQuery } from "mongoose";
+import { FilterQuery, Types, UpdateQuery } from "mongoose";
 import { IJobDocument } from "types/job.type";
 import { HttpResponse } from "constants/responseMessage.constant";
 import { IJobAssignmentRepository } from "repositories/interfaces/IJobAssignmentRepository";
@@ -19,7 +19,7 @@ import crypto from 'crypto';
 import { IRevenueRepository } from "repositories/interfaces/IRevenueRepository";
 import { IAddOnDocument } from "types/addOns.type";
 import { Orders } from "razorpay/dist/types/orders";
-import { IPaymentDocument } from "types/payment.type";
+import { IPaymentDocument } from "types/payment/payment.type";
 import { IUserRepository } from "repositories/interfaces/IUserRepository";
 import { getEmbedding } from "helpers/embedding.helper";
 import { cosineSimilarity } from "helpers/similarity.helper";
@@ -482,7 +482,8 @@ export class ProposalService implements IProposalService {
         }
     }
 
-    async aiShortlistTopProposals(jobId: string, topN: number): Promise<any> {
+    async aiShortlistTopProposals(jobId: string, topN: number)
+    : Promise<{ shortlisted: number, proposalIds?: Types.ObjectId[] }> {
         if(topN > 10){
             throw createHttpError(HttpStatus.BAD_REQUEST, "Maximum ten is allowed");
         }

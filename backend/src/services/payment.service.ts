@@ -9,13 +9,15 @@ import { getRazorpayInstance } from "config/razorpay.config";
 import crypto from 'crypto'
 import { env } from "config/env.config";
 import { IJobRepository } from "repositories/interfaces/IJobRepository";
-import { IPaymentDocument } from "types/payment.type";
+import { IPaymentDocument } from "types/payment/payment.type";
 import { AdminDisputeMapper } from "mappers/adminDispute.mapper";
 import { AdminDisputeDto, AdminDisputeListDto } from "dtos/adminDispute.dto";
 import { IWalletRepository } from "repositories/interfaces/IWalletRepository";
 import { IWalletTransactionRepository } from "repositories/interfaces/IWalletTransactionRepository";
 import { IDatabaseSessionProvider } from "repositories/db/session-provider.interface";
 import { PaginatedResult } from "types/pagination";
+import { Orders } from "razorpay/dist/types/orders";
+import { IJobAssignmentDocument } from "types/jobAssignment/jobAssignment.type";
 
 export class PaymentService implements IPaymentService {
     constructor(
@@ -28,7 +30,10 @@ export class PaymentService implements IPaymentService {
         private _sessionProvider: IDatabaseSessionProvider
     ){};
 
-    async createMilestoneOrder(assignmentId: string, milestoneId: string, clientId: string): Promise<any> {
+    async createMilestoneOrder(assignmentId: string, milestoneId: string, clientId: string): Promise<{
+      order: Orders.RazorpayOrder,
+      payment: IPaymentDocument
+    }> {
         const assignment = await this._jobAssignmentRepository.findById(assignmentId);
         if(!assignment){
             throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.ASSIGNMENT_NOT_FOUND);
@@ -83,7 +88,7 @@ export class PaymentService implements IPaymentService {
       razorpay_payment_id: string,
       razorpay_signature: string,
       clientId: string
-    ): Promise<any> {
+    ): Promise<{ payment: IPaymentDocument, assignment?: IJobAssignmentDocument }> {
 
       if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
         throw createHttpError(400, "Invalid payment verification payload");
@@ -175,7 +180,8 @@ export class PaymentService implements IPaymentService {
       });
     }
 
-    async refundMilestone(paymentId: string, initiatorId: string, reason?: string) {
+    async refundMilestone(paymentId: string, initiatorId: string, reason?: string)
+    : Promise<{ payment: IPaymentDocument }> {
 
       const payment = await this._paymentRepository.findById(paymentId);
       if (!payment) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.PAYMENT_NOT_FOUND);
@@ -255,7 +261,8 @@ export class PaymentService implements IPaymentService {
 
 
 
-    async releaseMilestone(paymentId: string, approverId: string): Promise<any> {
+    async releaseMilestone(paymentId: string)
+    : Promise<{ payment: IPaymentDocument, assignment: IJobAssignmentDocument }> {
 
       const payment = await this._paymentRepository.findById(paymentId);
       if (!payment) {
@@ -292,7 +299,7 @@ export class PaymentService implements IPaymentService {
       const amount = milestone.amount;
 
       // transactional section
-      return this._sessionProvider.runInTransaction(async (session: any) => {
+      return this._sessionProvider.runInTransaction(async (session: ClientSession) => {
 
         const clientWallet = await this._walletRepository.findOneWithSession(
             { userId: payment.clientId, role: "client", status: "active" }, 
@@ -380,7 +387,6 @@ export class PaymentService implements IPaymentService {
             }
           }
         }
-
         return { payment, assignment };
       });
     }

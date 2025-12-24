@@ -9,7 +9,7 @@ import { JobDetailDTO, JobListDTO } from "dtos/job.dto";
 import { HttpResponse } from "constants/responseMessage.constant";
 import { IProposalRepository } from "repositories/interfaces/IProposalInvitation";
 import { IJobAssignmentRepository } from "repositories/interfaces/IJobAssignmentRepository";
-import { IJobAssignmentDocument } from "types/jobAssignment.type";
+import { IJobAssignmentDocument } from "types/jobAssignment/jobAssignment.type";
 import { AuthPayload } from "types/auth.type";
 import { createJobSchema } from "schema/job.schema";
 import { IUserRepository } from "repositories/interfaces/IUserRepository";

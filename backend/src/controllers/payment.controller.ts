@@ -52,7 +52,6 @@ export class PaymentController {
             if(!initiatorId) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
 
             const result = await this._paymentService.refundMilestone(paymentId, initiatorId, reason);
-            console.log("🚀 ~ PaymentController ~ refund ~ result:", result)
 
             sendResponse(res, HttpStatus.OK, result);
         } catch (error) {

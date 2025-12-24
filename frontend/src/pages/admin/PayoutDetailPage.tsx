@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Button from "../../components/ui/Button";
 import InfoCard from "../../components/ui/Card/InfoCard";
 import ProfileImage from "../../components/user/profile/ProfileImage";
@@ -41,6 +41,8 @@ const PayoutDetailPage: React.FC = () => {
   const [assignment, setAssignment] = useState<PayoutAssignment>();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
+  const navigate = useNavigate();
   
   if (!assignmentId || !milestoneId) return null;
 
@@ -68,11 +70,7 @@ const PayoutDetailPage: React.FC = () => {
       await paymentService.releaseMilestone(assignment.payment.id); 
       notify.success("Payout released successfully");
 
-      // refresh
-      const res = await jobAssignmentService.getApprovedMilestoneById(assignmentId, milestoneId);
-      if (res.data.success) {
-        setAssignment(res.data.assignment);
-      }
+      navigate(-1)
     } catch (error: any) {
       console.error("Release failed", error);
       notify.error(error.response?.data?.error || "Failed to release payout");
