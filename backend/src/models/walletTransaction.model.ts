@@ -14,6 +14,10 @@ const walletTransactionSchema = new Schema({
     required: true
   },
 
+  jobAssignmentId: { type: Schema.Types.ObjectId, index: true },
+  milestoneId: { type: Schema.Types.ObjectId, index: true },
+  subscriptionId: { type: Schema.Types.ObjectId, index: true },
+
   paymentId: { type: Schema.Types.ObjectId, ref: "Payment" },
 
   type: {

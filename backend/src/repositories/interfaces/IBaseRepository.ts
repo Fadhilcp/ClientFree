@@ -12,7 +12,7 @@ export interface IBaseRepository<TDocument extends Document> {
   deleteMany(filter: FilterQuery<TDocument>): Promise<DeleteResult>;
   deleteOne(filter: FilterQuery<TDocument>): Promise<DeleteResult>;
   findOne(filter: FilterQuery<TDocument>, options?: { sort?: Record<string, SortOrder> }): Promise<TDocument | null>;
-  find(filter: FilterQuery<TDocument>, options?: { sort?: Record<string, SortOrder> }): Promise<TDocument[]>;
+  find(filter: FilterQuery<TDocument>, options?: { sort?: Record<string, SortOrder>, limit?: number }): Promise<TDocument[]>;
   paginate(filter: FilterQuery<TDocument>,options: {
         page?: number;
         limit?: number;

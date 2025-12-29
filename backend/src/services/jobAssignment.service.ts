@@ -16,12 +16,14 @@ import { generateSignedUrl } from "utils/getSignedUrl.util";
 import { FilterQuery } from "mongoose";
 import { PaginatedResult } from "types/pagination";
 import { AdminApprovedMilestoneDetailMapper } from "mappers/adminApprovedMilestone.mapper";
+import { IWalletService } from "./interface/IWalletService";
 
 
 export class JobAssignmentService implements IJobAssignmentService {
     constructor(
         private _jobAssignmentRepository: IJobAssignmentRepository,
         private _paymentRepository: IPaymentRepository,
+        private _walletService: IWalletService
     ){};
 
     async getAssignments(jobId: string): Promise<AssignmentDto[]>{
@@ -273,10 +275,7 @@ export class JobAssignmentService implements IJobAssignmentService {
             );
 
         if (!assignment) {
-            throw createHttpError(
-            HttpStatus.NOT_FOUND,
-            HttpResponse.MILESTONE_NOT_FOUND
-            );
+            throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.MILESTONE_NOT_FOUND);
         }
         if(!assignment.milestones){
             throw createHttpError(HttpStatus.NOT_FOUND, "There are no milestones");
@@ -311,5 +310,40 @@ export class JobAssignmentService implements IJobAssignmentService {
         const url = await generateSignedUrl(key);
 
         return { url }
+    }
+
+    async getClientEscrowAndMilestones(clientId: string, page: number, limit: number) {
+
+        const { milestones, total, totalPages } =
+            await this._jobAssignmentRepository.getClientMilestones(clientId, page, limit);
+
+        const assignments =
+            await this._jobAssignmentRepository.findAssignmentsByClient(clientId);
+
+        const totalContract = assignments.reduce(
+            (sum, a) => sum + (a.amount || 0),
+            0
+        );
+
+        const assignmentIds = assignments.map(a => a._id);
+
+        const escrowStats =
+            await this._walletService.getEscrowStatsForAssignments(assignmentIds);
+
+        return {
+            summary: {
+                totalContract,
+                fundedInEscrow: escrowStats.funded,
+                released: escrowStats.released,
+                remaining: totalContract - escrowStats.released
+            },
+            milestones,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages
+            }
+        };
     }
 }

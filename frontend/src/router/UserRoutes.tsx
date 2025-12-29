@@ -29,6 +29,14 @@ import UserDetailPage from "../pages/user/UserDetailPage";
 import MyPrposalsLayout from "../layout/user/MyProposalsLayout";
 import MyProposals from "../pages/user/my proposals/MyProposals";
 import ProposalAndInvitation from "../pages/user/my proposals/ProposalAndInvitation";
+import WalletPage from "../pages/user/payments/WalletPage";
+import PaymentsLayout from "../layout/user/PaymentsLayout";
+import InEscrowPage from "../pages/user/payments/InEscrowPage";
+import TransactionsPage from "../pages/user/payments/TransactionsPage";
+import InvoicesAndReports from "../pages/user/payments/Invoices-Report";
+import WithdrawalsPage from "../pages/user/payments/WithdrawalsPage";
+import EscrowAndMilestonesPage from "../pages/user/payments/Escrow-Milestones";
+import OverviewPage from "../pages/user/payments/OverviewPage";
 
 
 const UserRoutes: React.FC = () => {
@@ -130,6 +138,37 @@ const UserRoutes: React.FC = () => {
                     </AuthProtectedRoute>
                 }
             />
+            {/* Job routes under user layout - end */}
+            {/* Payments routes under user layout - start */}
+            <Route path="/payments" element={
+                <AuthProtectedRoute allowedRoles={['client','freelancer']}>
+                    <PaymentsLayout/>
+                </AuthProtectedRoute>
+            }>
+                <Route index element={<Navigate to="overview" replace />} />
+                {/* shared routes(client, freelancer) */}
+                <Route path="overview" element={<OverviewPage/>}/>
+                <Route path="wallet" element={<WalletPage/>}/>
+                <Route path="transactions" element={<TransactionsPage/>}/>
+                <Route path="invoices-reports" element={<InvoicesAndReports/>}/>
+
+                <Route path="escrow" element={
+                    <AuthProtectedRoute allowedRoles={["freelancer"]}>
+                        <InEscrowPage />
+                    </AuthProtectedRoute>
+                }/>
+                <Route path="withdrawals" element={
+                    <AuthProtectedRoute allowedRoles={["freelancer"]}>
+                        <WithdrawalsPage />
+                    </AuthProtectedRoute>
+                }/>
+                <Route path="escrow-milestones" element={
+                    <AuthProtectedRoute allowedRoles={["client"]}>
+                        <EscrowAndMilestonesPage />
+                    </AuthProtectedRoute>
+                }/>
+            </Route>
+            {/* Payments routes under user layout - end */}
             <Route
               path="/users/:userId"
               element={
@@ -138,7 +177,6 @@ const UserRoutes: React.FC = () => {
                 </AuthProtectedRoute>
               }
             />
-            {/* Job routes under user layout - end */}
             {/* my proposals routes - freelancer - start */}
             <Route path="/my-proposals" element={
                 <AuthProtectedRoute allowedRoles={['freelancer']}>

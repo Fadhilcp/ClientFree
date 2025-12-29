@@ -119,6 +119,8 @@ export const endPoints = {
 
         GET_FILE_URL: (assignmentId: string, milestoneId: string, key: string) => 
             `/assignment/${assignmentId}/${milestoneId}/file/${key}`,
+        GET_ESCROW_MILESTONES: (page: number, limit: number) => 
+            `/assignment/escrow-milestones?page=${page ?? 1}&limit=${limit ?? 10}`,
     },
     PAYMENTS: {
         CREATE_ORDER: (assignmentId: string,milestoneId: string) => `/payment/milestones/${assignmentId}/${milestoneId}/fund`,
@@ -142,5 +144,18 @@ export const endPoints = {
         ADD_MESSAGE: (jobId: string) => `/clarification/${jobId}/message`,
         GET_BOARD: (jobId: string) => `/clarification/${jobId}`,
         CLOSE_BOARD: (jobId: string) => `/clarification/${jobId}/close`,
+    },
+    WALLET: {
+        GET: (page: number, limit: number) => `/wallet?page=${page ?? 1}&limit=${limit ?? 10}`,
+        GET_ESCROW: (page: number, limit: number) => `/wallet/escrow?page=${page ?? 1}&limit=${limit ?? 10}`,
+        GET_TRANSACTIONS: (page: number, limit: number) => `/wallet/transactions?page=${page ?? 1}&limit=${limit ?? 10}`,
+        GET_INVOICES: (page: number, limit: number) => `/wallet/invoices?page=${page ?? 1}&limit=${limit ?? 10}`,
+        INVOICE_DOWNLOAD: (transactionId: string) => `/wallet/invoices/${transactionId}/download`,
+        GET_REPORT: (from: string, to: string) => `/wallet/reports?from=${from}&to=${to}`,
+        WITHDRAW: '/wallet/withdraw',
+        GET_WITHDRAWALS: (page: number, limit: number) => `/wallet/withdrawals?page=${page ?? 1}&limit=${limit ?? 10}`,
+    },
+    DASHBOARD: {
+        GET_PAYMENTS_OVERVIEW: '/dashboard/payments-overview',
     }
-}
+}   

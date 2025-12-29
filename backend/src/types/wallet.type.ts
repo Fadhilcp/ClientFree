@@ -22,3 +22,18 @@ export interface IWalletDocument extends IWallet, Document {
     createdAt?: Date;
     updatedAt?: Date;
 }
+
+
+
+export interface FinancialReportSummary {
+  freelancer: {
+    totalEarned: number;
+    withdrawn: number;
+    platformFees: number;
+  };
+  client: {
+    totalSpent: number;
+    refunded: number;
+  };
+  inEscrow: number;
+}

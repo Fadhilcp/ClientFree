@@ -181,4 +181,23 @@ export class JobAssignmentController {
             next(error);
         }
     }
+
+    async getClientEscrowMilestones(req: Request, res: Response, next: NextFunction) {
+        try {
+            const clientId = req.user?._id;
+            if (!clientId) {
+                throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
+            }
+
+            const page = parseInt(req.query.page as string) || 1;
+            const limit = parseInt(req.query.limit as string) || 10;
+
+            const data = await this._jobAssignmentService.getClientEscrowAndMilestones(clientId, page, limit);
+
+            sendResponse(res, HttpStatus.OK, data);
+        } catch (error) {
+            next(error);
+        }
+    }
+
 }

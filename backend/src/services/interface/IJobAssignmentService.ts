@@ -24,4 +24,6 @@ export interface IJobAssignmentService {
     getApprovedMilestones(search: string, page: number, limit: number): Promise<PaginatedResult<AdminApprovedMilestoneDto>>;
     getFileUrl(userId: string, assignmentId: string, milestoneId: string, key: string): Promise<{ url: string }>;
     getApprovedMilestoneById(assignmentId: string, milestoneId: string): Promise<AdminApprovedMilestoneDetailDto>;
+
+    getClientEscrowAndMilestones(clientId: string, page: number, limit: number): Promise<any>
 }

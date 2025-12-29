@@ -59,8 +59,17 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T>{
         return query;
     }
 
-    async find(filter : FilterQuery<T>, options?: { sort?: Record<string, SortOrder> }) : Promise<T[]>{
-        return this.model.find(filter).sort(options?.sort);
+    async find(filter : FilterQuery<T>, options?: { sort?: Record<string, SortOrder>, limit?: number }) : Promise<T[]>{
+        const data = this.model.find(filter);
+
+        if (options?.sort) {
+            data.sort(options.sort);
+        }
+
+        if (typeof options?.limit === "number") {
+            data.limit(options.limit);
+        }
+        return data;
     }
 
     async count() {

@@ -22,7 +22,13 @@ export interface IWalletTransactionBalance {
 export interface IWalletTransaction {
   walletId: Types.ObjectId;
   userId: Types.ObjectId;
+
   paymentId?: Types.ObjectId;
+  
+  jobAssignmentId?: Types.ObjectId
+  milestoneId?: Types.ObjectId
+  subscriptionId?: Types.ObjectId
+
   type: WalletTransactionType;
   direction: WalletTransactionDirection;
   amount: number;

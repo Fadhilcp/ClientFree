@@ -2,7 +2,7 @@ import jobAssignmentModel from "models/jobAssignment.model";
 import { IJobAssignmentDocument } from "types/jobAssignment/jobAssignment.type";
 import { IJobAssignmentRepository } from "./interfaces/IJobAssignmentRepository";
 import { BaseRepository } from "./base.repository";
-import { FilterQuery, PopulateOptions } from "mongoose";
+import { Aggregate, FilterQuery, PipelineStage, PopulateOptions, Types } from "mongoose";
 import { SortOrder } from "mongoose";
 import { PopulatedAssignment } from "types/jobAssignment/jobAssignment.populated";
 import { ApprovedMilestoneAssignment } from "types/jobAssignment/jobAssignment.approvedMilestone";
@@ -136,5 +136,158 @@ export class JobAssignmentRepository
             .populate("freelancerId")
             .populate("milestones.paymentId")
             .exec() as Promise<PopulatedAssignment | null>;
+        }
+
+        async getClientMilestones(clientId: string, page: number, limit: number)
+        : Promise<{ milestones: IJobAssignmentDocument[], total: number, totalPages: number}> {
+            const skip = (page - 1) * limit;
+
+            const pipeline: PipelineStage[] = [
+                // join job to verify ownership
+                {
+                    $lookup: {
+                        from: "jobs",
+                        localField: "jobId",
+                        foreignField: "_id",
+                        as: "job"
+                    }
+                },
+                { $unwind: "$job" },
+
+                // client owns the job
+                {
+                    $match: {
+                        "job.clientId": new Types.ObjectId(clientId)
+                    }
+                },
+
+                // explode milestones
+                { $unwind: "$milestones" },
+
+                // shape milestone row
+                {
+                    $project: {
+                        assignmentId: "$_id",
+                        jobId: "$jobId",
+                        jobTitle: "$job.title",
+
+                        freelancerId: "$freelancerId",
+
+                        milestoneId: "$milestones._id",
+                        title: "$milestones.title",
+                        amount: "$milestones.amount",
+                        status: "$milestones.status",
+                        dueDate: "$milestones.dueDate",
+                        submittedAt: "$milestones.submittedAt"
+                    }
+                },
+
+                // pagination + total count
+                {
+                    $facet: {
+                        data: [
+                            { $sort: { dueDate: 1, milestoneId: 1 } },
+                            { $skip: skip },
+                            { $limit: limit }
+                        ],
+                        total: [
+                            { $count: "count" }
+                        ]
+                    }
+                }
+            ];
+
+            const result = await this.model.aggregate(pipeline);
+
+            const data = result[0]?.data || [];
+            const total = result[0]?.total[0]?.count || 0;
+
+            return { milestones: data, total, totalPages: Math.ceil(total / limit) };
+        }
+
+        async findAssignmentsByClient(clientId: string): Promise<{ _id: Types.ObjectId; amount: number; }[]> {
+            return this.model.aggregate([
+                {
+                    $lookup: {
+                        from: "jobs",
+                        localField: "jobId",
+                        foreignField: "_id",
+                        as: "job"
+                    }
+                },
+                { $unwind: "$job" },
+                {
+                    $match: {
+                        "job.clientId": new Types.ObjectId(clientId)
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        amount: 1
+                    }
+                }
+            ]);
+        }
+
+        async countUpcomingClientMilestones(clientId: string): Promise<number> {
+            const now = new Date();
+
+            const result = await this.model.aggregate([
+                {
+                    $lookup: {
+                        from: "jobs",
+                        localField: "jobId",
+                        foreignField: "_id",
+                        as: "job"
+                    }
+                },
+                { $unwind: "$job" },
+                {
+                    $match: {
+                        "job.clientId": new Types.ObjectId(clientId)
+                    }
+                },
+                { $unwind: "$milestones" },
+                {
+                    $match: {
+                        "milestones.dueDate": { $gt: now },
+                        "milestones.status": {
+                        $in: ["draft", "funded", "submitted"]
+                        }
+                    }
+                },
+                {
+                    $count: "count"
+                }
+            ]);
+
+            return result[0]?.count || 0;
+        }
+
+        async getPendingClearanceByFreelancer(freelancerId: string): Promise<number> {
+            const result = await this.model.aggregate([
+                {
+                    $match: {
+                        freelancerId: new Types.ObjectId(freelancerId)
+                    }
+                },
+                { $unwind: "$milestones" },
+                {
+                    $match: {
+                        "milestones.status": {
+                        $in: ["funded", "submitted", "approved"]
+                        }
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        total: { $sum: "$milestones.amount" }
+                    }
+                }
+            ]);
+
+            return result[0]?.total ?? 0;
         }
 }

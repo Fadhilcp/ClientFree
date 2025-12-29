@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Button from "../../../components/ui/Button";
 import ProfileImage from "../../../components/user/profile/ProfileImage";
 import type { ActionItem } from "../../../components/ui/Card/Card";
@@ -24,6 +24,8 @@ const DisputeDetailPage: React.FC = () => {
 
   const [isModalOpen, setModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState<{ reason: string }>({
     reason: "",
@@ -69,11 +71,14 @@ const DisputeDetailPage: React.FC = () => {
       setModalOpen(false);
       setFormData({ reason: "" });
 
+      navigate(-1);
+
       // refresh dispute
-      const res = await paymentService.getDisputeById(id!);
-      if (res.data.success) {
-        setDispute(res.data.dispute);
-      }
+      // const res = await paymentService.getDisputeById(id!);
+      // console.log("🚀 ~ handleRefundSubmit ~ res:", res)
+      // if (res.data.success) {
+      //   setDispute(res.data.dispute);
+      // }
 
     } catch (error: any) {
       console.error("Refund failed", error);
@@ -92,11 +97,13 @@ const DisputeDetailPage: React.FC = () => {
       await paymentService.releaseMilestone(dispute.id);
       notify.success("Payment Released");
 
+      navigate(-1);
+
       const res = await paymentService.getDisputeById(id!);
+      console.log("🚀 ~ handleReleaseToFreelancer ~ res:", res)
       if (res.data.success) {
         setDispute(res.data.dispute);
       }
-
     } catch (error: any) {
       console.error("Release failed", error);
       notify.error(error.response?.data?.error || 'Failed to release to freelancer');

@@ -139,16 +139,6 @@ export class PaymentService implements IPaymentService {
         clientWallet.balance.escrow += payment.amount;
         await clientWallet.save({ session });
 
-        await this._walletTransactionRepository.createWithSession({
-          walletId: clientWallet._id,
-          userId: clientWallet.userId,
-          paymentId: payment._id,
-          type: "escrow_hold",
-          direction: "credit",
-          amount: payment.amount,
-          balanceAfter: clientWallet.balance,
-        }, session);
-
         const assignment = await this._jobAssignmentRepository.findOneWithSession(
           { "milestones._id": payment.milestoneId },
           session
@@ -170,11 +160,29 @@ export class PaymentService implements IPaymentService {
           return { payment, assignment };
         }
 
-        milestone.status = "funded";
-        milestone.paymentId = payment._id;
-        milestone.updatedAt = new Date();
+        await this._walletTransactionRepository.createWithSession({
+          walletId: clientWallet._id,
+          userId: clientWallet.userId,
+          jobAssignmentId: assignment._id,
+          milestoneId: milestone._id,
+          paymentId: payment._id,
+          type: "escrow_hold",
+          direction: "credit",
+          amount: payment.amount,
+          balanceAfter: {
+            available: clientWallet.balance.available,
+            escrow: clientWallet.balance.escrow,
+            pending: clientWallet.balance.pending,
+          },
+        }, session);
 
-        await assignment.save({ session });
+
+        if(milestone.status === "draft") {
+          milestone.status = "funded";
+          milestone.paymentId = payment._id;
+          milestone.updatedAt = new Date();
+          await assignment.save({ session });
+        }
 
         return { payment, assignment };
       });
@@ -237,11 +245,17 @@ export class PaymentService implements IPaymentService {
         await this._walletTransactionRepository.createWithSession({
           walletId: clientWallet._id,
           userId: clientWallet.userId,
+          jobAssignmentId: assignment._id,
+          milestoneId: milestone._id,
           paymentId: payment._id,
           type: "refund",
           direction: "credit",
           amount: payment.amount,
-          balanceAfter: clientWallet.balance,
+          balanceAfter: {
+            available: clientWallet.balance.available,
+            escrow: clientWallet.balance.escrow,
+            pending: clientWallet.balance.pending,
+          },
         }, session);
 
         payment.status = "refund_processing";
@@ -328,11 +342,17 @@ export class PaymentService implements IPaymentService {
         await this._walletTransactionRepository.createWithSession({
           walletId: clientWallet._id,
           userId: clientWallet.userId,
+          jobAssignmentId: assignment._id,
+          milestoneId: milestone._id,
           paymentId: payment._id,
           type: "escrow_release",
           direction: "debit",
           amount,
-          balanceAfter: clientWallet.balance
+          balanceAfter: {
+            available: clientWallet.balance.available,
+            escrow: clientWallet.balance.escrow,
+            pending: clientWallet.balance.pending,
+          }
         }, session );
 
         freelancerWallet.balance.available += amount;
@@ -341,18 +361,23 @@ export class PaymentService implements IPaymentService {
         await this._walletTransactionRepository.createWithSession({
           walletId: freelancerWallet._id,
           userId: freelancerWallet.userId,
+          jobAssignmentId: assignment._id,
+          milestoneId: milestone._id,
           paymentId: payment._id,
           type: "escrow_release",
           direction: "credit",
           amount,
-          balanceAfter: freelancerWallet.balance
+          balanceAfter: {
+            available: freelancerWallet.balance.available,
+            escrow: freelancerWallet.balance.escrow,
+            pending: freelancerWallet.balance.pending,
+          },
         }, session );
 
         milestone.status = "released";
         milestone.updatedAt = new Date();
 
         payment.escrowReleaseDate = new Date();
-
         await payment.save({ session });
 
         const allReleased = assignment.milestones?.every(

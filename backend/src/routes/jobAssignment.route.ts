@@ -6,11 +6,22 @@ import { PaymentRepository } from "repositories/payment.repository";
 import { authMiddleware } from "middlewares/authMiddleware";
 import { verifyUserNotBanned } from "middlewares/verifyUserNotBanned.middleware";
 import upload from "utils/uploader-s3.util";
+import { WalletService } from "services/wallet.service";
+import { WalletRepository } from "repositories/wallet.repository";
+import { WalletTransactionRepository } from "repositories/walletTransaction.repository";
+import { MongooseSessionProvider } from "repositories/db/session-provider";
 
+const walletRepository = new WalletRepository();
+const walletTransactionRepository = new WalletTransactionRepository();
+// transaction session
+const sessionProvider = new MongooseSessionProvider;
+
+const walletService = new WalletService(walletRepository, walletTransactionRepository, sessionProvider);
 
 const jobAssignmentRepository = new JobAssignmentRepository();
 const paymentRepository = new PaymentRepository();
-const jobAssignmentService = new JobAssignmentService(jobAssignmentRepository, paymentRepository);
+const jobAssignmentService = new JobAssignmentService(jobAssignmentRepository, paymentRepository, walletService);
+
 const jobAssignmentController = new JobAssignmentController(jobAssignmentService);
 
 const assignmentRouter = Router();
@@ -21,6 +32,9 @@ assignmentRouter.get('/job/:jobId',jobAssignmentController.getAssignments.bind(j
 assignmentRouter.post('/:assignmentId/milestones',jobAssignmentController.addMilestones.bind(jobAssignmentController));
 assignmentRouter.patch('/:assignmentId/:milestoneId/cancel',jobAssignmentController.cancelMilestone.bind(jobAssignmentController));
 assignmentRouter.get('/approved',jobAssignmentController.getApproved.bind(jobAssignmentController));
+
+assignmentRouter.get('/escrow-milestones',jobAssignmentController.getClientEscrowMilestones.bind(jobAssignmentController));
+
 assignmentRouter.get('/:assignmentId/:milestoneId/approved',jobAssignmentController.getApprovedMilestoneDetail.bind(jobAssignmentController));
 
 assignmentRouter.post('/:assignmentId/:milestoneId/submit',upload.array("files"),jobAssignmentController.submit.bind(jobAssignmentController));
@@ -31,6 +45,7 @@ assignmentRouter.patch('/:assignmentId/:milestoneId/approve',jobAssignmentContro
 assignmentRouter.patch('/:assignmentId/:milestoneId/dispute',jobAssignmentController.dispute.bind(jobAssignmentController));
 
 assignmentRouter.patch('/:assignmentId/milestones/:milestoneId',jobAssignmentController.updateMilestone.bind(jobAssignmentController));
+
 
 
 export default assignmentRouter;

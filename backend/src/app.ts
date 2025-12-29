@@ -19,6 +19,8 @@ import assignmentRouter from 'routes/jobAssignment.route';
 import paymentRouter from 'routes/payment.route';
 import addOnRouter from 'routes/addOns.route';
 import clarificationRouter from 'routes/clarification.route';
+import walletRouter from 'routes/wallet.route';
+import dashboardRouter from 'routes/dashboard.route';
 
 connectDB();
 
@@ -46,6 +48,8 @@ app.use("/api/assignment",assignmentRouter);
 app.use("/api/payment",paymentRouter);
 app.use("/api/addOns",addOnRouter);
 app.use("/api/clarification",clarificationRouter);
+app.use("/api/wallet",walletRouter);
+app.use("/api/dashboard",dashboardRouter);
 
 app.use(errorHandler);
 

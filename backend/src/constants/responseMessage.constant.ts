@@ -60,4 +60,5 @@ export const HttpResponse = {
     ADD_ON_NOT_FOUND: "AddOn not found",
     CLARIFICATION_BOARD_NOT_FOUND: "Clarification board not found",
     CLARIFICATION_BOARD_CLOSED: "Clarification board is closed",
+    WALLET_NOT_FOUND: "Wallet not found",
 };
