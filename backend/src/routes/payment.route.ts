@@ -1,6 +1,7 @@
 import { PaymentController } from "controllers/payment.controller";
 import { Router } from "express";
 import { authMiddleware } from "middlewares/authMiddleware";
+import { authorizeRole } from "middlewares/authorizeRole";
 import { verifyUserNotBanned } from "middlewares/verifyUserNotBanned.middleware";
 import { MongooseSessionProvider } from "repositories/db/session-provider";
 import { JobRepository } from "repositories/job.repository";
@@ -33,7 +34,7 @@ const paymentRouter = Router();
 
 paymentRouter.use(authMiddleware, verifyUserNotBanned);
 
-paymentRouter.post('/milestones/:assignmentId/:milestoneId/fund',
+paymentRouter.post('/milestones/:assignmentId/:milestoneId/fund',authorizeRole("client"),
     paymentController.createOrder.bind(paymentController)
 );
 paymentRouter.post('/verify',paymentController.verifyPayment.bind(paymentController));

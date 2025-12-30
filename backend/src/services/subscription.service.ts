@@ -15,6 +15,7 @@ import { HttpResponse } from "constants/responseMessage.constant";
 import { PaginatedResult } from "types/pagination";
 import { IUserRepository } from "repositories/interfaces/IUserRepository";
 import { FilterQuery } from "mongoose";
+import { IPlanDocument } from "types/plan.type";
 
 
 export class SubscriptionService implements ISubscriptionService {
@@ -237,5 +238,20 @@ export class SubscriptionService implements ISubscriptionService {
             throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.NO_ACTIVE_SUBSCRIPTION);
         }
         return mapSubscription(subscription)
+    }
+
+    async getActiveFeatures(userId: string) {
+        const subscription = await this._subscriptionRepository.findOneActiveByUser(userId);
+
+        if (!subscription) return null;
+
+        const plan = subscription.planId as any;
+
+        return {
+            planName: plan.planName,
+            userType: plan.userType,
+            features: plan.features,
+            expiryDate: subscription.expiryDate,
+        };
     }
 }

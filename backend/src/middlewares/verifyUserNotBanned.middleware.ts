@@ -17,7 +17,6 @@ export const verifyUserNotBanned = async (
 
   try {
     const user = await userRepository.findStatusById(req.user._id);
-    console.log("🚀 ~ verifyUserNotBanned ~ user:", user)
 
     if (!user) {
       throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);

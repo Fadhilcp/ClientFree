@@ -1,6 +1,7 @@
 import { WalletController } from "controllers/wallet.controller";
 import { Router } from "express";
 import { authMiddleware } from "middlewares/authMiddleware";
+import { authorizeRole } from "middlewares/authorizeRole";
 import { verifyUserNotBanned } from "middlewares/verifyUserNotBanned.middleware";
 import { MongooseSessionProvider } from "repositories/db/session-provider";
 import { WalletRepository } from "repositories/wallet.repository";
@@ -29,7 +30,7 @@ walletRouter.get("/invoices",walletController.getInvoices.bind(walletController)
 walletRouter.get("/invoices/:transactionId/download",walletController.downloadInvoice.bind(walletController));
 walletRouter.get("/reports",walletController.getFinancialReport.bind(walletController));
 
-walletRouter.post("/withdraw",walletController.withdraw.bind(walletController));
-walletRouter.get("/withdrawals",walletController.getWithdrawals.bind(walletController));
+walletRouter.post("/withdraw",authorizeRole("freelancer"),walletController.withdraw.bind(walletController));
+walletRouter.get("/withdrawals",authorizeRole("freelancer"),walletController.getWithdrawals.bind(walletController));
 
 export default walletRouter;
