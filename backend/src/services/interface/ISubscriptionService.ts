@@ -1,5 +1,6 @@
 import { SubscriptionDto } from "dtos/subscription.dto";
 import { PaginatedResult } from "types/pagination";
+import { PlanFeatures } from "types/plan.type";
 import { ISubscription, ISubscriptionDocument } from "types/subscription.type";
 
 
@@ -9,4 +10,7 @@ export interface ISubscriptionService {
     verifyPayment({}: Record<string, string>): Promise<{ message: string }>;
     cancelSubscription(userId: string, subscriptionId: string): Promise<{ message: string }>;
     getCurrentPlan(userId: string): Promise<SubscriptionDto>;
+    getActiveFeatures(userId: string)
+        : Promise<{ planName: string, userType: string, features: PlanFeatures, expiryDate: Date } | null>;
+    expireSubscriptions(): Promise<number>;
 }

@@ -14,6 +14,8 @@ const MyProposals: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [searchQuery, setSearchQuery] = useState("");
+
   // for infinit scroll==
   const [cursor, setCursor] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
@@ -30,7 +32,7 @@ const MyProposals: React.FC = () => {
     try {
       const safeCursor =  cursor ?? "";
 
-      const response = await proposalService.myProposals(isInvitation, loadMore ? safeCursor : "", LIMIT);
+      const response = await proposalService.myProposals(isInvitation, searchQuery, loadMore ? safeCursor : "", LIMIT);
       if (response.data.success) {
         const { proposals, nextCursor } = response.data;
 
@@ -59,19 +61,30 @@ const MyProposals: React.FC = () => {
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
       }, [loading, hasMore, fetchProposals]);
- 
 
-  useEffect(() => {
-    fetchProposals();
-  }, [isInvitation]);
+      const handleSearch = (query: string) => {
+        setSearchQuery(query);
+      };
 
-  const handleSearch = (query: string) => {
-    console.log("Searching jobs for:", query);
-  };
 
-  const handleViewDetails = (jobId: string) => {
-    navigate(`/job-details/${jobId}`);
-  };
+      useEffect(() => {
+        setProposals([]);
+        setCursor(null);
+        setHasMore(true);
+      }, [searchQuery, isInvitation]);
+
+      useEffect(() => {
+        const delay = setTimeout(() => {
+          fetchProposals(false);
+        }, 400);
+
+        return () => clearTimeout(delay);
+      }, [searchQuery, isInvitation]);
+
+
+      const handleViewDetails = (jobId: string) => {
+        navigate(`/job-details/${jobId}`);
+      };
 
   return (
     <section className="bg-white dark:bg-gray-900 min-h-screen">

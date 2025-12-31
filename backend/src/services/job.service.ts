@@ -18,6 +18,7 @@ import { IPaymentRepository } from "repositories/interfaces/IPaymentRepository";
 import { IWalletRepository } from "repositories/interfaces/IWalletRepository";
 import { IWalletTransactionRepository } from "repositories/interfaces/IWalletTransactionRepository";
 import { IDatabaseSessionProvider } from "repositories/db/session-provider.interface";
+import { ISubscriptionService } from "./interface/ISubscriptionService";
 
 export class JobService implements IJobService {
 
@@ -30,7 +31,8 @@ export class JobService implements IJobService {
         private _paymentRepository: IPaymentRepository,
         private _walletRepository: IWalletRepository,
         private _walletTransactionRepository: IWalletTransactionRepository,
-        private _sessionProvider: IDatabaseSessionProvider
+        private _sessionProvider: IDatabaseSessionProvider,
+        private _subscriptionService: ISubscriptionService,
     ){}
 
     async createJob(jobData: IJob): Promise<JobDetailDTO> {
@@ -481,6 +483,5 @@ export class JobService implements IJobService {
             return 'Job cancelled and escrow refunded successfully';
         });
     }
-
 
 }

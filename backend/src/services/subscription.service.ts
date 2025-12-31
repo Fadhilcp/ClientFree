@@ -14,15 +14,17 @@ import { IRevenueRepository } from "repositories/interfaces/IRevenueRepository";
 import { HttpResponse } from "constants/responseMessage.constant";
 import { PaginatedResult } from "types/pagination";
 import { IUserRepository } from "repositories/interfaces/IUserRepository";
-import { FilterQuery } from "mongoose";
-import { IPlanDocument } from "types/plan.type";
+import { ClientSession, FilterQuery } from "mongoose";
+import { IPlanDocument, PlanFeatures } from "types/plan.type";
+import { IDatabaseSessionProvider } from "repositories/db/session-provider.interface";
+import { PLAN_LIMITS } from "constants/planLimits";
 
 
 export class SubscriptionService implements ISubscriptionService {
     constructor(
         private _subscriptionRepository: ISubscriptionRepository, private _planRepostory: IPlanRepository,
         private _userRepository: IUserRepository,private _paymentRepository: IPaymentRepository, 
-        private _revenueRepository: IRevenueRepository
+        private _revenueRepository: IRevenueRepository, private _sessionProvider: IDatabaseSessionProvider
     ) {}
 
     async getAll(search: string, status: string, page=1, limit=10): Promise<PaginatedResult<SubscriptionDto>> {
@@ -57,7 +59,9 @@ export class SubscriptionService implements ISubscriptionService {
         if(existing) throw createHttpError(HttpStatus.CONFLICT, HttpResponse.USER_ALREADY_ACTIVE);
 
         const plan = await this._planRepostory.findById(String(data.planId));
-        if (!plan) throw createHttpError(HttpStatus.NOT_FOUND, "Selected plan not found");
+        if (!plan || !plan.active) throw createHttpError(HttpStatus.NOT_FOUND, "Plan not available");
+
+        const razorpay = getRazorpayInstance();
 
         const lastSubscription = await this._subscriptionRepository.findOne(
             { userId: data.userId },
@@ -66,7 +70,6 @@ export class SubscriptionService implements ISubscriptionService {
 
         let razorpayCustomerId = lastSubscription?.customerId;
 
-        const razorpay = getRazorpayInstance();
         // if there will be no customerId in the subscription collection
         if(!razorpayCustomerId){
             try {
@@ -189,7 +192,7 @@ export class SubscriptionService implements ISubscriptionService {
             userId: subData.userId,
             paymentDate: new Date(),
         });
-          await this._revenueRepository.create({
+        await this._revenueRepository.create({
             type: "subscription",
             source:"freelancer",
             amount,
@@ -199,6 +202,20 @@ export class SubscriptionService implements ISubscriptionService {
             providerPaymentId: razorpay_payment_id ?? null,
             status: "completed",
             gatewayFee: 0,
+        });
+
+        const unlimitedInvites = plan.features.UnlimitedInvites;
+        const unlimitedProposals = plan.features.UnlimitedProposals;
+
+        await this._userRepository.findByIdAndUpdate(subscription.userId.toString(), {
+            limits: {
+            invitesRemaining: unlimitedInvites
+                ? 999999
+                : PLAN_LIMITS.FREE.invites,
+            proposalsRemaining: unlimitedProposals
+                ? 999999
+                : PLAN_LIMITS.FREE.proposals,
+            },
         });
   
         return { message: 'Subscription activated' };
@@ -240,7 +257,8 @@ export class SubscriptionService implements ISubscriptionService {
         return mapSubscription(subscription)
     }
 
-    async getActiveFeatures(userId: string) {
+    async getActiveFeatures(userId: string)
+    : Promise<{ planName: string, userType: string, features: PlanFeatures, expiryDate: Date } | null> {
         const subscription = await this._subscriptionRepository.findOneActiveByUser(userId);
 
         if (!subscription) return null;
@@ -253,5 +271,35 @@ export class SubscriptionService implements ISubscriptionService {
             features: plan.features,
             expiryDate: subscription.expiryDate,
         };
+    }
+
+    async expireSubscriptions(): Promise<number> {
+        const expiredSubs = await this._subscriptionRepository.findExpiredActive();
+
+        if (!expiredSubs.length) return 0;
+
+        for (const sub of expiredSubs) {
+            await this._sessionProvider.runInTransaction(
+                async (session: ClientSession) => {
+
+                    // expire subscription
+                    await this._subscriptionRepository.expireById(
+                        sub._id.toString(),
+                        session
+                    );
+                    // reset user limits (critical)
+                    await this._userRepository.updateLimits(
+                        sub.userId.toString() ,
+                        {
+                            invitesRemaining: 10,
+                            proposalsRemaining: 5,
+                        },
+                        session
+                    );
+                }
+            );
+        }
+
+        return expiredSubs.length;
     }
 }

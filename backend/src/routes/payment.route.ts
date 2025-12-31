@@ -17,7 +17,7 @@ const jobRepository = new JobRepository();
 const walletRepository = new WalletRepository();
 const walletTransactionRepository = new WalletTransactionRepository();
 // transaction session
-const sessionProvider = new MongooseSessionProvider;
+const sessionProvider = new MongooseSessionProvider();
 
 const paymentService = new PaymentService(
     paymentRepository, 

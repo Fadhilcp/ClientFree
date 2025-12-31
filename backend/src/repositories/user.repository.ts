@@ -2,7 +2,7 @@ import { BaseRepository } from "./base.repository";
 import { IUserDocument } from "../types/user.type";
 import userModel from "./../models/user.model"
 import { IUserRepository } from "./interfaces/IUserRepository";
-import { FilterQuery, ObjectId } from "mongoose";
+import { ClientSession, FilterQuery, ObjectId } from "mongoose";
 
 export class UserRepository 
    extends BaseRepository<IUserDocument>
@@ -56,5 +56,17 @@ export class UserRepository
         .limit(limit)
         .populate("skills", "name _id")
         .exec();
+    }
+
+    async updateLimits(
+        userId: string,
+        limits: { invitesRemaining: number; proposalsRemaining: number },
+        session: ClientSession
+    ): Promise<void> {
+        await this.model.updateOne(
+            { _id: userId },
+            { $set: { limits } },
+            { session }
+        );
     }
 }

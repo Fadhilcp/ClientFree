@@ -11,6 +11,9 @@ import { jobService } from "../../../services/job.service";
 import { proposalService } from "../../../services/proposal.service";
 import { notify } from "../../../utils/toastService";
 import UserModal from "../../../components/ui/Modal/UserModal";
+import Button from "../../../components/ui/Button";
+import { matchService } from "../../../services/match.service";
+import BestMatchModal from "../../../components/ui/Modal/BestMatchModal";
 
 const LIMIT = 20;
 
@@ -19,13 +22,11 @@ const FreelancersPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-
   // for infinit scroll
   const [cursor, setCursor] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
 
   const [searchQuery, setSearchQuery] = useState("");
-
 
   const isInterestedPage = location.pathname.includes("/freelancers/interested");
 
@@ -40,6 +41,10 @@ const FreelancersPage: React.FC = () => {
   const [clientJobs, setClientJobs] = useState<{ id: string; title: string }[]>([]);
 
   const { user } = useSelector((state: RootState) => state.auth);
+
+  const [isBestMatchOpen, setIsBestMatchOpen] = useState(false);
+  const [selectedJobId, setSelectedJobId] = useState("");
+  const [isBestMatchMode, setIsBestMatchMode] = useState(false);
 
   const [searchParams] = useSearchParams();
   
@@ -106,7 +111,6 @@ const FreelancersPage: React.FC = () => {
     }
   }, [user, isInterestedPage, hasMore, loading, searchQuery, filterQuery]);
 
-  
   const fetchClientJobs = useCallback(async () => {
     if (!user || user.role !== "client") return;
     try {
@@ -120,10 +124,33 @@ const FreelancersPage: React.FC = () => {
     }
   }, [user]);
 
+  const fetchBestMatchFreelancers = async () => {
+    if (!selectedJobId) {
+      notify.error("Please select a job");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const res = await matchService.getBestMatchFreelancers(selectedJobId);
+
+      if (res.data.success) {
+        setFreelancers(res.data.freelancers);
+        setIsBestMatchMode(true);
+        setIsBestMatchOpen(false);
+      }
+    } catch (e: any) {
+      notify.error(
+        e.response?.data?.error || "Failed to fetch best matches"
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
   // infinit scroll even listener
   useEffect(() => {
     const handleScroll = () => {
-      if (loading || !hasMore) return;
+      if (loading || !hasMore || isBestMatchMode) return;
       
       const bottom =
         window.innerHeight + window.scrollY >=
@@ -136,16 +163,15 @@ const FreelancersPage: React.FC = () => {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [loading, hasMore, fetchFreelancers]);
+  }, [loading, hasMore, fetchFreelancers, isBestMatchMode]);
 
-
-useEffect(() => {
-  setFreelancers([]);
-  setCursor(null);
-  setHasMore(true);
-  fetchFreelancers(false);
-  fetchClientJobs();
-}, [isInterestedPage]);
+  useEffect(() => {
+    setFreelancers([]);
+    setCursor(null);
+    setHasMore(true);
+    fetchFreelancers(false);
+    fetchClientJobs();
+  }, [isInterestedPage]);
 
   const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
@@ -154,8 +180,14 @@ useEffect(() => {
   }, []);
 
   useEffect(() => {
-    fetchFreelancers(false);
-  }, [searchQuery, filterQuery]);
+    if(isBestMatchMode) return;
+
+    const delay = setTimeout(() => {
+      fetchFreelancers(false);
+    }, 400);
+
+    return () => clearTimeout(delay);
+  }, [searchQuery, filterQuery, isBestMatchMode]);
 
   const handleViewDetails = (freelancerId: string) => {
     navigate(`/users/${freelancerId}`);
@@ -200,7 +232,7 @@ useEffect(() => {
       notify.error(error.response?.data?.error || "Failed to send invitation");
     }
   };
-
+// to mark and unmark interest
   const handleToggleInterest = async (freelancerId: string, interested: boolean) => {
     try {
       if (interested) {
@@ -224,11 +256,36 @@ useEffect(() => {
           <h2 className="text-2xl font-bold text-indigo-600 dark:text-indigo-500">
             {isInterestedPage ? "Interested Freelancers" : "Freelancers"}
           </h2>
+          <Button
+            label={isBestMatchMode ? "All Freelancer" : "Best Match"}
+            onClick={() => {
+              if (isBestMatchMode) {
+                setIsBestMatchMode(false);
+                setSelectedJobId("");
+                setCursor(null);
+                setHasMore(true);
+                fetchFreelancers(false);
+              } else {
+                setIsBestMatchOpen(true);
+              }
+            }}
+          />
           <SearchBar
             placeholder={isInterestedPage ? "Search interested freelancers..." : "Search freelancers..."}
             onSearch={handleSearch}
           />
         </div>
+
+        <BestMatchModal
+          open={isBestMatchOpen}
+          jobs={clientJobs}
+          selectedJobId={selectedJobId}
+          onChangeJob={setSelectedJobId}
+          onCancel={() => setIsBestMatchOpen(false)}
+          onSubmit={fetchBestMatchFreelancers}
+          loading={loading}
+        />
+
 
         {/* Empty State */}
         {(!freelancers || freelancers.length === 0) && (
@@ -288,31 +345,30 @@ useEffect(() => {
               { name: "message", label: "Message", placeholder: "Write your message...", rows: 4 },
             ]}
           >
-              {/* Custom dropdown injected as children */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Select Job
-                </label>
-                <select
-                  value={formData.jobId}
-                  onChange={(e) => handleFormChange("jobId", e.target.value)}
-                  className="w-full px-3 py-3 rounded-lg font-medium bg-gray-100 dark:bg-gray-800 text-sm text-gray-900
-                dark:text-gray-100 border border-gray-200 dark:border-gray-600 focus:outline-none focus:border-gray-400
-                  dark:focus:border-gray-500 focus:ring-1 focus:ring-indigo-500"
-                >
-                  <option value="">Select a job</option>
-                  {clientJobs.map((job) => (
-                    <option key={job.id} value={job.id}>
-                      {job.title}
-                    </option>
-                  ))}
-                </select>
-                {errors?.jobId && (
-                  <p className="mt-1 text-sm text-red-500">{errors.jobId}</p>
-                )}
-              </div>
+            {/* Custom dropdown injected as children */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Select Job
+              </label>
+              <select
+                value={formData.jobId}
+                onChange={(e) => handleFormChange("jobId", e.target.value)}
+                className="w-full px-3 py-3 rounded-lg font-medium bg-gray-100 dark:bg-gray-800 text-sm text-gray-900
+              dark:text-gray-100 border border-gray-200 dark:border-gray-600 focus:outline-none focus:border-gray-400
+                dark:focus:border-gray-500 focus:ring-1 focus:ring-indigo-500"
+              >
+                <option value="">Select a job</option>
+                {clientJobs.map((job) => (
+                  <option key={job.id} value={job.id}>
+                    {job.title}
+                  </option>
+                ))}
+              </select>
+              {errors?.jobId && (
+                <p className="mt-1 text-sm text-red-500">{errors.jobId}</p>
+              )}
+            </div>
           </UserModal>
-
           
       </div>
     </section>

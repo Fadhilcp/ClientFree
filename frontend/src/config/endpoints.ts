@@ -88,8 +88,8 @@ export const endPoints = {
         CANCEL_PROPOSAL: (proposalId: string) => `/proposal/${proposalId}/cancel`,
         INVITE: (jobId: string, freelancerId: string) => `/proposal/job/${jobId}/invite/${freelancerId}`,
         ACCEPT_INVITE: (jobId: string, freelancerId: string) => `/proposal/job/${jobId}/invitation/${freelancerId}/accept`,
-        MY_PROPOSAL: (isInvitation: boolean, cursor: string, limit:number) => 
-            `/proposal/me?isInvitation=${isInvitation}&cursor=${cursor || ""}&limit=${limit}`,
+        MY_PROPOSAL: (isInvitation: boolean, search: string, cursor: string, limit:number) => 
+            `/proposal/me?isInvitation=${isInvitation}&search=${search}&cursor=${cursor || ""}&limit=${limit}`,
 
         CLIENT_PROPOSAL: (isInvitation: boolean, search: string, cursor?: string, limit?: number) => 
                 `/proposal/client?isInvitation=${isInvitation ?? false}&search=${search}&cursor=${cursor || ""}&limit=${limit}`,
@@ -157,5 +157,9 @@ export const endPoints = {
     },
     DASHBOARD: {
         GET_PAYMENTS_OVERVIEW: '/dashboard/payments-overview',
+    },
+    MATCH: {
+        GET_BEST_JOBS: '/match/jobs',
+        GET_BEST_FREELANCERS:(jobId: string) => `/match/freelancers/${jobId}`
     }
 }   

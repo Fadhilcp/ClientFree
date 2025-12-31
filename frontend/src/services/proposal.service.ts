@@ -41,8 +41,8 @@ class ProposalService {
     return axios.post(endPoints.PROPOSAL.ACCEPT_INVITE(jobId, freelancerId));
   }
 
-  myProposals(isInvitation: boolean,cursor: string, limit: number,) {
-    return axios.get(endPoints.PROPOSAL.MY_PROPOSAL(isInvitation, cursor, limit));
+  myProposals(isInvitation: boolean, search: string, cursor: string, limit: number,) {
+    return axios.get(endPoints.PROPOSAL.MY_PROPOSAL(isInvitation, search, cursor, limit));
   }
 
   proposalsForClient(isInvitation: boolean, search: string, cursor: string | undefined, limit: number) {

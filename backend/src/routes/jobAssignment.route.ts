@@ -15,7 +15,7 @@ import { authorizeRole } from "middlewares/authorizeRole";
 const walletRepository = new WalletRepository();
 const walletTransactionRepository = new WalletTransactionRepository();
 // transaction session
-const sessionProvider = new MongooseSessionProvider;
+const sessionProvider = new MongooseSessionProvider();
 
 const walletService = new WalletService(walletRepository, walletTransactionRepository, sessionProvider);
 

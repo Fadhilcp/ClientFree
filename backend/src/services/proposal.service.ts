@@ -23,6 +23,7 @@ import { IPaymentDocument } from "types/payment/payment.type";
 import { IUserRepository } from "repositories/interfaces/IUserRepository";
 import { getEmbedding } from "helpers/embedding.helper";
 import { cosineSimilarity } from "helpers/similarity.helper";
+import { IUserDocument } from "types/user.type";
 
 export class ProposalService implements IProposalService {
     constructor(
@@ -63,7 +64,16 @@ export class ProposalService implements IProposalService {
             throw createHttpError(HttpStatus.BAD_REQUEST, "Proposal already submitted");
         }
 
+        const user = await this._assertProposalLimit(freelancerId);
+
         const proposal = await this._createFreshProposal(jobId, freelancerId, payload);
+
+        if (user.limits.proposalsRemaining < 999999) {
+            await this._userRepository.findByIdAndUpdate(freelancerId, {
+                $inc: { "limits.proposalsRemaining": -1 },
+            } as UpdateQuery<IUserDocument> );
+        }
+
         return await this._finalizeProposalResponse(proposal, freelancerId, jobId, addOn)
     }
 
@@ -174,6 +184,21 @@ export class ProposalService implements IProposalService {
 
         return { razorpayOrder, payment };
     }
+
+    private async _assertProposalLimit(freelancerId: string) {
+        const user = await this._userRepository.findById(freelancerId);
+
+        if (!user) {
+            throw createHttpError(HttpStatus.NOT_FOUND, "User not found");
+        }
+
+        if (user.limits.proposalsRemaining <= 0) {
+            throw createHttpError(HttpStatus.FORBIDDEN,"Proposal limit reached. Upgrade your plan.");
+        }
+
+        return user;
+    }
+
     
     private async _createFreshProposal(
         jobId: string,
@@ -352,7 +377,9 @@ export class ProposalService implements IProposalService {
             if(!existing.isInvitation){
                 throw createHttpError(HttpStatus.CONFLICT, "Freelancer already submitted a proposal");
             }
-        }
+        };
+
+        const user = await this._assertInviteLimit(clientId);
 
         const invitation = await this._proposalRepository.create({
             freelancerId,
@@ -363,8 +390,29 @@ export class ProposalService implements IProposalService {
             status: "invited",
         });
 
+        if (user.limits.invitesRemaining < 999999) {
+            await this._userRepository.findByIdAndUpdate(clientId, {
+                $inc: { "limits.invitesRemaining": -1 },
+            } as UpdateQuery<IUserDocument> );
+        }
+
         return mapProposal(invitation);
     }
+
+    private async _assertInviteLimit(clientId: string) {
+        const user = await this._userRepository.findById(clientId);
+
+        if (!user) {
+            throw createHttpError(HttpStatus.NOT_FOUND, "User not found");
+        }
+
+        if (user.limits.invitesRemaining <= 0) {
+            throw createHttpError(HttpStatus.FORBIDDEN, "Invitation limit reached. Upgrade your plan.");
+        }
+
+        return user;
+    }
+
 
     async acceptInvitation(jobId: string, freelancerId: string): Promise<{ message: string; }> {
         const invitation = await this._proposalRepository.findOne({
@@ -390,7 +438,7 @@ export class ProposalService implements IProposalService {
     }
 
     async getMyProposals(
-        freelancerId: string, isInvitation: boolean, limit: number, cursor?: string
+        freelancerId: string, isInvitation: boolean, search: string, limit: number, cursor?: string
     ): Promise<{ proposals : ProposalDTO[], nextCursor: string | null }> {
 
         const filter: FilterQuery<IProposalInvitationDocument> = { freelancerId };
@@ -402,6 +450,16 @@ export class ProposalService implements IProposalService {
             filter._id = { $lt: cursor };
         }
 
+        if (search?.trim()) {
+            const regex = new RegExp(search.trim(), "i");
+
+            filter.$or = [
+                { description: regex },
+                { "invitation.title": regex },
+                { "invitation.message": regex },
+                { status: regex }
+            ];
+        }
 
         const proposals = await this._proposalRepository.findWithDetailPaginated(filter, limit);
 

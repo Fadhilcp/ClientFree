@@ -2,7 +2,7 @@ import { ISubscriptionDocument } from 'types/subscription.type';
 import subscriptionModel from '../models/subscription.model';
 import { BaseRepository } from './base.repository';
 import { ISubscriptionRepository } from './interfaces/ISubscriptionRepository';
-import { Types } from 'mongoose';
+import { ClientSession, Types } from 'mongoose';
 
 export class SubscriptionRepository 
   extends BaseRepository<ISubscriptionDocument> 
@@ -32,5 +32,20 @@ export class SubscriptionRepository
     }
 
     return subscription;
+  }
+
+  async findExpiredActive(): Promise<ISubscriptionDocument[]> {
+    return this.model.find({
+      status: "active",
+      expiryDate: { $lt: new Date() },
+    });
+  }
+
+  async expireById(subscriptionId: string, session: ClientSession): Promise<void> {
+    await this.model.updateOne(
+      { _id: subscriptionId },
+      { $set: { status: "expired" } },
+      { session }
+    );
   }
 }

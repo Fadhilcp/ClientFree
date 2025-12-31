@@ -54,8 +54,8 @@ const userSchema = new Schema({
         default: null 
     },
     limits: {
-        invitesRemaining: { type: Number, default: 10 },     
-        proposalsRemaining: { type: Number, default: 5 }       
+        invitesRemaining: { type: Number, default: 5 },     
+        proposalsRemaining: { type: Number, default: 10 }       
     },
 
     notificationSettings : {

@@ -1,4 +1,4 @@
-import { IPlan } from "types/plan.type";
+import { IPlan, PlanFeatures } from "types/plan.type";
 
 interface BasePlanDTO {
   id: string;
@@ -17,7 +17,7 @@ export interface PlanTableDTO extends BasePlanDTO {
 }
 
 export interface PlanDetailUserDTO extends BasePlanDTO {
-  features: Record<string, boolean> | string[];
+  features: Record<string, boolean> | string[] | PlanFeatures;
   createdAt: Date;
   updatedAt: Date;
 }

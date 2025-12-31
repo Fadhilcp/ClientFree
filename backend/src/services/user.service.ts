@@ -18,7 +18,9 @@ import { mapUserToFreelancerListItemDto } from "mappers/freelancer.mapper";
 
 export class UserService implements IUserService {
 
-    constructor(private _userRepository: IUserRepository){}
+    constructor(
+        private _userRepository: IUserRepository,
+    ){}
 
     async getMyProfile(userId: string): Promise<UserProfileDto> {
         const user = await this._userRepository.findByIdWithSkills(userId);

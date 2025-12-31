@@ -8,6 +8,7 @@ import type { RootState } from "../../../store/store";
 import Loader from "../../../components/ui/Loader/Loader";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { notify } from "../../../utils/toastService";
+import ConfirmationModal from "../../../components/ui/Modal/ConfirmationModal";
 
 const LIMIT = 20;
 
@@ -24,6 +25,10 @@ const JobsPage: React.FC<{ status: string; title: string }> = ({ status, title }
   
   const updateAt = useSelector((state: RootState) => state.job.updatedAt);
   const { user } = useSelector((state: RootState) => state.auth);
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [jobToDelete, setJobToDelete] = useState<string | null>(null);
+
   
   const { startEditJob } = useOutletContext<{ startEditJob: (job: JobListDTO) => void }>();
     // Load active jobs
@@ -94,22 +99,41 @@ const JobsPage: React.FC<{ status: string; title: string }> = ({ status, title }
     setSearchQuery(query);
   }, []);
 
-  const handleDeleteJob = async (jobId: string) => {
-    if (!window.confirm("Are you sure you want to delete this job?")) return;
+  // ========================
+  const handleDeleteClick = (jobId: string) => {
+    setJobToDelete(jobId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDeleteJob = async () => {
+    if (!jobToDelete) return;
 
     try {
-      const response = await jobService.deleteJob(jobId);
+      const response = await jobService.deleteJob(jobToDelete);
       if (response.data.success) {
         notify.success("Job deleted successfully");
         fetchJobs();
       }
     } catch (error: any) {
       notify.error(error.response?.data?.error || "Failed to delete job");
+    } finally {
+      setIsDeleteModalOpen(false);
+      setJobToDelete(null);
     }
   };
 
+  const cancelDeleteJob = () => {
+    setIsDeleteModalOpen(false);
+    setJobToDelete(null);
+  };
+// ===========
+
   useEffect(() => {
-    fetchJobs();
+    const delay = setTimeout(() => {
+      fetchJobs();
+    }, 400);
+
+    return () => clearTimeout(delay);
   }, [searchQuery]);
 
     const handleViewDetails = (jobId: string) => {
@@ -120,6 +144,15 @@ const JobsPage: React.FC<{ status: string; title: string }> = ({ status, title }
 
     <section className="bg-white dark:bg-gray-900 min-h-screen">
       { loading && <Loader/> }
+
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        title="Delete Job"
+        description="Are you sure you want to delete this job? This action cannot be undone."
+        onConfirm={confirmDeleteJob}
+        onCancel={cancelDeleteJob}
+      />
+      
       <div className="container mx-auto">
         {/* Title + Search aligned */}
         <div className="flex items-center justify-between mb-6">
@@ -164,7 +197,7 @@ const JobsPage: React.FC<{ status: string; title: string }> = ({ status, title }
                   } : null,
               user?.role === "client" && job.status === "open" ? {
                     label: "Delete",
-                    onClick: () => handleDeleteJob(job.id),
+                    onClick: () => handleDeleteClick(job.id),
                     variant: "secondary"
                   } : null
             ].filter(Boolean) as ActionItem[] }

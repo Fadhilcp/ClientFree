@@ -1,5 +1,6 @@
 import { createLogger, format, transports } from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
+import { env } from "./env.config";
 
 const { combine, timestamp, printf, colorize } = format;
 
@@ -9,24 +10,24 @@ const logFormat = printf(({ level, message, timestamp }) => {
 
 // retention period for logs
 const combinedTransport = new DailyRotateFile({
-    dirname: 'logs',
+    dirname: env.LOG_DIR,
     filename: 'combined-%DATE%.log',
     datePattern: 'YYYY-MM-DD',
-    maxFiles: '14d',
-    maxSize: '20m'
+    maxFiles: `${env.LOG_RETENTION_DAYS}d`,
+    maxSize: env.LOG_MAX_FILE_SIZE
 });
 
 const errorTransport = new DailyRotateFile({
-    dirname: 'logs',
+    dirname: env.LOG_DIR,
     filename: 'error-%DATE%.log',
     datePattern: 'YYYY-MM-DD',
     level: 'error',
-    maxFiles: '14d',
-    maxSize: '20m'
+    maxFiles: `${env.LOG_RETENTION_DAYS}d`,
+    maxSize: env.LOG_MAX_FILE_SIZE
 });
 
 const logger = createLogger({
-    level: 'info',
+    level: env.LOG_LEVEL,
     format: combine(
         timestamp({ format: 'YYYY-MM-DD HH:mm:ss'}),
         logFormat

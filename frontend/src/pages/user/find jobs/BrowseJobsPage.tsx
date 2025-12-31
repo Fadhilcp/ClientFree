@@ -6,6 +6,8 @@ import Loader from "../../../components/ui/Loader/Loader";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { jobService } from "../../../services/job.service";
 import { notify } from "../../../utils/toastService";
+import Button from "../../../components/ui/Button";
+import { matchService } from "../../../services/match.service";
 
 const LIMIT = 20;
 
@@ -17,6 +19,9 @@ const BrowseJobsPage: React.FC = () => {
   const [hasMore, setHasMore] = useState(true);
 
   const [searchQuery, setSearchQuery] = useState("");
+
+  //premium - best match jobs 
+  const [isBestMatch, setIsBestMatch] = useState<boolean>(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -48,8 +53,7 @@ const BrowseJobsPage: React.FC = () => {
       }, [filters]);
 
   const fetchJobs = async (loadMore = false) => {
-console.log('console from fetchjobs ')
-    if(loading) return;
+    if(loading || isBestMatch) return;
     if(!hasMore && loadMore) return;
 
     setLoading(true);
@@ -93,6 +97,27 @@ console.log('console from fetchjobs ')
     }
   };
 
+  const fetchBestMatchJobs = async() => {
+    setLoading(true);
+    try {
+      
+      const response = await matchService.getBestMatchJobs();
+      console.log("🚀 ~ fetchBestMatchJobs ~ response:", response)
+
+      if(response.data.success){
+        const { jobs } = response.data;
+
+        setJobs(jobs);
+        setHasMore(false);
+        setCursor(null);
+      }
+    } catch (error: any) {
+      notify.error(error.response?.data?.error || "Failed to load best match jobs")
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
     setJobs([]);
     setCursor(null);
@@ -123,7 +148,11 @@ console.log('console from fetchjobs ')
   }, []);
 
   useEffect(() => {
-    fetchJobs(false);
+    const delay = setTimeout(() => {
+      fetchJobs(false);
+    }, 400);
+
+    return () => clearTimeout(delay);
   }, [searchQuery, filterQuery]);
 
   const handleViewDetails = (jobId: string) => {
@@ -154,6 +183,24 @@ console.log('console from fetchjobs ')
           <h2 className="text-2xl font-bold text-indigo-600 dark:text-indigo-500">
             {isInterestedPage ? "Interested Jobs" : "Find Jobs"}
           </h2>
+
+          <Button
+          label={isBestMatch ? "All Jobs" : "Best Match"}
+  onClick={() => {
+    const next = !isBestMatch;
+    setIsBestMatch(next);
+
+    if (next) {
+      fetchBestMatchJobs();
+    } else {
+      setJobs([]);
+      setCursor(null);
+      setHasMore(true);
+      fetchJobs(false);
+    }
+  }}
+  />
+
           <SearchBar
             placeholder={isInterestedPage ? "Search interested jobs..." : "Search jobs..."}
             onSearch={handleSearch}

@@ -54,7 +54,7 @@ export const env = {
     get CLOUDINARY_API_SECRET(){
         return process.env.CLOUDINARY_API_SECRET
     },
-
+    // aws
     get AWS_ACCESS_KEY(){
         return process.env.AWS_ACCESS_KEY_ID
     },
@@ -73,5 +73,37 @@ export const env = {
 
     get OPENAI_API_KEY() {
         return process.env.OPENAI_API_KEY
-    }
+    },
+    // redis 
+    get REDIS_PASSWORD() {
+        return process.env.REDIS_PASSWORD
+    },
+    
+    get REDIS_PORT() {
+        return process.env.REDIS_PORT
+    },
+
+    get REDIS_HOST() {
+        return process.env.REDIS_HOST
+    },
+    // loggest retention 
+    get LOG_RETENTION_DAYS() {
+        return process.env.LOG_RETENTION_DAYS
+    },
+
+    get LOG_MAX_FILE_SIZE() {
+        return process.env.LOG_MAX_FILE_SIZE
+    },
+
+    get LOG_DIR() {
+        return process.env.LOG_DIR
+    },
+
+    get LOG_LEVEL() {
+        return process.env.LOG_LEVEL
+    },
+
+    get AWS_SIGNED_URL_EXPIRES_IN() {
+        return process.env.AWS_SIGNED_URL_EXPIRES_IN
+    },
 }

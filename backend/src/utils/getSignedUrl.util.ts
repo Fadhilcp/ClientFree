@@ -3,7 +3,9 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { env } from "config/env.config";
 import s3 from "config/s3.config";
 
-export async function generateSignedUrl(key: string, expiresIn = 3600) {
+const DEFAULT_SIGNED_URL_EXPIRY = Number(env.AWS_SIGNED_URL_EXPIRES_IN ?? 3600);
+
+export async function generateSignedUrl(key: string, expiresIn = DEFAULT_SIGNED_URL_EXPIRY) {
     const command = new GetObjectCommand({
         Bucket: env.AWS_BUCKET,
         Key: key

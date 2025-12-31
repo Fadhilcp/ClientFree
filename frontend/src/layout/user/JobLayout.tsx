@@ -14,6 +14,9 @@ import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../store/store";
 import { refreshJobs } from "../../features/jobSlice";
 import { JOB_CATEGORIES } from "../../constants/jobCategories";
+import { COUNTRIES } from "../../constants/countries";
+import InputSection from "../../components/ui/InputSection";
+import CountrySelect from "../../components/user/CountrySelect";
 
 const clientMenuItems = [
   { label: "Active Jobs", path: "/my-jobs/active-jobs" },
@@ -34,11 +37,6 @@ const jobFields = [
 ];
 
 const jobDropdowns = [
-  {
-    name: "locationType",
-    label: "Location Preference",
-    options: ["specific", "worldwide"],
-  },
   {
     name: "visibility",
     label: "Visibility",
@@ -66,6 +64,11 @@ const jobDropdowns = [
     label: "Payment Type",
     options: ["fixed", "hourly"],
   },
+  {
+    name: "locationType",
+    label: "Location Preference",
+    options: ["specific", "worldwide"],
+  },
 ];
 
 const jobTextAreas = [
@@ -81,15 +84,10 @@ const userDateFields = [
   { name: "duration", label: "Duration" }
 ];
 
-const locationFields = [
-  { name: "locationCity", label: "City", placeholder: "Enter city" },
-  { name: "locationCountry", label: "Country", placeholder: "Enter country" }
-];
-
 const JobLayout: React.FC = () => {
 
-  const dispatch = useDispatch<AppDispatch>();
-  const user = useSelector((state: RootState) => state.auth.user)
+    const dispatch = useDispatch<AppDispatch>();
+    const user = useSelector((state: RootState) => state.auth.user);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [availableSkills, setAvailableSkills] = useState<[]>([]);
@@ -158,11 +156,9 @@ const JobLayout: React.FC = () => {
 
     const computedFields = [
       ...jobFields,
-      ...(formData.locationType === "specific" ? locationFields : [])
     ];
 
     const startEditJob = (job: JobDetailDTO) => {
-      console.log("🚀 ~ startEditJob ~ job:", job)
       setIsEditing(true);
       setEditingJobId(job.id);
 
@@ -294,6 +290,40 @@ const JobLayout: React.FC = () => {
               onChange={(skills) => setFormData({ ...formData, skills })}
               options={availableSkills}
             />
+
+            {/* City Input */}
+            {formData.locationType === "specific" && (
+              <InputSection<JobForm>
+                name="City"
+                value={formData["locationCity"]}
+                onChange={(val: string) => handleChange("locationCity", val)}
+                placeholder="City"
+                type="text"
+                label="City"
+                error={errors?.locationCity}
+              />
+            )}
+
+            {formData.locationType === "specific" && (
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Country
+                </label>
+
+                <CountrySelect 
+                formData={formData} 
+                handleChange={(key, value) => handleChange(key, value)}
+                options={COUNTRIES}
+                />
+
+              {errors.locationCountry && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.locationCountry}
+                </p>
+              )}
+              </div>
+            )}
+
           </UserModal>
         </>
       )}

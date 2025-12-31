@@ -44,12 +44,12 @@ instance.interceptors.response.use((response) => response,
             const refreshReponse = await authService.refreshToken();
             const { token } = refreshReponse.data;
 
-            localStorage.setItem('token', token);
+            tokenStore.set(token);
             
             originalRequest.headers.Authorization = `Bearer ${token}`;
             
         } catch (error) {
-            localStorage.removeItem('token');
+            tokenStore.clear();
             notify.error('Session expired. Please log in again.');
             return Promise.reject(error)
         }

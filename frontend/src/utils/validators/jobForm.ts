@@ -12,9 +12,15 @@ export const validateJobForm = (data: JobForm) => {
       : typeof v === "string"
       ? /^[0-9]+(\.[0-9]+)?$/.test(v.trim())
       : false;
+
+  const MAX_TITLE_LENGTH = 30;
+
   if (isEmpty(data.title)) {
     errors.title = "Title is required";
+  } else if (data.title.trim().length > MAX_TITLE_LENGTH) {
+    errors.title = `Title must be at most ${MAX_TITLE_LENGTH} characters`;
   }
+
   if (isEmpty(data.category)) {
     errors.category = "Category is required";
   }

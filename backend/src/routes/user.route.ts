@@ -5,11 +5,12 @@ import { UserService } from "../services/user.service";
 import { authMiddleware } from "middlewares/authMiddleware";
 import { upload } from "middlewares/upload.middleware";
 import { verifyUserNotBanned } from "middlewares/verifyUserNotBanned.middleware";
-
+import { JobRepository } from "repositories/job.repository";
 
 const userRouter = Router();
 
 const userRepository = new UserRepository();
+
 const userService = new UserService(userRepository);
 const userController = new ProfileController(userService)
 

@@ -21,8 +21,14 @@ import addOnRouter from 'routes/addOns.route';
 import clarificationRouter from 'routes/clarification.route';
 import walletRouter from 'routes/wallet.route';
 import dashboardRouter from 'routes/dashboard.route';
+import { startSubscriptionExpiryCron } from 'utils/subscriptionExpiry.cron';
+import { connectRedis } from 'config/redis.config';
+import matchRouter from 'routes/match.route';
 
 connectDB();
+startSubscriptionExpiryCron();
+
+connectRedis();
 
 app.use(cors({
     origin : 'http://localhost:5173',
@@ -50,6 +56,7 @@ app.use("/api/addOns",addOnRouter);
 app.use("/api/clarification",clarificationRouter);
 app.use("/api/wallet",walletRouter);
 app.use("/api/dashboard",dashboardRouter);
+app.use("/api/match",matchRouter);
 
 app.use(errorHandler);
 

@@ -1,6 +1,6 @@
 import { FEATURE_LABELS } from "constants/featureLabels";
 import { PlanDetailUserDTO, PlanDetailAdminDTO, PlanTableDTO } from "dtos/plan.dto";
-import { IPlanDocument } from "types/plan.type";
+import { IPlanDocument, PlanFeatures } from "types/plan.type";
 
 export function mapPlan(plan: IPlanDocument, detail: false): PlanTableDTO;
 export function mapPlan(plan: IPlanDocument, detail: true, isAdmin: false): PlanDetailUserDTO;
@@ -28,10 +28,10 @@ export function mapPlan(
 
   if (isAdmin) {
     // for admin: full boolean feature object
-    const allFeatures = Object.keys(FEATURE_LABELS).reduce((acc, key) => {
-      acc[key] = !!plan.features?.[key];
+    const allFeatures = (Object.keys(FEATURE_LABELS) as (keyof PlanFeatures)[]).reduce((acc, key) => {
+      acc[key] = Boolean(plan.features?.[key]);
       return acc;
-    }, {} as Record<string, boolean>);
+    }, {} as PlanFeatures);
 
     return {
       ...base,
@@ -43,7 +43,10 @@ export function mapPlan(
   // for users: readable labels
   const activeFeatures = Object.entries(plan.features || {})
     .filter(([_, value]) => !!value)
-    .map(([key]) => FEATURE_LABELS[key] || key);
+    .map(([key]) => {
+      const featureKey = key as keyof PlanFeatures;
+      return FEATURE_LABELS[featureKey];
+    });
 
   return {
     ...base,

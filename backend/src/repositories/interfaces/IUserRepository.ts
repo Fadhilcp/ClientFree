@@ -14,4 +14,8 @@ export interface IUserRepository extends IBaseRepository<IUserDocument>{
         limit: number,
     ): Promise<IUserDocument[]>
     createWithSession(data: Partial<IUserDocument>, session: ClientSession): Promise<IUserDocument>;
+
+    updateLimits(
+        userId: string, limits: { invitesRemaining: number; proposalsRemaining: number }, session: ClientSession
+    ): Promise<void>
 }

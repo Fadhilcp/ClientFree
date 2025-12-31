@@ -1,4 +1,6 @@
-export const FEATURE_LABELS: Record<string, string> = {
+import { PlanFeatures } from "../types/plan.type";
+
+export const FEATURE_LABELS: Record<keyof PlanFeatures, string> = {
   VerifiedBadge: "Verified Badge",
   PremiumSupport: "Premium Customer Support",
   BestMatch: "Best Match Recommendation",

@@ -27,9 +27,9 @@ export interface IUserProfile {
     isVerified?: boolean;
     subscription?: string | Types.ObjectId;
 
-    limits?: {
-        invitesRemaining?: number;
-        proposalsRemaining?: number;
+    limits: {
+        invitesRemaining: number;
+        proposalsRemaining: number;
     };
 
     notificationSettings?: {
