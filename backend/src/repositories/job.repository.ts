@@ -17,6 +17,7 @@ export class JobRepository
     }
     async findByIdWithDetails(jobId: string): Promise<IJobDocument | null> {
         return this.model.findById(jobId)
+        .populate("clientId")
         .populate("skills", "name _id")
         .populate({
             path: "acceptedProposalIds",
@@ -34,6 +35,7 @@ export class JobRepository
                     "experienceLevel",
                     "stats",
                     "ratings",
+                    "isVerified",
                 ],
                 populate: {
                     path: "skills",
@@ -52,6 +54,7 @@ export class JobRepository
 
     return this.model
         .find(paginatedFilter)
+        .populate("clientId", "isVerified")
         .populate("skills", "name _id")
         .sort({ _id: -1 })
         .limit(limit)

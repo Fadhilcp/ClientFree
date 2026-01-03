@@ -200,4 +200,17 @@ export class JobAssignmentController {
         }
     }
 
+    async getAllEscrowMilestones(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const search = typeof req.query.search === 'string' ? req.query.search : '';
+            const page = parseInt(req.query.page as string) || 1;
+            const limit = parseInt(req.query.limit as string) || 10;
+
+            const milestones = await this._jobAssignmentService.getAllEscrowMilestones(search, page, limit);
+
+            sendResponse(res, HttpStatus.OK, { milestones });
+        } catch (error) {
+            next(error);
+        }
+    }
 }

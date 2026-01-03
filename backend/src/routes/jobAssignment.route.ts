@@ -14,13 +14,14 @@ import { authorizeRole } from "middlewares/authorizeRole";
 
 const walletRepository = new WalletRepository();
 const walletTransactionRepository = new WalletTransactionRepository();
-// transaction session
-const sessionProvider = new MongooseSessionProvider();
+const paymentRepository = new PaymentRepository();
 
-const walletService = new WalletService(walletRepository, walletTransactionRepository, sessionProvider);
+const walletService = new WalletService(
+    walletRepository, 
+    walletTransactionRepository,
+);
 
 const jobAssignmentRepository = new JobAssignmentRepository();
-const paymentRepository = new PaymentRepository();
 const jobAssignmentService = new JobAssignmentService(jobAssignmentRepository, paymentRepository, walletService);
 
 const jobAssignmentController = new JobAssignmentController(jobAssignmentService);
@@ -35,6 +36,8 @@ assignmentRouter.patch('/:assignmentId/:milestoneId/cancel',authorizeRole("clien
 assignmentRouter.get('/approved',jobAssignmentController.getApproved.bind(jobAssignmentController));
 
 assignmentRouter.get('/escrow-milestones',authorizeRole("client"),jobAssignmentController.getClientEscrowMilestones.bind(jobAssignmentController));
+
+assignmentRouter.get('/admin/escrow-milestones',authorizeRole("admin"),jobAssignmentController.getAllEscrowMilestones.bind(jobAssignmentController));
 
 assignmentRouter.get('/:assignmentId/:milestoneId/approved',jobAssignmentController.getApprovedMilestoneDetail.bind(jobAssignmentController));
 

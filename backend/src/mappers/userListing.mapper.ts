@@ -11,7 +11,7 @@ export function mapUserToListingDto(user: IUserDocument): UserListingDto {
     status: user.status,
     profileImage: user.profileImage,
     lastLoginAt: user.lastLoginAt,
-    isVerified: user.isVerified, 
+    isVerified: user.isVerified,
     subscription: user.subscription,
     createdAt: user.createdAt
   };

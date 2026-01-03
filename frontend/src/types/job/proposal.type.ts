@@ -8,6 +8,7 @@ export interface IProposal {
     name: string;
     email: string;
     profileImage?: string | null;
+    isVerified: boolean;
   };
   job?: {
     id: string;

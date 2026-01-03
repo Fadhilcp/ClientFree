@@ -53,6 +53,7 @@ const InvitationsSection: React.FC<InvitationsSectionProps> = ({
             <Card
               key={p.id || i}
               user={p.freelancer}
+              isVerified={p.freelancer.isVerified}
               title={p.invitation.title || "Invitation"}
               description={p.invitation.message || "This freelancer was invited to bid."}
               status={p.status}

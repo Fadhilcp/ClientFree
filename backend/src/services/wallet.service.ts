@@ -10,13 +10,15 @@ import { IWalletTransactionRepository } from "repositories/interfaces/IWalletTra
 import { mapWalletTransaction } from "mappers/walletTransaction.mapper";
 import { generateInvoicePdf } from "utils/generateInvoicePdf";
 import { EMPTY_SUMMARY } from "constants/report-summary-empty";
-import { IDatabaseSessionProvider } from "repositories/db/session-provider.interface";
+import { PaginatedResult } from "types/pagination";
+import { WalletTransactionDTO } from "dtos/walletTransaction.dto";
+import { mapWallet } from "mappers/wallet.mapper";
+import { WalletDTO } from "dtos/wallet.dto";
 
 export class WalletService implements IWalletService {
     constructor(
         private _walletRepository: IWalletRepository,
         private _walletTransactionRepository: IWalletTransactionRepository,
-        private _sessionProvider: IDatabaseSessionProvider
     ){};
 
     async getWalletDetails(userId: string, page: number, limit: number): Promise<any> {
@@ -178,44 +180,6 @@ export class WalletService implements IWalletService {
         };
     }
 
-    async getWithdrawals(userId: string, page: number, limit: number): Promise<any> {
-        const wallet = await this._walletRepository.findOne({ userId });
-
-        if(!wallet) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.WALLET_NOT_FOUND);
-
-        const filter: FilterQuery<IWalletTransactionDocument> = {
-            walletId: wallet._id,
-            type: "withdrawal",
-            direction: "debit",
-        };
-
-        const result = await this._walletTransactionRepository.paginate(filter, {
-            page,
-            limit,
-            sort: { createdAt: -1 },
-        });
-
-        return {
-            balances: {
-                available: wallet.balance.available,
-                escrow: wallet.balance.escrow,
-                pending: wallet.balance.pending,
-                currency: wallet.currency
-            },
-
-            withdrawableAmount: wallet.balance.available,
-
-            withdrawals: result.data.map(mapWalletTransaction),
-
-            pagination: {
-                total: result.total,
-                page: result.page,
-                limit: result.limit,
-                totalPages: result.totalPages
-            }
-        };
-    }
-
     async getEscrowStatsForAssignments(
         assignmentIds: Types.ObjectId[]
     ): Promise<{ funded: number; released: number; }> {
@@ -241,50 +205,56 @@ export class WalletService implements IWalletService {
         return { funded, released };
     }
 
-    async withdraw(userId: string, amount: number): Promise<void> {
+    async getAllUserWallets(search: string, page: number, limit: number)
+    : Promise<PaginatedResult<WalletDTO>> {
+        
+        const { wallets, total, totalPages } = 
+            await this._walletRepository.getAllWalletsAggregate(search, page, limit);
 
-        if (!amount || amount <= 0) {
-            throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid withdrawal amount");
+        return {
+            data: wallets.map(mapWallet),
+            total,
+            page,
+            limit,
+            totalPages,
+        };
+    }
+
+    async getUserWalletTransactions(walletId: string, search: string, page: number, limit: number)
+    : Promise<PaginatedResult<WalletTransactionDTO> & { wallet: WalletDTO }> {
+
+        const wallet = await this._walletRepository.findOneWithUser({ _id: walletId });
+        if(!wallet) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.WALLET_NOT_FOUND);
+
+        const query: FilterQuery<IWalletTransactionDocument> = {
+            walletId: new Types.ObjectId(walletId),
+        };
+
+        if (search) {
+            const isObjectId = Types.ObjectId.isValid(search);
+
+            query.$or = [
+            { type: search },
+            ...(isObjectId
+                ? [
+                    { paymentId: new Types.ObjectId(search) },
+                    { milestoneId: new Types.ObjectId(search) },
+                    { jobAssignmentId: new Types.ObjectId(search) },
+                ]
+                : []),
+            ];
         }
 
-        return this._sessionProvider.runInTransaction(
-            async (session: ClientSession) => {
+        const { data, total, totalPages } = await this._walletTransactionRepository.paginate(query, { page, limit });
 
-                const wallet = await this._walletRepository.findOneWithSession(
-                    { userId, role: "freelancer", status: "active" },
-                    session
-                );
-
-                if (!wallet) {
-                    throw createHttpError(HttpStatus.BAD_REQUEST, "Wallet not found");
-                }
-
-                if (wallet.balance.available < amount) {
-                    throw createHttpError(HttpStatus.BAD_REQUEST, "Insufficient balance");
-                }
-
-                wallet.balance.available -= amount;
-                wallet.updatedAt = new Date();
-                await wallet.save({ session });
-
-                await this._walletTransactionRepository.createWithSession(
-                    {
-                        walletId: wallet._id,
-                        userId: wallet.userId,
-                        type: "withdrawal",
-                        direction: "debit",
-                        amount,
-                        status: "completed",
-                        balanceAfter: {
-                        available: wallet.balance.available,
-                        escrow: wallet.balance.escrow,
-                        pending: wallet.balance.pending
-                        }
-                    },
-                    session
-                );
-            }
-        );
+        return {
+            wallet: mapWallet(wallet),
+            data: data.map(mapWalletTransaction),
+            total,
+            page,
+            limit,
+            totalPages
+        };
     }
 
 }

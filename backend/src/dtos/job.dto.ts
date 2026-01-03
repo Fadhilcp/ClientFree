@@ -11,6 +11,8 @@ export interface JobBaseDTO {
   skills?: { id: string, name: string }[];
 
   duration?: string;
+  // for subscribed client job
+  isVerified: boolean;
 
   payment?: {
     budget?: number;

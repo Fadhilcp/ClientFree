@@ -18,6 +18,13 @@ import { IDatabaseSessionProvider } from "repositories/db/session-provider.inter
 import { PaginatedResult } from "types/pagination";
 import { Orders } from "razorpay/dist/types/orders";
 import { IJobAssignmentDocument } from "types/jobAssignment/jobAssignment.type";
+import { populate } from "dotenv";
+import { mapAdminWithdrawal } from "mappers/adminWithdrawal.mapper";
+import { AdminWithdrawalDTO } from "dtos/adminWithdrawal.dto";
+import { IWalletTransactionDocument } from "types/walletTransaction.type";
+import { mapPayment } from "mappers/payment.mapper";
+import { mapAdminPayment } from "mappers/adminPayment.mapper";
+import { AdminPaymentDto } from "dtos/adminPayment.dto";
 
 export class PaymentService implements IPaymentService {
     constructor(
@@ -468,5 +475,166 @@ export class PaymentService implements IPaymentService {
         }
 
         return AdminDisputeMapper.map(dispute)
+    }
+
+    async getAllPayments(search: string, page: number, limit: number): Promise<PaginatedResult<AdminPaymentDto>> {
+
+        const query: FilterQuery<any> = {
+          isDeleted: false,
+        };
+
+        if (search) {
+          query.$or = [
+            { providerPaymentId: { $regex: search, $options: "i" } },
+            { providerOrderId: { $regex: search, $options: "i" } },
+            { referenceId: { $regex: search, $options: "i" } },
+          ];
+        }
+
+        const result = await this._paymentRepository.paginate(query, {
+           page, limit, sort: { createdAt: -1 }, populate: {
+            path: "userId",
+            select: "name email role"
+          }}
+        );
+
+        return {
+          ...result,
+          data: result.data.map(mapAdminPayment)
+        }
+    }
+
+    async getAllWithdrawals(search: string, page: number, limit: number): Promise<PaginatedResult<AdminWithdrawalDTO>> {
+
+      const filter: FilterQuery<IPaymentDocument> = {
+        type: "withdrawal",
+        isDeleted: false,
+      };
+
+      if (search) {
+        filter.$or = [
+          { referenceId: { $regex: search, $options: "i" } },
+          { providerPaymentId: { $regex: search, $options: "i" } },
+        ];
+      }
+
+      const result = await this._paymentRepository.paginate(filter, {
+        page,
+        limit,
+        sort: { createdAt: -1 },
+        populate: {
+          path: "userId",
+          select: "name email role"
+        }
+      });
+
+      return {
+        ...result,
+        data: result.data.map(mapAdminWithdrawal)
+      }
+    }
+
+    async withdraw(userId: string, amount: number): Promise<void> {
+
+      if (!amount || amount <= 0) {
+          throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid withdrawal amount");
+      }
+
+      return this._sessionProvider.runInTransaction(
+          async (session: ClientSession) => {
+
+              const wallet = await this._walletRepository.findOneWithSession(
+                  { userId, role: "freelancer", status: "active" },
+                  session
+              );
+
+              if (!wallet) {
+                  throw createHttpError(HttpStatus.BAD_REQUEST, "Wallet not found");
+              }
+
+              if (wallet.balance.available < amount) {
+                  throw createHttpError(HttpStatus.BAD_REQUEST, "Insufficient balance");
+              }
+
+              const payment = await this._paymentRepository.createWithSession(
+                  {
+                      type: "withdrawal",
+                      status: "completed",
+                      amount,
+                      currency: wallet.currency ?? "INR",
+                      userId: wallet.userId,
+                      method: "wallet",
+                      provider: "bank",
+                      paymentDate: new Date(),
+                      withdrawalDate: new Date(),
+                  },
+                  session
+              );
+              // generate reference after _id exists
+              payment.referenceId = `WD-${payment._id.toString().slice(-8).toUpperCase()}`;
+              await payment.save({ session });
+
+              wallet.balance.available -= amount;
+              wallet.balance.pending += amount;
+              wallet.updatedAt = new Date();
+              await wallet.save({ session });
+
+              await this._walletTransactionRepository.createWithSession(
+                  {
+                      walletId: wallet._id,
+                      userId: wallet.userId,
+                      paymentId: payment._id,
+                      type: "withdrawal",
+                      direction: "debit",
+                      amount,
+                      status: "completed",
+                      balanceAfter: {
+                          available: wallet.balance.available,
+                          escrow: wallet.balance.escrow,
+                          pending: wallet.balance.pending
+                      }
+                  },
+                  session
+              );
+          }
+      );
+    }
+
+    async getWithdrawals(userId: string, page: number, limit: number): Promise<any> {
+        const wallet = await this._walletRepository.findOne({ userId });
+
+        if(!wallet) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.WALLET_NOT_FOUND);
+
+        const filter: FilterQuery<IWalletTransactionDocument> = {
+            userId,
+            type: "withdrawal",
+            isDeleted: false,
+        };
+
+        const result = await this._paymentRepository.paginate(filter, {
+            page,
+            limit,
+            sort: { createdAt: -1 },
+        });
+
+        return {
+            balances: {
+                available: wallet.balance.available,
+                escrow: wallet.balance.escrow,
+                pending: wallet.balance.pending,
+                currency: wallet.currency
+            },
+
+            withdrawableAmount: wallet.balance.available,
+
+            withdrawals: result.data.map(mapPayment),
+
+            pagination: {
+                total: result.total,
+                page: result.page,
+                limit: result.limit,
+                totalPages: result.totalPages
+            }
+        };
     }
 }

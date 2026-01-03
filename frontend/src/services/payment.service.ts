@@ -26,6 +26,22 @@ export class PaymentService {
     getDisputeById(paymentId: string){
         return axios.get(endPoints.PAYMENTS.DISPUTE_BY_ID(paymentId));
     }
+
+    getWithdrawals(page: number, limit: number){
+        return axios.get(endPoints.PAYMENTS.GET_WITHDRAWALS(page, limit))
+    }
+
+    withdrawAmount(amount: number){
+        return axios.post(endPoints.PAYMENTS.WITHDRAW, { amount });
+    }
+
+    getAllPayments(search: string, page: number, limit: number){
+        return axios.get(endPoints.PAYMENTS.GET_ALL(search, page, limit));
+    }
+
+    getAdminWithdrawals(search: string, page: number, limit: number){
+        return axios.get(endPoints.PAYMENTS.GET_ADMIN_WITHDRAWALS(search, page, limit));
+    }
 }
 
 export const paymentService = new PaymentService();

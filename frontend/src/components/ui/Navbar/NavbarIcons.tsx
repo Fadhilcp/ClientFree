@@ -14,9 +14,12 @@ const NavbarIcons: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const user = useSelector((state: RootState) => state.auth.user);
+  const { user, subscription }= useSelector((state: RootState) => state.auth);
+
   const username = user?.username ?? "";
   const email = user?.email ?? "";
+  
+  const isVerified = Boolean(subscription?.features?.VerifiedBadge);
 
   useEffect(() => {
       const handleClickOutside = (event: MouseEvent) => {
@@ -66,7 +69,7 @@ const NavbarIcons: React.FC = () => {
                 setIsOpen(false);
               }}
             >
-              <UserInfo username={username} email={email} useAuthFallback />
+              <UserInfo username={username} email={email} useAuthFallback isVerified={isVerified} />
             </div>
             <div className="border-t border-gray-200 dark:border-gray-700"></div>
             <div className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"

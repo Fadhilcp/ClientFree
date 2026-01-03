@@ -23,7 +23,6 @@ const OverviewPage: React.FC = () => {
     try {
       setLoading(true);
       const res = await walletService.getPaymentOverview();
-      console.log("🚀 ~ fetchOverview ~ res:", res)
 
       if (res.data.success) {
         setOverview(res.data.overview);

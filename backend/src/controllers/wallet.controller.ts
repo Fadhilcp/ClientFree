@@ -129,36 +129,33 @@ export class WalletController {
         }
     }
 
-    async getWithdrawals(req: Request, res: Response, next: NextFunction): Promise<void> {
+    async getAllUserWallets(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            
-            const userId = req.user?._id;
+            const search = typeof req.query.search === 'string' ? req.query.search : '';
+            const page = parseInt(req.query.page as string) || 1;
+            const limit = parseInt(req.query.limit as string) || 10;
 
-            if(!userId){
-                throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
-            }
+            const wallets = await this._walletService.getAllUserWallets(search, page, limit);
 
-            const page = Number(req.query.page) || 1;
-            const limit = Number(req.query.limit) || 10;
-
-            const data = await this._walletService.getWithdrawals(userId, page, limit);
-
-            sendResponse(res, HttpStatus.OK, data);
+            sendResponse(res, HttpStatus.OK, { wallets });
         } catch (error) {
             next(error);
         }
     }
 
-    async withdraw(req: Request, res: Response, next: NextFunction): Promise<void> {
+
+    async getAllUserWalletTransactions(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const userId = req.user?._id;
-            const { amount } = req.body;
 
-            if(!userId) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
+            const { walletId } = req.params;
 
-            await this._walletService.withdraw(userId, amount);
+            const search = typeof req.query.search === 'string' ? req.query.search : '';
+            const page = parseInt(req.query.page as string) || 1;
+            const limit = parseInt(req.query.limit as string) || 10;
 
-            sendResponse(res, HttpStatus.OK, {});
+            const transactions = await this._walletService.getUserWalletTransactions(walletId, search, page, limit);
+
+            sendResponse(res, HttpStatus.OK, { transactions });
         } catch (error) {
             next(error);
         }

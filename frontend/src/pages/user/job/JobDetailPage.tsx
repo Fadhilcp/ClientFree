@@ -214,6 +214,7 @@ const JobDetailPage: React.FC = () => {
                       <Card
                         key={p.id}
                         user={p.freelancer ?? undefined}
+                        isVerified={p.freelancer.isVerified}
                         title={p.freelancer.professionalTitle || p.freelancer.name}
                         subtitle={`Bid: ₹${p.bidAmount} • Duration: ${p.duration}`}
                         description={p.description}

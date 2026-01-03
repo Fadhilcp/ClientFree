@@ -62,13 +62,13 @@ export class SubscriptionController {
                 throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.MISSING_REQUIRED_FIELDS)
             }
 
-            const result = await this._subscriptionService.verifyPayment({
+            const { message, subscription } = await this._subscriptionService.verifyPayment({
                 razorpay_subscription_id,
                 razorpay_payment_id,
                 razorpay_signature,
                 role
             });
-            sendResponse(res, HttpStatus.OK, {}, result?.message );
+            sendResponse(res, HttpStatus.OK, { subscription }, message );
         } catch (error) {
             next(error);
         }
@@ -76,8 +76,8 @@ export class SubscriptionController {
 
     async cancelSubscription(req: Request, res: Response, next: NextFunction) {
         try {
-            const { subscriptionId, userId } = req.body;
-            // const userId = req.user?._id;
+            const { subscriptionId } = req.body;
+            const userId = req.user?._id;
 
             if(!userId) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.USER_NOT_FOUND);
 

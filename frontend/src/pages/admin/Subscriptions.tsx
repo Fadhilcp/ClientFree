@@ -13,6 +13,7 @@ import Button from '../../components/ui/Button';
 import type { FeatureKey } from '../../constants/planFeatures';
 import FeatureToggles from '../../components/admin/features/FeatureToggle';
 import { formatDate } from '../../utils/formatters';
+import Loader from '../../components/ui/Loader/Loader';
 
 export interface Column<T> {
   key: keyof T;
@@ -84,6 +85,7 @@ const Subscriptions: React.FC = () => {
   const [subscriptions, setSubscriptions] = useState<SubscriptionDto[]>([]);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState(search);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
@@ -114,7 +116,7 @@ const Subscriptions: React.FC = () => {
       setPlans(mappedPlans);
       setTotalPages(plans.totalPages);
     } catch (error: any) {
-      notify.error(error.response?.data?.message || 'Failed to fetch plans');
+      notify.error(error.response?.data?.error || 'Failed to fetch plans');
     }
   };
 
@@ -125,7 +127,7 @@ const Subscriptions: React.FC = () => {
       setSubscriptions(subscriptions.data);
       setTotalPages(subscriptions.totalPages);
     } catch (error: any) {
-      notify.error(error.response?.data?.message || 'Failed to fetch subscriptions');
+      notify.error(error.response?.data?.error || 'Failed to fetch subscriptions');
     }
   };
   
@@ -194,6 +196,7 @@ const [formData, setFormData] = useState<PlanForm>({
       },
     });
     setErrors({});
+    setEditingId(null);
     setModalOpen(false);
   };
   
@@ -209,7 +212,7 @@ const [formData, setFormData] = useState<PlanForm>({
   // to fetch exisiting plan for edit
   const handleEdit = async (row: PlanTableDTO) => {
     const response = await planService.getPlan(row.id)
-    console.log("🚀 ~ handleEdit ~ response:", response)
+
     const { plan } = response.data
     setFormData({
       ...plan,
@@ -222,18 +225,21 @@ const [formData, setFormData] = useState<PlanForm>({
   };
 
  const handleSubmit = async () => {
-   const { status, ...data } = formData;
+   if(isLoading) return;
+
    if (!validateAll()) return;
-
    
-    const payload = {
-      ...data,
-      priceMonthly: Number(formData.priceMonthly),
-      priceYearly: Number(formData.priceYearly),
-      active: status === 'active'
-    };
+   setIsLoading(true);
+   try {
+     const { status, ...data } = formData;
+     
+      const payload = {
+        ...data,
+        priceMonthly: Number(formData.priceMonthly),
+        priceYearly: Number(formData.priceYearly),
+        active: status === 'active'
+      };
 
-    try {
       if (editingId) {
         // to edit
         const response = await planService.updatePlan(editingId, payload);
@@ -247,13 +253,14 @@ const [formData, setFormData] = useState<PlanForm>({
           notify.success("Plan added successfully");
         }
       }
-      await fetchPlans();
       resetForm();
+      await fetchPlans();
     } catch (error: any) {
-      notify.error(error.response?.data?.message || 'Failed to create plan');
+      notify.error(error.response?.data?.error || 'Failed to create plan');
+    } finally {
+      setIsLoading(false);
     }
   };
-
   
   const stringFormData: Record<string, string> = {
     userType: formData.userType,
@@ -297,10 +304,11 @@ const [formData, setFormData] = useState<PlanForm>({
   // === plan table columns - start ====================
   return (
   <div className="p-4 bg-white dark:bg-gray-900 min-h-screen">
+    { isLoading && <Loader/> }
     {/* create plan modal - start */}
     <AdminModal
       isOpen={isModalOpen}
-      onClose={resetForm}
+      onClose={isLoading ? () => {} : resetForm}
       onSubmit={handleSubmit}
       formData={stringFormData}
       onChange={handleChange}

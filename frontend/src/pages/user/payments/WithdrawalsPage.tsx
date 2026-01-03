@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import ListWithHeader from "../../../components/user/ListWithHeader";
-import { walletService } from "../../../services/wallet.service";
 import { notify } from "../../../utils/toastService";
 import Pagination from "../../../components/user/Pagination";
 import Loader from "../../../components/ui/Loader/Loader";
 import StatisticCard from "../../../components/ui/Card/StatisticCard";
 import UserModal from "../../../components/ui/Modal/UserModal";
+import { paymentService } from "../../../services/payment.service";
 
 interface WithdrawalForm {
   [key: string]: string;
@@ -31,7 +31,7 @@ const WithdrawalsPage: React.FC = () => {
     try {
       setLoading(true);
 
-      const res = await walletService.getWithdrawals(pageNumber, limit);
+      const res = await paymentService.getWithdrawals(pageNumber, limit);
       console.log("🚀 ~ fetchWithdrawals ~ res:", res)
 
       if (res.data.success) {
@@ -82,7 +82,7 @@ const WithdrawalsPage: React.FC = () => {
     }
 
     try {
-      await walletService.withdrawAmount(value);
+      await paymentService.withdrawAmount(value);
       notify.success("Withdrawal request submitted");
 
       setShowModal(false);
@@ -153,13 +153,29 @@ const WithdrawalsPage: React.FC = () => {
             {
               key: "status",
               header: "Status",
-              render: (val) => val.toUpperCase()
+              render: (val) => (
+                <span className={
+                  val === "completed"
+                    ? "text-green-600"
+                    : val === "failed"
+                    ? "text-red-600"
+                    : "text-yellow-600"
+                }>
+                  {val.toUpperCase()}
+                </span>
+              )
             },
             {
               key: "createdAt",
               header: "Date",
               render: (val) => new Date(val).toLocaleString()
-            }
+            },
+            {
+              key: "withdrawalDate",
+              header: "Processed At",
+              render: (val) =>
+                val ? new Date(val).toLocaleString() : "—"
+            },
           ]}
         />
 

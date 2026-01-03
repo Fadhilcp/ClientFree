@@ -20,7 +20,7 @@ export function mapUserToFreelancerDto(user: IUserDocument): FreelancerProfileDt
     externalLinks: user.externalLinks ?? [],
     portfolio: user.portfolio ?? {},
     isProfileComplete: user.isProfileCompleted ?? false,
-    
+    isVerified: user.isVerified ?? false,
 
     stats: {
       jobsCompleted: user.stats?.jobsCompleted ?? 0,
@@ -52,6 +52,7 @@ export function mapUserToFreelancerListItemDto(
     ratings: user.ratings?.asFreelancer ?? 0,
     professionalTitle: user.professionalTitle ?? "",
     status: user.status ?? "",
-    profileImage: user.profileImage ?? ""
+    profileImage: user.profileImage ?? "",
+    isVerified: user.isVerified ?? false,
   };
 }

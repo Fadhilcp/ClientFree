@@ -3,7 +3,7 @@ import { ISubscriptionService } from "./interface/ISubscriptionService";
 import { createHttpError } from "utils/httpError.util";
 import { HttpStatus } from "constants/status.constants";
 import { getRazorpayInstance } from "config/razorpay.config";
-import { SubscriptionDto } from "dtos/subscription.dto";
+import { getActiveFeaturesDto, SubscriptionDto } from "dtos/subscription.dto";
 import { mapSubscription } from "mappers/subscription.mapper";
 import { ISubscriptionRepository } from "repositories/interfaces/ISubscriptionRepository";
 import { IPlanRepository } from "repositories/interfaces/IPlanRepository";
@@ -55,10 +55,12 @@ export class SubscriptionService implements ISubscriptionService {
     }): Promise<ISubscriptionDocument>{
 
         const existing = await this._subscriptionRepository.findOne({ userId: data.userId, status: 'active' });
+        console.log("🚀 ~ SubscriptionService ~ createSubscription ~ existing:", existing)
 
         if(existing) throw createHttpError(HttpStatus.CONFLICT, HttpResponse.USER_ALREADY_ACTIVE);
 
         const plan = await this._planRepostory.findById(String(data.planId));
+        console.log("🚀 ~ SubscriptionService ~ createSubscription ~ plan:", plan)
         if (!plan || !plan.active) throw createHttpError(HttpStatus.NOT_FOUND, "Plan not available");
 
         const razorpay = getRazorpayInstance();
@@ -69,6 +71,7 @@ export class SubscriptionService implements ISubscriptionService {
         )
 
         let razorpayCustomerId = lastSubscription?.customerId;
+        console.log("🚀 ~ SubscriptionService ~ createSubscription ~ razorpayCustomerId:", razorpayCustomerId)
 
         // if there will be no customerId in the subscription collection
         if(!razorpayCustomerId){
@@ -139,7 +142,7 @@ export class SubscriptionService implements ISubscriptionService {
 
     async verifyPayment({
         razorpay_subscription_id, razorpay_payment_id, razorpay_signature
-    }: Record<string, string>): Promise<{ message: string }>{
+    }: Record<string, string>): Promise<{ message: string, subscription: getActiveFeaturesDto | null }>{
         
         const razorpay = getRazorpayInstance();
         if (razorpay_signature) {
@@ -206,19 +209,24 @@ export class SubscriptionService implements ISubscriptionService {
 
         const unlimitedInvites = plan.features.UnlimitedInvites;
         const unlimitedProposals = plan.features.UnlimitedProposals;
+        const isVerified = Boolean(plan.features.VerifiedBadge);
 
         await this._userRepository.findByIdAndUpdate(subscription.userId.toString(), {
+            subscription: subData._id,
+            isVerified,
             limits: {
-            invitesRemaining: unlimitedInvites
-                ? 999999
-                : PLAN_LIMITS.FREE.invites,
-            proposalsRemaining: unlimitedProposals
-                ? 999999
-                : PLAN_LIMITS.FREE.proposals,
+                invitesRemaining: unlimitedInvites
+                    ? 999999
+                    : PLAN_LIMITS.FREE.invites,
+                proposalsRemaining: unlimitedProposals
+                    ? 999999
+                    : PLAN_LIMITS.FREE.proposals,
             },
         });
+
+        const activeSubscription = await this.getActiveFeatures(subscription.userId.toString());
   
-        return { message: 'Subscription activated' };
+        return { message: 'Subscription activated', subscription: activeSubscription };
     }
 
     async cancelSubscription(userId: string, subscriptionId: string): Promise<{ message: string; }> {
@@ -245,6 +253,16 @@ export class SubscriptionService implements ISubscriptionService {
                 updatedAt: new Date()
             }
         );
+
+        await this._userRepository.findByIdAndUpdate(userId, {
+            isVerified: false,
+            subscription: null,
+            limits: {
+                invitesRemaining: PLAN_LIMITS.FREE.invites,
+                proposalsRemaining: PLAN_LIMITS.FREE.proposals,
+            },
+        });
+
         return { message: 'Subscription cancelled successfully' };
     }
 
@@ -288,11 +306,11 @@ export class SubscriptionService implements ISubscriptionService {
                         session
                     );
                     // reset user limits (critical)
-                    await this._userRepository.updateLimits(
+                    await this._userRepository.resetSubscriptionState(
                         sub.userId.toString() ,
                         {
-                            invitesRemaining: 10,
-                            proposalsRemaining: 5,
+                            invitesRemaining: PLAN_LIMITS.FREE.invites,
+                            proposalsRemaining: PLAN_LIMITS.FREE.proposals,
                         },
                         session
                     );

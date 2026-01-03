@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import SubscriptionCard from '../../components/user/premium/subscriptionCard';
 import Loader from '../../components/ui/Loader/Loader';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '../../store/store';
 import { env } from '../../config/env';
 import { notify } from '../../utils/toastService';
 import { planService } from '../../services/plan.service';
 import { subscriptionService } from '../../services/subscription.service';
 import Button from '../../components/ui/Button';
+import { setSubscription } from '../../features/authSlice';
 
 interface RawPlan {
   id: string;
@@ -30,7 +31,8 @@ const Subscriptions: React.FC = () => {
   const [plans, setPlans] = useState<RawPlan[]>([]);
   const [billingInterval, setBillingInterval] = useState<'monthly' | 'yearly'>('monthly');
   const [loading, setLoading] = useState(true);
-  const user = useSelector((state: RootState) => state.auth.user)
+  const user = useSelector((state: RootState) => state.auth.user);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     planService.getActivePlans(user?.role || '')
@@ -41,7 +43,7 @@ const Subscriptions: React.FC = () => {
         setLoading(false);
       })
       .catch((err) => {
-        notify.error('Failed to fetch plans');
+        notify.error(err.response?.data?.error ||'Failed to fetch plans');
         console.error('Failed to fetch plans:', err);
         setLoading(false);
       });
@@ -80,7 +82,9 @@ const Subscriptions: React.FC = () => {
             });
 
             if(verifyResponse.data.success){
-              notify.success(verifyResponse.data.message || 'subscription activated successfully');
+              const { message, subscription } = verifyResponse.data
+              dispatch(setSubscription(subscription));
+              notify.success(message || 'subscription activated successfully');
             }
             
           } catch (error: any) {

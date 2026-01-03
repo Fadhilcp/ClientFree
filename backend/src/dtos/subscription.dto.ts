@@ -1,3 +1,5 @@
+import { PlanFeatures } from "types/plan.type";
+
 export interface SubscriptionDto {
   id: string;
   userId: string | null;
@@ -12,3 +14,6 @@ export interface SubscriptionDto {
   createdAt: Date | null;
   updatedAt: Date | null;
 }
+
+
+export interface getActiveFeaturesDto { planName: string, userType: string, features: PlanFeatures, expiryDate: Date };

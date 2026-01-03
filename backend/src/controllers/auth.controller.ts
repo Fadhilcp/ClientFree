@@ -46,13 +46,14 @@ export class AuthController {
         try {
             const { email, password } = req.body;
 
-            const { user, accessToken, refreshToken } = await this._authService.login(email, password);
+            const { user, accessToken, refreshToken, subscription } = await this._authService.login(email, password);
             
             setCookie(res, refreshToken);
             
             sendResponse(res, HttpStatus.OK, {
                 token: accessToken,
-                user
+                user,
+                subscription
             }, "Login complete");
         } catch (error) {
             next(error)
@@ -201,11 +202,12 @@ export class AuthController {
                 return
             }
 
-            const { user, accessToken } = await this._authService.getNewAccessToken(refreshToken);
+            const { user, accessToken, subscription } = await this._authService.getNewAccessToken(refreshToken);
 
             sendResponse(res, HttpStatus.OK, {
                     user,
                     token: accessToken,
+                    subscription
             }, "New access token issued");
         } catch (error) {
             next(error);

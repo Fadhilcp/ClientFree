@@ -273,7 +273,6 @@ export class UserService implements IUserService {
         }
 
         const freelancers = await this._userRepository.findWithSkillsPaginated(filter, limit);
-        console.log("🚀 ~ UserService ~ getInterestedFreelancers ~ freelancers:", freelancers)
         // setting cursor
         const nextCursor = freelancers.length > 0
         ? freelancers[freelancers.length - 1]._id.toString()

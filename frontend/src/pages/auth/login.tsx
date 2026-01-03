@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { authService } from "../../services/auth.service";
 import { notify } from "../../utils/toastService";
 import { useDispatch } from "react-redux";
-import { setCredentials } from "../../features/authSlice";
+import { setCredentials, setSubscription } from "../../features/authSlice";
 import AuthImage from "../../components/auth/AuthImage";
 import Loader from "../../components/ui/Loader/Loader";
 import { tokenStore } from "../../utils/tokenStore";
@@ -55,9 +55,10 @@ const Login: React.FC = () => {
     setLoading(true);
     try {
       const response = await authService.login(values);
-        const { user, token } = response.data;
+        const { user, token, subscription } = response.data;
         tokenStore.set(token);
-        dispatch(setCredentials({user,token}))
+        dispatch(setCredentials({user,token}));
+        dispatch(setSubscription(subscription));
 
         notify.success('User logged')
         navigate('/home');

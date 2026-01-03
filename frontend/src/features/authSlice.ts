@@ -15,10 +15,31 @@ export interface User {
 
 type OtpPurpose = 'signup' | 'forgot-password' | 'email-change' | 'phone-change';
 
+interface PlanFeatures {
+  VerifiedBadge: boolean;
+  PremiumSupport: boolean;
+  BestMatch: boolean;
+  HigherJobVisibility: boolean;
+  UnlimitedInvites: boolean;
+  DirectMessaging: boolean;
+  AIProposalShortlisting: boolean;
+  HigherProfileVisibility: boolean;
+  UnlimitedProposals: boolean;
+  PriorityNotifications: boolean;
+}
+
+interface SubscriptionInfo {
+  planName: string;
+  userType: 'client' | 'freelancer';
+  features: PlanFeatures;
+  expiryDate: string;
+}
+
 interface AuthState {
     user: User | null;
     token: string | null;
     isAuthenticated: boolean;
+    subscription: SubscriptionInfo | null;
     otpEmail: string | null;
     otpPurpose: OtpPurpose | null;
     isNewUser: boolean;
@@ -28,6 +49,7 @@ const initialState: AuthState = {
     user: null,
     token: null,
     isAuthenticated: false,
+    subscription: null,
     otpEmail: null,
     otpPurpose: null,
     isNewUser: false
@@ -50,6 +72,7 @@ const authSlice = createSlice({
         logout: (state) => {
             state.user = null;
             state.token = null;
+            state.subscription = null;
             state.isAuthenticated = false;
             state.otpEmail = null;
             state.otpPurpose = null;
@@ -74,6 +97,12 @@ const authSlice = createSlice({
                 state.user = { ...state.user, ...action.payload };
             }
         },
+        setSubscription: (
+            state,
+            action: PayloadAction<SubscriptionInfo | null>
+        ) => {
+            state.subscription = action.payload;
+        },
     }
 });
 
@@ -84,5 +113,6 @@ export const {
     clearOtpInfo,
     resetNewUser,
     setUser,
+    setSubscription,
  } = authSlice.actions;
 export default authSlice.reducer;

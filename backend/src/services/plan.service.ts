@@ -50,6 +50,12 @@ export class PlanService implements IPlanService {
     }
 
     async createPlan(planData: IPlan): Promise<IPlanDocument> {
+
+        const existingPlan = await this._planRepository.findOne({ planName: planData.planName });
+        
+        if (existingPlan) {
+            throw createHttpError(HttpStatus.CONFLICT, `Plan "${planData.planName}" already exists`);
+        }
         
         const razorpay = getRazorpayInstance();
         

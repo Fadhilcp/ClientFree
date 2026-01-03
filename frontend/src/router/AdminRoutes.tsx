@@ -12,6 +12,11 @@ import MilestonePayouts from '../pages/admin/MilestonePayouts'
 import DisputesPage from '../pages/admin/dispute/Disputes'
 import DisputeDetailPage from '../pages/admin/dispute/DisputeDetailPage'
 import PayoutDetailPage from '../pages/admin/PayoutDetailPage'
+import Payments from '../pages/admin/Payments'
+import Withdrawals from '../pages/admin/Withdrawals'
+import EscrowMilestones from '../pages/admin/EscrowMilestones'
+import Wallets from '../pages/admin/Wallets'
+import WalletTransactionsPage from '../pages/admin/WalletTransactions'
 
 const AdminRoutes: React.FC = () => {
   return (
@@ -63,6 +68,32 @@ const AdminRoutes: React.FC = () => {
                 <DisputeDetailPage/>
               </AuthProtectedRoute>
             }/>
+            <Route path='payments' element={
+              <AuthProtectedRoute allowedRoles={['admin']}>
+                <Payments/>
+              </AuthProtectedRoute>
+            }/>
+            <Route path='withdrawals' element={
+              <AuthProtectedRoute allowedRoles={['admin']}>
+                <Withdrawals/>
+              </AuthProtectedRoute>
+            }/>
+            <Route path='escrow-milestones' element={
+              <AuthProtectedRoute allowedRoles={['admin']}>
+                <EscrowMilestones/>
+              </AuthProtectedRoute>
+            }/>
+            <Route path='wallets' element={
+              <AuthProtectedRoute allowedRoles={['admin']}>
+                <Wallets/>
+              </AuthProtectedRoute>
+            }/>
+            <Route path='wallets/:walletId/transactions' element={
+              <AuthProtectedRoute allowedRoles={['admin']}>
+                <WalletTransactionsPage/>
+              </AuthProtectedRoute>
+            }/>
+
 
         </Route>
         {/* <Route path="*" element={<NotFoundPage />} /> */}

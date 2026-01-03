@@ -290,4 +290,83 @@ export class JobAssignmentRepository
 
             return result[0]?.total ?? 0;
         }
+
+        async getAllEscrowMilestonesAggregate(search: string, page: number, limit: number)
+        : Promise<{ milestones: IJobAssignmentDocument[], total: number, totalPages: number }> {
+
+            const skip = (page - 1) * limit;
+
+            const matchStage: any = {};
+
+            if (search) {
+                matchStage.$or = [
+                    { "milestones.title": { $regex: search, $options: "i" } },
+                ];
+            }
+
+            const pipeline: PipelineStage[] = [
+                { $unwind: "$milestones" },
+
+                {
+                    $match: {
+                        "milestones.status": {
+                            $in: [
+                                "funded",
+                                "submitted",
+                                "approved",
+                                "released",
+                                "disputed",
+                                "refunded",
+                            ],
+                        },
+                        ...matchStage,
+                    },
+                },
+
+                {
+                    $lookup: {
+                        from: "payments",
+                        localField: "milestones.paymentId",
+                        foreignField: "_id",
+                        as: "payment",
+                    },
+                },
+                { $unwind: { path: "$payment", preserveNullAndEmptyArrays: true } },
+
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "freelancerId",
+                        foreignField: "_id",
+                        as: "freelancer",
+                    },
+                },
+                { $unwind: "$freelancer" },
+
+                {
+                    $lookup: {
+                        from: "jobs",
+                        localField: "jobId",
+                        foreignField: "_id",
+                        as: "job",
+                    },
+                },
+                { $unwind: "$job" },
+                { $sort: { createdAt: -1 } },
+
+                {
+                    $facet: {
+                        data: [{ $skip: skip }, { $limit: limit }],
+                        totalCount: [{ $count: "count" }],
+                    },
+                },
+            ];
+
+            const result = await this.model.aggregate(pipeline);
+
+            const data = result[0]?.data ?? [];
+            const total = result[0]?.totalCount?.[0]?.count ?? 0;
+
+            return { milestones: data, total, totalPages: Math.ceil(total / limit) }
+        }
 }

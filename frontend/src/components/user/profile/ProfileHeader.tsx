@@ -1,4 +1,5 @@
 import React from 'react';
+import VerifiedBadge from '../../ui/VerifiedBadge';
 
 type ContactItem = {
   icon: React.ReactNode;
@@ -9,13 +10,16 @@ type ProfileHeaderProps = {
   name: string;
   title: string;
   contacts: ContactItem[];
+  isVerified?: boolean;
 };
 
-const ProfileHeader: React.FC<ProfileHeaderProps> = ({ name, title, contacts }) => {
+const ProfileHeader: React.FC<ProfileHeaderProps> = ({ name, title, contacts, isVerified }) => {
   return (
     <div className="md:w-3/4 text-center md:text-left md:pl-8">
-      <h1 className="text-3xl md:text-4xl font-bold mb-2 text-gray-900 dark:text-white">
+      <h1 className="flex text-3xl md:text-4xl font-bold mb-2 text-gray-900 dark:text-white">
         {name}
+
+        <span className="translate-y-1">{ isVerified && <VerifiedBadge className='ml-1' size={40}/> }</span>
       </h1>
       <h2 className="text-xl md:text-2xl font-medium mb-4 text-gray-700 dark:text-gray-300">
         {title}

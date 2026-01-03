@@ -19,6 +19,7 @@ export function mapProposal(
       name: freelancerObj.name ?? "",
       email: freelancerObj.email ?? "",
       profileImage: freelancerObj.profileImage ?? null,
+      isVerified: freelancerObj.isVerified ?? false,
     },
     job: {
       id: jobObj._id ? jobObj._id.toString() : "",

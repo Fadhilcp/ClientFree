@@ -58,14 +58,20 @@ export class UserRepository
         .exec();
     }
 
-    async updateLimits(
+    async resetSubscriptionState(
         userId: string,
         limits: { invitesRemaining: number; proposalsRemaining: number },
         session: ClientSession
     ): Promise<void> {
         await this.model.updateOne(
             { _id: userId },
-            { $set: { limits } },
+            {
+                $set: {
+                    limits,
+                    isVerified: false,
+                    subscription: null,
+                },
+            },
             { session }
         );
     }

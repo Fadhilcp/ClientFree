@@ -25,7 +25,7 @@ export interface IUserProfile {
     
     isProfileCompleted?: boolean;
     isVerified?: boolean;
-    subscription?: string | Types.ObjectId;
+    subscription: string | Types.ObjectId | null;
 
     limits: {
         invitesRemaining: number;

@@ -82,7 +82,7 @@ const ProposalsSection: React.FC<ProposalsSectionProps> = ({
       setProposals([]);
       return; 
     }
-    // for proposal and invitation 
+    // for proposal 
     const fetchData = async () => {
       try {
           setProposalsLoading(true);
@@ -254,6 +254,7 @@ const ProposalsSection: React.FC<ProposalsSectionProps> = ({
       
       return {
       user: p.freelancer ?? undefined,
+      isVerified: p.freelancer.isVerified,
         title: `Bid: ₹${p.bidAmount}`,
         subtitle: `Duration: ${p.duration}`,
         description: p.description,

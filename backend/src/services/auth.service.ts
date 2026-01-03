@@ -18,6 +18,9 @@ import { UserProfileDto } from "dtos/profile.dto.types";
 import { IUserDocument } from "types/user.type";
 import { IWalletRepository } from "repositories/interfaces/IWalletRepository";
 import { IWalletDocument } from "types/wallet.type";
+import { ISubscriptionService } from "./interface/ISubscriptionService";
+import { PlanFeatures } from "types/plan.type";
+import { getActiveFeaturesDto } from "dtos/subscription.dto";
 
 
 export class AuthService implements IAuthService {
@@ -26,6 +29,7 @@ export class AuthService implements IAuthService {
         private _userRepository : IUserRepository, 
         private _otpUserStoreRepository : IOtpUserStoreRepository,
         private _walletRepository: IWalletRepository,
+        private _subscriptionService: ISubscriptionService,
     ){};
 
     async signUp(userData : Partial<IOtpUserStore>) : Promise<void> {
@@ -199,7 +203,8 @@ export class AuthService implements IAuthService {
     }
 
 
-    async login(email: string, password: string): Promise<{ accessToken: string; refreshToken: string; user: UserProfileDto }>  {
+    async login(email: string, password: string)
+    : Promise<{ accessToken: string; refreshToken: string; user: UserProfileDto, subscription: getActiveFeaturesDto | null }>  {
         
         const user = await this._userRepository.findByEmail(email);
 
@@ -227,12 +232,14 @@ export class AuthService implements IAuthService {
             role: user.role,
         };
 
+        const subscription = await this._subscriptionService.getActiveFeatures(user._id.toString());
+
         const accessToken = generateAccessToken(payload);
         const refreshToken = generateRefreshToken(payload);
 
         const mappedUser = mapUserProfile(user);
 
-        return { accessToken, refreshToken , user: mappedUser };
+        return { accessToken, refreshToken , user: mappedUser, subscription };
     }
 
 
@@ -387,7 +394,8 @@ export class AuthService implements IAuthService {
         }
     }
 
-    async getNewAccessToken(refreshToken: string): Promise<{ user: UserProfileDto; accessToken: string; }> {
+    async getNewAccessToken(refreshToken: string)
+    : Promise<{ user: UserProfileDto; accessToken: string; subscription: getActiveFeaturesDto | null}> {
 
         const decoded = verifyRefreshToken(refreshToken);
         
@@ -413,7 +421,9 @@ export class AuthService implements IAuthService {
 
         const accessToken = generateAccessToken(payload);
 
-        return { user: mapUserProfile(user), accessToken };
+        const subscription = await this._subscriptionService.getActiveFeatures(user._id.toString());
+
+        return { user: mapUserProfile(user), accessToken, subscription };
     }
 
     async changePassword(userId: string, password: string, newPassword: string): Promise<{ message: string; }> {

@@ -17,9 +17,12 @@ function isPopulatedSkill(obj: any): obj is ISkillDocument {
 export class JobMapper {
 
     private static toBaseDTO(job: IJobDocument) {
+
+        const client = job.clientId as unknown as IUserDocument;
+
         return {
             id: job._id.toString(),
-            clientId: job.clientId.toString(),
+            clientId: client._id.toString(),
 
             title: job.title,
             category: job.category,
@@ -30,6 +33,8 @@ export class JobMapper {
                 ? { id: s._id.toString(), name: s.name }
                 : { id: s.toString(), name: "" }
             ) ?? [],
+
+            isVerified: client.isVerified ?? false,
 
             duration: job.duration,
 
@@ -85,6 +90,7 @@ export class JobMapper {
                 professionalTitle: p.freelancerId.professionalTitle,
                 hourlyRate: p.freelancerId.hourlyRate,
                 experienceLevel: p.freelancerId.experienceLevel,
+                isVerified: p.freelancerId.isVerified,
                 skills: p.freelancerId.skills?.map(s => 
                 isPopulatedSkill(s)
                     ? { id: s._id.toString(), name: s.name }

@@ -3,7 +3,7 @@ import { IJobService } from "./interface/IJobService";
 import { IJob, IJobDocument, IJobStatus } from "types/job.type";
 import { createHttpError } from "utils/httpError.util";
 import { HttpStatus } from "constants/status.constants";
-import { ClientSession, FilterQuery } from "mongoose";
+import { ClientSession, FilterQuery, Types } from "mongoose";
 import { JobMapper } from "mappers/job.mapper";
 import { JobDetailDTO, JobListDTO } from "dtos/job.dto";
 import { HttpResponse } from "constants/responseMessage.constant";
@@ -19,6 +19,7 @@ import { IWalletRepository } from "repositories/interfaces/IWalletRepository";
 import { IWalletTransactionRepository } from "repositories/interfaces/IWalletTransactionRepository";
 import { IDatabaseSessionProvider } from "repositories/db/session-provider.interface";
 import { ISubscriptionService } from "./interface/ISubscriptionService";
+import { IUserDocument } from "types/user.type";
 
 export class JobService implements IJobService {
 
@@ -132,7 +133,13 @@ export class JobService implements IJobService {
         if(!job) throw createHttpError(HttpStatus.NOT_FOUND, 'Job not found');
         // to prevent job detail from other clients
         if(user.role === 'client'){
-            if(job.clientId.toString() !== user._id.toString()){
+            // because of populate client user
+            const clientId =
+                typeof job.clientId === "string" || job.clientId instanceof Types.ObjectId
+                    ? job.clientId.toString()
+                    : (job.clientId as IUserDocument)._id.toString();
+
+            if(clientId.toString() !== user._id.toString()){
                 throw createHttpError(HttpStatus.FORBIDDEN, 'You cannot view jobs posted by other clients.');
             }
         }

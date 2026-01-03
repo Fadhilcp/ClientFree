@@ -10,6 +10,8 @@ export interface JobBaseDTO {
 
   skills?: SkillItem[];
 
+  isVerified: boolean;
+
   duration?: string;
 
   payment?: {

@@ -8,6 +8,7 @@ export interface ClientProfileDto {
   status: string;
   profileImage?: string;
   isProfileComplete: boolean;
+  isVerified: boolean;
   
   description?: string;
 

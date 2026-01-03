@@ -121,8 +121,11 @@ export const endPoints = {
             `/assignment/${assignmentId}/${milestoneId}/file/${key}`,
         GET_ESCROW_MILESTONES: (page: number, limit: number) => 
             `/assignment/escrow-milestones?page=${page ?? 1}&limit=${limit ?? 10}`,
+        GET_ALL_ESCROW_MILESTONES: (search: string, page: number, limit: number) => 
+            `/assignment/admin/escrow-milestones?search=${search}&page=${page ?? 1}&limit=${limit ?? 10}`,
     },
     PAYMENTS: {
+        GET_ALL: (search: string, page: number, limit: number) => `/payment?search=${search}&page=${page ?? 1}&limit=${limit ?? 10}`,
         CREATE_ORDER: (assignmentId: string,milestoneId: string) => `/payment/milestones/${assignmentId}/${milestoneId}/fund`,
         VERIFY: '/payment/verify',
         REFUND: (paymentId: string) => `/payment/${paymentId}/refund`,
@@ -131,6 +134,10 @@ export const endPoints = {
             `/payment/disputes?search=${search}&page=${page}&limit=${limit}`,
         
         DISPUTE_BY_ID: (paymentId: string) => `/payment/${paymentId}/dispute`,
+        WITHDRAW: '/payment/withdraw',
+        GET_WITHDRAWALS: (page: number, limit: number) => `/payment/withdrawals?page=${page ?? 1}&limit=${limit ?? 10}`,
+        GET_ADMIN_WITHDRAWALS: (search: string, page: number, limit: number) => 
+            `/payment/admin/withdrawals?search=${search}&page=${page ?? 1}&limit=${limit ?? 10}`,
     },
     ADDONS: {
         CREATE: '/addOns',
@@ -146,20 +153,25 @@ export const endPoints = {
         CLOSE_BOARD: (jobId: string) => `/clarification/${jobId}/close`,
     },
     WALLET: {
-        GET: (page: number, limit: number) => `/wallet?page=${page ?? 1}&limit=${limit ?? 10}`,
+        GET: (page: number, limit: number) => `/wallet/me?page=${page ?? 1}&limit=${limit ?? 10}`,
         GET_ESCROW: (page: number, limit: number) => `/wallet/escrow?page=${page ?? 1}&limit=${limit ?? 10}`,
         GET_TRANSACTIONS: (page: number, limit: number) => `/wallet/transactions?page=${page ?? 1}&limit=${limit ?? 10}`,
         GET_INVOICES: (page: number, limit: number) => `/wallet/invoices?page=${page ?? 1}&limit=${limit ?? 10}`,
         INVOICE_DOWNLOAD: (transactionId: string) => `/wallet/invoices/${transactionId}/download`,
         GET_REPORT: (from: string, to: string) => `/wallet/reports?from=${from}&to=${to}`,
-        WITHDRAW: '/wallet/withdraw',
-        GET_WITHDRAWALS: (page: number, limit: number) => `/wallet/withdrawals?page=${page ?? 1}&limit=${limit ?? 10}`,
+        GET_ALL_WALLETS: (search: string, page: number, limit: number) => 
+            `/wallet?search=${search}&page=${page ?? 1}&limit=${limit ?? 10}`,
+        GET_USER_WALLET_TRANSACTIONS: (walletId: string, search?: string, page?: number, limit?: number) => 
+            `/wallet/${walletId}/transactions?search=${search ?? ""}&page=${page ?? 1}&limit=${limit ?? 10}`,
     },
     DASHBOARD: {
         GET_PAYMENTS_OVERVIEW: '/dashboard/payments-overview',
     },
     MATCH: {
-        GET_BEST_JOBS: '/match/jobs',
-        GET_BEST_FREELANCERS:(jobId: string) => `/match/freelancers/${jobId}`
+        GET_BEST_JOBS: (search: string, cursor?: string, limit?: number) =>
+            `/match/jobs?search=${search ?? ""}&cursor=${cursor || ""}&limit=${limit}`,
+
+        GET_BEST_FREELANCERS:(jobId: string, search: string, cursor?: string, limit?: number) => 
+            `/match/freelancers/${jobId}?search=${search ?? ""}&cursor=${cursor || ""}&limit=${limit}`
     }
-}   
+}

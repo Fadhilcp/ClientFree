@@ -14,6 +14,7 @@ export interface FreelancerProfileDto {
   description?: string
   skills?: string[];
   isProfileComplete: boolean;
+  isVerified: boolean;
 
   externalLinks?: {
     type: string;
@@ -56,4 +57,5 @@ export interface FreelancerListItemDto {
   professionalTitle: string;
   status: string;
   profileImage: string;
+  isVerified: boolean;
 }

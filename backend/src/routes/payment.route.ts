@@ -39,6 +39,13 @@ paymentRouter.post('/milestones/:assignmentId/:milestoneId/fund',authorizeRole("
 );
 paymentRouter.post('/verify',paymentController.verifyPayment.bind(paymentController));
 paymentRouter.get('/disputes',paymentController.getAllDisputes.bind(paymentController));
+
+paymentRouter.get('/',authorizeRole('admin'),paymentController.getAllPayments.bind(paymentController));
+
+paymentRouter.post("/withdraw",authorizeRole("freelancer"),paymentController.withdraw.bind(paymentController));
+paymentRouter.get("/withdrawals",authorizeRole("freelancer"),paymentController.getWithdrawals.bind(paymentController));
+paymentRouter.get("/admin/withdrawals",authorizeRole("admin"),paymentController.getAllWithdrawals.bind(paymentController));
+
 paymentRouter.get('/:paymentId/dispute',paymentController.getDisputeById.bind(paymentController));
 paymentRouter.post('/:paymentId/refund',paymentController.refund.bind(paymentController));
 paymentRouter.post('/:paymentId/release',paymentController.release.bind(paymentController));

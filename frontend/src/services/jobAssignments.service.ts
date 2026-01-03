@@ -46,6 +46,9 @@ class JobAssignmentService {
     getApprovedMilestoneById(assignmentId: string, milestoneId: string){
         return axios.get(endPoints.ASSIGNMENT.GET_APPROVED_BY_ID(assignmentId, milestoneId));
     }
+    getAllEscrowMilestones(search: string, page: number, limit: number){
+        return axios.get(endPoints.ASSIGNMENT.GET_ALL_ESCROW_MILESTONES(search, page, limit));
+    }
 }
 
 export const jobAssignmentService = new JobAssignmentService();

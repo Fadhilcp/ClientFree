@@ -15,8 +15,8 @@ import type { SkillItem } from "../../../types/skill.types";
 import ProfileModal from "./ProfileModal";
 import { skillService } from "../../../services/skill.service";
 import type { ProfileFormData } from "../../../types/profileModal.types";
-import { useDispatch } from "react-redux";
-import type { AppDispatch } from "../../../store/store";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../../../store/store";
 import { setUser } from "../../../features/authSlice";
 
 const Profile: React.FC = () => {
@@ -25,6 +25,11 @@ const Profile: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [availableSkills, setAvailableSkills] = useState<[]>([]);
   const dispatch = useDispatch<AppDispatch>();
+
+  const auth = useSelector((state: RootState) => state.auth);
+
+  const isVerified =
+    Boolean(auth.subscription?.features?.VerifiedBadge);
   
   const fetchProfile = async () => {
     try {
@@ -156,6 +161,7 @@ const Profile: React.FC = () => {
                 name={name}
                 title={isFreelancer ? professionalTitle : ""}
                 contacts={[{ icon: "", text: email }]}
+                isVerified={isVerified}
               />
             </div>
           </div>

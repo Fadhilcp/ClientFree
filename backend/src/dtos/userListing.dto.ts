@@ -10,6 +10,6 @@ export interface UserListingDto {
   status: "active" | "inactive" | "banned";
   lastLoginAt?: Date;
   isVerified?: boolean;
-  subscription?: string | Types.ObjectId;
+  subscription?: string | Types.ObjectId | null;
   createdAt: Date;
 }

@@ -1,4 +1,9 @@
+import { WalletDTO } from "dtos/wallet.dto";
+import { WalletTransactionDTO } from "dtos/walletTransaction.dto";
 import { Types } from "mongoose";
+import { PaginatedResult } from "types/pagination";
+import { IWalletDocument } from "types/wallet.type";
+import { IWalletTransactionDocument } from "types/walletTransaction.type";
 
 export interface IWalletService {
     getWalletDetails(userId: string, page: number, limit: number): Promise<any>;
@@ -7,7 +12,8 @@ export interface IWalletService {
     getInvoices(userId: string, page: number, limit: number): Promise<any>;
     downloadInvoicePdf(userId: string, transactionId: string): Promise<any>;
     getFinancialReport(userId: string, from: Date, to: Date): Promise<any>;
-    getWithdrawals(userId: string, page: number, limit: number): Promise<any>;
     getEscrowStatsForAssignments(assignmentIds: Types.ObjectId[]): Promise<{ funded: number; released: number; }>;
-    withdraw(userId: string, amount: number): Promise<void>;
+    getAllUserWallets(search: string, page: number, limit: number): Promise<PaginatedResult<WalletDTO>>;
+    getUserWalletTransactions(walletId: string, search: string, page: number, limit: number)
+    : Promise<PaginatedResult<WalletTransactionDTO>>;
 }

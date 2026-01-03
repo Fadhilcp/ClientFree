@@ -8,6 +8,8 @@ import { jobService } from "../../../services/job.service";
 import { notify } from "../../../utils/toastService";
 import Button from "../../../components/ui/Button";
 import { matchService } from "../../../services/match.service";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../../store/store";
 
 const LIMIT = 20;
 
@@ -22,6 +24,10 @@ const BrowseJobsPage: React.FC = () => {
 
   //premium - best match jobs 
   const [isBestMatch, setIsBestMatch] = useState<boolean>(false);
+
+  const { subscription } = useSelector((state: RootState) => state.auth);
+
+  const bestMatch = Boolean(subscription?.features.BestMatch);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -52,9 +58,13 @@ const BrowseJobsPage: React.FC = () => {
         return params.toString(); 
       }, [filters]);
 
-  const fetchJobs = async (loadMore = false) => {
-    if(loading || isBestMatch) return;
+  const fetchJobs = useCallback(async (loadMore = false) => {
+    if(loading) return;
     if(!hasMore && loadMore) return;
+
+    if (isBestMatch) {
+      return fetchBestMatchJobs(loadMore);
+    }
 
     setLoading(true);
     try {
@@ -95,21 +105,41 @@ const BrowseJobsPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+}, [
+  loading,
+  hasMore,
+  isBestMatch,
+  isInterestedPage,
+  cursor,
+  searchQuery,
+  filterQuery
+]);
 
-  const fetchBestMatchJobs = async() => {
+  const fetchBestMatchJobs = async(loadMore = false) => {
+    if (!bestMatch) return;
+    if (loading) return;
+    if (!hasMore && loadMore) return;
+
     setLoading(true);
     try {
-      
-      const response = await matchService.getBestMatchJobs();
-      console.log("🚀 ~ fetchBestMatchJobs ~ response:", response)
+      const safeCursor = cursor ?? "";
 
-      if(response.data.success){
-        const { jobs } = response.data;
+      const response = await matchService.getBestMatchJobs(
+        loadMore ? safeCursor : "",
+        LIMIT,
+        searchQuery,
+        filterQuery
+      );
 
-        setJobs(jobs);
-        setHasMore(false);
-        setCursor(null);
+      if (response.data.success) {
+        const { jobs, nextCursor } = response.data;
+
+        setJobs(prev =>
+          loadMore ? [...prev, ...jobs] : jobs
+        );
+
+        setCursor(nextCursor);
+        setHasMore(Boolean(nextCursor));
       }
     } catch (error: any) {
       notify.error(error.response?.data?.error || "Failed to load best match jobs")
@@ -184,22 +214,16 @@ const BrowseJobsPage: React.FC = () => {
             {isInterestedPage ? "Interested Jobs" : "Find Jobs"}
           </h2>
 
+          { bestMatch &&
           <Button
           label={isBestMatch ? "All Jobs" : "Best Match"}
-  onClick={() => {
-    const next = !isBestMatch;
-    setIsBestMatch(next);
-
-    if (next) {
-      fetchBestMatchJobs();
-    } else {
-      setJobs([]);
-      setCursor(null);
-      setHasMore(true);
-      fetchJobs(false);
-    }
-  }}
-  />
+          onClick={() => {
+            setIsBestMatch(prev => !prev);
+            setJobs([]);
+            setCursor(null);
+            setHasMore(true);
+          }} />
+          }
 
           <SearchBar
             placeholder={isInterestedPage ? "Search interested jobs..." : "Search jobs..."}
@@ -221,6 +245,7 @@ const BrowseJobsPage: React.FC = () => {
             <Card
               key={job.id}
               title={job.title}
+              isVerified={job.isVerified}
               subtitle={`${job.category} • ${job.subcategory}`}
               meta={[
                 { label: "Proposals", value: String(job.proposalCount ?? 0) },

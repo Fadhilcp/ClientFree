@@ -40,7 +40,9 @@ const FreelancersPage: React.FC = () => {
   const [errors, setErrors] = useState<Partial<typeof formData>>({});
   const [clientJobs, setClientJobs] = useState<{ id: string; title: string }[]>([]);
 
-  const { user } = useSelector((state: RootState) => state.auth);
+  const { user, subscription } = useSelector((state: RootState) => state.auth);
+
+  const bestMatch = Boolean(subscription?.features.BestMatch);
 
   const [isBestMatchOpen, setIsBestMatchOpen] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState("");
@@ -124,18 +126,36 @@ const FreelancersPage: React.FC = () => {
     }
   }, [user]);
 
-  const fetchBestMatchFreelancers = async () => {
+  const fetchBestMatchFreelancers = async (loadMore = false) => {
+    if(!bestMatch) return;
     if (!selectedJobId) {
       notify.error("Please select a job");
       return;
     }
 
+    if (loading) return;
+    if (!hasMore && loadMore) return;
+
+    setLoading(true);
     try {
-      setLoading(true);
-      const res = await matchService.getBestMatchFreelancers(selectedJobId);
+      const safeCursor = cursor ?? "";
+
+      const res = await matchService.getBestMatchFreelancers(
+        selectedJobId,
+        loadMore ? safeCursor : "",
+        LIMIT,
+        searchQuery,
+        filterQuery
+      );
 
       if (res.data.success) {
-        setFreelancers(res.data.freelancers);
+        const { freelancers, nextCursor } = res.data;
+
+        setFreelancers(prev =>
+          loadMore ? [...prev, ...freelancers] : freelancers
+        );
+        setCursor(nextCursor);
+        setHasMore(Boolean(nextCursor));
         setIsBestMatchMode(true);
         setIsBestMatchOpen(false);
       }
@@ -150,14 +170,18 @@ const FreelancersPage: React.FC = () => {
   // infinit scroll even listener
   useEffect(() => {
     const handleScroll = () => {
-      if (loading || !hasMore || isBestMatchMode) return;
+      if (loading || !hasMore) return;
       
       const bottom =
         window.innerHeight + window.scrollY >=
         document.documentElement.scrollHeight - 200;
 
       if (bottom) {
-        fetchFreelancers(true);
+        if (isBestMatchMode) {
+          fetchBestMatchFreelancers(true);
+        } else {
+          fetchFreelancers(true);
+        }
       }
     };
 
@@ -180,10 +204,13 @@ const FreelancersPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if(isBestMatchMode) return;
 
     const delay = setTimeout(() => {
-      fetchFreelancers(false);
+      if (isBestMatchMode) {
+        fetchBestMatchFreelancers(false);
+      } else {
+        fetchFreelancers(false);
+      }
     }, 400);
 
     return () => clearTimeout(delay);
@@ -256,20 +283,21 @@ const FreelancersPage: React.FC = () => {
           <h2 className="text-2xl font-bold text-indigo-600 dark:text-indigo-500">
             {isInterestedPage ? "Interested Freelancers" : "Freelancers"}
           </h2>
-          <Button
-            label={isBestMatchMode ? "All Freelancer" : "Best Match"}
-            onClick={() => {
-              if (isBestMatchMode) {
-                setIsBestMatchMode(false);
-                setSelectedJobId("");
-                setCursor(null);
-                setHasMore(true);
-                fetchFreelancers(false);
-              } else {
-                setIsBestMatchOpen(true);
-              }
-            }}
-          />
+          { bestMatch && 
+            <Button
+              label={isBestMatchMode ? "All Freelancer" : "Best Match"}
+              onClick={() => {
+                if (isBestMatchMode) {
+                  setIsBestMatchMode(false);
+                  setSelectedJobId("");
+                  setCursor(null);
+                  setHasMore(true);
+                  fetchFreelancers(false);
+                } else {
+                  setIsBestMatchOpen(true);
+                }
+              }} />
+            }
           <SearchBar
             placeholder={isInterestedPage ? "Search interested freelancers..." : "Search freelancers..."}
             onSearch={handleSearch}
@@ -301,6 +329,7 @@ const FreelancersPage: React.FC = () => {
             <Card
               key={freelancer.id}
               title={freelancer.name || freelancer.username}
+              isVerified={freelancer.isVerified}
               subtitle={freelancer.professionalTitle}
               meta={[
                 { label: "Experience", value: freelancer.experienceLevel },

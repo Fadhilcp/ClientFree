@@ -1,6 +1,7 @@
 import React from "react";
 import Button from "../Button";
 import UserInfo from "../../user/UserInfo";
+import VerifiedBadge from "../VerifiedBadge";
 
 interface MetaItem {
   label: string;
@@ -33,6 +34,7 @@ interface CardProps {
   actions?: ActionItem[];
   extraContent?: React.ReactNode;
   className?: string;
+  isVerified?: boolean;
 }
 
 const Card: React.FC<CardProps> = ({
@@ -48,6 +50,7 @@ const Card: React.FC<CardProps> = ({
   actions = [],
   extraContent,
   className,
+  isVerified,
 }) => {
 return (
   <div className={`bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 
@@ -60,6 +63,7 @@ return (
           email={user.email}
           profileImage={user.profileImage}
           size={48}
+          isVerified={isVerified}
         />
       </div>
     )}
@@ -78,8 +82,9 @@ return (
 
       {/* Details */}
       <div className="flex-1">
-        <h5 className="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400 mb-2 tracking-tight">
-          {title}
+        <h5 className="flex items-center gap-2 text-2xl font-extrabold text-indigo-600 dark:text-indigo-400 mb-2 tracking-tight">
+          <span>{title}</span>
+          <span className="translate-y-1">{isVerified && <VerifiedBadge size={30} />}</span>
         </h5>
         {subtitle && (
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">

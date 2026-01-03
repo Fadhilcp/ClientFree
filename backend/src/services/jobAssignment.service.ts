@@ -17,6 +17,8 @@ import { FilterQuery } from "mongoose";
 import { PaginatedResult } from "types/pagination";
 import { AdminApprovedMilestoneDetailMapper } from "mappers/adminApprovedMilestone.mapper";
 import { IWalletService } from "./interface/IWalletService";
+import { mapEscrowMilestone } from "mappers/escrowMilestone.mapper";
+import { AdminEscrowMilestoneDTO } from "dtos/adminEscrowMilestone.dto";
 
 
 export class JobAssignmentService implements IJobAssignmentService {
@@ -344,6 +346,20 @@ export class JobAssignmentService implements IJobAssignmentService {
                 limit,
                 totalPages
             }
+        };
+    }
+
+    async getAllEscrowMilestones(search: string, page: number, limit: number): Promise<PaginatedResult<AdminEscrowMilestoneDTO>> {
+        
+        const { milestones, total, totalPages } =
+            await this._jobAssignmentRepository.getAllEscrowMilestonesAggregate(search, page, limit);
+
+        return {
+            data: milestones.map(mapEscrowMilestone),
+            total,
+            page,
+            limit,
+            totalPages,
         };
     }
 }

@@ -1,11 +1,14 @@
 import type { JobDetailDTO } from "../../../types/job/job.dto";
+import VerifiedBadge from "../../ui/VerifiedBadge";
 
-const JobDetails: React.FC<{ job: JobDetailDTO }> = ({ job }) => (
-  <div className="px-8 py-6 space-y-6 bg-white dark:bg-gray-800">
+const JobDetails: React.FC<{ job: JobDetailDTO }> = ({ job }) => {
+  return <div className="px-8 py-6 space-y-6 bg-white dark:bg-gray-800">
     {/* Title */}
-    <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-      {job.title}
+    <h1 className="flex items-center gap-2 text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+      <span>{job.title}</span>
+      <span className="translate-y-1">{job.isVerified && <VerifiedBadge size={35} />}</span>
     </h1>
+
 
     {/* Category */}
     <p className="text-sm font-medium text-gray-600 dark:text-gray-400 flex items-center gap-2">
@@ -69,7 +72,7 @@ const JobDetails: React.FC<{ job: JobDetailDTO }> = ({ job }) => (
         <i className="fa-solid fa-star"></i> Featured: {job.isFeatured ? "Yes" : "No"}
       </p>
     </div>
-  </div>
-);
+  </div>;
+};
 
 export default JobDetails;

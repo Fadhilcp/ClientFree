@@ -1,21 +1,8 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { authService } from "../services/auth.service";
-import { setCredentials, logout } from "../features/authSlice";
+import { setCredentials, logout, setSubscription } from "../features/authSlice";
 import { tokenStore } from "../utils/tokenStore";
-
-// const PUBLIC_PATHS = [
-//   "/", "/signup", "/login", "/forgot-password",
-//   "/verifyotp", "/reset-password", "/roleselect",
-//   "/admin/login"
-// ];
-
-// const PUBLIC_PATHS = [
-//   "/forgot-password",
-//   "/verifyotp",
-//   "/reset-password",
-//   "/admin/login"
-// ];
 
 const useAuthVerifier = () => {
   const [loading, setLoading] = useState(true);
@@ -27,8 +14,9 @@ const useAuthVerifier = () => {
         const response = await authService.accessToken();
 
         if (response.data?.success) {
-          const { user, token } = response.data;
+          const { user, token, subscription } = response.data;
           dispatch(setCredentials({ user, token }));
+          dispatch(setSubscription(subscription));
           tokenStore.set(token)
         } else {
           dispatch(logout());

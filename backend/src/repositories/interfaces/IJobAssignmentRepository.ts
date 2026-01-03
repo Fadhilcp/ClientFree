@@ -33,5 +33,7 @@ export interface IJobAssignmentRepository extends IBaseRepository<IJobAssignment
     findAssignmentsByClient(clientId: string): Promise<{ _id: Types.ObjectId; amount: number; }[]>;
     countUpcomingClientMilestones(clientId: string): Promise<number>;
 
-    getPendingClearanceByFreelancer(freelancerId: string): Promise<number>
+    getPendingClearanceByFreelancer(freelancerId: string): Promise<number>;
+    getAllEscrowMilestonesAggregate(search: string, page: number, limit: number)
+            : Promise<{ milestones: IJobAssignmentDocument[], total: number, totalPages: number }>;
 };

@@ -58,4 +58,5 @@ export interface FreelancerListItemDto {
   status: string;
   profileImage: string;
   isInterested?: boolean;
+  isVerified: boolean;
 }

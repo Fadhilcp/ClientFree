@@ -1,4 +1,6 @@
 import { AdminDisputeDto, AdminDisputeListDto } from "dtos/adminDispute.dto";
+import { AdminPaymentDto } from "dtos/adminPayment.dto";
+import { AdminWithdrawalDTO } from "dtos/adminWithdrawal.dto";
 import { Orders } from "razorpay/dist/types/orders";
 import { IJobAssignmentDocument } from "types/jobAssignment/jobAssignment.type";
 import { PaginatedResult } from "types/pagination";
@@ -15,4 +17,8 @@ export interface IPaymentService {
     releaseMilestone(paymentId: string, approverId: string): Promise<{ payment: IPaymentDocument, assignment: IJobAssignmentDocument }>;
     listDisputes(search: string, page: number, limit: number): Promise<PaginatedResult<AdminDisputeListDto>>;
     getDisputeById(paymentId: string): Promise<AdminDisputeDto>;
+    getAllPayments(search: string, page: number, limit: number): Promise<PaginatedResult<AdminPaymentDto>>;
+    getAllWithdrawals(search: string, page: number, limit: number): Promise<PaginatedResult<AdminWithdrawalDTO>>; 
+    withdraw(userId: string, amount: number): Promise<void>;
+    getWithdrawals(userId: string, page: number, limit: number): Promise<any>;
 }
