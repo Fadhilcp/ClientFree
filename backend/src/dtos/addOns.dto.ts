@@ -1,4 +1,3 @@
-// addOns.dto.ts
 
 export interface AddOnDto {
   id: string;

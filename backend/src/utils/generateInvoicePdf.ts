@@ -19,22 +19,16 @@ export function generateInvoicePdf(
       const stream = new PassThrough();
       const buffers: Buffer[] = [];
 
-      // pipe PDF output
       doc.pipe(stream);
 
-      // collect chunks
       stream.on("data", (chunk) => buffers.push(chunk));
 
-      // 🔴 MUST be `finish`, not `end`
       stream.on("finish", () => {
         const pdfBuffer = Buffer.concat(buffers);
         resolve(pdfBuffer);
       });
 
-      /* =====================
-         CONTENT
-      ====================== */
-
+      //const
       doc
         .fontSize(20)
         .text("INVOICE", { align: "center" })
@@ -85,7 +79,6 @@ export function generateInvoicePdf(
           { align: "center" }
         );
 
-      // 🔴 REQUIRED
       doc.end();
     } catch (err) {
       reject(err);

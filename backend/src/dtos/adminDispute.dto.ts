@@ -19,7 +19,7 @@ export interface AdminDisputeDto {
       budget: number;
       type: "fixed" | "hourly";
     };
-    skills: string[]; // ObjectId strings (can later be expanded)
+    skills: string[]; 
   } | null;
 
   milestoneId: string | null;
