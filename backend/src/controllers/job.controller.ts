@@ -1,9 +1,9 @@
-import { HttpResponse } from "constants/responseMessage.constant";
-import { HttpStatus } from "constants/status.constants";
+import { HttpResponse } from "../constants/responseMessage.constant";
+import { HttpStatus } from "../constants/status.constants";
 import { NextFunction, Request, Response } from "express";
-import { IJobService } from "services/interface/IJobService";
-import { createHttpError } from "utils/httpError.util";
-import { sendResponse } from "utils/response.util";
+import { IJobService } from "../services/interface/IJobService";
+import { createHttpError } from "../utils/httpError.util";
+import { sendResponse } from "../utils/response.util";
 
 export class JobController {
     constructor(private _jobService: IJobService){}

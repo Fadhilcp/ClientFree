@@ -1,9 +1,9 @@
 import { BaseRepository } from "./base.repository";
-import walletModel from "models/wallet.model";
-import { IWalletDocument } from "types/wallet.type";
+import walletModel from "../models/wallet.model";
+import { IWalletDocument } from "../types/wallet.type";
 import { IWalletRepository } from "./interfaces/IWalletRepository";
 import { FilterQuery, PipelineStage } from "mongoose";
-import { IUserDocument } from "types/user.type";
+import { IUserDocument } from "../types/user.type";
 
 export class WalletRepository 
     extends BaseRepository<IWalletDocument> 

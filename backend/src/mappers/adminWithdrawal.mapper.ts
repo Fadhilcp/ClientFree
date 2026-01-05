@@ -1,5 +1,5 @@
-import { AdminWithdrawalDTO } from "dtos/adminWithdrawal.dto";
-import { IPaymentDocument } from "types/payment/payment.type";
+import { AdminWithdrawalDTO } from "../dtos/adminWithdrawal.dto";
+import { IPaymentDocument } from "../types/payment/payment.type";
 
 export function mapAdminWithdrawal(
   payment: IPaymentDocument

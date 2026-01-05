@@ -1,14 +1,14 @@
 import express from 'express'
-import { SubscriptionRepository } from 'repositories/subscription.repository'
-import { SubscriptionService } from 'services/subscription.service'
-import { SubscriptionController } from 'controllers/subscription.controller'
-import { PlanRepository } from 'repositories/plan.repository';
-import { authMiddleware } from 'middlewares/authMiddleware';
-import { PaymentRepository } from 'repositories/payment.repository';
-import { RevenueRepository } from 'repositories/revenue.repository';
-import { UserRepository } from 'repositories/user.repository';
-import { verifyUserNotBanned } from 'middlewares/verifyUserNotBanned.middleware';
-import { MongooseSessionProvider } from 'repositories/db/session-provider';
+import { SubscriptionRepository } from '../repositories/subscription.repository'
+import { SubscriptionService } from '../services/subscription.service'
+import { SubscriptionController } from '../controllers/subscription.controller'
+import { PlanRepository } from '../repositories/plan.repository';
+import { authMiddleware } from '../middlewares/authMiddleware';
+import { PaymentRepository } from '../repositories/payment.repository';
+import { RevenueRepository } from '../repositories/revenue.repository';
+import { UserRepository } from '../repositories/user.repository';
+import { verifyUserNotBanned } from '../middlewares/verifyUserNotBanned.middleware';
+import { MongooseSessionProvider } from '../repositories/db/session-provider';
 
 const subscriptionRouter = express.Router()
 

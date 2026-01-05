@@ -1,5 +1,5 @@
-import { IUserDocument } from "types/user.type";
-import { IJobDocument } from "types/job.type";
+import { IUserDocument } from "../types/user.type";
+import { IJobDocument } from "../types/job.type";
 
 export class MatchScoreHelper {
   static computeJobForFreelancer(

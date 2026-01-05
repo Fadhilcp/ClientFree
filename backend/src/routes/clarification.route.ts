@@ -1,11 +1,11 @@
-import { ClarificationController } from "controllers/clarification.controller";
+import { ClarificationController } from "../controllers/clarification.controller";
 import { Router } from "express";
-import { authMiddleware } from "middlewares/authMiddleware";
-import { verifyUserNotBanned } from "middlewares/verifyUserNotBanned.middleware";
-import { ClarificationBoardRepository } from "repositories/clarificationBoard.repository";
-import { ClarificationMessageRepository } from "repositories/clarificationMessage.repository";
-import { JobRepository } from "repositories/job.repository";
-import { ClarificationService } from "services/clarification.service";
+import { authMiddleware } from "../middlewares/authMiddleware";
+import { verifyUserNotBanned } from "../middlewares/verifyUserNotBanned.middleware";
+import { ClarificationBoardRepository } from "../repositories/clarificationBoard.repository";
+import { ClarificationMessageRepository } from "../repositories/clarificationMessage.repository";
+import { JobRepository } from "../repositories/job.repository";
+import { ClarificationService } from "../services/clarification.service";
 
 const clarificationRouter = Router();
 

@@ -1,13 +1,12 @@
-import { DashBoardController } from "controllers/dashboard.controller";
-import { PaymentController } from "controllers/payment.controller";
+import { DashBoardController } from "../controllers/dashboard.controller";
 import { Router } from "express";
-import { authMiddleware } from "middlewares/authMiddleware";
-import { verifyUserNotBanned } from "middlewares/verifyUserNotBanned.middleware";
-import { JobAssignmentRepository } from "repositories/jobAssignment.repository";
-import { WalletRepository } from "repositories/wallet.repository";
-import { WalletTransactionRepository } from "repositories/walletTransaction.repository";
-import { ClientDashboardService } from "services/clientDashboard.service";
-import { FreelancerDashboardService } from "services/freelancerDashboard.service";
+import { authMiddleware } from "../middlewares/authMiddleware";
+import { verifyUserNotBanned } from "../middlewares/verifyUserNotBanned.middleware";
+import { JobAssignmentRepository } from "../repositories/jobAssignment.repository";
+import { WalletRepository } from "../repositories/wallet.repository";
+import { WalletTransactionRepository } from "../repositories/walletTransaction.repository";
+import { ClientDashboardService } from "../services/clientDashboard.service";
+import { FreelancerDashboardService } from "../services/freelancerDashboard.service";
 
 const dashboardRouter = Router();
 

@@ -1,6 +1,7 @@
-import { ClarificationMessageDto } from "dtos/clarificationMessage.dto";
-import { IClarificationMessageDocument } from "types/clarificationMessage";
-import { IUserDocument } from "types/user.type";
+import { ClarificationMessageDto } from "../dtos/clarificationMessage.dto";
+import { IClarificationMessageDocument } from "../types/clarificationMessage";
+import { IUserDocument } from "../types/user.type";
+
 export function mapClarificationMessage(
   msg: IClarificationMessageDocument
 ): ClarificationMessageDto {

@@ -1,7 +1,7 @@
 // mappers/adminWallet.mapper.ts
-import { IWalletDocument } from "types/wallet.type";
-import { WalletDTO } from "dtos/wallet.dto";
-import { IUserDocument } from "types/user.type";
+import { IWalletDocument } from "../types/wallet.type";
+import { WalletDTO } from "../dtos/wallet.dto";
+import { IUserDocument } from "../types/user.type";
 
 type WalletWithPopulatedUserId = IWalletDocument & {
   userId: IUserDocument;

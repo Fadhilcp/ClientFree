@@ -1,10 +1,10 @@
-import { AdminDisputeDto, AdminDisputeListDto } from "dtos/adminDispute.dto";
-import { AdminPaymentDto } from "dtos/adminPayment.dto";
-import { AdminWithdrawalDTO } from "dtos/adminWithdrawal.dto";
+import { AdminDisputeDto, AdminDisputeListDto } from "../../dtos/adminDispute.dto";
+import { AdminPaymentDto } from "../../dtos/adminPayment.dto";
+import { AdminWithdrawalDTO } from "../../dtos/adminWithdrawal.dto";
 import { Orders } from "razorpay/dist/types/orders";
-import { IJobAssignmentDocument } from "types/jobAssignment/jobAssignment.type";
-import { PaginatedResult } from "types/pagination";
-import { IPaymentDocument } from "types/payment/payment.type";
+import { IJobAssignmentDocument } from "../../types/jobAssignment/jobAssignment.type";
+import { PaginatedResult } from "../../types/pagination";
+import { IPaymentDocument } from "../../types/payment/payment.type";
 export interface IPaymentService {
     createMilestoneOrder(assignmentId: string, milestoneId: string, clientId: string): Promise<{
           order: Orders.RazorpayOrder,

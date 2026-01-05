@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { IProposalInvitationDocument } from "types/proposalInvitation.type";
+import { IProposalInvitationDocument } from "../types/proposalInvitation.type";
 
 const proposalInvitationSchema = new Schema({
   freelancerId: {

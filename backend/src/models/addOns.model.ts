@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { IAddOnDocument } from "types/addOns.type";
+import { IAddOnDocument } from "../types/addOns.type";
 
 const AddOnsSchema = new Schema({
   key: { type: String, required: true, unique: true }, 

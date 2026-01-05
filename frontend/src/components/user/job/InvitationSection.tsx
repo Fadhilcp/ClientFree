@@ -3,12 +3,15 @@ import Card from "../../ui/Card/Card";
 import type { IProposal } from "../../../types/job/proposal.type";
 import { proposalService } from "../../../services/proposal.service";
 import { notify } from "../../../utils/toastService";
+import Pagination from "../Pagination";
 
 interface InvitationsSectionProps {
   jobId: string;
   jobStatus: string;
   // isJobOwner: boolean;
 }
+
+const LIMIT = 1;
 
 const InvitationsSection: React.FC<InvitationsSectionProps> = ({
   jobId,
@@ -19,6 +22,10 @@ const InvitationsSection: React.FC<InvitationsSectionProps> = ({
   const [invitations, setInvitations] = useState<IProposal[]>([]);
   const [invitationsLoading, setInvitationsLoading] = useState(false);
 
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+
   useEffect(() => {
     if (!jobId) return;
 
@@ -26,18 +33,31 @@ const InvitationsSection: React.FC<InvitationsSectionProps> = ({
     const fetchData = async () => {
       try {
           setInvitationsLoading(true);
-          const res = await proposalService.getProposalsForJob(jobId, "", true);
-          if (res.data.success) setInvitations(res.data.proposals);
-          setInvitationsLoading(false);
+          const res = await proposalService.getProposalsForJob(
+            jobId, 
+            "", 
+            true,
+            page,
+            LIMIT
+          );
+
+          if (res.data.success) {
+            const { proposals, total, totalPages } = res.data;
+            setInvitations(proposals);
+            setTotal(total);
+            setTotalPages(totalPages);
+          }
+
       } catch (err) {
         notify.error('Pleaes try again!')
         console.error("Failed:", err);
+      } finally {
         setInvitationsLoading(false);
       }
     };
 
     fetchData();
-  }, [jobId, jobStatus]);
+  }, [jobId, jobStatus, page]);
 
   return (
     <div className="p-6">
@@ -61,9 +81,18 @@ const InvitationsSection: React.FC<InvitationsSectionProps> = ({
             />
           ))}
         </div>
+
+        
       ) : (
         <p className="text-gray-600 dark:text-gray-300">No invitations yet.</p>
       )}
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        entityLabel="invitations"
+        onPageChange={(newPage) => setPage(newPage)}
+      />
     </div>
   );
 };

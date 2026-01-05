@@ -1,6 +1,6 @@
-import { AddOnDto } from "dtos/addOns.dto";
-import { IAddOn } from "types/addOns.type";
-import { PaginatedResult } from "types/pagination";
+import { AddOnDto } from "../../dtos/addOns.dto";
+import { IAddOn } from "../../types/addOns.type";
+import { PaginatedResult } from "../../types/pagination";
 
 export interface IAddOnService {
     createAddOn(addOnData: IAddOn): Promise<AddOnDto>;

@@ -1,12 +1,12 @@
-import { AddOnDto } from "dtos/addOns.dto";
-import { IAddOn, IAddOnDocument } from "types/addOns.type";
+import { AddOnDto } from "../dtos/addOns.dto";
+import { IAddOn, IAddOnDocument } from "../types/addOns.type";
 import { IAddOnService } from "./interface/IAddOnsService";
-import { IAddOnRepository } from "repositories/interfaces/IAddOnsRepository";
-import { createHttpError } from "utils/httpError.util";
-import { HttpStatus } from "constants/status.constants";
-import { HttpResponse } from "constants/responseMessage.constant";
-import addOnsMapper from "mappers/addOns.mapper";
-import { PaginatedResult } from "types/pagination";
+import { IAddOnRepository } from "../repositories/interfaces/IAddOnsRepository";
+import { createHttpError } from "../utils/httpError.util";
+import { HttpStatus } from "../constants/status.constants";
+import { HttpResponse } from "../constants/responseMessage.constant";
+import addOnsMapper from "../mappers/addOns.mapper";
+import { PaginatedResult } from "../types/pagination";
 import { FilterQuery } from "mongoose";
 
 export class AddOnService implements IAddOnService {

@@ -1,4 +1,4 @@
-import { IClarificationMessageDocument } from "types/clarificationMessage";
+import { IClarificationMessageDocument } from "../../types/clarificationMessage";
 import { IBaseRepository } from "./IBaseRepository";
 import { FilterQuery } from "mongoose";
 

@@ -1,10 +1,10 @@
-import { AdminApprovedMilestoneDetailDto, AdminApprovedMilestoneDto } from "dtos/adminApprovedMilestoneDto";
-import { AdminEscrowMilestoneDTO } from "dtos/adminEscrowMilestone.dto";
-import { AssignmentDto } from "dtos/jobAssignment.dto";
-import { AuthPayload } from "types/auth.type";
-import { IJobAssignmentDocument, IMilestone, IMilestoneFile } from "types/jobAssignment/jobAssignment.type";
-import { PaginatedResult } from "types/pagination";
-import { IPaymentDocument } from "types/payment/payment.type";
+import { AdminApprovedMilestoneDetailDto, AdminApprovedMilestoneDto } from "../../dtos/adminApprovedMilestoneDto";
+import { AdminEscrowMilestoneDTO } from "../../dtos/adminEscrowMilestone.dto";
+import { AssignmentDto } from "../../dtos/jobAssignment.dto";
+import { AuthPayload } from "../../types/auth.type";
+import { IMilestone, IMilestoneFile } from "../../types/jobAssignment/jobAssignment.type";
+import { PaginatedResult } from "../../types/pagination";
+import { IPaymentDocument } from "../../types/payment/payment.type";
 
 export interface IJobAssignmentService { 
     getAssignments(jobId: string): Promise<AssignmentDto[]>

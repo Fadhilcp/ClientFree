@@ -1,4 +1,4 @@
-import { PlanFeatures } from "types/plan.type";
+import { PlanFeatures } from "../types/plan.type";
 
 export interface SubscriptionDto {
   id: string;

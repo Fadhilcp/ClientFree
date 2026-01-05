@@ -1,10 +1,10 @@
-import { HttpResponse } from "constants/responseMessage.constant";
-import { HttpStatus } from "constants/status.constants";
-import { ClientPaymentOverviewDTO, FreelancerPaymentOverviewDTO } from "dtos/paymentOverview.dto";
+import { HttpResponse } from "../constants/responseMessage.constant";
+import { HttpStatus } from "../constants/status.constants";
+import { ClientPaymentOverviewDTO, FreelancerPaymentOverviewDTO } from "../dtos/paymentOverview.dto";
 import { NextFunction, Request, Response } from "express";
-import { IDashBoardOverviewService } from "services/interface/IDashboardService";
-import { createHttpError } from "utils/httpError.util";
-import { sendResponse } from "utils/response.util";
+import { IDashBoardOverviewService } from "../services/interface/IDashboardService";
+import { createHttpError } from "../utils/httpError.util";
+import { sendResponse } from "../utils/response.util";
 
 export class DashBoardController {
 

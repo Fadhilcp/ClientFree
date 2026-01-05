@@ -1,5 +1,5 @@
 import { IAddOnDocument } from "../types/addOns.type";
-import { AddOnDto } from "dtos/addOns.dto";
+import { AddOnDto } from "../dtos/addOns.dto";
 
 class AddOnMapper {
   toMap(addOn: IAddOnDocument): AddOnDto {

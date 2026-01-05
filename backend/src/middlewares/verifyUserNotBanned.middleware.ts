@@ -1,8 +1,8 @@
-import { HttpResponse } from "constants/responseMessage.constant";
-import { HttpStatus } from "constants/status.constants";
+import { HttpResponse } from "../constants/responseMessage.constant";
+import { HttpStatus } from "../constants/status.constants";
 import { Request, Response, NextFunction } from "express";
-import { UserRepository } from "repositories/user.repository";
-import { createHttpError } from "utils/httpError.util";
+import { UserRepository } from "../repositories/user.repository";
+import { createHttpError } from "../utils/httpError.util";
 
 const userRepository = new UserRepository();
 

@@ -1,5 +1,5 @@
-import { SkillDto } from "dtos/skill.dto";
-import { ISkillDocument } from "types/skill.type";
+import { SkillDto } from "../dtos/skill.dto";
+import { ISkillDocument } from "../types/skill.type";
 
 export function mapSkill(skill: ISkillDocument): SkillDto {
     return {

@@ -1,8 +1,8 @@
-import { HttpResponse } from "constants/responseMessage.constant";
-import { HttpStatus } from "constants/status.constants";
+import { HttpResponse } from "../constants/responseMessage.constant";
+import { HttpStatus } from "../constants/status.constants";
 import { Request, Response, NextFunction } from "express";
-import { createHttpError } from "utils/httpError.util";
-import { verifyAccessToken } from "utils/jwt.util";
+import { createHttpError } from "../utils/httpError.util";
+import { verifyAccessToken } from "../utils/jwt.util";
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     try {

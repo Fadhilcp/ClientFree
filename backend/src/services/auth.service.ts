@@ -1,8 +1,8 @@
-import { IUserRepository } from "repositories/interfaces/IUserRepository";
+import { IUserRepository } from "../repositories/interfaces/IUserRepository";
 import { IAuthService } from "./interface/IAuthService";
 import { generateOtp } from "../utils/generateOtp";
 import bcrypt from 'bcrypt'
-import { IOtpUserStoreRepository } from "repositories/interfaces/IOtpUserStoreRepository";
+import { IOtpUserStoreRepository } from "../repositories/interfaces/IOtpUserStoreRepository";
 import { sendOtpEmail } from "../utils/mailer.util";
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../utils/jwt.util";
 import { SanitizedUser } from "../dtos/user.dto";
@@ -13,14 +13,13 @@ import { HttpStatus } from "../constants/status.constants";
 import { HttpResponse } from "../constants/responseMessage.constant";
 import { createHttpError } from "../utils/httpError.util";
 import axios from "axios";
-import { mapUserProfile } from "mappers/mapUserProfile";
-import { UserProfileDto } from "dtos/profile.dto.types";
-import { IUserDocument } from "types/user.type";
-import { IWalletRepository } from "repositories/interfaces/IWalletRepository";
-import { IWalletDocument } from "types/wallet.type";
+import { mapUserProfile } from "../mappers/mapUserProfile";
+import { UserProfileDto } from "../dtos/profile.dto.types";
+import { IUserDocument } from "../types/user.type";
+import { IWalletRepository } from "../repositories/interfaces/IWalletRepository";
+import { IWalletDocument } from "../types/wallet.type";
 import { ISubscriptionService } from "./interface/ISubscriptionService";
-import { PlanFeatures } from "types/plan.type";
-import { getActiveFeaturesDto } from "dtos/subscription.dto";
+import { getActiveFeaturesDto } from "../dtos/subscription.dto";
 
 
 export class AuthService implements IAuthService {

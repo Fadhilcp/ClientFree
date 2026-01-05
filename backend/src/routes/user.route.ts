@@ -2,10 +2,9 @@ import { Router } from "express";
 import { ProfileController } from "../controllers/user.controller";
 import { UserRepository } from "../repositories/user.repository";
 import { UserService } from "../services/user.service";
-import { authMiddleware } from "middlewares/authMiddleware";
-import { upload } from "middlewares/upload.middleware";
-import { verifyUserNotBanned } from "middlewares/verifyUserNotBanned.middleware";
-import { JobRepository } from "repositories/job.repository";
+import { authMiddleware } from "../middlewares/authMiddleware";
+import { upload } from "../middlewares/upload.middleware";
+import { verifyUserNotBanned } from "../middlewares/verifyUserNotBanned.middleware";
 
 const userRouter = Router();
 

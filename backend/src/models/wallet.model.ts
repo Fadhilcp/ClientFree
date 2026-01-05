@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { IWalletDocument } from "types/wallet.type";
+import { IWalletDocument } from "../types/wallet.type";
 
 const walletSchema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: "User" },

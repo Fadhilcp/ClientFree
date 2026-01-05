@@ -1,16 +1,15 @@
-import { JobAssignmentController } from "controllers/jobAssignment.controller";
-import { JobAssignmentRepository } from "repositories/jobAssignment.repository";
-import { JobAssignmentService } from "services/jobAssignment.service";
+import { JobAssignmentController } from "../controllers/jobAssignment.controller";
+import { JobAssignmentRepository } from "../repositories/jobAssignment.repository";
+import { JobAssignmentService } from "../services/jobAssignment.service";
 import { Router } from "express";
-import { PaymentRepository } from "repositories/payment.repository";
-import { authMiddleware } from "middlewares/authMiddleware";
-import { verifyUserNotBanned } from "middlewares/verifyUserNotBanned.middleware";
-import upload from "utils/uploader-s3.util";
-import { WalletService } from "services/wallet.service";
-import { WalletRepository } from "repositories/wallet.repository";
-import { WalletTransactionRepository } from "repositories/walletTransaction.repository";
-import { MongooseSessionProvider } from "repositories/db/session-provider";
-import { authorizeRole } from "middlewares/authorizeRole";
+import { PaymentRepository } from "../repositories/payment.repository";
+import { authMiddleware } from "../middlewares/authMiddleware";
+import { verifyUserNotBanned } from "../middlewares/verifyUserNotBanned.middleware";
+import upload from "../utils/uploader-s3.util";
+import { WalletService } from "../services/wallet.service";
+import { WalletRepository } from "../repositories/wallet.repository";
+import { WalletTransactionRepository } from "../repositories/walletTransaction.repository";
+import { authorizeRole } from "../middlewares/authorizeRole";
 
 const walletRepository = new WalletRepository();
 const walletTransactionRepository = new WalletTransactionRepository();

@@ -1,14 +1,15 @@
-import { ProposalDTO } from "dtos/proposal.dto";
+import { ProposalDTO } from "../../dtos/proposal.dto";
 import { CreateProposalResponse, IInvitationDetails, IProposalInvitationPayload } from "../../types/proposalInvitation.type";
 import { IProposalInvitation, ProposalStatus } from "../../types/proposalInvitation.type";
-import { IRazoryPaymentResponse } from "types/razorpay.types";
+import { IRazoryPaymentResponse } from "../../types/razorpay.types";
 import { Types } from "mongoose";
+import { PaginatedResult } from "../../types/pagination";
 
 export interface IProposalService {
     createProposal(
         jobId: string,freelancerId: string,payload: IProposalInvitationPayload
     ): Promise<CreateProposalResponse>;
-    getProposalsForJob(jobId: string, status?: string, isInvitation?: boolean): Promise<ProposalDTO[]>;
+    getProposalsForJob(jobId: string, status?: string, isInvitation?: boolean, page?: number, limit?: number): Promise<PaginatedResult<ProposalDTO>>;
     getById(proposalId: string): Promise<ProposalDTO>;
     updateProposal(proposalId: string, proposalData: IProposalInvitation): Promise<ProposalDTO>;
     updateStatus(proposalId: string,status: ProposalStatus): Promise<ProposalDTO>;

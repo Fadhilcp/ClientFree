@@ -1,7 +1,7 @@
 import { ClientSession, FilterQuery } from "mongoose";
 import { IBaseRepository } from "./IBaseRepository";
-import { IWalletDocument } from "types/wallet.type";
-import { IUserDocument } from "types/user.type";
+import { IWalletDocument } from "../../types/wallet.type";
+import { IUserDocument } from "../../types/user.type";
 
 export interface IWalletRepository extends IBaseRepository<IWalletDocument> {
     getAllWalletsAggregate(search: string, page: number, limit: number)

@@ -1,13 +1,11 @@
-import { WalletController } from "controllers/wallet.controller";
+import { WalletController } from "../controllers/wallet.controller";
 import { Router } from "express";
-import { authMiddleware } from "middlewares/authMiddleware";
-import { authorizeRole } from "middlewares/authorizeRole";
-import { verifyUserNotBanned } from "middlewares/verifyUserNotBanned.middleware";
-import { MongooseSessionProvider } from "repositories/db/session-provider";
-import { PaymentRepository } from "repositories/payment.repository";
-import { WalletRepository } from "repositories/wallet.repository";
-import { WalletTransactionRepository } from "repositories/walletTransaction.repository";
-import { WalletService } from "services/wallet.service";
+import { authMiddleware } from "../middlewares/authMiddleware";
+import { authorizeRole } from "../middlewares/authorizeRole";
+import { verifyUserNotBanned } from "../middlewares/verifyUserNotBanned.middleware";
+import { WalletRepository } from "../repositories/wallet.repository";
+import { WalletTransactionRepository } from "../repositories/walletTransaction.repository";
+import { WalletService } from "../services/wallet.service";
 
 const walletRouter = Router();
 

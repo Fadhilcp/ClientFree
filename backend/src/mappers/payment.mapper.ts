@@ -1,5 +1,5 @@
-import { PaymentDTO } from "dtos/payment.dto";
-import { IPaymentDocument } from "types/payment/payment.type";
+import { PaymentDTO } from "../dtos/payment.dto";
+import { IPaymentDocument } from "../types/payment/payment.type";
 
 export function mapPayment(payment: IPaymentDocument): PaymentDTO {
   return {

@@ -1,5 +1,5 @@
-import { AdminApprovedMilestoneDto } from "dtos/adminApprovedMilestoneDto";
-import { ApprovedMilestoneAssignment } from "types/jobAssignment/jobAssignment.approvedMilestone";
+import { AdminApprovedMilestoneDto } from "../dtos/adminApprovedMilestoneDto";
+import { ApprovedMilestoneAssignment } from "../types/jobAssignment/jobAssignment.approvedMilestone";
 
 export class AdminMilestoneMapper {
   static mapApproved(doc: ApprovedMilestoneAssignment): AdminApprovedMilestoneDto {

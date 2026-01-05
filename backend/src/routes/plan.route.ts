@@ -1,9 +1,9 @@
 import express from 'express';
-import { PlanController } from 'controllers/plan.controller';
-import { PlanRepository } from 'repositories/plan.repository';
-import { PlanService } from 'services/plan.service';
-import { authMiddleware } from 'middlewares/authMiddleware';
-import { verifyUserNotBanned } from 'middlewares/verifyUserNotBanned.middleware';
+import { PlanController } from '../controllers/plan.controller';
+import { PlanRepository } from '../repositories/plan.repository';
+import { PlanService } from '../services/plan.service';
+import { authMiddleware } from '../middlewares/authMiddleware';
+import { verifyUserNotBanned } from '../middlewares/verifyUserNotBanned.middleware';
 
 const planRouter = express.Router();
 

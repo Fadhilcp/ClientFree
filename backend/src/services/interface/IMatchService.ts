@@ -1,5 +1,5 @@
-import { FreelancerListItemDto } from "dtos/freelancerProfile.dto";
-import { JobListDTO } from "dtos/job.dto";
+import { FreelancerListItemDto } from "../../dtos/freelancerProfile.dto";
+import { JobListDTO } from "../../dtos/job.dto";
 
 export interface IMatchService {
     getBestMatchJobs(

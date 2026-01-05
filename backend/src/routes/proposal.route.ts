@@ -1,15 +1,15 @@
 import { Router } from "express";
-import { ProposalController } from "controllers/proposal.controller";
-import { JobRepository } from "repositories/job.repository";
-import { ProposalRepository } from "repositories/proposalInvitation.repository";
-import { ProposalService } from "services/proposal.service";
-import { authMiddleware } from "middlewares/authMiddleware";
-import { JobAssignmentRepository } from "repositories/jobAssignment.repository";
-import { AddOnRepository } from "repositories/addOns.repository";
-import { PaymentRepository } from "repositories/payment.repository";
-import { RevenueRepository } from "repositories/revenue.repository";
-import { verifyUserNotBanned } from "middlewares/verifyUserNotBanned.middleware";
-import { UserRepository } from "repositories/user.repository";
+import { ProposalController } from "../controllers/proposal.controller";
+import { JobRepository } from "../repositories/job.repository";
+import { ProposalRepository } from "../repositories/proposalInvitation.repository";
+import { ProposalService } from "../services/proposal.service";
+import { authMiddleware } from "../middlewares/authMiddleware";
+import { JobAssignmentRepository } from "../repositories/jobAssignment.repository";
+import { AddOnRepository } from "../repositories/addOns.repository";
+import { PaymentRepository } from "../repositories/payment.repository";
+import { RevenueRepository } from "../repositories/revenue.repository";
+import { verifyUserNotBanned } from "../middlewares/verifyUserNotBanned.middleware";
+import { UserRepository } from "../repositories/user.repository";
 
 const proposalRouter = Router();
 
@@ -46,7 +46,7 @@ proposalRouter.patch('/:proposalId/status',proposalController.updateStatus.bind(
 proposalRouter.post('/:proposalId/accept',proposalController.acceptProposal.bind(proposalController));
 
 proposalRouter.post('/job/:jobId/invite/:freelancerId',proposalController.inviteFreelancer.bind(proposalController));
-proposalRouter.post('/job/:jobId/invitation/:freelancerId/accept',proposalController.acceptInvitation.bind(proposalController));
+proposalRouter.patch('/job/:jobId/invitation/:freelancerId/accept',proposalController.acceptInvitation.bind(proposalController));
 
 proposalRouter.post('/job/:jobId/ai-shortlist',proposalController.aiShortlistProposals.bind(proposalController));
 

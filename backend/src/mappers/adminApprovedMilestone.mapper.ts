@@ -1,5 +1,5 @@
-import { AdminApprovedMilestoneDetailDto } from "dtos/adminApprovedMilestoneDto";
-import { PopulatedAssignment } from "types/jobAssignment/jobAssignment.populated";
+import { AdminApprovedMilestoneDetailDto } from "../dtos/adminApprovedMilestoneDto";
+import { PopulatedAssignment } from "../types/jobAssignment/jobAssignment.populated";
 
 export class AdminApprovedMilestoneDetailMapper {
   static map(doc: PopulatedAssignment): AdminApprovedMilestoneDetailDto {

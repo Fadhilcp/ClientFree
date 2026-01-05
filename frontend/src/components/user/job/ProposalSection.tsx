@@ -9,6 +9,7 @@ import { notify } from "../../../utils/toastService";
 import { getUpgradeProposal } from "../../../utils/getUpgradeProposal";
 import UserModal from "../../ui/Modal/UserModal";
 import ConfirmationModal from "../../ui/Modal/ConfirmationModal";
+import Pagination from "../Pagination";
 
 interface ProposalsSectionProps {
   jobId: string;
@@ -16,6 +17,8 @@ interface ProposalsSectionProps {
   isJobOwner: boolean;
   user: User | null;
 }
+
+const LIMIT = 1;
 
 const ProposalsSection: React.FC<ProposalsSectionProps> = ({
   jobId,
@@ -30,6 +33,11 @@ const ProposalsSection: React.FC<ProposalsSectionProps> = ({
   const [proposalFilter, setProposalFilter] = useState("all");
 
   const [cancelTarget, setCancelTarget] = useState<IProposal | null>(null);
+
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+
 
   const [editTarget, setEditTarget] = useState<IProposal | null>(null);
   const [editData, setEditData] = useState({
@@ -75,6 +83,32 @@ const ProposalsSection: React.FC<ProposalsSectionProps> = ({
   };
 
 
+  // for proposal 
+  const fetchData = async () => {
+    try {
+        setProposalsLoading(true);
+        const res = await proposalService.getProposalsForJob(
+          jobId,
+          proposalFilter !== "all" ? proposalFilter : "",
+          false,
+          page,
+          LIMIT
+        );
+
+        if (res.data.success) {
+          const { proposals, total, totalPages } = res.data;
+          setProposals(proposals);
+          setTotal(total);
+          setTotalPages(totalPages);
+        };
+
+    } catch (err) {
+      notify.error('Pleaes try again!')
+      console.error("Failed:", err);
+    } finally {
+      setProposalsLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!jobId) return;
@@ -82,48 +116,13 @@ const ProposalsSection: React.FC<ProposalsSectionProps> = ({
       setProposals([]);
       return; 
     }
-    // for proposal 
-    const fetchData = async () => {
-      try {
-          setProposalsLoading(true);
-          const res = await proposalService.getProposalsForJob(
-            jobId,
-            proposalFilter !== "all" ? proposalFilter : "",
-            false
-          );
-
-          if (res.data.success) setProposals(res.data.proposals);
-          setProposalsLoading(false);
-
-      } catch (err) {
-        notify.error('Pleaes try again!')
-        console.error("Failed:", err);
-        setProposalsLoading(false);
-      }
-    };
 
   fetchData();
-  }, [jobId, proposalFilter, jobStatus]);
+  }, [jobId, proposalFilter, jobStatus, page]);
 
-  // polling of new proposal( every 20 seconds )
   useEffect(() => {
-    if (!jobId || jobStatus !== "open") return;
-    const interval = setInterval(async () => {
-      try {
-        const response = await proposalService.getProposalsForJob(
-          jobId,
-          proposalFilter !== "all" ? proposalFilter : "",
-          false
-        );
-        if (response.data.success) setProposals(response.data.proposals);
-        
-      } catch (err) {
-        console.error("Polling failed:", err);
-      }
-    }, 20000); // 20 seconds
-    return () => clearInterval(interval);
-  }, [jobId, proposalFilter, jobStatus]);
-    
+    setPage(1);
+  }, [proposalFilter]);    
 
   const handleChangeStatus = async(proposalId: string, status: ProposalStatus) => {
     try { 
@@ -350,6 +349,14 @@ const ProposalsSection: React.FC<ProposalsSectionProps> = ({
         ) : (
           <p className="text-gray-600 dark:text-gray-300">No proposals yet.</p>
         )}
+
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          total={total}
+          entityLabel="proposals"
+          onPageChange={(newPage) => setPage(newPage)}
+        />
       </div>
     );
   }

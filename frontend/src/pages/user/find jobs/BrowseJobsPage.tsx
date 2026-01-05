@@ -15,6 +15,7 @@ const LIMIT = 20;
 
 const BrowseJobsPage: React.FC = () => {
   const [jobs, setJobs] = useState<JobListDTO[]>([]);
+  console.log("🚀 ~ BrowseJobsPage ~ jobs:", jobs)
   const [loading, setLoading] = useState(false);
   // for infinit scroll
   const [cursor, setCursor] = useState<string | null>(null);

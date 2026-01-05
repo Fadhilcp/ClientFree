@@ -1,7 +1,7 @@
 import { mapUserToFreelancerDto } from "./freelancer.mapper";
 import { mapUserToClientDto } from "./client.mapper";
 import { mapUserToListingDto } from "./userListing.mapper";
-import { IUserDocument } from "types/user.type";
+import { IUserDocument } from "../types/user.type";
 
 export function mapUserProfile(user: IUserDocument) {
   switch (user.role) {

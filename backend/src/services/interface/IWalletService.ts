@@ -1,9 +1,7 @@
-import { WalletDTO } from "dtos/wallet.dto";
-import { WalletTransactionDTO } from "dtos/walletTransaction.dto";
+import { WalletDTO } from "../../dtos/wallet.dto";
+import { WalletTransactionDTO } from "../../dtos/walletTransaction.dto";
 import { Types } from "mongoose";
-import { PaginatedResult } from "types/pagination";
-import { IWalletDocument } from "types/wallet.type";
-import { IWalletTransactionDocument } from "types/walletTransaction.type";
+import { PaginatedResult } from "../../types/pagination";
 
 export interface IWalletService {
     getWalletDetails(userId: string, page: number, limit: number): Promise<any>;

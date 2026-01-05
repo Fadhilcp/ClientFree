@@ -1,30 +1,29 @@
-import { IPaymentRepository } from "repositories/interfaces/IPaymentRepository";
+import { IPaymentRepository } from "../repositories/interfaces/IPaymentRepository";
 import { IPaymentService } from "./interface/IPaymentService";
-import { IJobAssignmentRepository } from "repositories/interfaces/IJobAssignmentRepository";
-import { createHttpError } from "utils/httpError.util";
-import { HttpStatus } from "constants/status.constants";
-import { HttpResponse } from "constants/responseMessage.constant";
+import { IJobAssignmentRepository } from "../repositories/interfaces/IJobAssignmentRepository";
+import { createHttpError } from "../utils/httpError.util";
+import { HttpStatus } from "../constants/status.constants";
+import { HttpResponse } from "../constants/responseMessage.constant";
 import { ClientSession, FilterQuery, Types } from "mongoose";
-import { getRazorpayInstance } from "config/razorpay.config";
+import { getRazorpayInstance } from "../config/razorpay.config";
 import crypto from 'crypto'
-import { env } from "config/env.config";
-import { IJobRepository } from "repositories/interfaces/IJobRepository";
-import { IPaymentDocument } from "types/payment/payment.type";
-import { AdminDisputeMapper } from "mappers/adminDispute.mapper";
-import { AdminDisputeDto, AdminDisputeListDto } from "dtos/adminDispute.dto";
-import { IWalletRepository } from "repositories/interfaces/IWalletRepository";
-import { IWalletTransactionRepository } from "repositories/interfaces/IWalletTransactionRepository";
-import { IDatabaseSessionProvider } from "repositories/db/session-provider.interface";
-import { PaginatedResult } from "types/pagination";
+import { env } from "../config/env.config";
+import { IJobRepository } from "../repositories/interfaces/IJobRepository";
+import { IPaymentDocument } from "../types/payment/payment.type";
+import { AdminDisputeMapper } from "../mappers/adminDispute.mapper";
+import { AdminDisputeDto, AdminDisputeListDto } from "../dtos/adminDispute.dto";
+import { IWalletRepository } from "../repositories/interfaces/IWalletRepository";
+import { IWalletTransactionRepository } from "../repositories/interfaces/IWalletTransactionRepository";
+import { IDatabaseSessionProvider } from "../repositories/db/session-provider.interface";
+import { PaginatedResult } from "../types/pagination";
 import { Orders } from "razorpay/dist/types/orders";
-import { IJobAssignmentDocument } from "types/jobAssignment/jobAssignment.type";
-import { populate } from "dotenv";
-import { mapAdminWithdrawal } from "mappers/adminWithdrawal.mapper";
-import { AdminWithdrawalDTO } from "dtos/adminWithdrawal.dto";
-import { IWalletTransactionDocument } from "types/walletTransaction.type";
-import { mapPayment } from "mappers/payment.mapper";
-import { mapAdminPayment } from "mappers/adminPayment.mapper";
-import { AdminPaymentDto } from "dtos/adminPayment.dto";
+import { IJobAssignmentDocument } from "../types/jobAssignment/jobAssignment.type";
+import { mapAdminWithdrawal } from "../mappers/adminWithdrawal.mapper";
+import { AdminWithdrawalDTO } from "../dtos/adminWithdrawal.dto";
+import { IWalletTransactionDocument } from "../types/walletTransaction.type";
+import { mapPayment } from "../mappers/payment.mapper";
+import { mapAdminPayment } from "../mappers/adminPayment.mapper";
+import { AdminPaymentDto } from "../dtos/adminPayment.dto";
 
 export class PaymentService implements IPaymentService {
     constructor(

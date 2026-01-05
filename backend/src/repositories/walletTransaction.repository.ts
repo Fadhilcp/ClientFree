@@ -1,9 +1,9 @@
 import { BaseRepository } from "./base.repository";
-import walletTransactionModel from "models/walletTransaction.model";
-import { IWalletTransactionDocument } from "types/walletTransaction.type";
+import walletTransactionModel from "../models/walletTransaction.model";
+import { IWalletTransactionDocument } from "../types/walletTransaction.type";
 import { IWalletTransactionRepository } from "./interfaces/IWalletTransactionRepository";
 import { Aggregate, FilterQuery, PipelineStage, Types } from "mongoose";
-import { FinancialReportSummary } from "types/wallet.type";
+import { FinancialReportSummary } from "../types/wallet.type";
 
 export class WalletTransactionRepository 
     extends BaseRepository<IWalletTransactionDocument> 

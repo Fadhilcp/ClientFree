@@ -1,7 +1,7 @@
 import { Aggregate, ClientSession, FilterQuery, Types } from "mongoose";
 import { IBaseRepository } from "./IBaseRepository";
-import { IWalletTransactionDocument } from "types/walletTransaction.type";
-import { FinancialReportSummary } from "types/wallet.type";
+import { IWalletTransactionDocument } from "../../types/walletTransaction.type";
+import { FinancialReportSummary } from "../../types/wallet.type";
 
 export interface IWalletTransactionRepository extends IBaseRepository<IWalletTransactionDocument> {
     createWithSession(

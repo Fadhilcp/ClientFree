@@ -1,4 +1,4 @@
-import { AdminEscrowMilestoneDTO } from "dtos/adminEscrowMilestone.dto";
+import { AdminEscrowMilestoneDTO } from "../dtos/adminEscrowMilestone.dto";
 
 export function mapEscrowMilestone(
   doc: any

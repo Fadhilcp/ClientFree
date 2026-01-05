@@ -1,7 +1,7 @@
-import { HttpStatus } from "constants/status.constants";
+import { HttpStatus } from "../constants/status.constants";
 import { NextFunction, Request, Response } from "express";
-import { IAddOnService } from "services/interface/IAddOnsService";
-import { sendResponse } from "utils/response.util";
+import { IAddOnService } from "../services/interface/IAddOnsService";
+import { sendResponse } from "../utils/response.util";
 
 export class AddonController {
     constructor(private _addOnService: IAddOnService){}

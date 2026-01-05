@@ -1,13 +1,13 @@
 import cron from "node-cron";
 
-import { MongooseSessionProvider } from "repositories/db/session-provider";
-import { PaymentRepository } from "repositories/payment.repository";
-import { PlanRepository } from "repositories/plan.repository";
-import { RevenueRepository } from "repositories/revenue.repository";
-import { SubscriptionRepository } from "repositories/subscription.repository";
-import { UserRepository } from "repositories/user.repository";
+import { MongooseSessionProvider } from "../repositories/db/session-provider";
+import { PaymentRepository } from "../repositories/payment.repository";
+import { PlanRepository } from "../repositories/plan.repository";
+import { RevenueRepository } from "../repositories/revenue.repository";
+import { SubscriptionRepository } from "../repositories/subscription.repository";
+import { UserRepository } from "../repositories/user.repository";
 
-import { SubscriptionService } from "services/subscription.service";
+import { SubscriptionService } from "../services/subscription.service";
 
 const subscriptionRepository = new SubscriptionRepository();
 const planRepository = new PlanRepository();

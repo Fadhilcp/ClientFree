@@ -4,17 +4,17 @@ import { IUserRepository } from "repositories/interfaces/IUserRepository";
 import { IUserService } from "./interface/IUserService";
 import { IUser, IUserDocument } from "../types/user.type";
 import { createHttpError } from "../utils/httpError.util";
-import { mapUserToListingDto } from "mappers/userListing.mapper";
-import { mapUserProfile } from "mappers/mapUserProfile";
-import { UserProfileDto } from "dtos/profile.dto.types";
-import { UserListingDto } from "dtos/userListing.dto";
-import { PaginatedResult } from "types/pagination";
-import { calculateProfileCompletion } from "utils/profileCompletion";
+import { mapUserToListingDto } from "../mappers/userListing.mapper";
+import { mapUserProfile } from "../mappers/mapUserProfile";
+import { UserProfileDto } from "../dtos/profile.dto.types";
+import { UserListingDto } from "../dtos/userListing.dto";
+import { PaginatedResult } from "../types/pagination";
+import { calculateProfileCompletion } from "../utils/profileCompletion";
 import { FilterQuery } from "mongoose";
-import cloudinary from "config/cloudinary.config";
-import { uploadToCloudinary } from "utils/cloudinary.helper";
-import { FreelancerListItemDto } from "dtos/freelancerProfile.dto";
-import { mapUserToFreelancerListItemDto } from "mappers/freelancer.mapper";
+import cloudinary from "../config/cloudinary.config";
+import { uploadToCloudinary } from "../utils/cloudinary.helper";
+import { FreelancerListItemDto } from "../dtos/freelancerProfile.dto";
+import { mapUserToFreelancerListItemDto } from "../mappers/freelancer.mapper";
 
 export class UserService implements IUserService {
 

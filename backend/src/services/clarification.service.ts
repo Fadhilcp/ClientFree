@@ -1,14 +1,14 @@
-import { IClarificationBoardRepository } from "repositories/interfaces/IClarificationBoardRepository";
+import { IClarificationBoardRepository } from "../repositories/interfaces/IClarificationBoardRepository";
 import { IClarificationService } from "./interface/IClarificationService";
-import { IClarificationMessageRepository } from "repositories/interfaces/IClarificationMessageRepository";
-import { createHttpError } from "utils/httpError.util";
-import { HttpStatus } from "constants/status.constants";
-import { HttpResponse } from "constants/responseMessage.constant";
-import { IJobRepository } from "repositories/interfaces/IJobRepository";
-import { ClarificationMessageDto } from "dtos/clarificationMessage.dto";
-import { ClarificationBoardDto } from "dtos/clarificationBoard.dto";
-import { mapClarificationBoard } from "mappers/clarificationBoard.mapper";
-import { mapClarificationMessage } from "mappers/clarificationMessage.mapper";
+import { IClarificationMessageRepository } from "../repositories/interfaces/IClarificationMessageRepository";
+import { createHttpError } from "../utils/httpError.util";
+import { HttpStatus } from "../constants/status.constants";
+import { HttpResponse } from "../constants/responseMessage.constant";
+import { IJobRepository } from "../repositories/interfaces/IJobRepository";
+import { ClarificationMessageDto } from "../dtos/clarificationMessage.dto";
+import { ClarificationBoardDto } from "../dtos/clarificationBoard.dto";
+import { mapClarificationBoard } from "../mappers/clarificationBoard.mapper";
+import { mapClarificationMessage } from "../mappers/clarificationMessage.mapper";
 
 export class ClarificationService implements IClarificationService {
 

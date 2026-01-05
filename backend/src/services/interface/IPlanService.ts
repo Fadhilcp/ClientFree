@@ -1,7 +1,7 @@
-import { PlanDetailAdminDTO, PlanDetailUserDTO, PlanTableDTO } from "dtos/plan.dto";
+import { PlanDetailAdminDTO, PlanDetailUserDTO, PlanTableDTO } from "../../dtos/plan.dto";
 import { DeleteResult } from "mongoose";
-import { PaginatedResult } from "types/pagination";
-import { IPlan, IPlanDocument } from "types/plan.type";
+import { PaginatedResult } from "../../types/pagination";
+import { IPlan, IPlanDocument } from "../../types/plan.type";
 
 export interface IPlanService {
     getActive(userType?: string): Promise<PlanDetailUserDTO[]>;

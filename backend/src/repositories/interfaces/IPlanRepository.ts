@@ -1,4 +1,4 @@
-import { IPlanDocument } from "types/plan.type";
+import { IPlanDocument } from "../../types/plan.type";
 import { IBaseRepository } from "./IBaseRepository";
 
 // export interface IPlanRepository extends IBaseRepository<IPlanDocument> {};

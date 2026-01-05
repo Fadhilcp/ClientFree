@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { IClarificationMessageDocument } from "types/clarificationMessage";
+import { IClarificationMessageDocument } from "../types/clarificationMessage";
 
 const clarificationMessageSchema = new Schema({
   boardId: { 

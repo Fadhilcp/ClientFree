@@ -1,7 +1,7 @@
-import { FreelancerProfileDto } from "dtos/freelancerProfile.dto";
-import { AssignmentDto, AssignmentMilestoneDto, AssignmentTaskDto } from "dtos/jobAssignment.dto";
-import { IJobAssignmentDocument, IMilestone, ITask } from "types/jobAssignment/jobAssignment.type";
-import { IUserDocument } from "types/user.type";
+import { FreelancerProfileDto } from "../dtos/freelancerProfile.dto";
+import { AssignmentDto, AssignmentMilestoneDto, AssignmentTaskDto } from "../dtos/jobAssignment.dto";
+import { IJobAssignmentDocument, IMilestone, ITask } from "../types/jobAssignment/jobAssignment.type";
+import { IUserDocument } from "../types/user.type";
 
 export class AssignmentMapper {
     static mapMilestone(m : IMilestone): AssignmentMilestoneDto {

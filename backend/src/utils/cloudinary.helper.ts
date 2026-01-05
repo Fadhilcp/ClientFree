@@ -1,5 +1,5 @@
 import { UploadApiResponse, UploadApiOptions } from "cloudinary";
-import cloudinary from "config/cloudinary.config";
+import cloudinary from "../config/cloudinary.config";
 import streamifier from 'streamifier';
 
 export const uploadToCloudinary = (file: Express.Multer.File,options: UploadApiOptions)

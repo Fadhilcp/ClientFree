@@ -11,6 +11,20 @@ export const env = {
         return process.env.PORT;
     },
 
+    //cors
+    get CORS_ORIGIN(){
+        return process.env.CORS_ORIGIN;
+    },
+    get CORS_METHODS(){
+        return process.env.CORS_METHODS;
+    },
+    get CORS_ALLOWED_HEADERS(){
+        return process.env.CORS_ALLOWED_HEADERS;
+    },
+    get CORS_CREDENTIALS(){
+        return process.env.CORS_CREDENTIALS;
+    },
+
     get SENDER_EMAIL(){
         return process.env.SENDER_EMAIL;
     },

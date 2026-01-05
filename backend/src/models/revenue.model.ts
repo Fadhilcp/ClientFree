@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { IRevenueDocument } from "types/revenue.type";
+import { IRevenueDocument } from "../types/revenue.type";
 
 const revenueSchema = new Schema({
   type: { 

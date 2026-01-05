@@ -1,12 +1,12 @@
 import { Router } from "express";
 
-import { SkillRepository } from "repositories/skillRepository";
-import { UserRepository } from "repositories/user.repository";
-import { SkillService } from "services/skill.service";
-import { SkillController } from "controllers/skill.controller";
-import { authMiddleware } from "middlewares/authMiddleware";
-import { verifyAdmin } from "middlewares/verifyAdmin";
-import { verifyUserNotBanned } from "middlewares/verifyUserNotBanned.middleware";
+import { SkillRepository } from "../repositories/skillRepository";
+import { UserRepository } from "../repositories/user.repository";
+import { SkillService } from "../services/skill.service";
+import { SkillController } from "../controllers/skill.controller";
+import { authMiddleware } from "../middlewares/authMiddleware";
+import { verifyAdmin } from "../middlewares/verifyAdmin";
+import { verifyUserNotBanned } from "../middlewares/verifyUserNotBanned.middleware";
 
 const skillRouter = Router()
 

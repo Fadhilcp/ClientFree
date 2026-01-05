@@ -1,5 +1,5 @@
-import { ClarificationBoardDto } from "dtos/clarificationBoard.dto";
-import { IClarificationBoardDocument } from "types/clarificationBoard";
+import { ClarificationBoardDto } from "../dtos/clarificationBoard.dto";
+import { IClarificationBoardDocument } from "../types/clarificationBoard";
 
 export function mapClarificationBoard(
   board: IClarificationBoardDocument

@@ -1,7 +1,7 @@
 import { BaseRepository } from "./base.repository";
-import { IProposalInvitationDocument } from "types/proposalInvitation.type";
+import { IProposalInvitationDocument } from "../types/proposalInvitation.type";
 import { IProposalRepository } from "./interfaces/IProposalInvitation";
-import proposalInvitationModel from "models/proposalInvitation.model";
+import proposalInvitationModel from "../models/proposalInvitation.model";
 import { FilterQuery, Types } from "mongoose";
 
 export class ProposalRepository 
@@ -17,12 +17,18 @@ export class ProposalRepository
             .populate("jobId");
     }
 
-    async findByJob(filter: FilterQuery<IProposalInvitationDocument>): Promise<IProposalInvitationDocument[]> {
+    async findByJob(filter: FilterQuery<IProposalInvitationDocument>,
+        page: number, limit: number
+    ): Promise<{ proposals: IProposalInvitationDocument[], total: number, totalPages: number }> {
+
         const mongoFilter = {
             ...filter,
             jobId: new Types.ObjectId(filter.jobId as string),
         };
-        return this.model.aggregate([
+
+        const skip = (page - 1) * limit;
+
+        const result = await this.model.aggregate<{ data: IProposalInvitationDocument[], totalCount: { count:number }[]; }>([
             { $match: mongoFilter },
             {
                 $addFields: {
@@ -31,22 +37,32 @@ export class ProposalRepository
                     }
                 }
             },
+            { $sort: { isSponsored: -1 } },
             {
-                $sort: {
-                    isSponsored: -1
-                }
+                $facet: {
+                    data: [
+                        { $skip: skip },
+                        { $limit: limit },
+                        {
+                            $lookup: {
+                            from: "users",
+                            localField: "freelancerId",
+                            foreignField: "_id",
+                            as: "freelancerId",
+                            },
+                        },
+                        { $unwind: "$freelancerId" },
+                    ],
+                    totalCount: [{ $count: "count" }],
+                },
             },
-            {
-                $lookup: {
-                    from: "users",
-                    localField: "freelancerId",
-                    foreignField: "_id",
-                    as: "freelancerId"
-                }
-            },
-            { $unwind: "$freelancerId" }
         ]);
-    }
+
+        const data = result[0]?.data ?? [];
+        const total = result[0]?.totalCount[0]?.count || 0;
+
+        return { proposals: data, total, totalPages: Math.ceil(total / limit) }
+    }  
 
 
     async findWithDetailPaginated(

@@ -1,4 +1,4 @@
-import { ISubscriptionDocument } from "types/subscription.type";
+import { ISubscriptionDocument } from "../../types/subscription.type";
 import { IBaseRepository } from "./IBaseRepository";
 import { ClientSession } from "mongoose";
 

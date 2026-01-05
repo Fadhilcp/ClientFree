@@ -1,8 +1,8 @@
-import { UserListingDto } from "dtos/userListing.dto";
+import { UserListingDto } from "../../dtos/userListing.dto";
 import { IUser } from "../../types/user.type";
-import { UserProfileDto } from "dtos/profile.dto.types";
-import { PaginatedResult } from "types/pagination";
-import { FreelancerListItemDto } from "dtos/freelancerProfile.dto";
+import { UserProfileDto } from "../../dtos/profile.dto.types";
+import { PaginatedResult } from "../../types/pagination";
+import { FreelancerListItemDto } from "../../dtos/freelancerProfile.dto";
 
 
 export interface IUserService {

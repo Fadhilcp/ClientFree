@@ -1,9 +1,9 @@
-import { IWalletTransactionRepository } from "repositories/interfaces/IWalletTransactionRepository";
+import { IWalletTransactionRepository } from "../repositories/interfaces/IWalletTransactionRepository";
 import { IDashBoardOverviewService } from "./interface/IDashboardService";
-import { IJobAssignmentRepository } from "repositories/interfaces/IJobAssignmentRepository";
-import { IWalletRepository } from "repositories/interfaces/IWalletRepository";
-import { ClientPaymentOverviewDTO } from "dtos/paymentOverview.dto";
-import { mapWalletTransaction } from "mappers/walletTransaction.mapper";
+import { IJobAssignmentRepository } from "../repositories/interfaces/IJobAssignmentRepository";
+import { IWalletRepository } from "../repositories/interfaces/IWalletRepository";
+import { ClientPaymentOverviewDTO } from "../dtos/paymentOverview.dto";
+import { mapWalletTransaction } from "../mappers/walletTransaction.mapper";
 
 export class ClientDashboardService implements IDashBoardOverviewService<ClientPaymentOverviewDTO> {
     constructor(

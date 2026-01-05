@@ -1,4 +1,4 @@
-import { ISubscriptionDocument } from 'types/subscription.type';
+import { ISubscriptionDocument } from '../types/subscription.type';
 import subscriptionModel from '../models/subscription.model';
 import { BaseRepository } from './base.repository';
 import { ISubscriptionRepository } from './interfaces/ISubscriptionRepository';

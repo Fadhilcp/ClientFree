@@ -1,5 +1,5 @@
-import { WalletTransactionDTO } from "dtos/walletTransaction.dto";
-import { IWalletTransactionDocument } from "types/walletTransaction.type";
+import { WalletTransactionDTO } from "../dtos/walletTransaction.dto";
+import { IWalletTransactionDocument } from "../types/walletTransaction.type";
 
 export function mapWalletTransaction(transaction: IWalletTransactionDocument): WalletTransactionDTO {
     return {

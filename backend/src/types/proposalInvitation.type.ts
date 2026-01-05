@@ -1,4 +1,4 @@
-import { ProposalDTO } from "dtos/proposal.dto";
+import { ProposalDTO } from "../dtos/proposal.dto";
 import { Document, Types } from "mongoose";
 import { Orders } from "razorpay/dist/types/orders";
 

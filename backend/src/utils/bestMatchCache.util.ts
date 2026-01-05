@@ -1,4 +1,4 @@
-import { redis } from "config/redis.config";
+import { redis } from "../config/redis.config";
 
 export class MatchCacheService {
     private static TTL = 60 * 60 * 12;

@@ -1,4 +1,4 @@
-import { IJobDocument } from "types/job.type";
+import { IJobDocument } from "../../types/job.type";
 import { IBaseRepository } from "./IBaseRepository";
 import { FilterQuery } from "mongoose";
 

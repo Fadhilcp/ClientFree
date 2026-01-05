@@ -1,9 +1,9 @@
-import { JobListDTO, JobDetailDTO, AcceptedProposalDTO } from "dtos/job.dto";
+import { JobListDTO, JobDetailDTO, AcceptedProposalDTO } from "../dtos/job.dto";
 import { Types } from "mongoose";
-import { IJobDocument } from "types/job.type";
-import { ISkillDocument } from "types/skill.type";
+import { IJobDocument } from "../types/job.type";
+import { ISkillDocument } from "../types/skill.type";
 
-import { IUserDocument } from "types/user.type";
+import { IUserDocument } from "../types/user.type";
 
 function isUserDocument(obj: any): obj is IUserDocument {
     return obj && typeof obj === "object" && "_id" in obj && "username" in obj;

@@ -3,9 +3,9 @@ import { IUserService }from "../services/interface/IUserService";
 import { HttpStatus } from "../constants/status.constants";
 import { createHttpError } from "../utils/httpError.util";
 import { HttpResponse } from "../constants/responseMessage.constant";
-import { clientUpdateSchema, freelancerUpdateSchema } from "schema/profile.schema";
-import { sendResponse } from "utils/response.util";
-import { IUser } from "types/user.type";
+import { clientUpdateSchema, freelancerUpdateSchema } from "../schema/profile.schema";
+import { sendResponse } from "../utils/response.util";
+import { IUser } from "../types/user.type";
 
 
 export class ProfileController {

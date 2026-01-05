@@ -1,29 +1,30 @@
 import { createHttpError } from "../utils/httpError.util";
 import { HttpStatus } from "../constants/status.constants";
-import { IProposalRepository } from "repositories/interfaces/IProposalInvitation";
-import { IJobRepository } from "repositories/interfaces/IJobRepository";
-import { CreateProposalResponse, IInvitationDetails, IProposalInvitation, IProposalInvitationDocument, IProposalInvitationPayload, ProposalStatus } from "types/proposalInvitation.type";
+import { IProposalRepository } from "../repositories/interfaces/IProposalInvitation";
+import { IJobRepository } from "../repositories/interfaces/IJobRepository";
+import { CreateProposalResponse, IInvitationDetails, IProposalInvitation, IProposalInvitationDocument, IProposalInvitationPayload, ProposalStatus } from "../types/proposalInvitation.type";
 import { IProposalService } from "./interface/IProposalService";
-import { mapProposal } from "mappers/proposal.mapper";
-import { ProposalDTO } from "dtos/proposal.dto";
+import { mapProposal } from "../mappers/proposal.mapper";
+import { ProposalDTO } from "../dtos/proposal.dto";
 import { FilterQuery, Types, UpdateQuery } from "mongoose";
-import { IJobDocument } from "types/job.type";
-import { HttpResponse } from "constants/responseMessage.constant";
-import { IJobAssignmentRepository } from "repositories/interfaces/IJobAssignmentRepository";
-import { IAddOnRepository } from "repositories/interfaces/IAddOnsRepository";
-import { IPaymentRepository } from "repositories/interfaces/IPaymentRepository";
-import { getRazorpayInstance } from "config/razorpay.config";
-import { IRazoryPaymentResponse } from "types/razorpay.types";
-import { env } from "config/env.config";
+import { IJobDocument } from "../types/job.type";
+import { HttpResponse } from "../constants/responseMessage.constant";
+import { IJobAssignmentRepository } from "../repositories/interfaces/IJobAssignmentRepository";
+import { IAddOnRepository } from "../repositories/interfaces/IAddOnsRepository";
+import { IPaymentRepository } from "../repositories/interfaces/IPaymentRepository";
+import { getRazorpayInstance } from "../config/razorpay.config";
+import { IRazoryPaymentResponse } from "../types/razorpay.types";
+import { env } from "../config/env.config";
 import crypto from 'crypto';
-import { IRevenueRepository } from "repositories/interfaces/IRevenueRepository";
-import { IAddOnDocument } from "types/addOns.type";
+import { IRevenueRepository } from "../repositories/interfaces/IRevenueRepository";
+import { IAddOnDocument } from "../types/addOns.type";
 import { Orders } from "razorpay/dist/types/orders";
-import { IPaymentDocument } from "types/payment/payment.type";
-import { IUserRepository } from "repositories/interfaces/IUserRepository";
-import { getEmbedding } from "helpers/embedding.helper";
-import { cosineSimilarity } from "helpers/similarity.helper";
-import { IUserDocument } from "types/user.type";
+import { IPaymentDocument } from "../types/payment/payment.type";
+import { IUserRepository } from "../repositories/interfaces/IUserRepository";
+import { getEmbedding } from "../helpers/embedding.helper";
+import { cosineSimilarity } from "../helpers/similarity.helper";
+import { IUserDocument } from "../types/user.type";
+import { PaginatedResult } from "../types/pagination";
 
 export class ProposalService implements IProposalService {
     constructor(
@@ -289,7 +290,7 @@ export class ProposalService implements IProposalService {
     }
 
 
-    async getProposalsForJob(jobId: string, status?: string, isInvitation?: boolean): Promise<ProposalDTO[]> {
+    async getProposalsForJob(jobId: string, status?: string, isInvitation?: boolean, page?: number, limit?: number): Promise<PaginatedResult<ProposalDTO>> {
 
         const job = await this._jobRepository.findById(jobId);
         if (!job) throw createHttpError(HttpStatus.NOT_FOUND, "Job not found");
@@ -299,8 +300,18 @@ export class ProposalService implements IProposalService {
         if (status) filter.status = status;
         if (isInvitation !== undefined) filter.isInvitation = isInvitation === true;
 
-        const proposals = await this._proposalRepository.findByJob(filter);
-        return proposals.map(mapProposal);
+        
+
+        const { proposals, total, totalPages } = await this._proposalRepository.findByJob(filter, page ?? 1, limit ?? 10);
+        page = page ? page : 1;
+        limit = limit ? limit : 10;
+        return {
+            data: proposals.map(mapProposal),
+            total,
+            totalPages,
+            page,
+            limit
+        };
     }
 
     async getById(proposalId: string): Promise<ProposalDTO> {

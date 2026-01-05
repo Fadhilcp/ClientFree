@@ -83,7 +83,9 @@ export const endPoints = {
         BY_ID: (id: string) => `/proposal/${id}`,     // GET / PUT
         UPDATE: (id: string) => `/proposal/${id}`,    // PUT
         UPDATE_STATUS: (id: string) => `/proposal/${id}/status`, // PATCH
-        FOR_JOB: (jobId: string, status?: string, invitation?: boolean) => `/proposal/job/${jobId}?status=${status ?? ""}&invitation=${invitation ?? ""}`,    // GET proposals for job
+        FOR_JOB: (jobId: string, status?: string, invitation?: boolean, page?: number, limit?: number) => 
+            `/proposal/job/${jobId}?status=${status ?? ""}&invitation=${invitation ?? ""}&page=${page ?? 1}&limit=${limit ?? 10}`,    // GET proposals for job
+
         ACCEPT_PROPOSAL: (proposalId: string) => `/proposal/${proposalId}/accept`,
         CANCEL_PROPOSAL: (proposalId: string) => `/proposal/${proposalId}/cancel`,
         INVITE: (jobId: string, freelancerId: string) => `/proposal/job/${jobId}/invite/${freelancerId}`,

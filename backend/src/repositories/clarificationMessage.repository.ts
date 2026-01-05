@@ -1,7 +1,7 @@
-import { IClarificationMessageDocument } from "types/clarificationMessage";
+import { IClarificationMessageDocument } from "../types/clarificationMessage";
 import { BaseRepository } from "./base.repository";
 import { IClarificationMessageRepository } from "./interfaces/IClarificationMessageRepository";
-import clarificationMessageModel from "models/clarificationMessage.model";
+import clarificationMessageModel from "../models/clarificationMessage.model";
 import { FilterQuery } from "mongoose";
 
 export class ClarificationMessageRepository 

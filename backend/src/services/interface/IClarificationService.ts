@@ -1,5 +1,5 @@
-import { ClarificationBoardDto } from "dtos/clarificationBoard.dto";
-import { ClarificationMessageDto } from "dtos/clarificationMessage.dto";
+import { ClarificationBoardDto } from "../../dtos/clarificationBoard.dto";
+import { ClarificationMessageDto } from "../../dtos/clarificationMessage.dto";
 
 export interface IClarificationService {
     addMessage(

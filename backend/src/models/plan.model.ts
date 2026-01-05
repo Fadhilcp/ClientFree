@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { IPlanDocument } from "types/plan.type";
+import { IPlanDocument } from "../types/plan.type";
 
 const planSchema = new Schema({
   userType: { type: String, enum: ["client", "freelancer"], required: true },

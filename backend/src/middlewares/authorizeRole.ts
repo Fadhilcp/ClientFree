@@ -1,7 +1,7 @@
-import { HttpResponse } from "constants/responseMessage.constant";
-import { HttpStatus } from "constants/status.constants";
+import { HttpResponse } from "../constants/responseMessage.constant";
+import { HttpStatus } from "../constants/status.constants";
 import { Request, Response, NextFunction } from "express";
-import createHttpError from "http-errors";
+import { createHttpError } from "../utils/httpError.util";
 
 export const authorizeRole =
   (...allowedRoles: Array<"client" | "freelancer" | "admin">) =>

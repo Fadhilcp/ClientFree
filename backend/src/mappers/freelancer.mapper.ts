@@ -1,5 +1,5 @@
-import { FreelancerListItemDto, FreelancerProfileDto } from "dtos/freelancerProfile.dto";
-import { IUserDocument } from "types/user.type";
+import { FreelancerListItemDto, FreelancerProfileDto } from "../dtos/freelancerProfile.dto";
+import { IUserDocument } from "../types/user.type";
 
 export function mapUserToFreelancerDto(user: IUserDocument): FreelancerProfileDto {
   return {

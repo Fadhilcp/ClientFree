@@ -1,5 +1,5 @@
-import { ClientProfileDto } from "dtos/clientProfile.dto";
-import { IUserDocument } from "types/user.type";
+import { ClientProfileDto } from "../dtos/clientProfile.dto";
+import { IUserDocument } from "../types/user.type";
 
 export function mapUserToClientDto(user: IUserDocument): ClientProfileDto {
   return {

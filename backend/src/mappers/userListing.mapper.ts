@@ -1,5 +1,5 @@
-import { UserListingDto } from "dtos/userListing.dto";
-import { IUserDocument } from "types/user.type";
+import { UserListingDto } from "../dtos/userListing.dto";
+import { IUserDocument } from "../types/user.type";
 
 export function mapUserToListingDto(user: IUserDocument): UserListingDto {
   return {

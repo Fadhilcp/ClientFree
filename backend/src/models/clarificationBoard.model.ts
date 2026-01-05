@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { IClarificationBoardDocument } from "types/clarificationBoard";
+import { IClarificationBoardDocument } from "../types/clarificationBoard";
 
 const clarificationBoardSchema = new Schema({
   jobId: { 

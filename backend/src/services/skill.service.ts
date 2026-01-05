@@ -1,15 +1,15 @@
-import { HttpResponse } from "constants/responseMessage.constant";
-import { HttpStatus } from "constants/status.constants";
-import { ISkillRepository } from "repositories/interfaces/ISkillRepository";
-import { ISkillService } from "services/interface/ISkillService";
+import { HttpResponse } from "../constants/responseMessage.constant";
+import { HttpStatus } from "../constants/status.constants";
+import { ISkillRepository } from "../repositories/interfaces/ISkillRepository";
+import { ISkillService } from "../services/interface/ISkillService";
 import { DeleteResult, FilterQuery } from "mongoose";
-import { ISkill, ISkillDocument } from "types/skill.type";
-import { createHttpError } from "utils/httpError.util";
-import { mapSkill } from "mappers/skill.mapper";
-import { SkillDto } from "dtos/skill.dto";
-import { PaginatedResult } from "types/pagination";
-import { normalizeText } from "utils/normalizeText";
-import { IUserRepository } from "repositories/interfaces/IUserRepository";
+import { ISkill, ISkillDocument } from "../types/skill.type";
+import { createHttpError } from "../utils/httpError.util";
+import { mapSkill } from "../mappers/skill.mapper";
+import { SkillDto } from "../dtos/skill.dto";
+import { PaginatedResult } from "../types/pagination";
+import { normalizeText } from "../utils/normalizeText";
+import { IUserRepository } from "../repositories/interfaces/IUserRepository";
 
 
 export class SkillService implements ISkillService {

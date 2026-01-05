@@ -4,7 +4,7 @@ import { clearCookie, setCookie } from "../utils/refreshCookie.util";
 import { HttpStatus } from "../constants/status.constants";
 import { HttpResponse } from "../constants/responseMessage.constant";
 import { createHttpError } from "../utils/httpError.util";
-import { sendResponse } from "utils/response.util";
+import { sendResponse } from "../utils/response.util";
 
 
 export class AuthController {

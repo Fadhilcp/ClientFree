@@ -1,4 +1,4 @@
-import { IJobDocument } from "types/job.type";
+import { IJobDocument } from "../types/job.type";
 import { IJobRepository } from "./interfaces/IJobRepository";
 import { BaseRepository } from "./base.repository";
 import jobModel from "../models/job.model";

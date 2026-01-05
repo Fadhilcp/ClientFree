@@ -1,9 +1,9 @@
-import { IPaymentDocument } from "types/payment/payment.type";
+import { IPaymentDocument } from "../types/payment/payment.type";
 import { BaseRepository } from "./base.repository";
-import paymentModel from "models/payment.model";
+import paymentModel from "../models/payment.model";
 import { IPaymentRepository } from "./interfaces/IPaymentRepository";
 import { FilterQuery, ObjectId } from "mongoose";
-import { PopulatedPayment } from "types/payment/payment.populated";
+import { PopulatedPayment } from "../types/payment/payment.populated";
 
 export class PaymentRepository 
    extends BaseRepository<IPaymentDocument>

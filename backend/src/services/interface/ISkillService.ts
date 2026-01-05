@@ -1,7 +1,7 @@
-import { SkillDto } from "dtos/skill.dto";
+import { SkillDto } from "../../dtos/skill.dto";
 import { DeleteResult, FilterQuery } from "mongoose";
-import { PaginatedResult } from "types/pagination";
-import { ISkill, ISkillDocument } from "types/skill.type";
+import { PaginatedResult } from "../../types/pagination";
+import { ISkill, ISkillDocument } from "../../types/skill.type";
 
 
 export interface ISkillService {

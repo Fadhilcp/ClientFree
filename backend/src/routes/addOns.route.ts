@@ -1,9 +1,9 @@
-import { AddonController } from "controllers/addOns.controller";
-import { AddOnRepository } from "repositories/addOns.repository";
-import { AddOnService } from "services/addOns.service";
+import { AddonController } from "../controllers/addOns.controller";
+import { AddOnRepository } from "../repositories/addOns.repository";
+import { AddOnService } from "../services/addOns.service";
 import { Router } from "express";
-import { authMiddleware } from "middlewares/authMiddleware";
-import { verifyUserNotBanned } from "middlewares/verifyUserNotBanned.middleware";
+import { authMiddleware } from "../middlewares/authMiddleware";
+import { verifyUserNotBanned } from "../middlewares/verifyUserNotBanned.middleware";
 
 const addOnRespository = new AddOnRepository();
 const addOnService = new AddOnService(addOnRespository);

@@ -1,9 +1,9 @@
-import { HttpResponse } from "constants/responseMessage.constant";
-import { HttpStatus } from "constants/status.constants";
+import { HttpResponse } from "../constants/responseMessage.constant";
+import { HttpStatus } from "../constants/status.constants";
 import { NextFunction, Request, Response } from "express";
-import { IMatchService } from "services/interface/IMatchService";
-import { createHttpError } from "utils/httpError.util";
-import { sendResponse } from "utils/response.util";
+import { IMatchService } from "../services/interface/IMatchService";
+import { createHttpError } from "../utils/httpError.util";
+import { sendResponse } from "../utils/response.util";
 
 export class MatchController {
 
@@ -35,12 +35,12 @@ export class MatchController {
                 throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid budget values");
             }
 
-            const jobs = await this._matchService.getBestMatchJobs(
+            const { jobs, nextCursor } = await this._matchService.getBestMatchJobs(
                 freelancerId, limit, cursor, search,
                 { category, location, budgetMin, budgetMax }
             );
 
-            sendResponse(res, HttpStatus.OK, { jobs });
+            sendResponse(res, HttpStatus.OK, { jobs, nextCursor });
         } catch (error) {
             next(error);
         }
@@ -64,12 +64,12 @@ export class MatchController {
             const hourlyRateMax = req.query.hourlyRateMax ? Number(req.query.hourlyRateMax) : undefined;
             const ratingMin = req.query.ratingMin ? Number(req.query.ratingMin) : undefined;
 
-            const freelancers = await this._matchService.getBestMatchFreelancers(
+            const { freelancers, nextCursor } = await this._matchService.getBestMatchFreelancers(
                 jobId, limit, cursor, search, 
                 { location, experience, hourlyRateMin, hourlyRateMax, ratingMin }
             );
 
-            sendResponse(res, HttpStatus.OK, { freelancers });
+            sendResponse(res, HttpStatus.OK, { freelancers, nextCursor });
         } catch (error) {
             next(error);
         }

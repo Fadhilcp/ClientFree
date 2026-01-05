@@ -1,19 +1,19 @@
-import { IJobRepository } from "repositories/interfaces/IJobRepository";
+import { IJobRepository } from "../repositories/interfaces/IJobRepository";
 import { IMatchService } from "./interface/IMatchService";
-import { IUserRepository } from "repositories/interfaces/IUserRepository";
+import { IUserRepository } from "../repositories/interfaces/IUserRepository";
 import { ISubscriptionService } from "./interface/ISubscriptionService";
-import { JobMapper } from "mappers/job.mapper";
-import { JobListDTO } from "dtos/job.dto";
-import { createHttpError } from "utils/httpError.util";
-import { HttpStatus } from "constants/status.constants";
-import { HttpResponse } from "constants/responseMessage.constant";
-import { MatchCacheService } from "utils/bestMatchCache.util";
-import { MatchScoreHelper } from "helpers/matchScore.helper";
-import { FreelancerListItemDto } from "dtos/freelancerProfile.dto";
+import { JobMapper } from "../mappers/job.mapper";
+import { JobListDTO } from "../dtos/job.dto";
+import { createHttpError } from "../utils/httpError.util";
+import { HttpStatus } from "../constants/status.constants";
+import { HttpResponse } from "../constants/responseMessage.constant";
+import { MatchCacheService } from "../utils/bestMatchCache.util";
+import { MatchScoreHelper } from "../helpers/matchScore.helper";
+import { FreelancerListItemDto } from "../dtos/freelancerProfile.dto";
 import { FilterQuery } from "mongoose";
-import { IJobDocument } from "types/job.type";
-import { IUserDocument } from "types/user.type";
-import { mapUserToFreelancerListItemDto } from "mappers/freelancer.mapper";
+import { IJobDocument } from "../types/job.type";
+import { IUserDocument } from "../types/user.type";
+import { mapUserToFreelancerListItemDto } from "../mappers/freelancer.mapper";
 
 export class MatchService implements IMatchService {
     constructor(

@@ -1,7 +1,7 @@
-import { IProposalInvitationDocument } from "types/proposalInvitation.type";
-import { ProposalDTO } from "dtos/proposal.dto";
-import { IUserDocument } from "types/user.type";
-import { IJobDocument } from "types/job.type";
+import { IProposalInvitationDocument } from "../types/proposalInvitation.type";
+import { ProposalDTO } from "../dtos/proposal.dto";
+import { IUserDocument } from "../types/user.type";
+import { IJobDocument } from "../types/job.type";
 
 export function mapProposal(
   doc: IProposalInvitationDocument

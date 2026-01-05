@@ -1,14 +1,14 @@
-import { IPlanRepository } from "repositories/interfaces/IPlanRepository";
+import { IPlanRepository } from "../repositories/interfaces/IPlanRepository";
 import { IPlanService } from "./interface/IPlanService";
-import { IPlan, IPlanDocument } from "types/plan.type";
-import { createHttpError } from "utils/httpError.util";
-import { HttpStatus } from "constants/status.constants";
-import { HttpResponse } from "constants/responseMessage.constant";
+import { IPlan, IPlanDocument } from "../types/plan.type";
+import { createHttpError } from "../utils/httpError.util";
+import { HttpStatus } from "../constants/status.constants";
+import { HttpResponse } from "../constants/responseMessage.constant";
 import { DeleteResult, FilterQuery } from "mongoose";
-import { mapPlan } from "mappers/plan.mapper";
-import { PlanDetailAdminDTO, PlanDetailUserDTO, PlanTableDTO } from "dtos/plan.dto";
-import { getRazorpayInstance } from "config/razorpay.config";
-import { PaginatedResult } from "types/pagination";
+import { mapPlan } from "../mappers/plan.mapper";
+import { PlanDetailAdminDTO, PlanDetailUserDTO, PlanTableDTO } from "../dtos/plan.dto";
+import { getRazorpayInstance } from "../config/razorpay.config";
+import { PaginatedResult } from "../types/pagination";
 
 export class PlanService implements IPlanService {
     constructor(private _planRepository: IPlanRepository) {}

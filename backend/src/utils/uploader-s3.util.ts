@@ -1,7 +1,7 @@
 import multer from "multer";
 import multerS3 from "multer-s3";
-import s3 from "config/s3.config";
-import { env } from "config/env.config";
+import s3 from "../config/s3.config";
+import { env } from "../config/env.config";
 
 if(!env.AWS_BUCKET) throw new Error("AWS_BUCKET missing");
 

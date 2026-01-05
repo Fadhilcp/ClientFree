@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import { IProposalService } from "services/interface/IProposalService";
+import { IProposalService } from "../services/interface/IProposalService";
 import { sendResponse } from "../utils/response.util";
 import { HttpStatus } from "../constants/status.constants";
 import { createHttpError } from "../utils/httpError.util";
-import { HttpResponse } from "constants/responseMessage.constant";
+import { HttpResponse } from "../constants/responseMessage.constant";
 
 export class ProposalController {
     constructor(private _proposalService: IProposalService) {}
@@ -37,12 +37,18 @@ export class ProposalController {
             const status = req.query.status as string || '';
             const invitation = req.query.invitation === 'true'
 
+            const page = parseInt(req.query.page as string) || 1;
+            const limit = parseInt(req.query.limit as string) || 10;
+
             if (!jobId) {
                 throw createHttpError(HttpStatus.BAD_REQUEST, "Job id is needed");
             }
-            const proposals = await this._proposalService.getProposalsForJob(jobId,status,invitation);
+            const { data, total, totalPages } = await this._proposalService.getProposalsForJob(
+                jobId,status,invitation,
+                page, limit
+            );
 
-            sendResponse(res, HttpStatus.OK, { proposals });
+            sendResponse(res, HttpStatus.OK, { proposals: data, total, totalPages });
         } catch (error) {
             next(error);
         }

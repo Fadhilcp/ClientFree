@@ -1,4 +1,4 @@
-import { IPlanDocument } from "types/plan.type";
+import { IPlanDocument } from "../types/plan.type";
 import { BaseRepository } from "./base.repository";
 import { IPlanRepository } from "./interfaces/IPlanRepository";
 import planModel from "../models/plan.model";

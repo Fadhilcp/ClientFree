@@ -1,15 +1,15 @@
-import { PaymentController } from "controllers/payment.controller";
+import { PaymentController } from "../controllers/payment.controller";
 import { Router } from "express";
-import { authMiddleware } from "middlewares/authMiddleware";
-import { authorizeRole } from "middlewares/authorizeRole";
-import { verifyUserNotBanned } from "middlewares/verifyUserNotBanned.middleware";
-import { MongooseSessionProvider } from "repositories/db/session-provider";
-import { JobRepository } from "repositories/job.repository";
-import { JobAssignmentRepository } from "repositories/jobAssignment.repository";
-import { PaymentRepository } from "repositories/payment.repository";
-import { WalletRepository } from "repositories/wallet.repository";
-import { WalletTransactionRepository } from "repositories/walletTransaction.repository";
-import { PaymentService } from "services/payment.service";
+import { authMiddleware } from "../middlewares/authMiddleware";
+import { authorizeRole } from "../middlewares/authorizeRole";
+import { verifyUserNotBanned } from "../middlewares/verifyUserNotBanned.middleware";
+import { MongooseSessionProvider } from "../repositories/db/session-provider";
+import { JobRepository } from "../repositories/job.repository";
+import { JobAssignmentRepository } from "../repositories/jobAssignment.repository";
+import { PaymentRepository } from "../repositories/payment.repository";
+import { WalletRepository } from "../repositories/wallet.repository";
+import { WalletTransactionRepository } from "../repositories/walletTransaction.repository";
+import { PaymentService } from "../services/payment.service";
 
 const paymentRepository = new PaymentRepository();
 const jobAssignmentRepository = new JobAssignmentRepository();

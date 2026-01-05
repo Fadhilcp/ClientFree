@@ -1,24 +1,24 @@
-import { IJobAssignmentRepository } from "repositories/interfaces/IJobAssignmentRepository";
+import { IJobAssignmentRepository } from "../repositories/interfaces/IJobAssignmentRepository";
 import { IJobAssignmentService } from "./interface/IJobAssignmentService";
-import { AssignmentMapper } from "mappers/jobAssignment.mapper";
-import { AssignmentDto } from "dtos/jobAssignment.dto";
-import { IJobAssignmentDocument, IMilestone, IMilestoneFile } from "types/jobAssignment/jobAssignment.type";
-import { createHttpError } from "utils/httpError.util";
-import { HttpStatus } from "constants/status.constants";
-import { HttpResponse } from "constants/responseMessage.constant";
-import { VALID_BUDGET_STATUSES } from "constants/validBudgetStatuses";
-import { IPaymentDocument } from "types/payment/payment.type";
-import { IPaymentRepository } from "repositories/interfaces/IPaymentRepository";
-import { AdminMilestoneMapper } from "mappers/adminMilestone.mapper";
-import { AdminApprovedMilestoneDetailDto, AdminApprovedMilestoneDto } from "dtos/adminApprovedMilestoneDto";
-import { AuthPayload } from "types/auth.type";
-import { generateSignedUrl } from "utils/getSignedUrl.util";
+import { AssignmentMapper } from "../mappers/jobAssignment.mapper";
+import { AssignmentDto } from "../dtos/jobAssignment.dto";
+import { IJobAssignmentDocument, IMilestone, IMilestoneFile } from "../types/jobAssignment/jobAssignment.type";
+import { createHttpError } from "../utils/httpError.util";
+import { HttpStatus } from "../constants/status.constants";
+import { HttpResponse } from "../constants/responseMessage.constant";
+import { VALID_BUDGET_STATUSES } from "../constants/validBudgetStatuses";
+import { IPaymentDocument } from "../types/payment/payment.type";
+import { IPaymentRepository } from "../repositories/interfaces/IPaymentRepository";
+import { AdminMilestoneMapper } from "../mappers/adminMilestone.mapper";
+import { AdminApprovedMilestoneDetailDto, AdminApprovedMilestoneDto } from "../dtos/adminApprovedMilestoneDto";
+import { AuthPayload } from "../types/auth.type";
+import { generateSignedUrl } from "../utils/getSignedUrl.util";
 import { FilterQuery } from "mongoose";
-import { PaginatedResult } from "types/pagination";
-import { AdminApprovedMilestoneDetailMapper } from "mappers/adminApprovedMilestone.mapper";
+import { PaginatedResult } from "../types/pagination";
+import { AdminApprovedMilestoneDetailMapper } from "../mappers/adminApprovedMilestone.mapper";
 import { IWalletService } from "./interface/IWalletService";
-import { mapEscrowMilestone } from "mappers/escrowMilestone.mapper";
-import { AdminEscrowMilestoneDTO } from "dtos/adminEscrowMilestone.dto";
+import { mapEscrowMilestone } from "../mappers/escrowMilestone.mapper";
+import { AdminEscrowMilestoneDTO } from "../dtos/adminEscrowMilestone.dto";
 
 
 export class JobAssignmentService implements IJobAssignmentService {

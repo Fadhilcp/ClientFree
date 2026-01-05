@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { IJobDocument } from "types/job.type";
+import { IJobDocument } from "../types/job.type";
 
 const JobSchema = new Schema({
   clientId: {

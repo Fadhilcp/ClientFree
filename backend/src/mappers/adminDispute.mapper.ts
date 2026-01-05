@@ -1,5 +1,5 @@
-import { AdminDisputeDto, AdminDisputeListDto } from "dtos/adminDispute.dto";
-import { PopulatedPayment } from "types/payment/payment.populated";
+import { AdminDisputeDto, AdminDisputeListDto } from "../dtos/adminDispute.dto";
+import { PopulatedPayment } from "../types/payment/payment.populated";
 
 export class AdminDisputeMapper {
   static map(dispute: PopulatedPayment): AdminDisputeDto {

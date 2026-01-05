@@ -4,15 +4,15 @@ import { AuthService } from "../services/auth.service";
 import { AuthController } from "../controllers/auth.controller";
 import { UserRepository } from "../repositories/user.repository";
 import { OtpUserStoreRepository } from "../repositories/otpUserStore.repository";
-import { authMiddleware } from "middlewares/authMiddleware";
-import { verifyUserNotBanned } from "middlewares/verifyUserNotBanned.middleware";
-import { WalletRepository } from "repositories/wallet.repository";
-import { SubscriptionRepository } from "repositories/subscription.repository";
-import { PlanRepository } from "repositories/plan.repository";
-import { PaymentRepository } from "repositories/payment.repository";
-import { RevenueRepository } from "repositories/revenue.repository";
-import { MongooseSessionProvider } from "repositories/db/session-provider";
-import { SubscriptionService } from "services/subscription.service";
+import { authMiddleware } from "../middlewares/authMiddleware";
+import { verifyUserNotBanned } from "../middlewares/verifyUserNotBanned.middleware";
+import { WalletRepository } from "../repositories/wallet.repository";
+import { SubscriptionRepository } from "../repositories/subscription.repository";
+import { PlanRepository } from "../repositories/plan.repository";
+import { PaymentRepository } from "../repositories/payment.repository";
+import { RevenueRepository } from "../repositories/revenue.repository";
+import { MongooseSessionProvider } from "../repositories/db/session-provider";
+import { SubscriptionService } from "../services/subscription.service";
 
 const authRouter = Router()
 

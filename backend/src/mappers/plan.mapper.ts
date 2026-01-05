@@ -1,6 +1,6 @@
-import { FEATURE_LABELS } from "constants/featureLabels";
-import { PlanDetailUserDTO, PlanDetailAdminDTO, PlanTableDTO } from "dtos/plan.dto";
-import { IPlanDocument, PlanFeatures } from "types/plan.type";
+import { FEATURE_LABELS } from "../constants/featureLabels";
+import { PlanDetailUserDTO, PlanDetailAdminDTO, PlanTableDTO } from "../dtos/plan.dto";
+import { IPlanDocument, PlanFeatures } from "../types/plan.type";
 
 export function mapPlan(plan: IPlanDocument, detail: false): PlanTableDTO;
 export function mapPlan(plan: IPlanDocument, detail: true, isAdmin: false): PlanDetailUserDTO;

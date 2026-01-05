@@ -1,5 +1,5 @@
-import { IPaymentDocument } from "types/payment/payment.type";
-import { AdminPaymentDto } from "dtos/adminPayment.dto";
+import { IPaymentDocument } from "../types/payment/payment.type";
+import { AdminPaymentDto } from "../dtos/adminPayment.dto";
 
 export function mapAdminPayment(payment: IPaymentDocument): AdminPaymentDto {
   const user =

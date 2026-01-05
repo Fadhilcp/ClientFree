@@ -1,7 +1,7 @@
-import { getActiveFeaturesDto } from "dtos/subscription.dto";
+import { getActiveFeaturesDto } from "../../dtos/subscription.dto";
 import { SanitizedUser } from "../../dtos/user.dto";
 import { IOtpUserStore } from "../../types/otpUserStore.type";
-import { UserProfileDto } from "dtos/profile.dto.types";
+import { UserProfileDto } from "../../dtos/profile.dto.types";
 
 export interface IAuthService{
     signUp(userData : Partial<IOtpUserStore>) : Promise<void>;

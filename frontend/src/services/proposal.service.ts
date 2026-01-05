@@ -9,8 +9,8 @@ class ProposalService {
     return axios.post(endPoints.PROPOSAL.CREATE, data);
   }
 
-  getProposalsForJob(jobId: string, status: string, invitation: boolean) {
-    return axios.get(endPoints.PROPOSAL.FOR_JOB(jobId, status, invitation));
+  getProposalsForJob(jobId: string, status: string, invitation: boolean, page: number, limit: number) {
+    return axios.get(endPoints.PROPOSAL.FOR_JOB(jobId, status, invitation, page, limit));
   }
 
   getProposal(proposalId: string) {
@@ -38,7 +38,7 @@ class ProposalService {
   }
 
   acceptInvitation(jobId: string, freelancerId: string) {
-    return axios.post(endPoints.PROPOSAL.ACCEPT_INVITE(jobId, freelancerId));
+    return axios.patch(endPoints.PROPOSAL.ACCEPT_INVITE(jobId, freelancerId));
   }
 
   myProposals(isInvitation: boolean, search: string, cursor: string, limit: number,) {

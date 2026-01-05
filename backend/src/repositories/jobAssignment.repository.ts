@@ -1,11 +1,11 @@
-import jobAssignmentModel from "models/jobAssignment.model";
-import { IJobAssignmentDocument } from "types/jobAssignment/jobAssignment.type";
+import jobAssignmentModel from "../models/jobAssignment.model";
+import { IJobAssignmentDocument } from "../types/jobAssignment/jobAssignment.type";
 import { IJobAssignmentRepository } from "./interfaces/IJobAssignmentRepository";
 import { BaseRepository } from "./base.repository";
 import { Aggregate, FilterQuery, PipelineStage, PopulateOptions, Types } from "mongoose";
 import { SortOrder } from "mongoose";
-import { PopulatedAssignment } from "types/jobAssignment/jobAssignment.populated";
-import { ApprovedMilestoneAssignment } from "types/jobAssignment/jobAssignment.approvedMilestone";
+import { PopulatedAssignment } from "../types/jobAssignment/jobAssignment.populated";
+import { ApprovedMilestoneAssignment } from "../types/jobAssignment/jobAssignment.approvedMilestone";
 
 export class JobAssignmentRepository 
     extends BaseRepository<IJobAssignmentDocument> 

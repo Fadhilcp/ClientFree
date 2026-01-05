@@ -1,4 +1,4 @@
-import { IPlan, PlanFeatures } from "types/plan.type";
+import { IPlan, PlanFeatures } from "../types/plan.type";
 
 interface BasePlanDTO {
   id: string;
