@@ -22,6 +22,7 @@ const paymentSchema = new Schema({
       'pending',
       'processing',
       'completed',
+      'released',
       'refund_processing',
       'refunded',
       'cancelled',
@@ -36,7 +37,7 @@ const paymentSchema = new Schema({
   method: { type: String }, // razorpay, wallet, stripe, paypal, bank
   provider: { type: String, default: "razorpay" },
 
-  // Razorpay fields
+  // Razorpay / Stripe fields
   providerPaymentId: { type: String }, 
   providerOrderId: { type: String }, 
   providerSignature: { type: String },

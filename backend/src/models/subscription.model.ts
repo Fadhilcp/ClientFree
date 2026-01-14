@@ -12,23 +12,28 @@ const subscriptionSchema = new Schema({
       ref: "Plan",
       required: true,
     },
-    startDate: { type: Date, required: true },
-    expiryDate: { type: Date, required: true },
+    startDate: { type: Date },
+    expiryDate: { type: Date },
+
     autoRenew: { type: Boolean, default: false },
     billingInterval: { type: String, enum: ["monthly", "yearly"], required: true },
+
     status: {
       type: String,
       enum: ["pending","active", "expired", "cancelled"],
-      default: "active",
+      default: "pending",
     },
+
     gateway: {
       type: String,
       enum: ["razorpay", "stripe", "manual"],
       default: "razorpay",
     },
     customerId: { type: String },
-    subscriptionId: { type: String, default: '' },
-},
-{ timestamps: true });
+    subscriptionId: { type: String },
+
+    checkoutSessionId: { type: String, index: true },
+    
+},{ timestamps: true });
 
 export default model<ISubscriptionDocument>('Subscription', subscriptionSchema);

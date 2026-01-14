@@ -29,12 +29,20 @@ class SubscriptionService {
         return axios.post(endPoints.SUBSCRIPTION.VERIFY, response);
     }
 
-    cancel(subscriptionId: string){
-        return axios.patch(endPoints.SUBSCRIPTION.CANCEL, subscriptionId);
+    cancelSubscription(){
+        return axios.patch(endPoints.SUBSCRIPTION.CANCEL);
     }
     
     current(){
         return axios.get(endPoints.SUBSCRIPTION.CURRENT);
+    }
+
+    getMySubscription(){
+        return axios.get(endPoints.SUBSCRIPTION.ACTIVE_ME);
+    }
+
+    getMyHistory(page: number, limit: number){
+        return axios.get(endPoints.SUBSCRIPTION.GET_HISTORY(page, limit));
     }
 }
 

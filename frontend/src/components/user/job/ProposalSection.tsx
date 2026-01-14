@@ -10,6 +10,7 @@ import { getUpgradeProposal } from "../../../utils/getUpgradeProposal";
 import UserModal from "../../ui/Modal/UserModal";
 import ConfirmationModal from "../../ui/Modal/ConfirmationModal";
 import Pagination from "../Pagination";
+import ProposalDetailModal from "../../ui/Modal/ProposalDetailModal";
 
 interface ProposalsSectionProps {
   jobId: string;
@@ -29,6 +30,7 @@ const ProposalsSection: React.FC<ProposalsSectionProps> = ({
 
 
   const [proposals, setProposals] = useState<IProposal[]>([]);
+  console.log("🚀 ~ ProposalsSection ~ proposals:", proposals)
   const [proposalsLoading, setProposalsLoading] = useState(false);
   const [proposalFilter, setProposalFilter] = useState("all");
 
@@ -37,6 +39,8 @@ const ProposalsSection: React.FC<ProposalsSectionProps> = ({
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  // to view proposal detail - modal
+  const [viewTarget, setViewTarget] = useState<IProposal | null>(null);
 
 
   const [editTarget, setEditTarget] = useState<IProposal | null>(null);
@@ -176,7 +180,7 @@ const ProposalsSection: React.FC<ProposalsSectionProps> = ({
     const actions: ActionItem[] = [
       {
         label: "View",
-        onClick: () => console.log("View proposal", p.id),
+        onClick: () => setViewTarget(p),
         variant: "secondary" as const,
       },
     ];
@@ -302,6 +306,15 @@ const ProposalsSection: React.FC<ProposalsSectionProps> = ({
           onCancel={() => setCancelTarget(null)}
           onConfirm={handleCancelProposal}/>
         )}
+
+        {viewTarget && (
+          <ProposalDetailModal
+            proposal={viewTarget}
+            isOpen={true}
+            onClose={() => setViewTarget(null)}
+          />
+        )}
+
 
         {editTarget && (
           <UserModal

@@ -10,6 +10,7 @@ import type { User } from "../../../features/authSlice";
 import UserModal from "../../ui/Modal/UserModal";
 import { useMilestoneActions } from "../../../hooks/useMilestoneActions";
 import MilestoneCard from "./Milestones/MilestoneCard";
+import StripePaymentModal from "../../ui/Modal/StripeMilestoneModal";
 
 interface MilestoneFormProps {
   assignmentId: string;
@@ -18,6 +19,7 @@ interface MilestoneFormProps {
   setJobAssignments: React.Dispatch<React.SetStateAction<any[]>>;
   freelancerId: string;
   jobStatus: string;
+  refetchAssignment: () => void
 }
 
 const MilestoneForm: React.FC<MilestoneFormProps> = ({
@@ -27,6 +29,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
   setJobAssignments,
   freelancerId,
   jobStatus,
+  refetchAssignment,
 }) => {
   const [milestones, setMilestones] = useState<MilestoneDto[]>(initialMilestones);
 
@@ -46,6 +49,9 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
 
   const [disputeForm, setDisputeForm] = React.useState({ reason: "" });
   const [disputeErrors, setDisputeErrors] = React.useState<{ reason?: string }>({});
+  // for stripe
+  const [stripeClientSecret, setStripeClientSecret] = useState<string | null>(null);
+  const [isStripeOpen, setIsStripeOpen] = useState(false);
 
     const {
     addMilestones,
@@ -91,6 +97,13 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
       window.open(url, "_blank", "noopener,noreferrer");
     }
   };
+
+  const handleFundMilestone = async (milestoneId: string) => {
+      const { clientSecret } = await fundMilestone(milestoneId);
+  
+      setStripeClientSecret(clientSecret);
+      setIsStripeOpen(true);
+  }
 
 
   const handleMilestoneChange = <K extends keyof MilestoneDto>(
@@ -238,7 +251,7 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
                 setConfirmAction(() => () => cancelMilestone(id));
                 setIsConfirmOpen(true);
               }}
-              onFund={(id, amount) => fundMilestone(id, amount)}
+              onFund={(id) => handleFundMilestone(id)}
               onRequestChange={(id) => requestChangeMilestone(id)}
               onApprove={(id) => {
                 setConfirmTitle("Approve Milestone");
@@ -257,7 +270,19 @@ const MilestoneForm: React.FC<MilestoneFormProps> = ({
               handleFileClick={handleFileClick}
             />
           )}
-
+          {/* Stripe Payment Modal */}
+          <StripePaymentModal
+            clientSecret={stripeClientSecret ?? ''}
+            isOpen={isStripeOpen}
+            onClose={() => setIsStripeOpen(false)}
+            onSuccess={() => {
+              setIsStripeOpen(false);
+              setTimeout(() => {
+                refetchAssignment();
+              }, 1500);
+            }}
+          />
+          {/* Milestone Submission Modal */}
           <SubmitModal
             isOpen={isSubmitModalOpen}
             onClose={() => setIsSubmitModalOpen(false)}

@@ -24,6 +24,7 @@ import { IWalletTransactionDocument } from "../types/walletTransaction.type";
 import { mapPayment } from "../mappers/payment.mapper";
 import { mapAdminPayment } from "../mappers/adminPayment.mapper";
 import { AdminPaymentDto } from "../dtos/adminPayment.dto";
+import { stripe } from "config/stripe.config";
 
 export class PaymentService implements IPaymentService {
     constructor(
@@ -37,17 +38,22 @@ export class PaymentService implements IPaymentService {
     ){};
 
     async createMilestoneOrder(assignmentId: string, milestoneId: string, clientId: string): Promise<{
-      order: Orders.RazorpayOrder,
-      payment: IPaymentDocument
-    }> {
+       clientSecret: string;
+       payment: IPaymentDocument; 
+      }> {
+
         const assignment = await this._jobAssignmentRepository.findById(assignmentId);
         if(!assignment){
             throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.ASSIGNMENT_NOT_FOUND);
         }
 
         const milestone = assignment.milestones?.find(m => m._id?.toString() === milestoneId);
+        console.log("🚀 ~ PaymentService ~ createMilestoneOrder ~ milestone:", milestone)
         if(!milestone){
             throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.MILESTONE_NOT_FOUND);
+        }
+        if (!milestone._id){
+          throw createHttpError(HttpStatus.INTERNAL_SERVER_ERROR, "Milestone ID missing");
         }
         if(milestone.status !== "draft"){
             throw createHttpError(HttpStatus.BAD_REQUEST, "Only draft milestones can be funded");
@@ -62,152 +68,56 @@ export class PaymentService implements IPaymentService {
             status: "pending",
             amount: milestone.amount,
             currency: "INR",
-            method: "razorpay",
-            provider: "razorpay",
+            method: "stripe",
+            provider: "stripe",
             jobId: assignment.jobId as Types.ObjectId,
             milestoneId: milestone._id,
             freelancerId: assignment.freelancerId,
-            clientId: clientId,
+            clientId,
             userId: clientId
         });
 
-        const razorpay = getRazorpayInstance();
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount: Math.round(milestone.amount * 100),
+          currency: "inr",
 
-        const order = await razorpay.orders.create({
-            amount: Math.round(milestone.amount * 100),
-            currency: 'INR',
-            receipt:  `milestone_${milestone._id}`,
-            notes: {
-                paymentId: payment._id.toString(),
-                assignmentId: assignment._id.toString(),
-            },
+          automatic_payment_methods: {
+            enabled: true,
+          },
+
+          metadata: {
+            purpose: "milestone",
+            paymentId: payment._id.toString(),
+            assignmentId: assignment._id.toString(),
+            milestoneId: milestone._id.toString(),
+            clientId: clientId,
+          },
         });
+        console.log("🚀 ~ PaymentService ~ createMilestoneOrder ~ paymentIntent:", paymentIntent)
 
-        payment.providerOrderId = order.id;
+        payment.providerPaymentId = paymentIntent.id;
         await payment.save();
 
-        return { order, payment };
-    }
-
-    async verifyMilestonePayment(
-      razorpay_order_id: string,
-      razorpay_payment_id: string,
-      razorpay_signature: string,
-      clientId: string
-    ): Promise<{ payment: IPaymentDocument, assignment?: IJobAssignmentDocument }> {
-
-      if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-        throw createHttpError(400, "Invalid payment verification payload");
-      }
-
-      const payment = await this._paymentRepository.findOne({
-        providerOrderId: razorpay_order_id
-      });
-
-      if (!payment) {
-        throw createHttpError(HttpStatus.BAD_REQUEST, "Payment not found");
-      }
-
-      if (payment.status === "completed") {
-        return { payment };
-      }
-
-      //signature verification
-      const signString = `${razorpay_order_id}|${razorpay_payment_id}`;
-      const expected = crypto
-        .createHmac("sha256", env.RAZORPAY_SECRET as string)
-        .update(signString)
-        .digest("hex");
-
-      if (expected !== razorpay_signature) {
-        throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid signature");
-      }
-
-      // transactional section
-      return this._sessionProvider.runInTransaction(async (session: ClientSession) => {
-
-        payment.providerPaymentId = razorpay_payment_id;
-        payment.providerSignature = razorpay_signature;
-        payment.status = "completed";
-        payment.paymentDate = new Date();
-
-        await payment.save({ session });
-
-        const clientWallet = await this._walletRepository.findOneWithSession(
-          { userId: clientId, role: "client", status: "active" },
-          session
-        );
-
-        if (!clientWallet) {
-          throw createHttpError(HttpStatus.BAD_REQUEST, "Client wallet not found");
-        }
-
-        clientWallet.balance.escrow += payment.amount;
-        await clientWallet.save({ session });
-
-        const assignment = await this._jobAssignmentRepository.findOneWithSession(
-          { "milestones._id": payment.milestoneId },
-          session
-        );
-
-        if (!assignment) {
-          throw createHttpError(HttpStatus.NOT_FOUND, "Assignment not found");
-        }
-
-        const milestone = assignment.milestones?.find(
-          m => m._id?.toString() === payment.milestoneId?.toString()
-        );
-
-        if (!milestone) {
-          throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.MILESTONE_NOT_FOUND);
-        }
-
-        if (milestone.status !== "draft") {
-          return { payment, assignment };
-        }
-
-        await this._walletTransactionRepository.createWithSession({
-          walletId: clientWallet._id,
-          userId: clientWallet.userId,
-          jobAssignmentId: assignment._id,
-          milestoneId: milestone._id,
-          paymentId: payment._id,
-          type: "escrow_hold",
-          direction: "credit",
-          amount: payment.amount,
-          balanceAfter: {
-            available: clientWallet.balance.available,
-            escrow: clientWallet.balance.escrow,
-            pending: clientWallet.balance.pending,
-          },
-        }, session);
-
-
-        if(milestone.status === "draft") {
-          milestone.status = "funded";
-          milestone.paymentId = payment._id;
-          milestone.updatedAt = new Date();
-          await assignment.save({ session });
-        }
-
-        return { payment, assignment };
-      });
+        return {
+          clientSecret: paymentIntent.client_secret ?? "",
+          payment,
+        };
     }
 
     async refundMilestone(paymentId: string, initiatorId: string, reason?: string)
     : Promise<{ payment: IPaymentDocument }> {
 
       const payment = await this._paymentRepository.findById(paymentId);
+      console.log("🚀 ~ PaymentService ~ refundMilestone ~ payment:", payment)
       if (!payment) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.PAYMENT_NOT_FOUND);
 
       if (payment.status === "refunded") return { payment };
-      if (payment.status !== "completed") throw createHttpError(
-        HttpStatus.BAD_REQUEST,
-        "Only completed payments can be refunded"
-      );
+      if (payment.status !== "completed") {
+        throw createHttpError(HttpStatus.BAD_REQUEST, "Only completed payments can be refunded");
+      }
       // transaction session
-      return this._sessionProvider.runInTransaction(async (session) => {
-
+      const updatedPayment = await this._sessionProvider.runInTransaction(async (session) => {
+        
         const assignment = await this._jobAssignmentRepository.findOneWithSession(
           { "milestones._id": payment.milestoneId },
           session
@@ -237,15 +147,10 @@ export class PaymentService implements IPaymentService {
         }
 
         if (clientWallet.balance.escrow < payment.amount) {
-          throw createHttpError(
-            HttpStatus.BAD_REQUEST,
-            "Escrow balance insufficient for refund"
-          );
+          throw createHttpError(HttpStatus.BAD_REQUEST, "Escrow balance insufficient for refund");
         }
 
         clientWallet.balance.escrow -= payment.amount;
-        clientWallet.balance.available += payment.amount;
-
         await clientWallet.save({ session });
 
         await this._walletTransactionRepository.createWithSession({
@@ -255,7 +160,7 @@ export class PaymentService implements IPaymentService {
           milestoneId: milestone._id,
           paymentId: payment._id,
           type: "refund",
-          direction: "credit",
+          direction: "debit",
           amount: payment.amount,
           balanceAfter: {
             available: clientWallet.balance.available,
@@ -263,28 +168,53 @@ export class PaymentService implements IPaymentService {
             pending: clientWallet.balance.pending,
           },
         }, session);
-
+        
         payment.status = "refund_processing";
         payment.refundReason = reason;
         payment.refundDate = new Date();
-
+        
         await payment.save({ session });
-
-        milestone.status = "refunded";
+        
+        milestone.status = "refund_processing";
         milestone.updatedAt = new Date();
 
         await assignment.save({ session });
 
-        return { payment };
+        return payment;
       });
+      console.log("🚀 ~ PaymentService ~ refundMilestone ~ updatedPayment:", updatedPayment)
+      // stripe refund
+      const refund = await stripe.refunds.create({
+        payment_intent: payment.providerPaymentId,
+        reason: reason ? "requested_by_customer" : undefined,
+      })
+      console.log("🚀 ~ PaymentService ~ refundMilestone ~ refund:", refund)
+      // updating payment and milestone after completing stripe refund
+      updatedPayment.status = "refunded";
+      updatedPayment.referenceId = refund.id;
+      updatedPayment.refundDate = new Date();
+      console.log("🚀 ~ PaymentService ~ refundMilestone ~ updatedPayment:", updatedPayment)
+
+      await updatedPayment.save();
+      
+      await this._jobAssignmentRepository.updateOne(
+        { "milestones._id": payment.milestoneId },
+        {
+          $set: {
+            "milestones.$.status": "refunded",
+            "milestones.$.updatedAt": new Date(),
+          }
+        }
+      );
+
+      return { payment: updatedPayment}
     }
-
-
 
     async releaseMilestone(paymentId: string)
     : Promise<{ payment: IPaymentDocument, assignment: IJobAssignmentDocument }> {
-
+      
       const payment = await this._paymentRepository.findById(paymentId);
+      console.log("🚀 ~ PaymentService ~ releaseMilestone ~ payment:", payment)
       if (!payment) {
         throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.PAYMENT_NOT_FOUND);
       }
@@ -307,12 +237,13 @@ export class PaymentService implements IPaymentService {
       const milestone = assignment.milestones?.find(
         m => m._id?.toString() === payment.milestoneId?.toString()
       );
+      console.log("🚀 ~ PaymentService ~ releaseMilestone ~ milestone:", milestone)
 
       if (!milestone) {
         throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.MILESTONE_NOT_FOUND);
       }
 
-      if (milestone.status === "released") {
+      if (milestone.status === "released" || milestone.status === "refund_processing") {
         throw createHttpError(HttpStatus.BAD_REQUEST, "Milestone already released");
       }
 
@@ -336,10 +267,7 @@ export class PaymentService implements IPaymentService {
         }
 
         if (clientWallet.balance.escrow < amount) {
-          throw createHttpError(
-            HttpStatus.BAD_REQUEST,
-            "Insufficient escrow balance"
-          );
+          throw createHttpError(HttpStatus.BAD_REQUEST, "Insufficient escrow balance");
         }
 
         clientWallet.balance.escrow -= amount;
@@ -383,8 +311,10 @@ export class PaymentService implements IPaymentService {
         milestone.status = "released";
         milestone.updatedAt = new Date();
 
+        payment.status = "released";
         payment.escrowReleaseDate = new Date();
         await payment.save({ session });
+        console.log("🚀 ~ PaymentService ~ releaseMilestone ~ payment:", payment)
 
         const allReleased = assignment.milestones?.every(
           m => m.status === "released" || m.status === "refunded"
@@ -473,7 +403,7 @@ export class PaymentService implements IPaymentService {
             throw createHttpError(HttpStatus.NOT_FOUND, "Dispute not found");
         }
 
-        return AdminDisputeMapper.map(dispute)
+        return AdminDisputeMapper.map(dispute);
     }
 
     async getAllPayments(search: string, page: number, limit: number): Promise<PaginatedResult<AdminPaymentDto>> {
@@ -533,7 +463,7 @@ export class PaymentService implements IPaymentService {
       }
     }
 
-    async withdraw(userId: string, amount: number): Promise<void> {
+    async withdraw(userId: string, amount: number): Promise<{ paymentId: string }> {
 
       if (!amount || amount <= 0) {
           throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid withdrawal amount");
@@ -595,6 +525,7 @@ export class PaymentService implements IPaymentService {
                   },
                   session
               );
+              return { paymentId: payment._id.toString() };
           }
       );
     }

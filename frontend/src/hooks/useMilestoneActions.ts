@@ -1,7 +1,6 @@
 import { jobAssignmentService } from "../services/jobAssignments.service";
 import { paymentService } from "../services/payment.service";
 import { notify } from "../utils/toastService";
-import { env } from "../config/env";
 import type { Milestone, MilestoneDto } from "../types/job/assignment.type";
 
 export const useMilestoneActions = (
@@ -54,46 +53,25 @@ export const useMilestoneActions = (
     }
   };
 
-  const fundMilestone = async (milestoneId: string, amount: number) => {
+  const fundMilestone = async (milestoneId: string) => {
     if (!user.isProfileComplete) {
       notify.warn("Please complete your profile before funding milestones");
-      return;
+      throw new Error("PROFILE_INCOMPLETE");
     }
     try {
       const response = await paymentService.fundMilestone(assignmentId, milestoneId);
-      if (response.data.success) {
-        const { order } = response.data;
-        const options = {
-          key: env.RAZORPAY_KEY_ID,
-          amount: amount * 100,
-          currency: "INR",
-          order_id: order.id,
-          handler: async (response: any) => {
-            try {
-              const verifyRes = await paymentService.verifyMilestone({
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_signature: response.razorpay_signature || "",
-              });
-              if (verifyRes.data.success) {
-                const { assignment } = verifyRes.data;
-                setJobAssignments(prev =>
-                  prev.map(a => (a.id === assignmentId ? { ...a, milestones: assignment.milestones } : a))
-                );
-                notify.success(verifyRes.data.message || "Milestone funded successfully");
-              }
-            } catch (err: any) {
-              notify.error(err.response?.data?.error || "Verification failed");
-            }
-          },
-          prefill: { name: user?.id, email: user?.email, contact: user?.phone },
-          theme: { color: "#6366f1" },
-        };
-        const rzp = new (window as any).Razorpay(options);
-        rzp.open();
+
+      const { clientSecret, payment } = response.data;
+
+      if (!clientSecret) {
+        throw new Error("CLIENT_SECRET_MISSING");
       }
+
+      return { clientSecret, payment };
+
     } catch (error: any) {
-      notify.error(error.response?.data?.error || "Failed to fund milestone");
+      notify.error(error.response?.data?.error || "Failed to initiate milestone payment");
+      throw error;
     }
   };
 

@@ -11,6 +11,7 @@ export interface ISubscription {
   gateway: "razorpay" | "stripe" | "manual";
   customerId?: string;
   subscriptionId?: string;
+  checkoutSessionId?: string;
 }
 
 export interface ISubscriptionDocument extends ISubscription,Document{

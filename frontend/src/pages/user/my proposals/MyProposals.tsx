@@ -139,13 +139,6 @@ const MyProposals: React.FC = () => {
                     onClick: () => handleViewDetails(proposal.job?.id!),
                     variant: "primary",
                 },
-                !isInvitation
-                    ? {
-                        label: "Edit Proposal",
-                        onClick: () => console.log("Edit proposal", proposal.id),
-                        variant: "secondary",
-                    }
-                    : null,
                 ].filter(Boolean) as ActionItem[]}
             />
             ))}

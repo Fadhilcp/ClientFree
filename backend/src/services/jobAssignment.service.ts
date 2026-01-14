@@ -57,7 +57,7 @@ export class JobAssignmentService implements IJobAssignmentService {
         const incomingTotal = milestones.reduce((sum, m) => sum + (m.amount || 0), 0);
 
         if(existingTotal + incomingTotal > assignment.amount) {
-            throw createHttpError(HttpStatus.BAD_REQUEST, 
+            throw createHttpError(HttpStatus.BAD_REQUEST,
                 `Milestones exceed assignment amount. Allowed: ${assignment.amount}, Request: ${existingTotal + incomingTotal}`
             );
         }
@@ -272,8 +272,8 @@ export class JobAssignmentService implements IJobAssignmentService {
 
         const assignment =
             await this._jobAssignmentRepository.findApprovedMilestoneDetail(
-            assignmentId,
-            milestoneId
+                assignmentId,
+                milestoneId
             );
 
         if (!assignment) {

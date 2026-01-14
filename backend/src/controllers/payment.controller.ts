@@ -22,27 +22,6 @@ export class PaymentController {
         }
     }
 
-    async verifyPayment(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-            console.log("🚀 ~ PaymentController ~ verifyPayment ~ razorpay_order_id, razorpay_payment_id, razorpay_signature:", razorpay_order_id, razorpay_payment_id, razorpay_signature)
-            const clientId = req.user?._id;
-
-            if(!clientId) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
-
-            const result = await this._paymentService.verifyMilestonePayment(
-                razorpay_order_id, 
-                razorpay_payment_id, 
-                razorpay_signature,
-                clientId
-            );
-
-            sendResponse(res, HttpStatus.OK, result);
-        } catch (error) {
-            next(error);
-        }
-    }
-
     async refund(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { paymentId } = req.params;

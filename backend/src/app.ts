@@ -9,9 +9,10 @@ import cookieParser from 'cookie-parser'
 import cors from 'cors';
 
 import { errorHandler } from './middlewares/errorHandler';
-import requestLogger from 'middlewares/logger.middleware';
-import { startSubscriptionExpiryCron } from 'utils/subscriptionExpiry.cron';
-import { connectRedis } from 'config/redis.config';
+import requestLogger from './middlewares/logger.middleware';
+import { startSubscriptionExpiryCron } from './utils/subscriptionExpiry.cron';
+import { connectRedis } from './config/redis.config';
+import stripeWebhookRouter from './routes/stripeWebhook.route';
 
 connectDB();
 startSubscriptionExpiryCron();
@@ -24,6 +25,8 @@ app.use(cors({
     allowedHeaders : env.CORS_ALLOWED_HEADERS?.split(","),
     credentials : env.CORS_CREDENTIALS === "true",
 }));
+
+app.use("/api/webhooks", stripeWebhookRouter);
 
 app.use(cookieParser());
 app.use(express.json());

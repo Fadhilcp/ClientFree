@@ -120,4 +120,17 @@ export const env = {
     get AWS_SIGNED_URL_EXPIRES_IN() {
         return process.env.AWS_SIGNED_URL_EXPIRES_IN
     },
+    // stripe
+    get STRIPE_SECRET_KEY(){
+        return process.env.STRIPE_SECRET_KEY;
+    },
+    get STRIPE_PUBLISHABLE_KEY(){
+        return process.env.STRIPE_PUBLISHABLE_KEY;
+    },
+    get FRONTEND_URL(){
+        return process.env.FRONTEND_URL;
+    },
+    get STRIPE_WEBHOOK_SECRET(){
+        return process.env.STRIPE_WEBHOOK_SECRET;
+    }
 }

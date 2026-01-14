@@ -163,7 +163,7 @@ const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ user, jobId, isProfileCompl
         amount: Number(m.amount),
         dueDate: m.dueDate ? new Date(m.dueDate).toISOString() : undefined,
       })),
-      optionalUpgradeId: selectedUpgradeId ? selectedUpgradeId : "",
+      optionalUpgradeId: selectedUpgradeId || undefined,
     };
 
 
@@ -214,9 +214,16 @@ const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ user, jobId, isProfileCompl
     const razor = new (window as any).Razorpay(options);
     razor.open();
 
+    razor.on("modal.close", () => {
+      notify.info("Payment cancelled. You can change or retry upgrade.");
+    });
+
+
     razor.on("payment.failed", function () {
       notify.error("Payment failed");
     });
+
+    
 
     } catch (error: any) {
       notify.error(error.response?.data?.error || "Failed to place bid");

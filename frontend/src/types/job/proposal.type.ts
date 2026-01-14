@@ -50,5 +50,5 @@ export interface IProposalForm {
   duration: string;
   description: string;
   milestones: Milestone[];
-  optionalUpgradeId: string;
+  optionalUpgradeId?: string;
 }

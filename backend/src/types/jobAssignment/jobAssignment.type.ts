@@ -15,6 +15,7 @@ export type IMilestoneStatus =
         | "changes_requested"
         | "approved"
         | "released"
+        | "refund_processing"
         | "refunded"
         | "disputed"
         | "cancelled";

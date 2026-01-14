@@ -15,7 +15,7 @@ const LIMIT = 20;
 
 const BrowseJobsPage: React.FC = () => {
   const [jobs, setJobs] = useState<JobListDTO[]>([]);
-  console.log("🚀 ~ BrowseJobsPage ~ jobs:", jobs)
+
   const [loading, setLoading] = useState(false);
   // for infinit scroll
   const [cursor, setCursor] = useState<string | null>(null);
@@ -155,6 +155,14 @@ const BrowseJobsPage: React.FC = () => {
     setHasMore(true);
     fetchJobs(false);
   }, [isInterestedPage]);
+
+  useEffect(() => {
+  setJobs([]);
+  setCursor(null);
+  setHasMore(true);
+
+  fetchJobs(false); // this will internally route to best-match or all
+}, [isBestMatch]);
 
   // infinite scroll event listener
   useEffect(() => {

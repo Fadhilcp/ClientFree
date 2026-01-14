@@ -37,6 +37,9 @@ import InvoicesAndReports from "../pages/user/payments/Invoices-Report";
 import WithdrawalsPage from "../pages/user/payments/WithdrawalsPage";
 import EscrowAndMilestonesPage from "../pages/user/payments/Escrow-Milestones";
 import OverviewPage from "../pages/user/payments/OverviewPage";
+import BillingSuccess from "../components/user/billing/BillingSuccess";
+import BillingCancel from "../components/user/billing/BillingCancel";
+import SubscriptionSetting from "../pages/user/settings/Subscription-Premium";
 
 
 const UserRoutes: React.FC = () => {
@@ -89,7 +92,6 @@ const UserRoutes: React.FC = () => {
                 </ProtectedRoute>
                 }
             />
-            {/* <Route path="/forgot-password" element={<ForgotPassword />} /> */}
             <Route path="/forgot-password" element={
                 <NoAuthProtectedRoute>
                     <ForgotPassword/>
@@ -112,6 +114,10 @@ const UserRoutes: React.FC = () => {
                 </AuthProtectedRoute>
                 }
             />
+
+            <Route path="/billing/success" element={<BillingSuccess />} />
+            <Route path="/billing/cancel" element={<BillingCancel />} />
+
             <Route path="/profile" element={
                 <AuthProtectedRoute allowedRoles={['client','freelancer']}>
                     <Profile />
@@ -215,6 +221,7 @@ const UserRoutes: React.FC = () => {
             }>
                 <Route index element={<Navigate to="account-security" replace />} />
                 <Route path="account-security" element={<SecuritySetting/>}/>
+                <Route path="subscription-premium" element={<SubscriptionSetting/>}/>
             </Route>
             {/* Setting routes under user layout - end */}
             </Route>

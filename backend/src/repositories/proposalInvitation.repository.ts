@@ -45,13 +45,22 @@ export class ProposalRepository
                         { $limit: limit },
                         {
                             $lookup: {
-                            from: "users",
-                            localField: "freelancerId",
-                            foreignField: "_id",
-                            as: "freelancerId",
+                                from: "users",
+                                localField: "freelancerId",
+                                foreignField: "_id",
+                                as: "freelancerId",
                             },
                         },
                         { $unwind: "$freelancerId" },
+                        {
+                            $lookup: {
+                                from: "jobs",
+                                localField: "jobId",
+                                foreignField: "_id",
+                                as: "jobId",
+                            },
+                        },
+                        { $unwind: "$jobId" },
                     ],
                     totalCount: [{ $count: "count" }],
                 },

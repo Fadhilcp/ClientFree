@@ -32,7 +32,7 @@ export class SubscriptionController {
                 throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.MISSING_REQUIRED_FIELDS);
             }
 
-            const subscription = await this._subscriptionService.createSubscription({
+            const { checkoutUrl } = await this._subscriptionService.createSubscription({
                 userId,
                 planId,
                 billingInterval,
@@ -42,33 +42,7 @@ export class SubscriptionController {
                 email,
                 contact,
             });
-            sendResponse(res, HttpStatus.CREATED, { subscription });
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    async verifySubscription(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const { razorpay_subscription_id, razorpay_payment_id, razorpay_signature } = req.body;
-            const role = req.user?.role;
-
-            if(!role) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.UNAUTHORIZED);
-            if (!["client", "freelancer"].includes(role)) {
-                throw createHttpError(HttpStatus.FORBIDDEN, "Invalid user role");
-            }
-            
-            if (!razorpay_subscription_id || !razorpay_payment_id) {
-                throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.MISSING_REQUIRED_FIELDS)
-            }
-
-            const { message, subscription } = await this._subscriptionService.verifyPayment({
-                razorpay_subscription_id,
-                razorpay_payment_id,
-                razorpay_signature,
-                role
-            });
-            sendResponse(res, HttpStatus.OK, { subscription }, message );
+            sendResponse(res, HttpStatus.CREATED, { checkoutUrl });
         } catch (error) {
             next(error);
         }
@@ -76,12 +50,11 @@ export class SubscriptionController {
 
     async cancelSubscription(req: Request, res: Response, next: NextFunction) {
         try {
-            const { subscriptionId } = req.body;
             const userId = req.user?._id;
 
             if(!userId) throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.USER_NOT_FOUND);
 
-            const result = await this._subscriptionService.cancelSubscription(userId, subscriptionId);
+            const result = await this._subscriptionService.cancelSubscription(userId);
 
             sendResponse(res, HttpStatus.OK, {}, result.message);
         } catch (error) {
@@ -99,6 +72,38 @@ export class SubscriptionController {
 
             const plan = await this._subscriptionService.getCurrentPlan(_id);
             sendResponse(res, HttpStatus.OK, { plan });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getActiveFeatures(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const userId = req.user?._id;
+
+            if(!userId) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
+
+            const subscription = await this._subscriptionService.getActiveFeatures(userId);
+
+            sendResponse(res, HttpStatus.OK, { subscription });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getMySubscriptions(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+
+            const userId = req.user?._id;
+
+            const page = parseInt(req.query.page as string) || 1;
+            const limit = parseInt(req.query.limit as string) || 10;
+
+            if(!userId) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
+
+            const subscriptions = await this._subscriptionService.getMySubscriptions(userId, page, limit);
+            
+            sendResponse(res, HttpStatus.OK, { subscriptions });
         } catch (error) {
             next(error);
         }

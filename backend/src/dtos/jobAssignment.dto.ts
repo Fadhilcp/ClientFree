@@ -21,6 +21,7 @@ export interface AssignmentMilestoneDto {
         | "changes_requested"
         | "approved"
         | "released"
+        | "refund_processing"
         | "refunded"
         | "disputed"
         | "cancelled";

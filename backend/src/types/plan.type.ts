@@ -24,8 +24,13 @@ export interface IPlan {
   priceMonthly: number;
   priceYearly: number;
   currency: string;
-  razorPlanIdMonthly: string;
-  razorPlanIdYearly: string;
+  // razorPlanIdMonthly: string;
+  // razorPlanIdYearly: string;
+
+  stripeProductId: string;
+  stripePriceIdMonthly: string;
+  stripePriceIdYearly: string;
+
   features: PlanFeatures;
   active: boolean;
 }

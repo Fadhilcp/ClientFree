@@ -62,7 +62,10 @@ export class ProposalService implements IProposalService {
         // check the freelancer already submitted or not
         const existing = await this._proposalRepository.findOne({ jobId, freelancerId });
         if (existing) {
-            throw createHttpError(HttpStatus.BAD_REQUEST, "Proposal already submitted");
+            if(existing.upgradeStatus !== "pending") {
+                throw createHttpError(HttpStatus.CONFLICT, "Proposal already submitted");
+            }
+            return await this._retryUpgrade(existing, freelancerId, payload);
         }
 
         const user = await this._assertProposalLimit(freelancerId);
@@ -76,6 +79,49 @@ export class ProposalService implements IProposalService {
         }
 
         return await this._finalizeProposalResponse(proposal, freelancerId, jobId, addOn)
+    }
+
+    private async _retryUpgrade(
+        proposal: IProposalInvitationDocument,
+        freelancerId: string,
+        payload: IProposalInvitationPayload
+    ): Promise<CreateProposalResponse> {
+
+        if(proposal.upgradeStatus === "paid") {
+            throw createHttpError(HttpStatus.CONFLICT, "Upgrade already completed for this proposal");
+        }
+
+        proposal.bidAmount = payload.bidAmount;
+        proposal.duration = payload.duration;
+        proposal.description = payload.description;
+        proposal.milestones = payload.milestones;
+
+        if (!payload.optionalUpgradeId) {
+            // user removed upgrade
+            proposal.upgradeStatus = "none";
+            proposal.optionalUpgrade = undefined;
+            await proposal.save();
+
+            return {
+                proposal: mapProposal(proposal),
+                paymentOrder: null,
+                paymentId: null,
+                addOn: null
+            };
+        }
+
+        const addon = await this._validateOptionalUpgrade(payload.optionalUpgradeId);
+        // overwrite previous upgrade intent
+        proposal.upgradeStatus = "pending";
+        proposal.optionalUpgrade = undefined;
+        await proposal.save();
+
+        return await this._finalizeProposalResponse(
+            proposal,
+            freelancerId,
+            proposal.jobId.toString(),
+            addon
+        );
     }
 
     private async _validateOptionalUpgrade(addonId?: string): Promise<IAddOnDocument | null> {
@@ -107,6 +153,7 @@ export class ProposalService implements IProposalService {
         invitation.description = payload.description;
         invitation.milestones = payload.milestones;
         invitation.optionalUpgrade = undefined;
+        invitation.upgradeStatus = payload.optionalUpgradeId ? "pending" : "none";
 
         const updated = await invitation.save();
 
@@ -215,6 +262,9 @@ export class ProposalService implements IProposalService {
             freelancerId,
             status: "pending",
             isInvitation: false,
+            // =============
+            upgradeStatus: payload.optionalUpgradeId ? "pending" : "none",
+            // ==============
             optionalUpgrade: undefined,
         });
 
@@ -271,7 +321,6 @@ export class ProposalService implements IProposalService {
         const startDay = new Date();
         startDay.setUTCHours(0, 0, 0, 0)
         
-        
         if(!payment.referenceId) throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid payment record: missing referenceId");
         const addOn = await this._addOnRepository.findById(payment.referenceId);
         if(!addOn) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.ADD_ON_NOT_FOUND);
@@ -280,6 +329,7 @@ export class ProposalService implements IProposalService {
         if(!proposalId) throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid payment: missing proposal reference");
 
         await this._proposalRepository.findByIdAndUpdate(proposalId.toString(), {
+            upgradeStatus: "paid",
             optionalUpgrade: {
                 addonId: addOn._id,
                 name: addOn.key,
@@ -300,11 +350,11 @@ export class ProposalService implements IProposalService {
         if (status) filter.status = status;
         if (isInvitation !== undefined) filter.isInvitation = isInvitation === true;
 
-        
-
         const { proposals, total, totalPages } = await this._proposalRepository.findByJob(filter, page ?? 1, limit ?? 10);
+
         page = page ? page : 1;
         limit = limit ? limit : 10;
+        
         return {
             data: proposals.map(mapProposal),
             total,

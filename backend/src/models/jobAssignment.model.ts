@@ -25,7 +25,7 @@ const jobAssignmentSchema = new Schema({
 
     status: {
       type: String,
-      enum: ["draft", "funded", "submitted", "changes_requested", "approved", "released", "refunded", "disputed", "cancelled"],
+      enum: ["draft", "funded", "submitted", "changes_requested", "approved", "released", "refund_processing", "refunded", "disputed", "cancelled"],
       default: "draft"
     },
     submissionMessage: { type: String },

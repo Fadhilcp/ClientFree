@@ -18,7 +18,6 @@ export class SubscriptionRepository
     const subscription = await this.model.findOne({
       userId: new Types.ObjectId(userId),
       status: "active",
-      startDate: { $lte: now },
       expiryDate: { $gt: now },
     })
       .populate({

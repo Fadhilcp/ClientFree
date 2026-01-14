@@ -15,6 +15,7 @@ const useAuthVerifier = () => {
 
         if (response.data?.success) {
           const { user, token, subscription } = response.data;
+          
           dispatch(setCredentials({ user, token }));
           dispatch(setSubscription(subscription));
           tokenStore.set(token)

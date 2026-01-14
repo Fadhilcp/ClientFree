@@ -37,6 +37,7 @@ export interface IProposalInvitation {
   description?: string;
 
   milestones?: IProposalMilestone[];
+  upgradeStatus: "none" | "pending" | "paid";
   optionalUpgrade?: IOptionalUpgrade;
 
   status: ProposalStatus;

@@ -58,6 +58,40 @@ const JobDetailPage: React.FC = () => {
     };
 
   // Fetch job details
+//   const loadJobDetails = async () => {
+//   if (!id) return;
+
+//   setLoading(true);
+//   try {
+//     const [jobRes, assignmentRes] = await Promise.all([
+//       jobService.getJob(id),
+//       jobAssignmentService.getAssignemntsOfJob(id),
+//     ]);
+
+//     if (jobRes.data.success) setJob(jobRes.data.job);
+//     if (assignmentRes.data.success) setJobAssignments(assignmentRes.data.assignments);
+//   } catch (err) {
+//     notify.error('Failed to fetch job details');
+//   } finally {
+//     setLoading(false);
+//   }
+// };
+
+// useEffect(() => {
+//   if (activeTab !== 'details') return;
+//   loadJobDetails();
+// }, [id, activeTab]);
+
+const fetchAssignment = async () => {
+  if(!id) return;
+  const res = await jobAssignmentService.getAssignemntsOfJob(id);
+
+  if (res.data.success) {
+    const { assignments } = res.data;
+    setJobAssignments(assignments);
+  }
+};
+
   useEffect(() => {
     if (!id || activeTab !== 'details') return;
 
@@ -266,6 +300,7 @@ const JobDetailPage: React.FC = () => {
                     setJobAssignments={setJobAssignments}
                     freelancerId={assignment.freelancer.id}
                     jobStatus={job.status}
+                    refetchAssignment={fetchAssignment}
                   />
                 </div>
               )

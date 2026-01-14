@@ -55,7 +55,9 @@ export const endPoints = {
         CREATE: '/subscription',
         VERIFY: '/subscription/verify',
         CANCEL: '/subscription/cancel',
-        CURRENT: '/subscription/current'
+        CURRENT: '/subscription/current',
+        ACTIVE_ME: '/subscription/me',
+        GET_HISTORY: (page: number, limit: number) => `/subscription/history?page=${page}&limt=${limit}`,
     },
     JOB: {
         LIST: (search: string, status?: string, cursor?: string, limit?: number) =>

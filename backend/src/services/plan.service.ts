@@ -9,6 +9,7 @@ import { mapPlan } from "../mappers/plan.mapper";
 import { PlanDetailAdminDTO, PlanDetailUserDTO, PlanTableDTO } from "../dtos/plan.dto";
 import { getRazorpayInstance } from "../config/razorpay.config";
 import { PaginatedResult } from "../types/pagination";
+import { stripe } from "../config/stripe.config";
 
 export class PlanService implements IPlanService {
     constructor(private _planRepository: IPlanRepository) {}
@@ -52,79 +53,77 @@ export class PlanService implements IPlanService {
     async createPlan(planData: IPlan): Promise<IPlanDocument> {
 
         const existingPlan = await this._planRepository.findOne({ planName: planData.planName });
-        
+
         if (existingPlan) {
             throw createHttpError(HttpStatus.CONFLICT, `Plan "${planData.planName}" already exists`);
         }
-        
-        const razorpay = getRazorpayInstance();
-        
-        const monthlyPlan = await razorpay.plans.create({
-            period: 'monthly',
-            interval: 1,
-            item: {
-                name: `${planData.planName} Monthly`,
-                amount: planData.priceMonthly * 100, // INR to paise
-                currency: 'INR'
-            }
+
+        const product = await stripe.products.create({
+            name: planData.planName,
+            metadata: {
+            userType: planData.userType,
+            },
         });
-        const yearlyPlan = await razorpay.plans.create({
-            period: 'yearly',
-            interval: 1,
-            item: {
-                name: `${planData.planName}`,
-                amount: planData.priceYearly * 100,
-                currency: 'INR'
-            }
-        })
+
+        const monthlyPrice = await stripe.prices.create({
+            product: product.id,
+            unit_amount: planData.priceMonthly * 100,
+            currency: "inr",
+            recurring: { interval: "month" },
+        });
+
+        const yearlyPrice = await stripe.prices.create({
+            product: product.id,
+            unit_amount: planData.priceYearly * 100,
+            currency: "inr",
+            recurring: { interval: "year" },
+        });
 
         const plan = await this._planRepository.create({
             ...planData,
-            razorPlanIdMonthly: monthlyPlan.id,
-            razorPlanIdYearly: yearlyPlan.id
+            stripeProductId: product.id,
+            stripePriceIdMonthly: monthlyPrice.id,
+            stripePriceIdYearly: yearlyPrice.id,
         });
 
         return plan;
     }
 
     async updatePlan(planId: string, planData: Partial<IPlan>): Promise<PlanDetailAdminDTO> {
+
         const plan = await this._planRepository.findById(planId);
         if(!plan) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.PLAN_NOT_FOUND);
 
         const updatedData: Partial<IPlan> = { ...planData };
-        // to check any of them changed or not
-        const priceChanged = 
-            (planData.priceMonthly && planData.priceMonthly !== plan.priceMonthly) ||
-            (planData.priceYearly && planData.priceYearly !== plan.priceYearly) ||
-            (planData.currency && planData.currency !== plan.currency) ||
-            (planData.planName && planData.planName !== plan.planName);
-        // cant edit existing plan, so creaet new plan
-        if(priceChanged){
-            const razorpay = getRazorpayInstance();
 
-            const monthlyPlan = await razorpay.plans.create({
-                period: 'monthly',
-                interval: 1,
-                item: {
-                    name: `${planData.planName || plan.planName} Monthly`,
-                    amount: (planData.priceMonthly ?? plan.priceMonthly) * 100,
-                    currency: planData.currency || plan.currency || 'INR',
-                },
+        if(planData.planName && planData.planName !== plan.planName) {
+            await stripe.products.update(plan.stripeProductId, {
+                name: planData.planName,
             });
-
-            const yearlyPlan = await razorpay.plans.create({
-                period: 'yearly',
-                interval: 1,
-                item: {
-                    name: `${planData.planName || plan.planName}`,
-                    amount: (planData.priceYearly ?? plan.priceYearly) * 100,
-                    currency: planData.currency || plan.currency || 'INR',
-                },
-            });
-
-            updatedData.razorPlanIdMonthly = monthlyPlan.id;
-            updatedData.razorPlanIdYearly = yearlyPlan.id;
         }
+        // monthly price
+        if(planData.priceMonthly && planData.priceMonthly !== plan.priceMonthly) {
+
+            const monthlyPrice = await stripe.prices.create({
+                product: plan.stripeProductId,
+                unit_amount: planData.priceMonthly * 100,
+                currency: plan.currency ?? "inr",
+                recurring: { interval: "month" },     
+            });
+            updatedData.stripePriceIdMonthly = monthlyPrice.id;
+        }
+        // yearly price
+        if(planData.priceYearly && planData.priceYearly !== plan.priceYearly) {
+
+            const yearlyPrice = await stripe.prices.create({
+                product: plan.stripeProductId,
+                unit_amount: planData.priceYearly * 100,
+                currency: plan.currency ?? "inr",
+                recurring: { interval: "year" },     
+            });
+            updatedData.stripePriceIdYearly = yearlyPrice.id;
+        }
+
         const updated = await this._planRepository.updateOne({ _id: planId}, updatedData);
         if (!updated) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.PLAN_NOT_FOUND);
         return mapPlan(updated, true, true);

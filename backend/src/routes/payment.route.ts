@@ -37,7 +37,6 @@ paymentRouter.use(authMiddleware, verifyUserNotBanned);
 paymentRouter.post('/milestones/:assignmentId/:milestoneId/fund',authorizeRole("client"),
     paymentController.createOrder.bind(paymentController)
 );
-paymentRouter.post('/verify',paymentController.verifyPayment.bind(paymentController));
 paymentRouter.get('/disputes',paymentController.getAllDisputes.bind(paymentController));
 
 paymentRouter.get('/',authorizeRole('admin'),paymentController.getAllPayments.bind(paymentController));

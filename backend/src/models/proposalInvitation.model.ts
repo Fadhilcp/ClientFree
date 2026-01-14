@@ -40,6 +40,12 @@ const proposalInvitationSchema = new Schema({
     }
   ],
 
+  upgradeStatus: { 
+    type: String, 
+    enum: ["none", "pending", "paid"],
+    default: "none"
+  },
+
   optionalUpgrade: {
     addonId: { type: Schema.Types.ObjectId, ref: "AddOn" },
     name: { type: String, enum: ["highlight", "sponsored", "sealed"] },

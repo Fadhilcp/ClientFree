@@ -7,10 +7,12 @@ const planSchema = new Schema({
   priceMonthly: { type: Number, required: true },
   priceYearly: { type: Number, required: true },
 
-  //  in testing code ========
-  razorPlanIdMonthly: { type: String, required: true }, 
-  razorPlanIdYearly: { type: String, required: true },
-  // =================
+  // razorPlanIdMonthly: { type: String, required: true }, 
+  // razorPlanIdYearly: { type: String, required: true },
+
+  stripeProductId: { type: String, required: true },
+  stripePriceIdMonthly: { type: String, required: true },
+  stripePriceIdYearly: { type: String, required: true },
 
   features: {
     // Common features
