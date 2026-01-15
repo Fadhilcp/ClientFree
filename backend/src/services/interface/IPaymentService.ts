@@ -16,6 +16,6 @@ export interface IPaymentService {
     getDisputeById(paymentId: string): Promise<AdminDisputeDto>;
     getAllPayments(search: string, page: number, limit: number): Promise<PaginatedResult<AdminPaymentDto>>;
     getAllWithdrawals(search: string, page: number, limit: number): Promise<PaginatedResult<AdminWithdrawalDTO>>; 
-    withdraw(userId: string, amount: number): Promise<{ paymentId: string }>;
+    withdraw(userId: string, role: string, amount: number): Promise<{ paymentId: string }>;
     getWithdrawals(userId: string, page: number, limit: number): Promise<any>;
 }

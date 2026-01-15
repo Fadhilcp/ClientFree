@@ -157,15 +157,11 @@ const UserRoutes: React.FC = () => {
                 <Route path="wallet" element={<WalletPage/>}/>
                 <Route path="transactions" element={<TransactionsPage/>}/>
                 <Route path="invoices-reports" element={<InvoicesAndReports/>}/>
+                <Route path="withdrawals" element={<WithdrawalsPage />}/>
 
                 <Route path="escrow" element={
                     <AuthProtectedRoute allowedRoles={["freelancer"]}>
                         <InEscrowPage />
-                    </AuthProtectedRoute>
-                }/>
-                <Route path="withdrawals" element={
-                    <AuthProtectedRoute allowedRoles={["freelancer"]}>
-                        <WithdrawalsPage />
                     </AuthProtectedRoute>
                 }/>
                 <Route path="escrow-milestones" element={

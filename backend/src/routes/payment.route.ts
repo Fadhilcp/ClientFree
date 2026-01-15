@@ -41,8 +41,8 @@ paymentRouter.get('/disputes',paymentController.getAllDisputes.bind(paymentContr
 
 paymentRouter.get('/',authorizeRole('admin'),paymentController.getAllPayments.bind(paymentController));
 
-paymentRouter.post("/withdraw",authorizeRole("freelancer"),paymentController.withdraw.bind(paymentController));
-paymentRouter.get("/withdrawals",authorizeRole("freelancer"),paymentController.getWithdrawals.bind(paymentController));
+paymentRouter.post("/withdraw",paymentController.withdraw.bind(paymentController));
+paymentRouter.get("/withdrawals",paymentController.getWithdrawals.bind(paymentController));
 paymentRouter.get("/admin/withdrawals",authorizeRole("admin"),paymentController.getAllWithdrawals.bind(paymentController));
 
 paymentRouter.get('/:paymentId/dispute',paymentController.getDisputeById.bind(paymentController));

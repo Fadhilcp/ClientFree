@@ -5,6 +5,7 @@ import type { RootState } from "../../store/store";
 const ClientPaymentsMenuItems = [
   { label: "Overview", path: "/payments/overview" },
   { label: "Wallet", path: "/payments/wallet" },
+  { label: "Withdrawals", path: "/payments/withdrawals" },
   { label: "Escrow & Milestones", path: "/payments/escrow-milestones" },
   { label: "Transactions", path: "/payments/transactions" },
   { label: "Invoices & Reports", path: "/payments/invoices-reports"}

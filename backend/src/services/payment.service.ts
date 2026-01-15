@@ -463,17 +463,21 @@ export class PaymentService implements IPaymentService {
       }
     }
 
-    async withdraw(userId: string, amount: number): Promise<{ paymentId: string }> {
+    async withdraw(userId: string, role: string, amount: number): Promise<{ paymentId: string }> {
 
       if (!amount || amount <= 0) {
           throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid withdrawal amount");
+      }
+
+      if (!["freelancer", "client"].includes(role)) {
+        throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid role");
       }
 
       return this._sessionProvider.runInTransaction(
           async (session: ClientSession) => {
 
               const wallet = await this._walletRepository.findOneWithSession(
-                  { userId, role: "freelancer", status: "active" },
+                  { userId, role, status: "active" },
                   session
               );
 

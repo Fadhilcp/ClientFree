@@ -130,11 +130,12 @@ export class PaymentController {
     async withdraw(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const userId = req.user?._id;
+            const role = req.user?.role;
             const { amount } = req.body;
 
-            if(!userId) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
+            if(!userId || !role) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
 
-            await this._paymentService.withdraw(userId, amount);
+            await this._paymentService.withdraw(userId, role, amount);
 
             sendResponse(res, HttpStatus.OK, {});
         } catch (error) {
