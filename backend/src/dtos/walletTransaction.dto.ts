@@ -23,6 +23,6 @@ export interface WalletTransactionDTO {
   };
 
   paymentId?: string;
-  status: "completed" | "failed";
+  status: "pending" | "completed" | "failed";
   createdAt?: Date;
 }

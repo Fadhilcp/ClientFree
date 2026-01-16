@@ -108,7 +108,7 @@ export class PaymentService implements IPaymentService {
     : Promise<{ payment: IPaymentDocument }> {
 
       const payment = await this._paymentRepository.findById(paymentId);
-      console.log("🚀 ~ PaymentService ~ refundMilestone ~ payment:", payment)
+
       if (!payment) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.PAYMENT_NOT_FOUND);
 
       if (payment.status === "refunded") return { payment };
@@ -182,18 +182,15 @@ export class PaymentService implements IPaymentService {
 
         return payment;
       });
-      console.log("🚀 ~ PaymentService ~ refundMilestone ~ updatedPayment:", updatedPayment)
       // stripe refund
       const refund = await stripe.refunds.create({
         payment_intent: payment.providerPaymentId,
         reason: reason ? "requested_by_customer" : undefined,
       })
-      console.log("🚀 ~ PaymentService ~ refundMilestone ~ refund:", refund)
       // updating payment and milestone after completing stripe refund
       updatedPayment.status = "refunded";
       updatedPayment.referenceId = refund.id;
       updatedPayment.refundDate = new Date();
-      console.log("🚀 ~ PaymentService ~ refundMilestone ~ updatedPayment:", updatedPayment)
 
       await updatedPayment.save();
       
@@ -463,6 +460,79 @@ export class PaymentService implements IPaymentService {
       }
     }
 
+// withdraw duplicate code (to implement stripe when withdraw)
+    // async withdraw(userId: string, role: string, amount: number): Promise<{ paymentId: string }> {
+
+    //   if (!amount || amount <= 0) {
+    //       throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid withdrawal amount");
+    //   }
+
+    //   if (!["freelancer", "client"].includes(role)) {
+    //     throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid role");
+    //   }
+
+    //   const { paymentId, stripeAccountId, currency } = 
+    //     await this._sessionProvider.runInTransaction(
+    //       async (session: ClientSession) => {
+
+    //           const wallet = await this._walletRepository.findOneWithSession(
+    //               { userId, role, status: "active" },
+    //               session
+    //           );
+
+    //           if (!wallet) {
+    //               throw createHttpError(HttpStatus.BAD_REQUEST, "Wallet not found");
+    //           }
+
+    //           if (wallet.balance.available < amount) {
+    //               throw createHttpError(HttpStatus.BAD_REQUEST, "Insufficient balance");
+    //           }
+
+    //           const payment = await this._paymentRepository.createWithSession(
+    //               {
+    //                   type: "withdrawal",
+    //                   status: "pending",
+    //                   amount,
+    //                   currency: wallet.currency ?? "INR",
+    //                   userId: wallet.userId,
+    //                   method: "wallet",
+    //                   provider: "stripe",
+    //                   paymentDate: new Date(),
+    //                   withdrawalDate: new Date(),
+    //               },
+    //               session
+    //           );
+    //           // generate reference after _id exists
+    //           payment.referenceId = `WD-${payment._id.toString().slice(-8).toUpperCase()}`;
+    //           await payment.save({ session });
+
+    //           wallet.balance.available -= amount;
+    //           wallet.balance.pending += amount;
+    //           wallet.updatedAt = new Date();
+    //           await wallet.save({ session });
+
+    //           await this._walletTransactionRepository.createWithSession(
+    //               {
+    //                   walletId: wallet._id,
+    //                   userId: wallet.userId,
+    //                   paymentId: payment._id,
+    //                   type: "withdrawal",
+    //                   direction: "debit",
+    //                   amount,
+    //                   status: "pending",
+    //                   balanceAfter: {
+    //                       available: wallet.balance.available,
+    //                       escrow: wallet.balance.escrow,
+    //                       pending: wallet.balance.pending
+    //                   }
+    //               },
+    //               session
+    //           );
+    //           return { paymentId: payment._id.toString() };
+    //       }
+    //   );
+    // }
+
     async withdraw(userId: string, role: string, amount: number): Promise<{ paymentId: string }> {
 
       if (!amount || amount <= 0) {
@@ -492,12 +562,12 @@ export class PaymentService implements IPaymentService {
               const payment = await this._paymentRepository.createWithSession(
                   {
                       type: "withdrawal",
-                      status: "completed",
+                      status: "pending",
                       amount,
                       currency: wallet.currency ?? "INR",
                       userId: wallet.userId,
                       method: "wallet",
-                      provider: "bank",
+                      provider: "internal",
                       paymentDate: new Date(),
                       withdrawalDate: new Date(),
                   },
@@ -520,7 +590,7 @@ export class PaymentService implements IPaymentService {
                       type: "withdrawal",
                       direction: "debit",
                       amount,
-                      status: "completed",
+                      status: "pending",
                       balanceAfter: {
                           available: wallet.balance.available,
                           escrow: wallet.balance.escrow,

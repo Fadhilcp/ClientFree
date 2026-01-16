@@ -11,7 +11,7 @@ export type WalletTransactionType =
   | "admin_adjustment";
 
 export type WalletTransactionDirection = "credit" | "debit";
-export type WalletTransactionStatus = "completed" | "failed";
+export type WalletTransactionStatus = "pending" | "completed" | "failed";
 
 export interface IWalletTransactionBalance {
   available: number;

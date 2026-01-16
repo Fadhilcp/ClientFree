@@ -56,7 +56,7 @@ const walletTransactionSchema = new Schema({
 
   status: {
     type: String,
-    enum: ["completed", "failed"],
+    enum: ["pending", "completed", "failed"],
     default: "completed"
   },
 }, { timestamps: true });
