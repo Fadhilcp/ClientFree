@@ -40,6 +40,7 @@ import OverviewPage from "../pages/user/payments/OverviewPage";
 import BillingSuccess from "../components/user/billing/BillingSuccess";
 import BillingCancel from "../components/user/billing/BillingCancel";
 import SubscriptionSetting from "../pages/user/settings/Subscription-Premium";
+import NotificationsPage from "../pages/user/notification/NotificationsPage";
 
 
 const UserRoutes: React.FC = () => {
@@ -53,7 +54,6 @@ const UserRoutes: React.FC = () => {
     return (
 
         <Routes>
-        
             <Route element={<UserLayout />}>
             {/* public routes - start */}
             <Route path="/" element={
@@ -104,6 +104,14 @@ const UserRoutes: React.FC = () => {
                 element={
                 <AuthProtectedRoute allowedRoles={['client','freelancer']}>
                     <Home />
+                </AuthProtectedRoute>
+                }
+            />
+            <Route
+                path="/notifications"
+                element={
+                <AuthProtectedRoute allowedRoles={['client','freelancer']}>
+                    <NotificationsPage />
                 </AuthProtectedRoute>
                 }
             />

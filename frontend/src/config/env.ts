@@ -3,4 +3,5 @@ export const env = {
     GOOGLE_CLIENT_ID: import.meta.env.VITE_GOOGLE_CLIENT_ID,
     RAZORPAY_KEY_ID: import.meta.env.VITE_RAZORPAY_KEY_ID,
     STRIPE_PUBLISHABLE_KEY: import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY,
+    VITE_API_URL: import.meta.env.VITE_API_URL,
 }

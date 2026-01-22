@@ -1,10 +1,12 @@
 import { Document, Types } from "mongoose"; 
 
+export type UserRole = "freelancer" | "client" | "admin"
+
 export interface IUserBase {
     username: string;
     email: string;
     password?: string;
-    role: "freelancer" | "client" | "admin";
+    role: UserRole;
     status: "active" | "inactive" | "banned";
     provider: "local" | "google";
     lastLoginAt?: Date;

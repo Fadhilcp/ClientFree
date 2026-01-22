@@ -180,7 +180,6 @@ const JobLayout: React.FC = () => {
 
       setIsModalOpen(true);
     };
-
     
     const handleSubmit = async() => {
 

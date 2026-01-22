@@ -13,6 +13,7 @@ export interface IBaseRepository<TDocument extends Document> {
   deleteOne(filter: FilterQuery<TDocument>): Promise<DeleteResult>;
   findOne(filter: FilterQuery<TDocument>, options?: { sort?: Record<string, SortOrder> }): Promise<TDocument | null>;
   find(filter: FilterQuery<TDocument>, options?: { sort?: Record<string, SortOrder>, limit?: number }): Promise<TDocument[]>;
+  count(filter: FilterQuery<TDocument>): Promise<number>;
   paginate(filter: FilterQuery<TDocument>,options: {
         page?: number;
         limit?: number;

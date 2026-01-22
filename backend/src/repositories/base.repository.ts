@@ -72,8 +72,8 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T>{
         return data;
     }
 
-    async count() {
-        return this.model.countDocuments();
+    async count(filter: FilterQuery<T>): Promise<number> {
+        return this.model.countDocuments(filter);
     }
 
     async paginate(filter: FilterQuery<T> = {},options: {

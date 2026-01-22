@@ -1,3 +1,4 @@
+import { UserToSelectDto } from "dtos/user.dto";
 import { UserListingDto } from "../dtos/userListing.dto";
 import { IUserDocument } from "../types/user.type";
 
@@ -16,3 +17,10 @@ export function mapUserToListingDto(user: IUserDocument): UserListingDto {
     createdAt: user.createdAt
   };
 }
+// for searchable listing
+export const mapUserToSelect = (user: Pick<IUserDocument, "_id" | "username" | "email">): UserToSelectDto => {
+  return {
+    id: user._id.toString(),
+    label: `${user.username} (${user.email})`,
+  };
+};

@@ -11,6 +11,10 @@ export const env = {
         return process.env.PORT;
     },
 
+    get JWT_ACCESS_SECRET(){
+        return process.env.JWT_ACCESS_SECRET;
+    },
+
     //cors
     get CORS_ORIGIN(){
         return process.env.CORS_ORIGIN;

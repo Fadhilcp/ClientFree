@@ -14,6 +14,7 @@ import clarificationRouter from "./clarification.route";
 import walletRouter from "./wallet.route";
 import dashboardRouter from "./dashboard.route";
 import matchRouter from "./match.route";
+import notificationRouter from "./notification.route";
 
 const router = Router();
 
@@ -31,5 +32,6 @@ router.use("/clarification", clarificationRouter);
 router.use("/wallet", walletRouter);
 router.use("/dashboard", dashboardRouter);
 router.use("/match", matchRouter);
+router.use("/notification",notificationRouter);
 
 export default router;

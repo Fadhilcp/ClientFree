@@ -17,6 +17,7 @@ import Withdrawals from '../pages/admin/Withdrawals'
 import EscrowMilestones from '../pages/admin/EscrowMilestones'
 import Wallets from '../pages/admin/Wallets'
 import WalletTransactionsPage from '../pages/admin/WalletTransactions'
+import AdminNotificationsPage from '../pages/admin/AdminNotificationsPage'
 
 const AdminRoutes: React.FC = () => {
   return (
@@ -93,7 +94,11 @@ const AdminRoutes: React.FC = () => {
                 <WalletTransactionsPage/>
               </AuthProtectedRoute>
             }/>
-
+            <Route path='notifications' element={
+              <AuthProtectedRoute allowedRoles={['admin']}>
+                <AdminNotificationsPage/>
+              </AuthProtectedRoute>
+            }/>
 
         </Route>
         {/* <Route path="*" element={<NotFoundPage />} /> */}

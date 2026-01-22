@@ -4,7 +4,7 @@ import { IUserRepository } from "repositories/interfaces/IUserRepository";
 import { IUserService } from "./interface/IUserService";
 import { IUser, IUserDocument } from "../types/user.type";
 import { createHttpError } from "../utils/httpError.util";
-import { mapUserToListingDto } from "../mappers/userListing.mapper";
+import { mapUserToListingDto, mapUserToSelect } from "../mappers/userListing.mapper";
 import { mapUserProfile } from "../mappers/mapUserProfile";
 import { UserProfileDto } from "../dtos/profile.dto.types";
 import { UserListingDto } from "../dtos/userListing.dto";
@@ -15,6 +15,7 @@ import cloudinary from "../config/cloudinary.config";
 import { uploadToCloudinary } from "../utils/cloudinary.helper";
 import { FreelancerListItemDto } from "../dtos/freelancerProfile.dto";
 import { mapUserToFreelancerListItemDto } from "../mappers/freelancer.mapper";
+import { UserToSelectDto } from "dtos/user.dto";
 
 export class UserService implements IUserService {
 
@@ -315,5 +316,36 @@ export class UserService implements IUserService {
                 }
             }
         );
+    }
+
+    async searchUsersForSelect(search: string, page: number, limit: number)
+    : Promise<UserToSelectDto[]> {
+
+        if(!search.trim()) return [];
+
+        const filter: FilterQuery<IUserDocument> = {
+            $or: [
+                { username: { $regex: search, $options: "i" } },
+                { email: { $regex: search, $options: "i" } }
+            ]
+        };
+
+        const users = await this._userRepository.searchForSelect(
+            filter,
+            page,
+            limit
+        );
+
+        return users.map(u => ({
+            id: u._id.toString(),
+            label: `${u.username} (${u.email})`
+        }));
+    }
+
+    async getUsersByIds(userIds: string[]): Promise<UserToSelectDto[]> {
+
+        const users = await this._userRepository.findByIds(userIds);
+
+        return users.map(mapUserToSelect);
     }
 }

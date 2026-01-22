@@ -17,5 +17,11 @@ export interface IUserRepository extends IBaseRepository<IUserDocument>{
 
     resetSubscriptionState(
         userId: string, limits: { invitesRemaining: number; proposalsRemaining: number }, session: ClientSession
-    ): Promise<void>
+    ): Promise<void>;
+    searchForSelect(
+        filter: FilterQuery<IUserDocument>,
+        page: number,
+        limit: number
+    ): Promise<Pick<IUserDocument, "_id" | "username" | "email">[]>;
+    findByIds(userIds: string[]): Promise<Pick<IUserDocument, "_id" | "username" | "email">[]>;
 }

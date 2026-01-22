@@ -3,6 +3,7 @@ import { IUser } from "../../types/user.type";
 import { UserProfileDto } from "../../dtos/profile.dto.types";
 import { PaginatedResult } from "../../types/pagination";
 import { FreelancerListItemDto } from "../../dtos/freelancerProfile.dto";
+import { UserToSelectDto } from "dtos/user.dto";
 
 
 export interface IUserService {
@@ -36,4 +37,7 @@ export interface IUserService {
             ratingMin?: number;
         }
     ): Promise<{ freelancers: FreelancerListItemDto[], nextCursor: string | null }>;
+    searchUsersForSelect(search: string, page: number, limit: number)
+    : Promise<{ id: string; label: string }[]>;
+    getUsersByIds(userIds: string[]): Promise<UserToSelectDto[]>;
 }

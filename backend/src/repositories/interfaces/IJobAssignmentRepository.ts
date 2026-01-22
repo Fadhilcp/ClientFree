@@ -1,6 +1,6 @@
 import { IJobAssignmentDocument } from "../../types/jobAssignment/jobAssignment.type";
 import { IBaseRepository } from "./IBaseRepository";
-import { Aggregate, FilterQuery, PopulateOptions, SortOrder, Types } from "mongoose";
+import { FilterQuery, PopulateOptions, SortOrder, Types } from "mongoose";
 import { PopulatedAssignment } from "../../types/jobAssignment/jobAssignment.populated";
 import { ApprovedMilestoneAssignment } from "../../types/jobAssignment/jobAssignment.approvedMilestone";
 

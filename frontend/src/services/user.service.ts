@@ -54,6 +54,17 @@ class UserService {
     removeInterestedFreelancer(jobId: string) {
         return axios.delete(endPoints.USER.REMOVE_INTERESTED(jobId));
     }
+    // for searchable dropdown
+    searchUsers(search: string, page: number, limit: number) {
+        return axios.get(endPoints.USER.SEARCH(search, page, limit));
+    }
+
+    getUsersByIds(userIds: string[]) {
+        return axios.get(endPoints.USER.USERS_BY_ID, { 
+            params: { userIds },
+            paramsSerializer: { indexes: null }
+        });
+    }
 }
 
 export const userService = new UserService();

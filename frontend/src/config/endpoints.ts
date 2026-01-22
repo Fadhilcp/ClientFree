@@ -30,6 +30,9 @@ export const endPoints = {
             `/user/interested?cursor=${cursor || ""}&limit=${limit}&search=${search}`,
         ADD_INTERESTED: (freelancerId: string) => `/user/${freelancerId}/interest`,
         REMOVE_INTERESTED: (freelancerId: string) => `/user/${freelancerId}/interest`,
+        SEARCH: (search: string, page: number, limit: number) => 
+            `/user/search?search=${search ?? ""}&page=${page ?? 1}&limit=${limit ?? 10}`,
+        USERS_BY_ID: '/user/by-ids',
     },
     SKILL: {
         GET_ACTIVE: '/skills/active',
@@ -177,5 +180,16 @@ export const endPoints = {
 
         GET_BEST_FREELANCERS:(jobId: string, search: string, cursor?: string, limit?: number) => 
             `/match/freelancers/${jobId}?search=${search ?? ""}&cursor=${cursor || ""}&limit=${limit}`
-    }
+    },
+    NOTIFICATION: {
+        GET_MY: (page: number, limit: number) => `/notification/me?page=${page ?? 1}&limit=${limit ?? 1}`,
+        CREATE: "/notification",
+        UPDATE: (notificationId: string) => `/notification/${notificationId}`,
+        DELETE: (notificationId: string) => `/notification/${notificationId}`,
+        MARK_READ: (notificationId: string) => `/notification/${notificationId}/read`,
+        COUNT_UNREAD: "/notification/unread-count",
+        MARK_ALL_READ: "/notification/read-all",
+        GET_ADMIN: (search: string, page: number, limit: number) => 
+            `/notification/admin?search=${search ?? ""}&page=${page ?? 1}&limit=${limit ?? 1}`,
+    },
 }

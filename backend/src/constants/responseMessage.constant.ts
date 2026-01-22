@@ -61,4 +61,6 @@ export const HttpResponse = {
     CLARIFICATION_BOARD_NOT_FOUND: "Clarification board not found",
     CLARIFICATION_BOARD_CLOSED: "Clarification board is closed",
     WALLET_NOT_FOUND: "Wallet not found",
+    NOTIFICATION_NOT_FOUND: "Notification not found",
+    NOTIFICATION_RECIPIENT_NOT_FOUND: "Notification recipient not found",
 };

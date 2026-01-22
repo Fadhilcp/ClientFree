@@ -15,9 +15,8 @@ import { connectRedis } from './config/redis.config';
 import stripeWebhookRouter from './routes/stripeWebhook.route';
 
 connectDB();
-startSubscriptionExpiryCron();
-
 connectRedis();
+startSubscriptionExpiryCron();
 
 app.use(cors({
     origin : env.CORS_ORIGIN,
@@ -38,6 +37,4 @@ app.use("/api", apiRoutes);
 
 app.use(errorHandler);
 
-app.listen(env.PORT || 3000,() => {
-    console.log(`server is running at ${env.PORT} port`);
-})
+export default app;

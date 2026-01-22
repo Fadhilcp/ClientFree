@@ -50,47 +50,22 @@ const JobDetailPage: React.FC = () => {
     a.milestones.some((m) => m.status === "funded")
   );
   // open confirm modal 
-    const openConfirmModal = (title: string, description: string, action: () => void) => {
-      setConfirmTitle(title);
-      setConfirmDescription(description);
-      setConfirmAction(() => action);
-      setIsConfirmOpen(true);
-    };
+  const openConfirmModal = (title: string, description: string, action: () => void) => {
+    setConfirmTitle(title);
+    setConfirmDescription(description);
+    setConfirmAction(() => action);
+    setIsConfirmOpen(true);
+  };
 
-  // Fetch job details
-//   const loadJobDetails = async () => {
-//   if (!id) return;
+  const fetchAssignment = async () => {
+    if(!id) return;
+    const res = await jobAssignmentService.getAssignemntsOfJob(id);
 
-//   setLoading(true);
-//   try {
-//     const [jobRes, assignmentRes] = await Promise.all([
-//       jobService.getJob(id),
-//       jobAssignmentService.getAssignemntsOfJob(id),
-//     ]);
-
-//     if (jobRes.data.success) setJob(jobRes.data.job);
-//     if (assignmentRes.data.success) setJobAssignments(assignmentRes.data.assignments);
-//   } catch (err) {
-//     notify.error('Failed to fetch job details');
-//   } finally {
-//     setLoading(false);
-//   }
-// };
-
-// useEffect(() => {
-//   if (activeTab !== 'details') return;
-//   loadJobDetails();
-// }, [id, activeTab]);
-
-const fetchAssignment = async () => {
-  if(!id) return;
-  const res = await jobAssignmentService.getAssignemntsOfJob(id);
-
-  if (res.data.success) {
-    const { assignments } = res.data;
-    setJobAssignments(assignments);
-  }
-};
+    if (res.data.success) {
+      const { assignments } = res.data;
+      setJobAssignments(assignments);
+    }
+  };
 
   useEffect(() => {
     if (!id || activeTab !== 'details') return;

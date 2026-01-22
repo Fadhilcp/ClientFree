@@ -205,4 +205,44 @@ export class ProfileController {
             next(error);
         }
     }
+
+    async searchUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            
+            const search = req.query.search as string || '';
+            const page = parseInt(req.query.page as string) || 1;
+            const limit = parseInt(req.query.limit as string) || 10;
+    
+            const users = await this._userService.searchUsersForSelect(
+                search,
+                page,
+                limit
+            );
+    
+            sendResponse(res, HttpStatus.OK, { users });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getUsersByIds(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            
+            const rawUserIds = req.query.userIds;
+
+            if(!rawUserIds) throw createHttpError(HttpStatus.BAD_REQUEST, "userIds is required");
+
+            const userIds = 
+                (Array.isArray(rawUserIds) ? rawUserIds : [rawUserIds])
+                .filter((id): id is string => typeof id === "string");
+
+            if(userIds.length === 0) throw createHttpError(HttpStatus.BAD_REQUEST, "userIds cannot be empty");
+
+            const users = await this._userService.getUsersByIds(userIds);
+
+            sendResponse(res, HttpStatus.OK, { users });
+        } catch (error) {
+            next(error);
+        }
+    }
 }

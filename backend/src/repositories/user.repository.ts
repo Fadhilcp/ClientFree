@@ -75,4 +75,23 @@ export class UserRepository
             { session }
         );
     }
+
+    async searchForSelect(
+        filter: FilterQuery<IUserDocument>,
+        page: number,
+        limit: number
+    ): Promise<Pick<IUserDocument, "_id" | "username" | "email">[]> {
+        return this.model.find(filter)
+            .select("username email")
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .lean();
+    }
+
+    async findByIds(userIds: string[]): Promise<Pick<IUserDocument, "_id" | "username" | "email">[]> {
+        return this.model.find(
+            { _id: { $in: userIds } },
+            { username: 1, email: 1 }
+        ).lean();
+    }
 }

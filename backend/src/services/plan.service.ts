@@ -119,7 +119,7 @@ export class PlanService implements IPlanService {
                 product: plan.stripeProductId,
                 unit_amount: planData.priceYearly * 100,
                 currency: plan.currency ?? "inr",
-                recurring: { interval: "year" },     
+                recurring: { interval: "year" },
             });
             updatedData.stripePriceIdYearly = yearlyPrice.id;
         }

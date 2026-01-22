@@ -7,9 +7,15 @@ import { notify } from '../../../utils/toastService';
 import { tokenStore } from '../../../utils/tokenStore';
 import { authService } from '../../../services/auth.service';
 import UserInfo from '../../user/UserInfo';
+import NotificationDropdown from '../../user/Notification/NotifcationDropdown';
+import { useNotifications } from '../../../context/NotificationContext';
 
 const NavbarIcons: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+
+  const { unreadCount } = useNotifications();
+
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -41,12 +47,38 @@ const NavbarIcons: React.FC = () => {
 
   return (
     <div className="relative flex items-center gap-4">
+      {/* Support */}
       <button className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-white">
         <i className="fas fa-headset text-lg"></i>
       </button>
-      <button className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-white">
+      {/* Notification */}
+      <button 
+      onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+      className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-white">
         <i className="fas fa-bell text-lg"></i>
+          {unreadCount > 0 && (
+            <span
+              className="z-1
+                absolute -top-1
+                min-w-[10px] h-[10px]
+                p-1 py-2
+                bg-red-500 text-white
+                text-[10px] font-semibold
+                rounded-full
+                flex items-center justify-center
+              "
+            >
+              {unreadCount > 9 ? "9+" : unreadCount}
+            </span>
+          )}
       </button>
+      <NotificationDropdown
+        isOpen={isNotificationOpen}
+        onClose={() => setIsNotificationOpen(false)}
+        // setUnreadCount={setUnreadCount}
+      />
+
+      {/* Message */}
       <button className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-white">
         <i className="fas fa-message text-lg"></i>
       </button>
