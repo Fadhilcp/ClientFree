@@ -15,6 +15,8 @@ import walletRouter from "./wallet.route";
 import dashboardRouter from "./dashboard.route";
 import matchRouter from "./match.route";
 import notificationRouter from "./notification.route";
+import chatRouter from "./chat.route";
+import messageRouter from "./message.route";
 
 const router = Router();
 
@@ -33,5 +35,7 @@ router.use("/wallet", walletRouter);
 router.use("/dashboard", dashboardRouter);
 router.use("/match", matchRouter);
 router.use("/notification",notificationRouter);
+router.use("/chat",chatRouter);
+router.use("/message",messageRouter);
 
 export default router;

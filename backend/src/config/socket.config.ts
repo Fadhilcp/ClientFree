@@ -23,6 +23,31 @@ export const initSocket = (server: http.Server): Server => {
         socket.join(`user:${_id}`);
         socket.join(`role:${role}`);
 
+        // Chat rooms
+        socket.on("chat:join", (chatId: string) => {
+            socket.join(`chat:${chatId}`);
+        });
+
+        socket.on("chat:leave", (chatId: string) => {
+            socket.leave(`chat:${chatId}`);
+        });
+
+        // Typing indicator
+        socket.on("chat:typing", ({ chatId }: { chatId: string }) => {
+            socket.to(`chat:${chatId}`).emit("chat:typing", {
+                userId: _id,
+            });
+        });
+
+        // Read receipt relay 
+        socket.on("chat:read", ({ chatId }: { chatId: string }) => {
+        socket.to(`chat:${chatId}`).emit("chat:read", {
+            chatId,
+            userId: _id,
+        });
+        });
+
+
         socket.on("disconnect", () => {
             console.log(`Socket disconnected: ${_id}`);
         });

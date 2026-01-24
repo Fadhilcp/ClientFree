@@ -63,4 +63,5 @@ export const HttpResponse = {
     WALLET_NOT_FOUND: "Wallet not found",
     NOTIFICATION_NOT_FOUND: "Notification not found",
     NOTIFICATION_RECIPIENT_NOT_FOUND: "Notification recipient not found",
+    CHAT_NOT_FOUND: "Chat not found",
 };
