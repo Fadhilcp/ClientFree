@@ -18,9 +18,9 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
     // Close when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-        if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-            onClose();
-        }
+          if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+              onClose();
+          }
         };
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);

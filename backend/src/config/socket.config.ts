@@ -41,12 +41,11 @@ export const initSocket = (server: http.Server): Server => {
 
         // Read receipt relay 
         socket.on("chat:read", ({ chatId }: { chatId: string }) => {
-        socket.to(`chat:${chatId}`).emit("chat:read", {
-            chatId,
-            userId: _id,
+            socket.to(`chat:${chatId}`).emit("chat:read", {
+                chatId,
+                userId: _id,
+            });
         });
-        });
-
 
         socket.on("disconnect", () => {
             console.log(`Socket disconnected: ${_id}`);

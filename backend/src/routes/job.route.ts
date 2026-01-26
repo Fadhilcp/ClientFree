@@ -7,15 +7,14 @@ import { MongooseSessionProvider } from "../repositories/db/session-provider";
 import { JobRepository } from "../repositories/job.repository";
 import { JobAssignmentRepository } from "../repositories/jobAssignment.repository";
 import { PaymentRepository } from "../repositories/payment.repository";
-import { PlanRepository } from "../repositories/plan.repository";
 import { ProposalRepository } from "../repositories/proposalInvitation.repository";
-import { RevenueRepository } from "../repositories/revenue.repository";
-import { SubscriptionRepository } from "../repositories/subscription.repository";
 import { UserRepository } from "../repositories/user.repository";
 import { WalletRepository } from "../repositories/wallet.repository";
 import { WalletTransactionRepository } from "../repositories/walletTransaction.repository";
 import { JobService } from "../services/job.service";
-import { SubscriptionService } from "../services/subscription.service";
+import { NotificationRepository } from "repositories/notification.repository";
+import { NotificationRecipientRepository } from "repositories/notificationRecipient.repository";
+import { NotificationService } from "services/notification.service";
 
 const jobRouter = Router();
 
@@ -28,19 +27,14 @@ const paymentRepository = new PaymentRepository();
 const walletRepository = new WalletRepository();
 const walletTransactionRepository = new WalletTransactionRepository();
 const sessionProvider = new MongooseSessionProvider;
+// notification
+const notificationRepository = new NotificationRepository();
+const notificationRecipientRepository = new NotificationRecipientRepository();
 
-// for subscription service
-const subscriptionRepository = new SubscriptionRepository();
-const planRepository = new PlanRepository();
-const revenueRepository = new RevenueRepository();
-
-const subscriptionService = new SubscriptionService(
-    subscriptionRepository, 
-    planRepository, 
-    userRepository, 
-    paymentRepository, 
-    revenueRepository,
-    sessionProvider,
+const notificationService = new NotificationService(
+    notificationRepository,
+    notificationRecipientRepository,
+    userRepository,
 );
 
 const jobSerivce = new JobService(
@@ -53,7 +47,7 @@ const jobSerivce = new JobService(
     walletRepository,
     walletTransactionRepository,
     sessionProvider,
-    subscriptionService,
+    notificationService
 );
 
 const jobController = new JobController(jobSerivce);

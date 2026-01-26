@@ -9,6 +9,7 @@ import { ClarificationMessageDto } from "../dtos/clarificationMessage.dto";
 import { ClarificationBoardDto } from "../dtos/clarificationBoard.dto";
 import { mapClarificationBoard } from "../mappers/clarificationBoard.mapper";
 import { mapClarificationMessage } from "../mappers/clarificationMessage.mapper";
+import { UserRole } from "constants/user.constants";
 
 export class ClarificationService implements IClarificationService {
 
@@ -19,8 +20,12 @@ export class ClarificationService implements IClarificationService {
     ){}
 
     async addMessage(
-        jobId: string, senderId: string, senderRole: "client" | "freelancer", message: string
+        jobId: string, senderId: string, senderRole: UserRole, message: string
     ): Promise<ClarificationMessageDto> {
+
+        if (senderRole !== UserRole.CLIENT && senderRole !== UserRole.FREELANCER) {
+            throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.ACCESS_DENIED);
+        }
         
         const board = await this._clarificationBoardRepository.findOne({ jobId });
         if(!board) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.CLARIFICATION_BOARD_NOT_FOUND);

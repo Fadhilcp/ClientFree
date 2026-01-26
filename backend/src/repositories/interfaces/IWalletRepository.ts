@@ -1,4 +1,4 @@
-import { ClientSession, FilterQuery } from "mongoose";
+import { FilterQuery } from "mongoose";
 import { IBaseRepository } from "./IBaseRepository";
 import { IWalletDocument } from "../../types/wallet.type";
 import { IUserDocument } from "../../types/user.type";

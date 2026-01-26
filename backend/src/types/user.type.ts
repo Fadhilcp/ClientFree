@@ -1,6 +1,7 @@
+import { UserRole } from "constants/user.constants";
 import { Document, Types } from "mongoose"; 
 
-export type UserRole = "freelancer" | "client" | "admin"
+// export type UserRole = "freelancer" | "client" | "admin"
 
 export interface IUserBase {
     username: string;

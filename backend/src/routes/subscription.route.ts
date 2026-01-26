@@ -10,6 +10,7 @@ import { UserRepository } from '../repositories/user.repository';
 import { verifyUserNotBanned } from '../middlewares/verifyUserNotBanned.middleware';
 import { MongooseSessionProvider } from '../repositories/db/session-provider';
 import { authorizeRole } from 'middlewares/authorizeRole';
+import { UserRole } from 'constants/user.constants';
 
 const subscriptionRouter = express.Router()
 
@@ -33,7 +34,7 @@ const subscriptionController = new SubscriptionController(subscriptionService);
 
 subscriptionRouter.use(authMiddleware, verifyUserNotBanned);
 
-subscriptionRouter.get('/',authorizeRole("admin"),subscriptionController.getAllSubscription.bind(subscriptionController))
+subscriptionRouter.get('/',authorizeRole(UserRole.ADMIN),subscriptionController.getAllSubscription.bind(subscriptionController))
 subscriptionRouter.post('/',subscriptionController.createSubscription.bind(subscriptionController));
 subscriptionRouter.get('/me',subscriptionController.getActiveFeatures.bind(subscriptionController));
 subscriptionRouter.get('/history',subscriptionController.getMySubscriptions.bind(subscriptionController));

@@ -1,4 +1,3 @@
-import { NotificationRepository } from "../repositories/notification.repository";
 import { INotificationService } from "./interface/INotificationService";
 import { INotification, INotificationDocument } from "../types/notification.type";
 import { FilterQuery, Types } from "mongoose";
@@ -6,12 +5,13 @@ import { IUserRepository } from "../repositories/interfaces/IUserRepository";
 import { createHttpError } from "../utils/httpError.util";
 import { HttpStatus } from "../constants/status.constants";
 import { HttpResponse } from "../constants/responseMessage.constant";
-import { mapAdminNotification, mapUserNotification } from "../mappers/notification.mapper";
+import { mapUserNotification } from "../mappers/notification.mapper";
 import { mapNotification } from "../mappers/adminNotification.mapper";
 import { INotificationRepository } from "repositories/interfaces/INotificationRepository";
 import { INotificationRecipientRepository } from "../repositories/interfaces/INotificationRecipientRepository";
 import { emitNotificationToUser } from "helpers/notificationSocket";
-import { UserRole } from "types/user.type";
+import { AdminNotificationDTO, CreateNotificationDTO, NotificationDTO } from "dtos/notification.dto";
+import { PaginatedResult } from "types/pagination";
 
 export class NotificationService implements INotificationService {
     constructor(
@@ -20,7 +20,7 @@ export class NotificationService implements INotificationService {
         private _userRepository: IUserRepository,
     ){};
 
-    async createNotification(data: INotification): Promise<any> {
+    async createNotification(data: CreateNotificationDTO): Promise<AdminNotificationDTO> {
         
         if (data.scope === "role" && !data.roles?.length) {
             throw new Error("roles required when scope = 'role'");
@@ -65,7 +65,7 @@ export class NotificationService implements INotificationService {
         return mapNotification(notification);
     }
 
-    async updateNotification(notificationId: string, data: Partial<INotification>): Promise<any> {
+    async updateNotification(notificationId: string, data: Partial<INotification>): Promise<AdminNotificationDTO> {
         
         const notification = await this._notificationRepository.findByIdAndUpdate(
             notificationId,
@@ -77,7 +77,7 @@ export class NotificationService implements INotificationService {
         return mapNotification(notification);
     }
 
-    async deleteNotification(notificationId: string): Promise<any> {
+    async deleteNotification(notificationId: string): Promise<void> {
 
         const notification = await this._notificationRepository.findById(notificationId);
 
@@ -93,7 +93,7 @@ export class NotificationService implements INotificationService {
         await notification.save();
     }
 
-    async getUserNotifications(userId: string, page: number, limit: number): Promise<any> {
+    async getUserNotifications(userId: string, page: number, limit: number): Promise<PaginatedResult<NotificationDTO>> {
 
         const result = await this._notificationRecipientRepository.getUserNotificationsPaginated(
             userId,
@@ -107,7 +107,7 @@ export class NotificationService implements INotificationService {
         };
     }
 
-    async markAsRead(notificationId: string, userId: string): Promise<any> {
+    async markAsRead(notificationId: string, userId: string): Promise<NotificationDTO> {
         
         const notification = await this._notificationRecipientRepository.markAsRead(
             notificationId, userId
@@ -136,7 +136,7 @@ export class NotificationService implements INotificationService {
         return { modifiedCount: result.modifiedCount }
     }
 
-    async getAdminNotifications(search: string, page: number, limit: number): Promise<any> {
+    async getAdminNotifications(search: string, page: number, limit: number): Promise<PaginatedResult<AdminNotificationDTO>> {
 
         const filter: FilterQuery<INotificationDocument> = { isDeleted: false }
 

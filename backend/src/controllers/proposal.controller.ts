@@ -4,6 +4,7 @@ import { sendResponse } from "../utils/response.util";
 import { HttpStatus } from "../constants/status.constants";
 import { createHttpError } from "../utils/httpError.util";
 import { HttpResponse } from "../constants/responseMessage.constant";
+import { UserRole } from "constants/user.constants";
 
 export class ProposalController {
     constructor(private _proposalService: IProposalService) {}
@@ -16,7 +17,7 @@ export class ProposalController {
             if (!freelancerId) {
                 throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
             }
-            if (req.user?.role !== "freelancer") {
+            if (req.user?.role !== UserRole.FREELANCER) {
                 throw createHttpError(HttpStatus.FORBIDDEN, "Only freelancers can create their proposals.");
             }
             if (!jobId) {
@@ -229,7 +230,6 @@ export class ProposalController {
 
     async aiShortlistProposals(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            console.log('hello world')
             const { jobId } = req.params;
             const { top } = req.query;
 
@@ -257,6 +257,24 @@ export class ProposalController {
             const cancelled = await this._proposalService.cancelProposal(proposalId, freelancerId);
 
             sendResponse(res, HttpStatus.OK, { proposal: cancelled });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async withdrawInvitation(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const proposalId = req.params.proposalId;
+            const clientId = req.user?._id;
+
+            if(!clientId) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
+
+            const proposal = await this._proposalService.withdrawInvitation(
+                proposalId,
+                clientId
+            );
+
+            sendResponse(res, HttpStatus.OK, { proposal }, "Invitation withdrawn successfully");
         } catch (error) {
             next(error);
         }

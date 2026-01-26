@@ -60,7 +60,7 @@ export class MatchScoreHelper {
   }
 
   private static normalizeSkillIds(
-    skills: any[] | undefined
+    skills: (string | { _id: string})[] | undefined
   ): Set<string> {
     if (!skills || skills.length === 0) return new Set();
 

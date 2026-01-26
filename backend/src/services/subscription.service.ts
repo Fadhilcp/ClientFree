@@ -2,12 +2,10 @@ import { ISubscription, ISubscriptionDocument } from "../types/subscription.type
 import { ISubscriptionService } from "./interface/ISubscriptionService";
 import { createHttpError } from "../utils/httpError.util";
 import { HttpStatus } from "../constants/status.constants";
-import { getRazorpayInstance } from "../config/razorpay.config";
-import { getActiveFeaturesDto, SubscriptionDto } from "../dtos/subscription.dto";
+import { SubscriptionDto } from "../dtos/subscription.dto";
 import { mapSubscription } from "../mappers/subscription.mapper";
 import { ISubscriptionRepository } from "../repositories/interfaces/ISubscriptionRepository";
 import { IPlanRepository } from "../repositories/interfaces/IPlanRepository";
-import crypto from 'crypto';
 import { env } from "../config/env.config";
 import { IPaymentRepository } from "../repositories/interfaces/IPaymentRepository";
 import { IRevenueRepository } from "../repositories/interfaces/IRevenueRepository";
@@ -15,7 +13,7 @@ import { HttpResponse } from "../constants/responseMessage.constant";
 import { PaginatedResult } from "../types/pagination";
 import { IUserRepository } from "../repositories/interfaces/IUserRepository";
 import { ClientSession, FilterQuery } from "mongoose";
-import { IPlanDocument, PlanFeatures } from "../types/plan.type";
+import { PlanFeatures } from "../types/plan.type";
 import { IDatabaseSessionProvider } from "../repositories/db/session-provider.interface";
 import { PLAN_LIMITS } from "../constants/planLimits";
 import { stripe } from "../config/stripe.config";
@@ -80,6 +78,8 @@ export class SubscriptionService implements ISubscriptionService {
             });
             stripeCustomerId = customer.id;
         }
+
+        await stripe.customers.update(stripeCustomerId, { balance: 0 });
 
         const priceId = data.billingInterval === "monthly" ? plan.stripePriceIdMonthly : plan.stripePriceIdYearly;
 
@@ -164,7 +164,7 @@ export class SubscriptionService implements ISubscriptionService {
 
         if (!subscription) return null;
 
-        const plan = subscription.planId as any;
+        const plan = subscription.planId;
 
         return {
             planName: plan.planName,

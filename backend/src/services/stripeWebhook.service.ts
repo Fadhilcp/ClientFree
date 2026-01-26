@@ -14,6 +14,7 @@ import { HttpStatus } from "constants/status.constants";
 import { IWalletTransactionRepository } from "repositories/interfaces/IWalletTransactionRepository";
 import { IRevenueRepository } from "repositories/interfaces/IRevenueRepository";
 import { HttpResponse } from "constants/responseMessage.constant";
+import { UserRole } from "constants/user.constants";
 
 export class StripeWebhookService implements IStripeWebhookService {
 
@@ -120,7 +121,7 @@ export class StripeWebhookService implements IStripeWebhookService {
                 const user = await this._userRepository.findById(localSubscription.userId.toString());
                 if(!user) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
 
-                const revenueSource = user.role === "client" ? "client" : "freelancer";
+                const revenueSource = user.role === UserRole.CLIENT ? UserRole.CLIENT : UserRole.FREELANCER;
 
                 const paymentDate = invoice.status_transitions.paid_at
                     ? new Date(invoice.status_transitions.paid_at * 1000)
@@ -233,7 +234,7 @@ export class StripeWebhookService implements IStripeWebhookService {
             await payment.save({ session });
 
             const clientWallet = await this._walletRepository.findOneWithSession(
-                { userId: clientId, role: "client", status: "active" },
+                { userId: clientId, role: UserRole.CLIENT, status: "active" },
                 session
             );
 

@@ -12,7 +12,7 @@ import { EMPTY_SUMMARY } from "../constants/report-summary-empty";
 import { PaginatedResult } from "../types/pagination";
 import { WalletTransactionDTO } from "../dtos/walletTransaction.dto";
 import { mapWallet } from "../mappers/wallet.mapper";
-import { WalletDTO } from "../dtos/wallet.dto";
+import { EscrowDetailsDTO, FinancialReportDTO, WalletDetailsDTO, WalletDTO, WalletInvoicesDTO, WalletTransactionsDTO } from "../dtos/wallet.dto";
 
 export class WalletService implements IWalletService {
     constructor(
@@ -20,7 +20,7 @@ export class WalletService implements IWalletService {
         private _walletTransactionRepository: IWalletTransactionRepository,
     ){};
 
-    async getWalletDetails(userId: string, page: number, limit: number): Promise<any> {
+    async getWalletDetails(userId: string, page: number, limit: number): Promise<WalletDetailsDTO> {
         const wallet = await this._walletRepository.findOne({ userId: userId });
 
         if(!wallet) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.WALLET_NOT_FOUND);
@@ -46,7 +46,7 @@ export class WalletService implements IWalletService {
         };
     }
 
-    async getEscrowDetails(userId: string, page: number, limit: number): Promise<any> {
+    async getEscrowDetails(userId: string, page: number, limit: number): Promise<EscrowDetailsDTO> {
         const wallet = await this._walletRepository.findOne({ userId });
         if(!wallet) {
             throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.WALLET_NOT_FOUND);
@@ -75,7 +75,7 @@ export class WalletService implements IWalletService {
         };
     }
 
-    async getTransactions(userId: string, page: number, limit: number): Promise<any> {
+    async getTransactions(userId: string, page: number, limit: number): Promise<WalletTransactionsDTO> {
         const wallet = await this._walletRepository.findOne({ userId });
 
         if(!wallet) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.WALLET_NOT_FOUND);
@@ -97,7 +97,7 @@ export class WalletService implements IWalletService {
         };
     }
 
-    async getInvoices(userId: string, page: number, limit: number): Promise<any> {
+    async getInvoices(userId: string, page: number, limit: number): Promise<WalletInvoicesDTO> {
         const wallet = await this._walletRepository.findOne({ userId });
         if(!wallet) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.WALLET_NOT_FOUND);
 
@@ -122,7 +122,7 @@ export class WalletService implements IWalletService {
         }
     }
 
-    async downloadInvoicePdf(userId: string, transactionId: string) {
+    async downloadInvoicePdf(userId: string, transactionId: string): Promise<Buffer> {
         const transaction = await this._walletTransactionRepository.findOne({
             _id: transactionId,
             userId,
@@ -147,7 +147,7 @@ export class WalletService implements IWalletService {
         return generateInvoicePdf(invoiceData);
     }
 
-    async getFinancialReport(userId: string, from: Date, to: Date): Promise<any> {
+    async getFinancialReport(userId: string, from: Date, to: Date): Promise<FinancialReportDTO> {
         const wallet = await this._walletRepository.findOne({ userId });
 
         if (!wallet) {

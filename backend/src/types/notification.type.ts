@@ -1,5 +1,5 @@
 import { Document, Types } from "mongoose";
-import { UserRole } from "./user.type";
+import { UserRole } from "constants/user.constants";
 
 export type NotificationScope = "global" | "role" | "users";
 

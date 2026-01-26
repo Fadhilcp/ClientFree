@@ -18,8 +18,9 @@ import { IPaymentRepository } from "../repositories/interfaces/IPaymentRepositor
 import { IWalletRepository } from "../repositories/interfaces/IWalletRepository";
 import { IWalletTransactionRepository } from "../repositories/interfaces/IWalletTransactionRepository";
 import { IDatabaseSessionProvider } from "../repositories/db/session-provider.interface";
-import { ISubscriptionService } from "./interface/ISubscriptionService";
 import { IUserDocument } from "../types/user.type";
+import { UserRole } from "constants/user.constants";
+import { INotificationService } from "./interface/INotificationService";
 
 export class JobService implements IJobService {
 
@@ -33,7 +34,7 @@ export class JobService implements IJobService {
         private _walletRepository: IWalletRepository,
         private _walletTransactionRepository: IWalletTransactionRepository,
         private _sessionProvider: IDatabaseSessionProvider,
-        private _subscriptionService: ISubscriptionService,
+        private _notificationService: INotificationService
     ){}
 
     async createJob(jobData: IJob): Promise<JobDetailDTO> {
@@ -51,6 +52,17 @@ export class JobService implements IJobService {
         }
         //clarification board auto-created when creating job
         await this._clarificationBoardRepository.create({ jobId: result._id })
+        // Auto notification
+        await this._notificationService.createNotification({
+            scope: "role",
+            roles: [UserRole.FREELANCER],
+            category: "job_posted",
+            subject: "New job posted",
+            message: `A new job "${result.title}" has been posted. Check it out and place your bid.`,
+            sendAs: "in-app",
+            createdBy: result.clientId, // createdby job owner
+        });
+
         return JobMapper.toDetailDTO(result)
     }
 
@@ -67,7 +79,7 @@ export class JobService implements IJobService {
 
         if(freelancerId) {
             const user = await this._userRepository.findById(freelancerId);
-            if(user && user.role === "freelancer") {
+            if(user && user.role === UserRole.FREELANCER) {
                 interestedJobIds = user.interests
                 ?.filter(i => i.type === "freelancerJob" && i.jobId)
                 .map(i => i.jobId!.toString()) ?? [];
@@ -132,7 +144,7 @@ export class JobService implements IJobService {
         
         if(!job) throw createHttpError(HttpStatus.NOT_FOUND, 'Job not found');
         // to prevent job detail from other clients
-        if(user.role === 'client'){
+        if(user.role === UserRole.CLIENT){
             // because of populate client user
             const clientId =
                 typeof job.clientId === "string" || job.clientId instanceof Types.ObjectId
@@ -167,26 +179,60 @@ export class JobService implements IJobService {
     }
 
     async getClientJobs(
-        clientId: string, status: string, search: string, limit: number, cursor?: string
+        clientId: string, status: string, search: string, limit: number, cursor?: string,
+          filters?: {
+            category?: string;
+            budgetMin?: number;
+            budgetMax?: number;
+            location?: string;
+        }
     ): Promise<{ jobs: JobDetailDTO[], nextCursor: string | null }> {
         const filter: FilterQuery<IJobDocument> = { clientId, isDeleted: false };
         
         if(status){
             filter.status = status;
         }
-
         // cursor for infinite scroll
         if(cursor && cursor !== "undefined" && cursor !== "null") {
             filter._id = { $lt: cursor };
         }
 
-        if (search?.trim()) {
+        if (search && search.trim() !== "") {
+            const regex = new RegExp(search.trim(), "i");
+
             filter.$or = [
-                { title: { $regex: search, $options: "i" } },
-                { category: { $regex: search, $options: "i" } },
-                { subcategory: { $regex: search, $options: "i" } }
+                { title: regex },
+                { category: regex },
+                { subcategory: regex },
             ];
         }
+        // category filter
+        if (filters?.category) {
+            filter.category = filters.category;
+        }
+        // budget filter
+        if (filters?.budgetMin !== undefined || filters?.budgetMax !== undefined) {
+            filter["payment.budget"] = {};
+
+            if (filters.budgetMin !== undefined) {
+                filter["payment.budget"].$gte = filters.budgetMin;
+            }
+
+            if (filters.budgetMax !== undefined) {
+                filter["payment.budget"].$lte = filters.budgetMax;
+            }
+        }
+        // location filter (city or country)
+        if (filters?.location?.trim()) {
+            const loc = filters.location.trim();
+
+            filter.$or = [
+                ...(filter.$or ?? []),
+                { "locationPreference.city": { $regex: loc, $options: "i" } },
+                { "locationPreference.country": { $regex: loc, $options: "i" } },
+            ];
+        }
+
         const jobs = await this._jobRepository.findWithSkillsPaginated(filter, limit);
 
         //setting cursor for infinite scroll
@@ -266,30 +312,72 @@ export class JobService implements IJobService {
     }
 
     async getFreelancerJobs(
-        freelancerId: string, status: string, search: string, limit: number, cursor?: string
-    ): Promise<{ jobs: JobListDTO[], nextCursor: string | null }> {
-        const filter: FilterQuery<IJobAssignmentDocument> = { freelancerId };
-        if(status){
-            filter.status = status
+        freelancerId: string, status: string, search: string, limit: number, cursor?: string,
+        filters?: {
+            category?: string;
+            budgetMin?: number;
+            budgetMax?: number;
+            location?: string;
         }
+    ): Promise<{ jobs: JobListDTO[], nextCursor: string | null }> {
+        const assignmentFilter: FilterQuery<IJobAssignmentDocument> = { freelancerId: new Types.ObjectId(freelancerId) };
 
+        if(status){
+            assignmentFilter.status = status
+        }
         // cursor for infinite scroll
         if(cursor && cursor !== "undefined" && cursor !== "null") {
-            filter._id = { $lt: cursor };
+            assignmentFilter._id = { $lt: cursor };
         }
 
-        if (search?.trim()) {
-            filter.$or = [
-                { title: { $regex: search, $options: "i" } },
-                { category: { $regex: search, $options: "i" } },
-                { subcategory: { $regex: search, $options: "i" } }
+        const jobFilter: FilterQuery<IJobDocument> = { "job.isDeleted": false };
+        // search
+        if (search && search.trim() !== "") {
+            const regex = new RegExp(search.trim(), "i");
+
+            jobFilter.$or = [
+                { "job.title": regex },
+                { "job.category": regex },
+                { "job.subcategory": regex },
             ];
         }
 
-        const assignments = await this._jobAssignmentRepository.findWithJobDetailPaginated(filter, limit);
-        if(!assignments) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.JOB_NOT_FOUND);
-        const jobs = assignments.map(a => a.jobId as IJobDocument);
+        // category
+        if (filters?.category) {
+            jobFilter["job.category"] = filters.category;
+        }
+        // budget
+        if (filters?.budgetMin !== undefined || filters?.budgetMax !== undefined) {
+            jobFilter["job.payment.budget"] = {};
 
+            if (filters.budgetMin !== undefined) {
+                jobFilter["job.payment.budget"].$gte = filters.budgetMin;
+            }
+
+            if (filters.budgetMax !== undefined) {
+                jobFilter["job.payment.budget"].$lte = filters.budgetMax;
+            }
+        }
+        // location
+        if (filters?.location?.trim()) {
+            const loc = filters.location.trim();
+
+            jobFilter.$or = [
+                ...(jobFilter.$or ?? []),
+                { "job.locationPreference.city": { $regex: loc, $options: "i" } },
+                { "job.locationPreference.country": { $regex: loc, $options: "i" } },
+            ];
+        }
+
+        const assignments = await this._jobAssignmentRepository.findWithJobDetailPaginated(
+            assignmentFilter, jobFilter, limit
+        );
+
+        if (!assignments || assignments.length === 0) {
+            return { jobs: [], nextCursor: null };
+        }
+        
+        const jobs = assignments.map(a => a.job as IJobDocument);
         //setting cursor for infinite scroll
         const nextCursor = jobs.length > 0 
         ? jobs[jobs.length - 1]._id.toString()
@@ -414,7 +502,7 @@ export class JobService implements IJobService {
                 throw createHttpError(HttpStatus.NOT_FOUND, 'Job not found');
             }
 
-            if (user.role !== 'client' || job.clientId.toString() !== user._id.toString()) {
+            if (user.role !== UserRole.CLIENT || job.clientId.toString() !== user._id.toString()) {
                 throw createHttpError(HttpStatus.FORBIDDEN, 'You are not allowed to cancel this job');
             }
 
@@ -447,8 +535,8 @@ export class JobService implements IJobService {
                 if (payment && payment.status === 'completed') {
 
                     const clientWallet = await this._walletRepository.findOneWithSession(
-                    { userId: payment.clientId, role: 'client', status: 'active' },
-                    session
+                        { userId: payment.clientId, role: UserRole.CLIENT, status: 'active' },
+                        session
                     );
 
                     if (!clientWallet) {

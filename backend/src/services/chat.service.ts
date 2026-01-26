@@ -5,6 +5,8 @@ import { HttpStatus } from "constants/status.constants";
 import { HttpResponse } from "constants/responseMessage.constant";
 import { Types } from "mongoose";
 import { ISubscriptionService } from "./interface/ISubscriptionService";
+import { ChatMapper } from "mappers/chat.mapper";
+import { ChatDTO } from "dtos/chat.dto";
 
 export class ChatService implements IChatService {
     constructor(
@@ -12,7 +14,7 @@ export class ChatService implements IChatService {
         private _subscriptionService: ISubscriptionService
     ){};
 
-    async getOrCreateChat(initiatorId: string, receiverId: string, jobId?: string): Promise<any> {
+    async getOrCreateChat(initiatorId: string, receiverId: string, jobId?: string): Promise<ChatDTO> {
 
         if (initiatorId === receiverId) {
             throw createHttpError(HttpStatus.BAD_REQUEST, "Cannot chat with yourself");
@@ -28,9 +30,7 @@ export class ChatService implements IChatService {
         });
 
         if (!chat) {
-
             let canChat = false;
-            let blockReason: string | undefined;
 
             if (jobId) {
                 // job based permission
@@ -40,8 +40,6 @@ export class ChatService implements IChatService {
                 const plan = await this._subscriptionService.getActiveFeatures(initiatorId);
                 if (plan?.features.DirectMessaging) {
                     canChat = true;
-                } else {
-                    blockReason = "no_subscription";
                 }
             }
 
@@ -52,11 +50,13 @@ export class ChatService implements IChatService {
                 );
             }
 
-            return this._chatRepository.create({
+            chat = await this._chatRepository.create({
                 participants,
                 jobId: jobId ? new Types.ObjectId(jobId) : null,
                 status: "active",
             });
+
+            return ChatMapper.toDTO(chat);
         }
         // if job chat starts - attch job and unblock
         if (jobId) {
@@ -66,7 +66,7 @@ export class ChatService implements IChatService {
                 blockReason: null,
             });
 
-            return chat;
+            return ChatMapper.toDTO(chat);
         }
 
         const plan = await this._subscriptionService.getActiveFeatures(initiatorId);
@@ -79,7 +79,7 @@ export class ChatService implements IChatService {
                     blockReason: null,
                 });
             }
-            return chat;
+            return ChatMapper.toDTO(chat);
         }
 
         // still blocked
@@ -89,7 +89,7 @@ export class ChatService implements IChatService {
         );
     }
 
-    async blockChat(chatId: string, reason: "job_completed" | "manual" | "policy"): Promise<any> {
+    async blockChat(chatId: string, reason: "job_completed" | "manual" | "policy"): Promise<ChatDTO> {
         
         const chat = await this._chatRepository.findById(chatId);
         if(!chat) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.CHAT_NOT_FOUND);
@@ -98,15 +98,15 @@ export class ChatService implements IChatService {
         chat.blockReason = reason;
         await chat.save();
 
-        return chat;
+        return ChatMapper.toDTO(chat);
     }
 
-    async getUserChats(userId: string): Promise<any> {
-        const chat = await this._chatRepository.find(
+    async getUserChats(userId: string): Promise<ChatDTO[]> {
+        const chats = await this._chatRepository.find(
             { participants: userId },
             { sort: { lastMessageAt: -1 }}
         );
 
-        return chat;
+        return ChatMapper.toDTOList(chats);
     }
 }

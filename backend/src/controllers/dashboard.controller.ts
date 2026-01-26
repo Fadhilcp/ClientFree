@@ -5,12 +5,13 @@ import { NextFunction, Request, Response } from "express";
 import { IDashBoardOverviewService } from "../services/interface/IDashboardService";
 import { createHttpError } from "../utils/httpError.util";
 import { sendResponse } from "../utils/response.util";
+import { UserRole } from "constants/user.constants";
 
 export class DashBoardController {
 
     constructor(
         private _clientDashboardService: IDashBoardOverviewService<ClientPaymentOverviewDTO>,
-        private _freelancerDashboard: IDashBoardOverviewService<FreelancerPaymentOverviewDTO>,
+        private _freelancerDashboardService: IDashBoardOverviewService<FreelancerPaymentOverviewDTO>,
     ){};
 
     async getClientPaymentOverview(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -20,7 +21,7 @@ export class DashBoardController {
 
             if(!userId) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
 
-            const service = role === "client" ? this._clientDashboardService : this._freelancerDashboard;
+            const service = role === UserRole.CLIENT ? this._clientDashboardService : this._freelancerDashboardService;
 
             const overview = await service.getPaymentOverview(userId);
 

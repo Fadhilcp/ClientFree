@@ -6,6 +6,7 @@ import { authMiddleware } from "../middlewares/authMiddleware";
 import { upload } from "../middlewares/upload.middleware";
 import { verifyUserNotBanned } from "../middlewares/verifyUserNotBanned.middleware";
 import { authorizeRole } from "middlewares/authorizeRole";
+import { UserRole } from "constants/user.constants";
 
 const userRouter = Router();
 
@@ -21,8 +22,8 @@ userRouter.put('/me',userController.update.bind(userController));
 userRouter.get('/freelancers',userController.getFreelancers.bind(userController));
 userRouter.get('/',userController.getAll.bind(userController));
 
-userRouter.get('/search',authorizeRole('admin'),userController.searchUsers.bind(userController));
-userRouter.get('/by-ids',authorizeRole('admin'),userController.getUsersByIds.bind(userController));
+userRouter.get('/search',authorizeRole(UserRole.ADMIN),userController.searchUsers.bind(userController));
+userRouter.get('/by-ids',authorizeRole(UserRole.ADMIN),userController.getUsersByIds.bind(userController));
 
 userRouter.post('/profile-image',upload.single('profileImage'),
         userController.setProfileImage.bind(userController)

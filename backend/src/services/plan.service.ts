@@ -7,9 +7,9 @@ import { HttpResponse } from "../constants/responseMessage.constant";
 import { DeleteResult, FilterQuery } from "mongoose";
 import { mapPlan } from "../mappers/plan.mapper";
 import { PlanDetailAdminDTO, PlanDetailUserDTO, PlanTableDTO } from "../dtos/plan.dto";
-import { getRazorpayInstance } from "../config/razorpay.config";
 import { PaginatedResult } from "../types/pagination";
 import { stripe } from "../config/stripe.config";
+import { UserRole } from "constants/user.constants";
 
 export class PlanService implements IPlanService {
     constructor(private _planRepository: IPlanRepository) {}
@@ -44,7 +44,7 @@ export class PlanService implements IPlanService {
         };
     }
 
-    async getPlanById(planId: string, role: string): Promise<PlanDetailAdminDTO | PlanDetailUserDTO> {
+    async getPlanById(planId: string, role: UserRole): Promise<PlanDetailAdminDTO | PlanDetailUserDTO> {
         const plan = await this._planRepository.findById(planId);
         if(!plan) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.PLAN_NOT_FOUND);
         return mapPlan(plan, true, role === 'admin');

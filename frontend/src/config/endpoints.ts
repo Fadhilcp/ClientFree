@@ -102,6 +102,7 @@ export const endPoints = {
                 `/proposal/client?isInvitation=${isInvitation ?? false}&search=${search}&cursor=${cursor || ""}&limit=${limit}`,
 
         VERIFY: '/proposal/verify-upgrade-payment',
+        WITHDRAW_INVITATION: (proposalId: string) => `/proposal/${proposalId}/withdraw-invitation`,
     },
     ASSIGNMENT: {
         GET_JOB_ASSIGNMENTS: (jobId: string) => `/assignment/job/${jobId}`,

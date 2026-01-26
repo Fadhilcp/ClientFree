@@ -1,16 +1,19 @@
 import { IPaymentDocument } from "../types/payment/payment.type";
 import { AdminPaymentDto } from "../dtos/adminPayment.dto";
+import { IUserDocument } from "types/user.type";
 
 export function mapAdminPayment(payment: IPaymentDocument): AdminPaymentDto {
-  const user =
-    payment.userId && typeof payment.userId === "object"
-      ? {
-          id: (payment.userId as any)._id.toString(),
-          name: (payment.userId as any).name,
-          email: (payment.userId as any).email,
-          role: (payment.userId as any).role,
-        }
-      : undefined;
+  const userDoc = payment.userId as unknown as Partial<IUserDocument>;
+
+  const userId =
+    userDoc?._id?.toString() ??
+    (typeof payment.userId === "string"
+      ? payment.userId
+      : payment.userId?.toString());
+
+  if (!userId) {
+    throw new Error("Payment userId is missing");
+  }
 
   return {
     id: payment._id.toString(),
@@ -24,7 +27,11 @@ export function mapAdminPayment(payment: IPaymentDocument): AdminPaymentDto {
 
     referenceId: payment.referenceId,
     createdAt: payment.createdAt.toISOString(),
-
-    user,
+    user: {
+      id: userId,
+      name: userDoc?.name ?? "",
+      email: userDoc?.email ?? "",
+      role: userDoc?.role ?? "",
+    },
   };
 }

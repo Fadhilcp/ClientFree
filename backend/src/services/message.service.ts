@@ -5,6 +5,8 @@ import { createHttpError } from "utils/httpError.util";
 import { HttpStatus } from "constants/status.constants";
 import { HttpResponse } from "constants/responseMessage.constant";
 import { emitMessageToChat } from "helpers/messageSocket";
+import { MessageMapper } from "mappers/message.mapper";
+import { MessageDTO } from "dtos/message.dto";
 
 export class MessageService implements IMessageService {
     constructor(
@@ -19,7 +21,7 @@ export class MessageService implements IMessageService {
         content?: string, 
         file?: any, 
         callDetails?: any
-    ): Promise<any> {
+    ): Promise<MessageDTO> {
         const chat = await this._chatRepository.findById(chatId);
         if (!chat) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.CHAT_NOT_FOUND);
 
@@ -46,10 +48,10 @@ export class MessageService implements IMessageService {
 
         await emitMessageToChat(chatId, message);
 
-        return message;
+        return MessageMapper.toDTO(message);
     }
 
-    async getChatMessages(chatId: string, userId: string): Promise<any> {
+    async getChatMessages(chatId: string, userId: string): Promise<MessageDTO[]> {
         const chat = await this._chatRepository.findById(chatId);
         if(!chat) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.CHAT_NOT_FOUND);
 
@@ -62,10 +64,10 @@ export class MessageService implements IMessageService {
             { sort: { createdAt: 1 }}
         );
 
-        return message;
+        return MessageMapper.toDTOList(message);
     }
 
-    async markMessageAsRead(chatId: string, userId: string): Promise<any> {
+    async markMessageAsRead(chatId: string, userId: string): Promise<void> {
         
         await this._messageRepository.updateMany(
             { chatId, isReadBy: { $ne: userId }},

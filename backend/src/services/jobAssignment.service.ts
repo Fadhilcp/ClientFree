@@ -1,7 +1,7 @@
 import { IJobAssignmentRepository } from "../repositories/interfaces/IJobAssignmentRepository";
 import { IJobAssignmentService } from "./interface/IJobAssignmentService";
 import { AssignmentMapper } from "../mappers/jobAssignment.mapper";
-import { AssignmentDto } from "../dtos/jobAssignment.dto";
+import { AssignmentDto, ClientEscrowAndMilestonesResponse } from "../dtos/jobAssignment.dto";
 import { IJobAssignmentDocument, IMilestone, IMilestoneFile } from "../types/jobAssignment/jobAssignment.type";
 import { createHttpError } from "../utils/httpError.util";
 import { HttpStatus } from "../constants/status.constants";
@@ -19,6 +19,7 @@ import { AdminApprovedMilestoneDetailMapper } from "../mappers/adminApprovedMile
 import { IWalletService } from "./interface/IWalletService";
 import { mapEscrowMilestone } from "../mappers/escrowMilestone.mapper";
 import { AdminEscrowMilestoneDTO } from "../dtos/adminEscrowMilestone.dto";
+import { UserRole } from "constants/user.constants";
 
 
 export class JobAssignmentService implements IJobAssignmentService {
@@ -217,13 +218,13 @@ export class JobAssignmentService implements IJobAssignmentService {
         if (payment.isDisputed) {
             throw createHttpError(HttpStatus.BAD_REQUEST, "Milestone is already under dispute");
         }
-        if(currentUser.role === 'client' && milestone.status !== 'submitted') {
+        if(currentUser.role === UserRole.CLIENT && milestone.status !== 'submitted') {
             throw createHttpError(HttpStatus.BAD_REQUEST, 'Client can only dispute after submission');
         }
-        if(currentUser.role === 'freelancer' && milestone.status !== 'changes_requested') {
+        if(currentUser.role === UserRole.FREELANCER && milestone.status !== 'changes_requested') {
             throw createHttpError(HttpStatus.BAD_REQUEST, 'Freelancer can only dispute after change request');
         }
-        if(!['client','freelancer'].includes(currentUser.role)) {
+        if(![UserRole.CLIENT, UserRole.FREELANCER].includes(currentUser.role)) {
             throw createHttpError(HttpStatus.FORBIDDEN, 'Not authorized to dispute this milestone');
         }
 
@@ -314,7 +315,7 @@ export class JobAssignmentService implements IJobAssignmentService {
         return { url }
     }
 
-    async getClientEscrowAndMilestones(clientId: string, page: number, limit: number) {
+    async getClientEscrowAndMilestones(clientId: string, page: number, limit: number): Promise<ClientEscrowAndMilestonesResponse<IJobAssignmentDocument>> {
 
         const { milestones, total, totalPages } =
             await this._jobAssignmentRepository.getClientMilestones(clientId, page, limit);

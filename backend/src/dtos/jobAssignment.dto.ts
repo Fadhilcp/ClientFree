@@ -58,3 +58,21 @@ export interface AssignmentDto {
     milestones: AssignmentMilestoneDto[];
     freelancer: FreelancerProfileDto;
 }
+
+export interface ClientEscrowSummary {
+  totalContract: number;
+  fundedInEscrow: number;
+  released: number;
+  remaining: number;
+}
+
+export interface ClientEscrowAndMilestonesResponse<TMilestone> {
+  summary: ClientEscrowSummary;
+  milestones: TMilestone[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}

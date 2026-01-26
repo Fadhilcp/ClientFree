@@ -325,7 +325,7 @@ const JobDetailPage: React.FC = () => {
           <InvitationsSection
             jobStatus={job.status}
             jobId={job.id}
-            // isJobOwner={isJobOwner}
+            isJobOwner={isJobOwner}
           />
         )}
       </div>

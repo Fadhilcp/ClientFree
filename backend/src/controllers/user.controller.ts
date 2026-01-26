@@ -6,6 +6,7 @@ import { HttpResponse } from "../constants/responseMessage.constant";
 import { clientUpdateSchema, freelancerUpdateSchema } from "../schema/profile.schema";
 import { sendResponse } from "../utils/response.util";
 import { IUser } from "../types/user.type";
+import { UserRole } from "constants/user.constants";
 
 
 export class ProfileController {
@@ -33,7 +34,7 @@ export class ProfileController {
                 throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.USER_NOT_FOUND);
             }
             const userId = req.user?._id;
-            const schema = req.user.role === 'freelancer' ? freelancerUpdateSchema : clientUpdateSchema;
+            const schema = req.user.role === UserRole.FREELANCER ? freelancerUpdateSchema : clientUpdateSchema;
 
             const result = schema.safeParse(req.body)
             if(!result.success){

@@ -1,3 +1,5 @@
+import { MessageDTO } from "dtos/message.dto";
+
 export interface IMessageService {
     sendMessage(
         chatId: string,
@@ -6,7 +8,7 @@ export interface IMessageService {
         content?: string,
         file?: any,
         callDetails?: any
-    ): Promise<any>;
-    getChatMessages(chatId: string, userId: string): Promise<any>;
-    markMessageAsRead(chatId: string, userId: string): Promise<any>;
+    ): Promise<MessageDTO>;
+    getChatMessages(chatId: string, userId: string): Promise<MessageDTO[]>;
+    markMessageAsRead(chatId: string, userId: string): Promise<void>;
 }

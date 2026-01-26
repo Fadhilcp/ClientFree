@@ -30,7 +30,7 @@ export const socketAuthMiddleware = (
 
         socket.data.user = decoded as SocketUserPayload;
         next();
-    } catch (error) {
+    } catch {
         next(new Error(HttpResponse.UNAUTHORIZED));
     }
 };

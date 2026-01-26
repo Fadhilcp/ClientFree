@@ -4,6 +4,7 @@ import { NextFunction, Request, Response } from "express";
 import { IClarificationService } from "../services/interface/IClarificationService";
 import { createHttpError } from "../utils/httpError.util";
 import { sendResponse } from "../utils/response.util";
+import { UserRole } from "constants/user.constants";
 
 export class ClarificationController {
     constructor(private _clarificationService: IClarificationService){}
@@ -20,14 +21,14 @@ export class ClarificationController {
                 throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
             }
 
-            if(!["freelancer","client"].includes(senderRole)) {
+            if(![UserRole.FREELANCER, UserRole.CLIENT].includes(senderRole)) {
                 throw createHttpError(HttpStatus.BAD_REQUEST, "Now allowed")
             }
 
             const newMessage = await this._clarificationService.addMessage(
                 jobId,
                 senderId,
-                senderRole as "freelancer" | "client",
+                senderRole,
                 message
             )
 

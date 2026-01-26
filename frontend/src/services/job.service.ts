@@ -15,12 +15,20 @@ class JobService {
         return axios.post(endPoints.JOB.CREATE, data);
     }
 
-    getMyJobs(status: string, search: string, cursor: string | undefined, limit: number,) {
-        return axios.get(endPoints.JOB.MY_JOBS(status, search, cursor, limit));
+    getMyJobs(status: string, search: string, cursor: string | undefined, limit: number, filterQeury: string) {
+        return axios.get(
+            endPoints.JOB.MY_JOBS(
+                status, search, cursor, limit
+            ) + (filterQeury ? `&${filterQeury}` : "")
+        );
     }
 
-    getFreelancerJob(status: string, search: string, cursor: string | undefined, limit: number,) {
-        return axios.get(endPoints.JOB.FREELANCER_JOBS(status, search, cursor, limit));
+    getFreelancerJob(status: string, search: string, cursor: string | undefined, limit: number, filterQeury: string) {
+        return axios.get(
+            endPoints.JOB.FREELANCER_JOBS(
+                status, search, cursor, limit
+            ) + (filterQeury ? `&${filterQeury}` : "")
+        );
     }
 
     getJob(jobId: string) {

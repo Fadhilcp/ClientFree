@@ -1,10 +1,11 @@
+import { UserRole } from "constants/user.constants";
 import { ObjectId, Document } from "mongoose";
 
 export interface IOtpUserStore {
   username?: string;
   email: string;
   password?: string;
-  role?: 'freelancer' | 'client'; 
+  role?: UserRole; 
   otp: string;
   purpose: 'signup' | 'forgot-password' | 'email-change' | 'phone-change';
   isVerified?: boolean;

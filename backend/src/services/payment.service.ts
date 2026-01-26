@@ -5,9 +5,6 @@ import { createHttpError } from "../utils/httpError.util";
 import { HttpStatus } from "../constants/status.constants";
 import { HttpResponse } from "../constants/responseMessage.constant";
 import { ClientSession, FilterQuery, Types } from "mongoose";
-import { getRazorpayInstance } from "../config/razorpay.config";
-import crypto from 'crypto'
-import { env } from "../config/env.config";
 import { IJobRepository } from "../repositories/interfaces/IJobRepository";
 import { IPaymentDocument } from "../types/payment/payment.type";
 import { AdminDisputeMapper } from "../mappers/adminDispute.mapper";
@@ -16,7 +13,6 @@ import { IWalletRepository } from "../repositories/interfaces/IWalletRepository"
 import { IWalletTransactionRepository } from "../repositories/interfaces/IWalletTransactionRepository";
 import { IDatabaseSessionProvider } from "../repositories/db/session-provider.interface";
 import { PaginatedResult } from "../types/pagination";
-import { Orders } from "razorpay/dist/types/orders";
 import { IJobAssignmentDocument } from "../types/jobAssignment/jobAssignment.type";
 import { mapAdminWithdrawal } from "../mappers/adminWithdrawal.mapper";
 import { AdminWithdrawalDTO } from "../dtos/adminWithdrawal.dto";
@@ -24,7 +20,9 @@ import { IWalletTransactionDocument } from "../types/walletTransaction.type";
 import { mapPayment } from "../mappers/payment.mapper";
 import { mapAdminPayment } from "../mappers/adminPayment.mapper";
 import { AdminPaymentDto } from "../dtos/adminPayment.dto";
-import { stripe } from "config/stripe.config";
+import { stripe } from "../config/stripe.config";
+import { UserRole } from "constants/user.constants";
+import { GetWithdrawalsResponse } from "dtos/payment.dto";
 
 export class PaymentService implements IPaymentService {
     constructor(
@@ -93,7 +91,6 @@ export class PaymentService implements IPaymentService {
             clientId: clientId,
           },
         });
-        console.log("🚀 ~ PaymentService ~ createMilestoneOrder ~ paymentIntent:", paymentIntent)
 
         payment.providerPaymentId = paymentIntent.id;
         await payment.save();
@@ -311,7 +308,6 @@ export class PaymentService implements IPaymentService {
         payment.status = "released";
         payment.escrowReleaseDate = new Date();
         await payment.save({ session });
-        console.log("🚀 ~ PaymentService ~ releaseMilestone ~ payment:", payment)
 
         const allReleased = assignment.milestones?.every(
           m => m.status === "released" || m.status === "refunded"
@@ -405,7 +401,7 @@ export class PaymentService implements IPaymentService {
 
     async getAllPayments(search: string, page: number, limit: number): Promise<PaginatedResult<AdminPaymentDto>> {
 
-        const query: FilterQuery<any> = {
+        const query: FilterQuery<IPaymentDocument> = {
           isDeleted: false,
         };
 
@@ -533,7 +529,7 @@ export class PaymentService implements IPaymentService {
     //   );
     // }
 
-    async withdraw(userId: string, role: string, amount: number): Promise<{ paymentId: string }> {
+    async withdraw(userId: string, role: UserRole, amount: number): Promise<{ paymentId: string }> {
 
       if (!amount || amount <= 0) {
           throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid withdrawal amount");
@@ -604,7 +600,7 @@ export class PaymentService implements IPaymentService {
       );
     }
 
-    async getWithdrawals(userId: string, page: number, limit: number): Promise<any> {
+    async getWithdrawals(userId: string, page: number, limit: number): Promise<GetWithdrawalsResponse> {
         const wallet = await this._walletRepository.findOne({ userId });
 
         if(!wallet) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.WALLET_NOT_FOUND);

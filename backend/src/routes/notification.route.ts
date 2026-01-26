@@ -7,6 +7,7 @@ import { NotificationRecipientRepository } from "../repositories/notificationRec
 import { UserRepository } from "../repositories/user.repository";
 import { NotificationService } from "../services/notification.service";
 import { authorizeRole } from "middlewares/authorizeRole";
+import { UserRole } from "constants/user.constants";
 
 const notificationRouter = Router();
 
@@ -29,7 +30,7 @@ notificationRouter.get("/unread-count",notificationController.countUnread.bind(n
 notificationRouter.patch("/read-all",notificationController.markAllAsRead.bind(notificationController));
 notificationRouter.get("/me",notificationController.getMyNotifications.bind(notificationController));
 
-notificationRouter.get("/admin",authorizeRole("admin"),notificationController.getAdminNotifications.bind(notificationController));
+notificationRouter.get("/admin",authorizeRole(UserRole.ADMIN),notificationController.getAdminNotifications.bind(notificationController));
 
 notificationRouter.put("/:notificationId",notificationController.update.bind(notificationController));
 notificationRouter.delete("/:notificationId",notificationController.delete.bind(notificationController));

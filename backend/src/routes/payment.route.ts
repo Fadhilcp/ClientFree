@@ -10,6 +10,7 @@ import { PaymentRepository } from "../repositories/payment.repository";
 import { WalletRepository } from "../repositories/wallet.repository";
 import { WalletTransactionRepository } from "../repositories/walletTransaction.repository";
 import { PaymentService } from "../services/payment.service";
+import { UserRole } from "constants/user.constants";
 
 const paymentRepository = new PaymentRepository();
 const jobAssignmentRepository = new JobAssignmentRepository();
@@ -34,16 +35,16 @@ const paymentRouter = Router();
 
 paymentRouter.use(authMiddleware, verifyUserNotBanned);
 
-paymentRouter.post('/milestones/:assignmentId/:milestoneId/fund',authorizeRole("client"),
+paymentRouter.post('/milestones/:assignmentId/:milestoneId/fund',authorizeRole(UserRole.CLIENT),
     paymentController.createOrder.bind(paymentController)
 );
 paymentRouter.get('/disputes',paymentController.getAllDisputes.bind(paymentController));
 
-paymentRouter.get('/',authorizeRole('admin'),paymentController.getAllPayments.bind(paymentController));
+paymentRouter.get('/',authorizeRole(UserRole.ADMIN),paymentController.getAllPayments.bind(paymentController));
 
 paymentRouter.post("/withdraw",paymentController.withdraw.bind(paymentController));
 paymentRouter.get("/withdrawals",paymentController.getWithdrawals.bind(paymentController));
-paymentRouter.get("/admin/withdrawals",authorizeRole("admin"),paymentController.getAllWithdrawals.bind(paymentController));
+paymentRouter.get("/admin/withdrawals",authorizeRole(UserRole.ADMIN),paymentController.getAllWithdrawals.bind(paymentController));
 
 paymentRouter.get('/:paymentId/dispute',paymentController.getDisputeById.bind(paymentController));
 paymentRouter.post('/:paymentId/refund',paymentController.refund.bind(paymentController));

@@ -30,7 +30,7 @@ class ProposalService {
   }
 
   cancelProposal(proposalId: string) {
-    return axios.post(endPoints.PROPOSAL.CANCEL_PROPOSAL(proposalId));
+    return axios.patch(endPoints.PROPOSAL.CANCEL_PROPOSAL(proposalId));
   }
 
   inviteFreelancer(jobId: string, freelancerId: string, invitationData: Record<string, string>) {
@@ -51,6 +51,10 @@ class ProposalService {
 
   verifyUpgrade(payload: IRazoryOrderResponse & { paymentRecordId: string }) {
     return axios.post(endPoints.PROPOSAL.VERIFY, payload);
+  }
+
+  withdrawInvitation(proposalId: string) {
+    return axios.patch(endPoints.PROPOSAL.WITHDRAW_INVITATION(proposalId));
   }
 }
 

@@ -25,6 +25,7 @@ import { getEmbedding } from "../helpers/embedding.helper";
 import { cosineSimilarity } from "../helpers/similarity.helper";
 import { IUserDocument } from "../types/user.type";
 import { PaginatedResult } from "../types/pagination";
+import { INotificationService } from "./interface/INotificationService";
 
 export class ProposalService implements IProposalService {
     constructor(
@@ -35,6 +36,7 @@ export class ProposalService implements IProposalService {
         private _paymentRepository: IPaymentRepository,
         private _revenueRepository: IRevenueRepository,
         private _userRepository: IUserRepository,
+        private _notificationService: INotificationService
     ){};
 
     async createProposal(
@@ -347,20 +349,25 @@ export class ProposalService implements IProposalService {
 
         const filter: FilterQuery<IProposalInvitationDocument> = { jobId }; 
 
-        if (status) filter.status = status;
+        if (status) {
+            filter.status = status;
+        } else {
+            filter.status = { $ne: "withdrawn" };
+        }
+
         if (isInvitation !== undefined) filter.isInvitation = isInvitation === true;
-
+        
+        const currentPage = page ? page : 1;
+        const pageLimit = limit ? limit : 10;
+        
         const { proposals, total, totalPages } = await this._proposalRepository.findByJob(filter, page ?? 1, limit ?? 10);
-
-        page = page ? page : 1;
-        limit = limit ? limit : 10;
         
         return {
             data: proposals.map(mapProposal),
             total,
             totalPages,
-            page,
-            limit
+            page: currentPage,
+            limit: pageLimit
         };
     }
 
@@ -391,7 +398,7 @@ export class ProposalService implements IProposalService {
 
     async acceptProposal(proposalId: string): Promise<void> {
         
-        const proposal = await this._proposalRepository.findByIdAndUpdate(proposalId,{ status: 'accepted'});
+        const proposal = await this._proposalRepository.findByIdAndUpdate(proposalId, { status: 'accepted'});
         if(!proposal){
             throw createHttpError(HttpStatus.NOT_FOUND,HttpResponse.PROPOSAL_NOT_FOUND);
         }
@@ -419,6 +426,15 @@ export class ProposalService implements IProposalService {
             job._id.toString(),
             { $push: { acceptedProposalIds: proposal._id } } as FilterQuery<IJobDocument>
         );
+        // Auto notification
+        await this._notificationService.createNotification({
+            scope: "users",
+            userIds: [new Types.ObjectId(proposal.freelancerId)],
+            category: "proposal_accepted",
+            subject: "You’ve been hired",
+            message: `Your proposal has been accepted for the job "${job.title}".`,
+            sendAs: "in-app",
+        });
     }
 
     async inviteFreelancer(
@@ -502,7 +518,8 @@ export class ProposalService implements IProposalService {
         freelancerId: string, isInvitation: boolean, search: string, limit: number, cursor?: string
     ): Promise<{ proposals : ProposalDTO[], nextCursor: string | null }> {
 
-        const filter: FilterQuery<IProposalInvitationDocument> = { freelancerId };
+        const filter: FilterQuery<IProposalInvitationDocument> = { freelancerId, status: { $ne: "withdrawn" } };
+
         if (typeof isInvitation === "boolean") {
             filter.isInvitation = isInvitation;
         }
@@ -685,6 +702,38 @@ export class ProposalService implements IProposalService {
 
         proposal.status = "withdrawn";
 
+        await proposal.save();
+
+        return mapProposal(proposal);
+    }
+
+    async withdrawInvitation(proposalId: string, clientId: string): Promise<ProposalDTO> {
+
+        const proposal = await this._proposalRepository.findById(proposalId);
+        if (!proposal) {
+            throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.PROPOSAL_NOT_FOUND);
+        }
+
+        // must be an invitation
+        if (!proposal.isInvitation || proposal.status !== "invited") {
+            throw createHttpError(HttpStatus.BAD_REQUEST, "This is not an active invitation");
+        }
+
+        // only inviter can withdraw
+        if (proposal.invitedBy?.toString() !== clientId) {
+            throw createHttpError(HttpStatus.FORBIDDEN, "Not allowed to withdraw this invitation");
+        }
+
+        const job = await this._jobRepository.findById(proposal.jobId.toString());
+        if (!job) {
+            throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.JOB_NOT_FOUND);
+        }
+
+        if (job.status !== "open") {
+            throw createHttpError(HttpStatus.BAD_REQUEST, "Cannot withdraw invitation for this job");
+        }
+
+        proposal.status = "withdrawn";
         await proposal.save();
 
         return mapProposal(proposal);

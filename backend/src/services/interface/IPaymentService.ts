@@ -1,7 +1,7 @@
+import { GetWithdrawalsResponse } from "dtos/payment.dto";
 import { AdminDisputeDto, AdminDisputeListDto } from "../../dtos/adminDispute.dto";
 import { AdminPaymentDto } from "../../dtos/adminPayment.dto";
 import { AdminWithdrawalDTO } from "../../dtos/adminWithdrawal.dto";
-import { Orders } from "razorpay/dist/types/orders";
 import { IJobAssignmentDocument } from "../../types/jobAssignment/jobAssignment.type";
 import { PaginatedResult } from "../../types/pagination";
 import { IPaymentDocument } from "../../types/payment/payment.type";
@@ -17,5 +17,5 @@ export interface IPaymentService {
     getAllPayments(search: string, page: number, limit: number): Promise<PaginatedResult<AdminPaymentDto>>;
     getAllWithdrawals(search: string, page: number, limit: number): Promise<PaginatedResult<AdminWithdrawalDTO>>; 
     withdraw(userId: string, role: string, amount: number): Promise<{ paymentId: string }>;
-    getWithdrawals(userId: string, page: number, limit: number): Promise<any>;
+    getWithdrawals(userId: string, page: number, limit: number): Promise<GetWithdrawalsResponse>;
 }

@@ -16,3 +16,24 @@ export interface PaymentDTO {
 
   createdAt: Date;
 }
+
+
+export interface GetWithdrawalsResponse {
+  balances: {
+    available: number;
+    escrow: number;
+    pending: number;
+    currency: string;
+  };
+
+  withdrawableAmount: number;
+
+  withdrawals: PaymentDTO[];
+
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}

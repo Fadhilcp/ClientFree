@@ -4,6 +4,7 @@ import { NextFunction, Request, Response } from "express";
 import { IJobService } from "../services/interface/IJobService";
 import { createHttpError } from "../utils/httpError.util";
 import { sendResponse } from "../utils/response.util";
+import { UserRole } from "constants/user.constants";
 
 export class JobController {
     constructor(private _jobService: IJobService){}
@@ -109,18 +110,39 @@ export class JobController {
     async getClientJobs(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const clientId = req.user?._id;
+            if(!clientId) throw createHttpError(HttpStatus.BAD_REQUEST,'user Id is required');
+
+            if (req.user?.role !== UserRole.CLIENT) {
+                throw createHttpError(HttpStatus.FORBIDDEN, "Only clients can access their jobs.");
+            }
             const status = req.query.status as string || '';
             const search = req.query.search as string || "";
             
-            if(!clientId) throw createHttpError(HttpStatus.BAD_REQUEST,'user Id is needed');
-            if (req.user?.role !== "client") {
-                throw createHttpError(HttpStatus.FORBIDDEN, "Only clients can access their jobs.");
-            }
             //for infinite scroll
             const cursor = req.query.cursor as string | undefined;
             const limit = parseInt(req.query.limit as string) || 20;
 
-            const { jobs, nextCursor }= await this._jobService.getClientJobs(clientId, status, search, limit, cursor);
+            
+            const category = req.query.category as string | undefined;
+            const location = req.query.location as string | undefined;
+            const budgetMin = req.query.budgetMin
+                ? Number(req.query.budgetMin)
+                : undefined;
+            const budgetMax = req.query.budgetMax
+                ? Number(req.query.budgetMax)
+                : undefined;
+
+            if (
+                (budgetMin !== undefined && Number.isNaN(budgetMin)) ||
+                (budgetMax !== undefined && Number.isNaN(budgetMax))
+            ) {
+                throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid budget values");
+            }
+
+            const { jobs, nextCursor }= await this._jobService.getClientJobs(
+                clientId, status, search, limit, cursor,
+                { category, location, budgetMin, budgetMax }
+            );
 
             sendResponse(res, HttpStatus.OK, { jobs, nextCursor });
         } catch (error) {
@@ -174,12 +196,34 @@ export class JobController {
             const cursor = req.query.cursor as string | undefined;
             const limit = parseInt(req.query.limit as string) || 20;
 
+            const category = req.query.category as string | undefined;
+            const location = req.query.location as string | undefined;
+            const budgetMin = req.query.budgetMin
+                ? Number(req.query.budgetMin)
+                : undefined;
+            const budgetMax = req.query.budgetMax
+                ? Number(req.query.budgetMax)
+                : undefined;
+
+            if (
+                (budgetMin !== undefined && Number.isNaN(budgetMin)) ||
+                (budgetMax !== undefined && Number.isNaN(budgetMax))
+            ) {
+                throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid budget values");
+            }
+
             const { jobs, nextCursor } = await this._jobService.getFreelancerJobs(
                 freelancerId, 
                 status, 
                 search, 
                 limit, 
-                cursor
+                cursor,
+                {
+                    category,
+                    location,
+                    budgetMin,
+                    budgetMax,
+                }
             );
 
             sendResponse(res, HttpStatus.OK, { jobs, nextCursor })

@@ -14,6 +14,7 @@ import { FilterQuery } from "mongoose";
 import { IJobDocument } from "../types/job.type";
 import { IUserDocument } from "../types/user.type";
 import { mapUserToFreelancerListItemDto } from "../mappers/freelancer.mapper";
+import { UserRole } from "constants/user.constants";
 
 export class MatchService implements IMatchService {
     constructor(
@@ -133,7 +134,7 @@ export class MatchService implements IMatchService {
         const job = await this._jobRepository.findById(jobId);
         if (!job) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.JOB_NOT_FOUND);
 
-        const filter: FilterQuery<IUserDocument> = { role: "freelancer", isProfileCompleted: true, status: "active" };
+        const filter: FilterQuery<IUserDocument> = { role: UserRole.FREELANCER, isProfileCompleted: true, status: "active" };
 
         // search
         if(search?.trim()){

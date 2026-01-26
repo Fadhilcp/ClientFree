@@ -2,10 +2,10 @@ import jobAssignmentModel from "../models/jobAssignment.model";
 import { IJobAssignmentDocument } from "../types/jobAssignment/jobAssignment.type";
 import { IJobAssignmentRepository } from "./interfaces/IJobAssignmentRepository";
 import { BaseRepository } from "./base.repository";
-import { Aggregate, FilterQuery, PipelineStage, PopulateOptions, Types } from "mongoose";
-import { SortOrder } from "mongoose";
+import { FilterQuery, PipelineStage, PopulateOptions, Types } from "mongoose";
 import { PopulatedAssignment } from "../types/jobAssignment/jobAssignment.populated";
 import { ApprovedMilestoneAssignment } from "../types/jobAssignment/jobAssignment.approvedMilestone";
+import { IJobDocument } from "types/job.type";
 
 export class JobAssignmentRepository 
     extends BaseRepository<IJobAssignmentDocument> 
@@ -30,7 +30,7 @@ export class JobAssignmentRepository
             options: {
                 page?: number;
                 limit?: number;
-                sort?: Record<string, SortOrder>;
+                sort?: Record<string, 1 | -1>;
                 populate?: PopulateOptions | (string | PopulateOptions)[];
         } = {}
         ): Promise<{
@@ -45,14 +45,14 @@ export class JobAssignmentRepository
             const limit = options.limit ?? 10;
             const skip = (page - 1) * limit;
 
-            const matchStage = {
+            const matchStage: PipelineStage.Match = {
                 $match: {
                     ...filter,
                     "milestones.status": "approved",
                 }
             };
 
-            const pipeline: any[] = [
+            const pipeline: PipelineStage[] = [
                 { $unwind: "$milestones" },
                 matchStage,
             ];
@@ -93,23 +93,36 @@ export class JobAssignmentRepository
         }
 
         async findWithJobDetailPaginated(
-            filter: FilterQuery<IJobAssignmentDocument>, limit: number
-        ): Promise<IJobAssignmentDocument[]> {
-            const paginatedFilter: FilterQuery<IJobAssignmentDocument> = { ...filter };
+            assignmentFilter: FilterQuery<IJobAssignmentDocument>, 
+            jobFilter: FilterQuery<IJobDocument>,
+            limit: number
+        ): Promise<(IJobAssignmentDocument & { job: IJobDocument })[]> {
 
-            return this.model.find(paginatedFilter)
-            .populate({ 
-                path: "jobId", 
-                model: "Job",
-                populate: {
-                    path: "skills",
-                    model: "Skill",
-                    select: "name _id"
-                }
-            })
-            .sort({ _id: -1 })
-            .limit(limit)
-            .exec();
+            return this.model.aggregate([
+                { $match: assignmentFilter },
+                { $sort: { _id: -1 } },
+
+                {
+                    $lookup: {
+                        from: "jobs",
+                        localField: "jobId",
+                        foreignField: "_id",
+                        as: "job",
+                    },
+                },
+                { $unwind: "$job" },
+                { $match: jobFilter },
+
+                {
+                    $lookup: {
+                        from: "skills",
+                        localField: "job.skills",
+                        foreignField: "_id",
+                        as: "job.skills",
+                    },
+                },
+                { $limit: limit },
+            ]).exec();
         }
 
         async findApprovedMilestoneDetail(
@@ -296,7 +309,7 @@ export class JobAssignmentRepository
 
             const skip = (page - 1) * limit;
 
-            const matchStage: any = {};
+            const matchStage: Record<string, unknown> = {};
 
             if (search) {
                 matchStage.$or = [

@@ -10,6 +10,9 @@ import { PaymentRepository } from "../repositories/payment.repository";
 import { RevenueRepository } from "../repositories/revenue.repository";
 import { verifyUserNotBanned } from "../middlewares/verifyUserNotBanned.middleware";
 import { UserRepository } from "../repositories/user.repository";
+import { NotificationRecipientRepository } from "repositories/notificationRecipient.repository";
+import { NotificationRepository } from "repositories/notification.repository";
+import { NotificationService } from "services/notification.service";
 
 const proposalRouter = Router();
 
@@ -20,6 +23,15 @@ const addOnRepository = new AddOnRepository();
 const paymentRepository = new PaymentRepository();
 const revenueRepository = new RevenueRepository();
 const userRepository = new UserRepository();
+// notification
+const notificationRepository = new NotificationRepository();
+const notificationRecipientRepository = new NotificationRecipientRepository();
+
+const notificationService = new NotificationService(
+    notificationRepository,
+    notificationRecipientRepository,
+    userRepository,
+);
 
 const proposalService = new ProposalService(
     proposalRepository, 
@@ -28,7 +40,8 @@ const proposalService = new ProposalService(
     addOnRepository, 
     paymentRepository,
     revenueRepository,
-    userRepository,     
+    userRepository,
+    notificationService   
 );
 const proposalController = new ProposalController(proposalService);
 
@@ -41,7 +54,10 @@ proposalRouter.get('/client',proposalController.getProposalsForClient.bind(propo
 proposalRouter.get('/job/:jobId',proposalController.getProposalsForJob.bind(proposalController));
 proposalRouter.get('/:proposalId',proposalController.getById.bind(proposalController));
 proposalRouter.put('/:proposalId',proposalController.update.bind(proposalController));
-proposalRouter.post('/:proposalId/cancel',proposalController.cancelProposal.bind(proposalController));
+
+proposalRouter.patch('/:proposalId/cancel',proposalController.cancelProposal.bind(proposalController));
+proposalRouter.patch('/:proposalId/withdraw-invitation',proposalController.withdrawInvitation.bind(proposalController));
+
 proposalRouter.patch('/:proposalId/status',proposalController.updateStatus.bind(proposalController));
 proposalRouter.post('/:proposalId/accept',proposalController.acceptProposal.bind(proposalController));
 

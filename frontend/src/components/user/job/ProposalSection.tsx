@@ -19,7 +19,7 @@ interface ProposalsSectionProps {
   user: User | null;
 }
 
-const LIMIT = 1;
+const LIMIT = 10;
 
 const ProposalsSection: React.FC<ProposalsSectionProps> = ({
   jobId,
@@ -30,7 +30,6 @@ const ProposalsSection: React.FC<ProposalsSectionProps> = ({
 
 
   const [proposals, setProposals] = useState<IProposal[]>([]);
-  console.log("🚀 ~ ProposalsSection ~ proposals:", proposals)
   const [proposalsLoading, setProposalsLoading] = useState(false);
   const [proposalFilter, setProposalFilter] = useState("all");
 
@@ -160,13 +159,7 @@ const ProposalsSection: React.FC<ProposalsSectionProps> = ({
       if (res.data.success) {
         notify.success("Proposal withdrawn");
 
-        setProposals(prev =>
-          prev.map(p =>
-            p.id === cancelTarget.id
-              ? { ...p, status: "withdrawn" }
-              : p
-          )
-        );
+        await fetchData();
       }
     } catch (err: any) {
       notify.error(err.response?.data?.error || "Failed to cancel proposal");

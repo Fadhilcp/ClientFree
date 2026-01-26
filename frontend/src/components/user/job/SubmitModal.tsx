@@ -11,8 +11,25 @@ interface SubmitModalProps {
 const SubmitModal: React.FC<SubmitModalProps> = ({ isOpen, onClose, onSubmit }) => {
   const [note, setNote] = useState("");
   const [files, setFiles] = useState<File[]>([]);
+  const [error, setError] = useState<string>("");
 
   if (!isOpen) return null;
+
+    const handleSubmit = () => {
+    if (!note.trim()) {
+      setError("Please enter a note.");
+      return;
+    }
+
+    if (files.length === 0) {
+      setError("Please attach at least one file.");
+      return;
+    }
+
+    setError("");
+    onSubmit(note, files);
+    onClose();
+  };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center backdrop-blur-xs z-50">
@@ -39,15 +56,18 @@ const SubmitModal: React.FC<SubmitModalProps> = ({ isOpen, onClose, onSubmit }) 
                     hover:file:bg-indigo-100 dark:file:bg-gray-700 dark:file:text-gray-200"
           onChange={(e) => setFiles(Array.from(e.target.files || []))}
         />
+        
+        {error && (
+          <p className="text-red-500 text-sm mt-2">
+            {error}
+          </p>
+        )}
 
         <div className="flex justify-end gap-3 mt-6">
           <Button label="Cancel" onClick={onClose} variant="secondary" />
           <Button
             label="Submit"
-            onClick={() => {
-              onSubmit(note, files);
-              onClose();
-            }}
+            onClick={handleSubmit}
             variant="primary"
           />
         </div>

@@ -20,6 +20,7 @@ import { IWalletRepository } from "../repositories/interfaces/IWalletRepository"
 import { IWalletDocument } from "../types/wallet.type";
 import { ISubscriptionService } from "./interface/ISubscriptionService";
 import { getActiveFeaturesDto } from "../dtos/subscription.dto";
+import { UserRole } from "constants/user.constants";
 
 
 export class AuthService implements IAuthService {
@@ -331,7 +332,7 @@ export class AuthService implements IAuthService {
         await this._otpUserStoreRepository.deleteOne({email, purpose : 'forgot-password'});
     } 
 
-    async googleAuth(access_token: string, role: 'freelancer' | 'client') :Promise<{
+    async googleAuth(access_token: string, role: UserRole) :Promise<{
          accessToken ?: string, refreshToken ?: string, user ?: SanitizedUser, isNewUser?: boolean, needsRole?: boolean,
         }>{
         try {

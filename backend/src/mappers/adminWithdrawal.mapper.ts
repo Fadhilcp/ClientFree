@@ -1,3 +1,4 @@
+import { IUserDocument } from "types/user.type";
 import { AdminWithdrawalDTO } from "../dtos/adminWithdrawal.dto";
 import { IPaymentDocument } from "../types/payment/payment.type";
 
@@ -5,7 +6,17 @@ export function mapAdminWithdrawal(
   payment: IPaymentDocument
 ): AdminWithdrawalDTO {
 
-  const user = payment.userId as any;
+  const userDoc = payment.userId as unknown as Partial<IUserDocument>;
+
+  const userId =
+    userDoc?._id?.toString() ??
+    (typeof payment.userId === "string"
+      ? payment.userId
+      : payment.userId?.toString());
+
+  if (!userId) {
+    throw new Error("Payment userId is missing");
+  }
 
   return {
     id: payment._id.toString(),
@@ -24,10 +35,10 @@ export function mapAdminWithdrawal(
     processedAt: payment.withdrawalDate,
 
     user: {
-      id: user?._id?.toString(),
-      name: user?.name,
-      email: user?.email,
-      role: user?.role,
-    }
+      id: userId,
+      name: userDoc?.name ?? "",
+      email: userDoc?.email ?? "",
+      role: userDoc?.role ?? "",
+    },
   };
 }

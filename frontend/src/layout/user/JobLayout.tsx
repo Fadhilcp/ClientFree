@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "../../components/ui/SideBar";
 import Button from "../../components/ui/Button";
 import UserModal from "../../components/ui/Modal/UserModal";
@@ -17,6 +17,7 @@ import { JOB_CATEGORIES } from "../../constants/jobCategories";
 import { COUNTRIES } from "../../constants/countries";
 import InputSection from "../../components/ui/InputSection";
 import CountrySelect from "../../components/user/CountrySelect";
+import FiilterBox from "../../components/ui/FiilterBox";
 
 const clientMenuItems = [
   { label: "Active Jobs", path: "/my-jobs/active-jobs" },
@@ -27,8 +28,8 @@ const clientMenuItems = [
 
 const freelancerMenuItems = [
   { label: "Active Jobs", path: "/my-jobs/active-jobs" },
-  { label: "Task List", path: "/my-jobs/tasks" },
   { label: "Completed Jobs", path: "/my-jobs/completed-jobs" },
+  { label: "Task List", path: "/my-jobs/tasks" },
 ];
 
 const jobFields = [
@@ -113,6 +114,12 @@ const JobLayout: React.FC = () => {
     });
 
     const [errors, setErrors] = useState<Partial<Record<keyof JobForm, string>>>({});
+
+    const location = useLocation();
+
+    const hideFilterBox =
+      location.pathname.includes("/my-jobs/proposals-invitations") ||
+      location.pathname.includes("/my-jobs/tasks");
 
     const didFetchRef = useRef(false);
       useEffect(() => {
@@ -348,6 +355,14 @@ const JobLayout: React.FC = () => {
       <main className="flex-1 p-6 overflow-y-auto text-gray-800 dark:text-gray-200">
         <Outlet context={{ startEditJob }}/>
       </main>
+      {/* RIGHT FILTER BOX */}
+      {!hideFilterBox && (
+        <aside className="border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 sticky top-0 h-screen p-6">
+          <FiilterBox
+            enabledFilters={["category", "budgetMin", "budgetMax", "location"]}
+          />
+        </aside>
+      )}
     </div>
   );
 };

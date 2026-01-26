@@ -1,21 +1,24 @@
 import { IJobAssignmentDocument } from "../../types/jobAssignment/jobAssignment.type";
 import { IBaseRepository } from "./IBaseRepository";
-import { FilterQuery, PopulateOptions, SortOrder, Types } from "mongoose";
+import { FilterQuery, PopulateOptions, Types } from "mongoose";
 import { PopulatedAssignment } from "../../types/jobAssignment/jobAssignment.populated";
 import { ApprovedMilestoneAssignment } from "../../types/jobAssignment/jobAssignment.approvedMilestone";
+import { IJobDocument } from "types/job.type";
 
 export interface IJobAssignmentRepository extends IBaseRepository<IJobAssignmentDocument>{
     findWithJobDetail(filter: FilterQuery<IJobAssignmentDocument>): Promise<IJobAssignmentDocument[] | null>
     findWithFreelancer(filter: FilterQuery<IJobAssignmentDocument>): Promise<IJobAssignmentDocument[]>;
     findWithJobDetailPaginated(
-                filter: FilterQuery<IJobAssignmentDocument>, limit: number
-            ): Promise<IJobAssignmentDocument[]>;
+            assignmentFilter: FilterQuery<IJobAssignmentDocument>, 
+            jobFilter: FilterQuery<IJobDocument>,
+            limit: number
+        ): Promise<(IJobAssignmentDocument & { job: IJobDocument })[]>
     findApprovedMilestonesPaginated(
         filter: FilterQuery<IJobAssignmentDocument>,
         options: {
             page?: number;
             limit?: number;
-            sort?: Record<string, SortOrder>;
+            sort?: Record<string, 1 | -1>;
             populate?: PopulateOptions | (string | PopulateOptions)[];
         }
         ): Promise<{

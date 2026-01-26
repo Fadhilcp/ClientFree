@@ -36,5 +36,5 @@ export interface IProposalService {
 
     aiShortlistTopProposals(jobId: string, topN: number)
     : Promise<{ shortlisted: number, proposalIds?: Types.ObjectId[] }>;
-
+    withdrawInvitation(proposalId: string, clinetId: string): Promise<ProposalDTO>;
 }

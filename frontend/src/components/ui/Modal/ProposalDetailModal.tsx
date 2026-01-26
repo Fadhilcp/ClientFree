@@ -12,68 +12,103 @@ interface ProposalDetailModalProps {
 const ProposalDetailModal: React.FC<ProposalDetailModalProps> = ({ proposal, isOpen, onClose }) => {
   if (!isOpen || !proposal) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Proposal Details</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">✕</button>
+return (
+  <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
+    <div className="no-scrollbar bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Proposal Details</h2>
+        <button
+          onClick={onClose}
+          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+        >
+          ✕
+        </button>
+      </div>
+
+      {/* Freelancer Info */}
+      <div className="mb-6">
+        <UserInfo
+          username={proposal.freelancer.username}
+          email={proposal.freelancer.email}
+          profileImage={proposal.freelancer.profileImage}
+          size={48}
+          isVerified={proposal.freelancer.isVerified}
+        />
+      </div>
+
+      {/* Job Info */}
+      {proposal.job && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-1">
+            {proposal.job.title}
+          </h3>
+          <p className="text-sm text-gray-700 dark:text-gray-300">
+            <span className="font-medium text-gray-900 dark:text-gray-100">Category:</span>{" "}
+            {proposal.job.category} / {proposal.job.subcategory}
+          </p>
+          <p className="text-sm text-gray-700 dark:text-gray-300">
+            <span className="font-medium text-gray-900 dark:text-gray-100">Status:</span>{" "}
+            {proposal.job.status}
+          </p>
         </div>
+      )}
 
-        {/* Freelancer Info */}
-        <div className="mb-5">
-            <UserInfo
-                username={proposal.freelancer.username}
-                email={proposal.freelancer.email}
-                profileImage={proposal.freelancer.profileImage}
-                size={48}
-                isVerified={proposal.freelancer.isVerified}
-            />
+      {/* Proposal Details */}
+      <div className="space-y-4 mb-6">
+        <div>
+          <span className="block text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+            Bid Amount
+          </span>
+          <p className="text-sm text-gray-800 dark:text-gray-200">₹{proposal.bidAmount}</p>
         </div>
-
-        {/* Job Info */}
-        {proposal.job && (
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400">{proposal.job.title}</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">{proposal.job.category} / {proposal.job.subcategory}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Status: {proposal.job.status}</p>
-          </div>
-        )}
-
-        {/* Proposal Details */}
-        <div className="space-y-3 mb-6">
-          <p className="text-gray-700 dark:text-gray-300"><span className="font-medium">Bid Amount:</span> ₹{proposal.bidAmount}</p>
-          <p className="text-gray-700 dark:text-gray-300"><span className="font-medium">Duration:</span> {proposal.duration}</p>
-          <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line"><span className="font-medium">Description:</span> {proposal.description}</p>
+        <div>
+          <span className="block text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+            Duration
+          </span>
+          <p className="text-sm text-gray-800 dark:text-gray-200">{proposal.duration}</p>
         </div>
-
-        {/* Milestones */}
-        {proposal.milestones && proposal.milestones.length > 0 && (
-          <div className="mb-6">
-            <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">Milestones</h4>
-            <ul className="space-y-2">
-              {proposal.milestones.map((m, idx) => (
-                <li key={idx} className="p-3 rounded-lg bg-gray-100 dark:bg-gray-700 text-sm text-gray-700 dark:text-gray-300">
-                  <div className="font-medium">{m.title}</div>
-                  <div>Amount: ₹{m.amount}</div>
-                  {m.dueDate && <div>Due: {new Date(m.dueDate).toLocaleDateString()}</div>}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* Footer */}
-        <div className="flex justify-end">
-            <Button
-                onClick={onClose}
-                label="Close" 
-            />
+        <div>
+          <span className="block text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+            Description
+          </span>
+          <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">
+            {proposal.description}
+          </p>
         </div>
       </div>
+      {/* Milestones */}
+      {proposal.milestones && proposal.milestones.length > 0 && (
+        <div className="mb-6">
+          <h4 className="text-md font-semibold text-gray-900 dark:text-gray-100 mb-3">
+            Milestones
+          </h4>
+          <ul className="space-y-3">
+            {proposal.milestones.map((m, idx) => (
+              <li
+                key={idx}
+                className="p-4 rounded-lg bg-gray-50 dark:bg-gray-700 text-sm text-gray-700 dark:text-gray-300"
+              >
+                <div className="font-semibold text-gray-900 dark:text-gray-100">{m.title}</div>
+                <p className="text-gray-700 dark:text-gray-300">Amount: ₹{m.amount}</p>
+                {m.dueDate && (
+                  <p className="text-gray-700 dark:text-gray-300">
+                    Due: {new Date(m.dueDate).toLocaleDateString()}
+                  </p>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Footer */}
+      <div className="flex justify-end">
+        <Button onClick={onClose} label="Close" />
+      </div>
     </div>
-  );
+  </div>
+);
 };
 
 export default ProposalDetailModal;
