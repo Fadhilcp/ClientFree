@@ -193,4 +193,16 @@ export const endPoints = {
         GET_ADMIN: (search: string, page: number, limit: number) => 
             `/notification/admin?search=${search ?? ""}&page=${page ?? 1}&limit=${limit ?? 1}`,
     },
+    CHAT: {
+        CREATE_OR_GET: '/chats',
+        GET_MY_CHATS: (search: string) => `/chats/my?search=${search ?? ""}`,
+        BLOCK: (chatId: string) => `/chats/${chatId}/block-status`,
+    },
+    MESSAGE: {
+        SEND: (chatId: string) => `/messages/${chatId}`,
+        GET_BY_CHAT: (chatId: string) => `/messages/${chatId}`,
+        MARK_READ: (chatId: string) => `/messages/${chatId}/read`,
+        DELETE: (messageId: string) => `/messages/${messageId}`,
+        SIGNED_URL: (messageId: string) => `/messages/file/${messageId}/signed-url`,
+    },
 }

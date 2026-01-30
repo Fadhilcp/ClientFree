@@ -66,4 +66,39 @@ export class MessageController {
             next(error);
         }
     }
+
+    async getFileSignedUrl(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const userId = req.user?._id;
+            if (!userId) {
+                throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
+            }
+
+            const { messageId } = req.params;
+
+            const signedUrl = await this._messageService.getFileSignedUrl(
+                messageId,
+                userId
+            );
+
+            sendResponse(res, HttpStatus.OK, { url: signedUrl });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async deleteMessage(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const { messageId } = req.params;
+            const userId = req.user?._id;
+
+            if(!userId) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
+
+            const message = await this._messageService.deleteMessage(messageId, userId);
+
+            sendResponse(res, HttpStatus.OK, { message });
+        } catch (error) {
+            next(error);
+        }
+    }
 }

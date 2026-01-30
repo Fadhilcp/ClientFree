@@ -13,10 +13,16 @@ export type CallStatusDTO =
   | "declined";
 
 export interface MessageFileDTO {
-  fileName?: string;
-  fileSize?: number;
-  fileType?: string;
-  fileUrl?: string;
+  name?: string;
+  key?: string;
+  size?: number;
+  type?: string;
+  url?: string;
+}
+
+export interface MessageVoiceDto {
+  url?: string;
+  duration?: number;
 }
 
 export interface MessageCallDetailsDTO {
@@ -37,9 +43,11 @@ export interface MessageDTO {
   content?: string;
   file?: MessageFileDTO;
   callDetails?: MessageCallDetailsDTO;
+  voice?: MessageVoiceDto;
 
   isReadBy: string[];
   isDeleted: boolean;
+  deletedAt: Date | null,
 
   createdAt: string;
   updatedAt: string;

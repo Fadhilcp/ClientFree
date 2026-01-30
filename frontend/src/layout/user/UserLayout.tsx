@@ -6,6 +6,8 @@ import type { RootState } from '../../store/store'
 import { socket } from '../../config/socket.config'
 import { tokenStore } from '../../utils/tokenStore'
 import { NotificationProvider } from '../../context/NotificationContext'
+import { CallProvider } from '../../context/CallProvider'
+import GlobalCallModal from '../../components/ui/Modal/GlobalCallModal'
 
 const UserLayout: React.FC = () => {
 
@@ -38,10 +40,15 @@ const UserLayout: React.FC = () => {
 
   return (
     <NotificationProvider>
+      <CallProvider>
+
       {role !== "admin" && <Navbar role={role} />}
       <main className='pt-15'>
+        <GlobalCallModal/>
         <Outlet/>
       </main>
+
+      </CallProvider>
     </NotificationProvider>
   );
 }

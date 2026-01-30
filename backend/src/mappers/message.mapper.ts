@@ -15,10 +15,11 @@ export class MessageMapper {
 
       file: message.file
         ? {
-            fileName: message.file.FileName,
-            fileSize: message.file.FileSize,
-            fileType: message.file.FileType,
-            fileUrl: message.file.FileUrl,
+            name: message.file.name,
+            key: message.file.key,
+            size: message.file.size,
+            type: message.file.type,
+            url: message.file.url,
           }
         : undefined,
 
@@ -31,8 +32,16 @@ export class MessageMapper {
           }
         : undefined,
 
+      voice: message.voice
+        ? {
+            url: message.voice.url,
+            duration: message.voice.duration,
+          }
+        : undefined,
+
       isReadBy: message.isReadBy.map(id => id.toString()),
       isDeleted: message.isDeleted,
+      deletedAt: message.deletedAt,
 
       createdAt: message.createdAt?.toISOString() ?? "",
       updatedAt: message.updatedAt?.toISOString() ?? "",

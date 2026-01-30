@@ -4,6 +4,7 @@ import { authMiddleware } from "middlewares/authMiddleware";
 import { verifyUserNotBanned } from "middlewares/verifyUserNotBanned.middleware";
 import { ChatRepository } from "repositories/chat.repository";
 import { MongooseSessionProvider } from "repositories/db/session-provider";
+import { JobRepository } from "repositories/job.repository";
 import { PaymentRepository } from "repositories/payment.repository";
 import { PlanRepository } from "repositories/plan.repository";
 import { RevenueRepository } from "repositories/revenue.repository";
@@ -31,9 +32,11 @@ const subscriptionService = new SubscriptionService(
     sessionProvider,
 );
 
+const jobRepository = new JobRepository();
+
 const chatRepository = new ChatRepository();
 
-const chatService = new ChatService(chatRepository, subscriptionService);
+const chatService = new ChatService(chatRepository, subscriptionService, jobRepository);
 
 const chatController = new ChatController(chatService);
 
@@ -41,6 +44,6 @@ chatRouter.use(authMiddleware, verifyUserNotBanned);
 
 chatRouter.post('/',chatController.getOrCreateChat.bind(chatController));
 chatRouter.get('/my',chatController.getMyChats.bind(chatController));
-chatRouter.patch('/:chatId/block',chatController.blockChat.bind(chatController));
+chatRouter.patch('/:chatId/block-status',chatController.updateChatBlockStatus.bind(chatController));
 
 export default chatRouter;

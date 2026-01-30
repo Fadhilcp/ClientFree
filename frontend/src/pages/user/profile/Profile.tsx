@@ -143,7 +143,7 @@ const Profile: React.FC = () => {
           defaultValues={profileData as Partial<ProfileFormData>}
         />
     <div className="bg-gray-50 dark:bg-gray-900 min-h-screen p-4">
-      <div className="max-w-10xl mx-auto my-8">
+      <div className="max-w-6xl mx-auto">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
           <div className="relative bg-gradient-to-r from-indigo-500 to-indigo-600 animate-gradient text-white p-6 md:p-10">
             {/* Edit Button in Top Right */}

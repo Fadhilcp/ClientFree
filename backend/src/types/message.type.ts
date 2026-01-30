@@ -15,10 +15,16 @@ export type CallStatus =
   | "declined";
 
 export interface IMessageFile {
-  FileName?: string;
-  FileSize?: number;
-  FileType?: string;
-  FileUrl?: string;
+  name?: string;
+  key?: string;
+  size?: number;
+  type?: string;
+  url?: string;
+}
+
+export interface IMessageVoice {
+  url?: string;
+  duration?: number;
 }
 
 export interface IMessageCallDetails {
@@ -38,11 +44,14 @@ export interface IMessage {
 
   file?: IMessageFile;
 
+  voice?: IMessageVoice;
+
   callDetails?: IMessageCallDetails;
 
   isReadBy: (Types.ObjectId | string)[];
 
   isDeleted: boolean;
+  deletedAt: Date;
 
   createdAt?: Date;
   updatedAt?: Date;

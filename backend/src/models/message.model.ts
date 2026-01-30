@@ -20,13 +20,19 @@ const messageSchema = new Schema({
     required: true
   },
 
-  content: String,
+  content: { type: String },
 
   file: {
-    FileName: String,
-    FileSize: Number,
-    FileType: String,
-    FileUrl: String
+    name: { type: String },
+    key: { type: String },
+    size: { type: Number },
+    type: { type: String },
+    url: { type: String }
+  },
+
+  voice: {
+    url: { type: String },
+    duration: { type: Number }
   },
 
   callDetails: {
@@ -42,6 +48,7 @@ const messageSchema = new Schema({
   }],
 
   isDeleted: { type: Boolean, default: false },
+  deletedAt: { type: Date, default: null },
 
 }, { timestamps: true });
 

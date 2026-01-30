@@ -35,7 +35,7 @@ router.use("/wallet", walletRouter);
 router.use("/dashboard", dashboardRouter);
 router.use("/match", matchRouter);
 router.use("/notification",notificationRouter);
-router.use("/chat",chatRouter);
-router.use("/message",messageRouter);
+router.use("/chats",chatRouter);
+router.use("/messages",messageRouter);
 
 export default router;

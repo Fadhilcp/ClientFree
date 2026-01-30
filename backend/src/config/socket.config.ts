@@ -2,6 +2,7 @@ import { Server } from "socket.io";
 import http from "http";
 import { socketAuthMiddleware } from "middlewares/socketAuth.middleware";
 import { env } from "./env.config";
+import { registerCallSocket } from "sockets/call.socket";
 
 let io: Server;
 
@@ -27,6 +28,8 @@ export const initSocket = (server: http.Server): Server => {
         socket.on("chat:join", (chatId: string) => {
             socket.join(`chat:${chatId}`);
         });
+
+        registerCallSocket(io, socket);
 
         socket.on("chat:leave", (chatId: string) => {
             socket.leave(`chat:${chatId}`);

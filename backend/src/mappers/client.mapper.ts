@@ -29,3 +29,17 @@ export function mapUserToClientDto(user: IUserDocument): ClientProfileDto {
     createdAt: user.createdAt
   };
 }
+
+export function toClientPublic(dto: ClientProfileDto) {
+  return {
+    id: dto.id,
+    username: dto.username,
+    name: dto.name ?? dto.username,
+    email: dto.email,
+    profileImage: dto.profileImage,
+    description: dto.description,
+    isVerified: dto.isVerified,
+    location: dto.location,
+    company: dto.company
+  };
+}

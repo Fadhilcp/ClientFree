@@ -7,7 +7,7 @@ export type ChatStatus = "active" | "closed" | "blocked";
 export type ChatBlockReason =
   | "job_completed"
   | "manual"
-  | "policy";
+  | "subscription_expired";
 
 export interface IChat {
 
@@ -16,13 +16,13 @@ export interface IChat {
   participants: (Types.ObjectId | string)[];
 
   status: ChatStatus;
-
+  isBlocked: boolean;
   blockReason?: ChatBlockReason | null;
 
   lastMessageAt?: Date;
 
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface IChatDocument extends IChat, Document {

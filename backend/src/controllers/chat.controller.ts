@@ -32,9 +32,11 @@ export class ChatController {
         try {
             const userId = req.user?._id;
 
+            const search = req.query.search as string || "";
+
             if(!userId) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
 
-            const chats = await this._chatService.getUserChats(userId);
+            const chats = await this._chatService.getUserChats(userId, search);
 
             sendResponse(res, HttpStatus.OK, { chats });
         } catch (error) {
@@ -48,6 +50,18 @@ export class ChatController {
             const { reason } = req.body;
 
             const chat = await this._chatService.blockChat(chatId, reason);
+
+            sendResponse(res, HttpStatus.OK, { chat });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async updateChatBlockStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const { chatId } = req.params;
+
+            const chat = await this._chatService.updateBlockStatus(chatId);
 
             sendResponse(res, HttpStatus.OK, { chat });
         } catch (error) {

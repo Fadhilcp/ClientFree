@@ -23,6 +23,7 @@ import { AdminPaymentDto } from "../dtos/adminPayment.dto";
 import { stripe } from "../config/stripe.config";
 import { UserRole } from "constants/user.constants";
 import { GetWithdrawalsResponse } from "dtos/payment.dto";
+import { IChatService } from "./interface/IChatService";
 
 export class PaymentService implements IPaymentService {
     constructor(
@@ -32,7 +33,9 @@ export class PaymentService implements IPaymentService {
         
         private _walletRepository: IWalletRepository,
         private _walletTransactionRepository: IWalletTransactionRepository,
-        private _sessionProvider: IDatabaseSessionProvider
+        private _sessionProvider: IDatabaseSessionProvider,
+
+        private _chatService: IChatService
     ){};
 
     async createMilestoneOrder(assignmentId: string, milestoneId: string, clientId: string): Promise<{
@@ -231,7 +234,6 @@ export class PaymentService implements IPaymentService {
       const milestone = assignment.milestones?.find(
         m => m._id?.toString() === payment.milestoneId?.toString()
       );
-      console.log("🚀 ~ PaymentService ~ releaseMilestone ~ milestone:", milestone)
 
       if (!milestone) {
         throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.MILESTONE_NOT_FOUND);
@@ -242,9 +244,11 @@ export class PaymentService implements IPaymentService {
       }
 
       const amount = milestone.amount;
+      // to know job completed or not 
+      let jobJustCompleted = false;
 
       // transactional section
-      return this._sessionProvider.runInTransaction(async (session: ClientSession) => {
+      const result = await this._sessionProvider.runInTransaction(async (session: ClientSession) => {
 
         const clientWallet = await this._walletRepository.findOneWithSession(
             { userId: payment.clientId, role: "client", status: "active" }, 
@@ -343,6 +347,14 @@ export class PaymentService implements IPaymentService {
         }
         return { payment, assignment };
       });
+
+      if (jobJustCompleted) {
+          await this._chatService.updateBlockStatusByJobId(
+              assignment.jobId.toString()
+          );
+      }
+
+      return result;
     }
 
     async listDisputes(search: string, page: number, limit: number): Promise<PaginatedResult<AdminDisputeListDto>> {

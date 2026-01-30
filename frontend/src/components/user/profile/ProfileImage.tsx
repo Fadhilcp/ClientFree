@@ -19,7 +19,7 @@ const ProfileImage: React.FC<ProfileImageProps> = ({ src, size = 160, useAuthFal
   return (
     <div className={`flex justify-center ${className}`}>
       <div
-        className="rounded-full border-4 border-white shadow-lg overflow-hidden bg-gray-200 flex items-center justify-center"
+        className="rounded-full border-2 border-white shadow-lg overflow-hidden bg-gray-200 flex items-center justify-center"
         style={{ width: imageSize, height: imageSize }}
       >
         {profileImage ? (

@@ -1,8 +1,9 @@
 import type { SkillItem } from "../skill.types";
+import type { ClientPublicDto } from "../user/clientProfile.dto";
 
 export interface JobBaseDTO {
   id: string;
-  clientId: string;
+  client: ClientPublicDto;
 
   title: string;
   category?: string;

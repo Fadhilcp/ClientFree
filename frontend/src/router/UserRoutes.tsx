@@ -41,6 +41,7 @@ import BillingSuccess from "../components/user/billing/BillingSuccess";
 import BillingCancel from "../components/user/billing/BillingCancel";
 import SubscriptionSetting from "../pages/user/settings/Subscription-Premium";
 import NotificationsPage from "../pages/user/notification/NotificationsPage";
+import Chat from "../pages/user/chat/Chat";
 
 
 const UserRoutes: React.FC = () => {
@@ -55,6 +56,7 @@ const UserRoutes: React.FC = () => {
 
         <Routes>
             <Route element={<UserLayout />}>
+            
             {/* public routes - start */}
             <Route path="/" element={
                 <NoAuthProtectedRoute>
@@ -112,6 +114,14 @@ const UserRoutes: React.FC = () => {
                 element={
                 <AuthProtectedRoute allowedRoles={['client','freelancer']}>
                     <NotificationsPage />
+                </AuthProtectedRoute>
+                }
+            />
+            <Route
+                path="/chats"
+                element={
+                <AuthProtectedRoute allowedRoles={['client','freelancer']}>
+                    <Chat />
                 </AuthProtectedRoute>
                 }
             />

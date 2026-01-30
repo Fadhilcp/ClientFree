@@ -15,6 +15,7 @@ export const emitMessageToChat = async(
         type: message.type,
         content: message.content,
         file: message.file,
+        voice: message.voice,
         callDetails: message.callDetails,
         createdAt: message.createdAt?.toISOString(),
     });

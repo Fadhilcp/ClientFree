@@ -27,6 +27,7 @@ export interface IBaseRepository<TDocument extends Document> {
         limit: number;
         totalPages: number;
     }>
+    exists(filter: FilterQuery<TDocument>): Promise<boolean>;
 
     //session
     createWithSession(data: Partial<TDocument>, session: ClientSession): Promise<TDocument>;

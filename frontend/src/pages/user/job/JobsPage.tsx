@@ -90,7 +90,6 @@ const JobsPage: React.FC<{ status: string; title: string }> = ({
             LIMIT,
             filterQuery
           );
-          console.log("🚀 ~ JobsPage ~ response:", response)
         }
 
         if (response?.data.success) {

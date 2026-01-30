@@ -1,8 +1,9 @@
+import { ClientPublicDto } from "./clientPublic.dto";
 import { FreelancerProfileDto } from "./freelancerProfile.dto";
 
 export interface JobBaseDTO {
   id: string;
-  clientId: string;
+  client: ClientPublicDto;
 
   title: string;
   category?: string;

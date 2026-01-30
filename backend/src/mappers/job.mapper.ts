@@ -4,6 +4,7 @@ import { IJobDocument } from "../types/job.type";
 import { ISkillDocument } from "../types/skill.type";
 
 import { IUserDocument } from "../types/user.type";
+import { mapUserToClientDto, toClientPublic } from "./client.mapper";
 
 function isUserDocument(obj: any): obj is IUserDocument {
     return obj && typeof obj === "object" && "_id" in obj && "username" in obj;
@@ -18,11 +19,12 @@ export class JobMapper {
 
     private static toBaseDTO(job: IJobDocument) {
 
-        const client = job.clientId as unknown as IUserDocument;
+        const clientDoc = job.clientId as unknown as IUserDocument;
+        const clientProfile = mapUserToClientDto(clientDoc);
 
         return {
             id: job._id.toString(),
-            clientId: client._id.toString(),
+            client: toClientPublic(clientProfile),
 
             title: job.title,
             category: job.category,
@@ -34,7 +36,7 @@ export class JobMapper {
                 : { id: s.toString(), name: "" }
             ) ?? [],
 
-            isVerified: client.isVerified ?? false,
+            isVerified: clientDoc.isVerified ?? false,
 
             duration: job.duration,
 

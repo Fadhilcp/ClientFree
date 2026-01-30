@@ -22,7 +22,7 @@ const chatSchema = new Schema({
 
   blockReason: {
     type: String,
-    enum: ['job_completed', 'manual', 'policy']
+    enum: ['job_completed', 'subscription_expired', 'manual']
   },
 
   lastMessageAt: Date,

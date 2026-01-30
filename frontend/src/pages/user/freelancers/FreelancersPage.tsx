@@ -14,6 +14,7 @@ import UserModal from "../../../components/ui/Modal/UserModal";
 import Button from "../../../components/ui/Button";
 import { matchService } from "../../../services/match.service";
 import BestMatchModal from "../../../components/ui/Modal/BestMatchModal";
+import { chatService } from "../../../services/chat.service";
 
 const LIMIT = 20;
 
@@ -43,6 +44,7 @@ const FreelancersPage: React.FC = () => {
   const { user, subscription } = useSelector((state: RootState) => state.auth);
 
   const bestMatch = Boolean(subscription?.features.BestMatch);
+  const hasDirectMessaging = Boolean(subscription?.features?.DirectMessaging);
 
   const [isBestMatchOpen, setIsBestMatchOpen] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState("");
@@ -116,7 +118,7 @@ const FreelancersPage: React.FC = () => {
   const fetchClientJobs = useCallback(async () => {
     if (!user || user.role !== "client") return;
     try {
-      const response = await jobService.getMyJobs("open", "", "", 0);
+      const response = await jobService.getMyJobs("open", "", "", 0, "");
       if (response.data.success) {
         const { jobs } = response.data;
         setClientJobs(jobs);
@@ -274,6 +276,17 @@ const FreelancersPage: React.FC = () => {
     }
   };
 
+    const handleChat = async (receiverId: string) => {
+        try {
+            const res = await chatService.getOrCreateChat(receiverId);
+            if (res.data.success) {
+                navigate(`/chats`);
+            }
+        } catch (err) {
+            notify.error("Failed to open chat");
+        }
+    };
+
   return (
     <section className="bg-white dark:bg-gray-900 min-h-screen">
       {loading && <Loader />}
@@ -357,6 +370,11 @@ const FreelancersPage: React.FC = () => {
                       variant: "secondary",
                     }
                   : null,
+                hasDirectMessaging ? {
+                  label: "Chat",
+                  onClick: () => handleChat(freelancer.id),
+                  variant: "primary" as const,
+                } : null,
               ].filter(Boolean) as ActionItem[]}
             />
           ))} 

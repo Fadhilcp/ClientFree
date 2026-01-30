@@ -78,7 +78,11 @@ const NavbarIcons: React.FC = () => {
       />
 
       {/* Message */}
-      <button className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-white">
+      <button 
+      onClick={
+        () => navigate("/chats")
+      }
+      className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-white">
         <i className="fas fa-message text-lg"></i>
       </button>
 

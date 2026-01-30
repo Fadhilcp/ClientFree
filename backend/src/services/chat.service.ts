@@ -1,17 +1,21 @@
-import { IChatRepository } from "repositories/interfaces/IChatRepository";
+import { IChatRepository } from "../repositories/interfaces/IChatRepository";
 import { IChatService } from "./interface/IChatService";
-import { createHttpError } from "utils/httpError.util";
-import { HttpStatus } from "constants/status.constants";
-import { HttpResponse } from "constants/responseMessage.constant";
-import { Types } from "mongoose";
+import { createHttpError } from "../utils/httpError.util";
+import { HttpStatus } from "../constants/status.constants";
+import { HttpResponse } from "../constants/responseMessage.constant";
+import { FilterQuery, Types } from "mongoose";
 import { ISubscriptionService } from "./interface/ISubscriptionService";
-import { ChatMapper } from "mappers/chat.mapper";
-import { ChatDTO } from "dtos/chat.dto";
+import { ChatMapper } from "../mappers/chat.mapper";
+import { ChatDTO, ChatListDTO } from "../dtos/chat.dto";
+import { IJobRepository } from "repositories/interfaces/IJobRepository";
+import { emitChatBlocked } from "helpers/chatBlockSocket";
+import { IChatDocument } from "types/chat.type";
 
 export class ChatService implements IChatService {
     constructor(
         private _chatRepository: IChatRepository,
-        private _subscriptionService: ISubscriptionService
+        private _subscriptionService: ISubscriptionService,
+        private _jobRepository: IJobRepository,
     ){};
 
     async getOrCreateChat(initiatorId: string, receiverId: string, jobId?: string): Promise<ChatDTO> {
@@ -89,7 +93,7 @@ export class ChatService implements IChatService {
         );
     }
 
-    async blockChat(chatId: string, reason: "job_completed" | "manual" | "policy"): Promise<ChatDTO> {
+    async blockChat(chatId: string, reason: "job_completed" | "manual" | "subscription_expired"): Promise<ChatDTO> {
         
         const chat = await this._chatRepository.findById(chatId);
         if(!chat) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.CHAT_NOT_FOUND);
@@ -101,12 +105,69 @@ export class ChatService implements IChatService {
         return ChatMapper.toDTO(chat);
     }
 
-    async getUserChats(userId: string): Promise<ChatDTO[]> {
-        const chats = await this._chatRepository.find(
-            { participants: userId },
-            { sort: { lastMessageAt: -1 }}
-        );
+    async getUserChats(userId: string, search: string): Promise<ChatListDTO[]> {
 
-        return ChatMapper.toDTOList(chats);
+        const chats = await this._chatRepository.findUserChatsWithSearch(userId, search);
+
+        return ChatMapper.toListDTOList(chats, userId);
+    }
+
+
+    // method to check block status by jobId
+    async updateBlockStatusByJobId(jobId: string): Promise<void> {
+        const chat = await this._chatRepository.findOne({ jobId });
+        // silent return
+        if(!chat) return;
+
+        await this._recalculateAndPersistBlockStatus(chat);
+    }
+
+    async updateBlockStatus(chatId: string): Promise<ChatDTO> {
+        const chat = await this._chatRepository.findById(chatId);
+        if(!chat) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.CHAT_NOT_FOUND);
+
+        const updatedChat = await this._recalculateAndPersistBlockStatus(chat);
+        return ChatMapper.toDTO(updatedChat);
+    }
+    
+    // helper method - to check update chat is blocked or not
+    private async _recalculateAndPersistBlockStatus(chat: IChatDocument): Promise<IChatDocument> {
+
+        const prevBlocked = chat.isBlocked;
+
+        const hasActiveJob = await this._jobRepository.exists({
+            _id: chat.jobId,
+            status: { $in: ["open", "active"] },
+        });
+        // any of them or both has direct messaging feature
+        const [participantOne, participantTwo] = await Promise.all([
+            this._subscriptionService.getActiveFeatures(chat.participants[0].toString()),
+            this._subscriptionService.getActiveFeatures(chat.participants[1].toString()),
+        ]);
+
+        const hasActiveSubscription = 
+            Boolean(participantOne?.features.DirectMessaging) || 
+            Boolean(participantTwo?.features.DirectMessaging);
+
+        if (!hasActiveJob && !hasActiveSubscription) {
+            chat.isBlocked = true;
+            chat.blockReason = hasActiveJob
+                ? null
+                : "subscription_expired";
+        } else {
+            chat.isBlocked = false;
+            chat.blockReason = null;
+        }
+
+        await chat.save();
+
+        if (prevBlocked !== chat.isBlocked) {
+            emitChatBlocked(chat.id, {
+                isBlocked: chat.isBlocked,
+                blockReason: chat.blockReason,
+            });
+        }
+
+        return chat;
     }
 }

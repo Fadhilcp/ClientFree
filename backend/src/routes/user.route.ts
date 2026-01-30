@@ -3,7 +3,7 @@ import { ProfileController } from "../controllers/user.controller";
 import { UserRepository } from "../repositories/user.repository";
 import { UserService } from "../services/user.service";
 import { authMiddleware } from "../middlewares/authMiddleware";
-import { upload } from "../middlewares/upload.middleware";
+import { profileUpload } from "../middlewares/profileUpload.middleware";
 import { verifyUserNotBanned } from "../middlewares/verifyUserNotBanned.middleware";
 import { authorizeRole } from "middlewares/authorizeRole";
 import { UserRole } from "constants/user.constants";
@@ -25,7 +25,7 @@ userRouter.get('/',userController.getAll.bind(userController));
 userRouter.get('/search',authorizeRole(UserRole.ADMIN),userController.searchUsers.bind(userController));
 userRouter.get('/by-ids',authorizeRole(UserRole.ADMIN),userController.getUsersByIds.bind(userController));
 
-userRouter.post('/profile-image',upload.single('profileImage'),
+userRouter.post('/profile-image',profileUpload.single('profileImage'),
         userController.setProfileImage.bind(userController)
     );
 userRouter.delete('/profile-image',userController.removeProfileImage.bind(userController));

@@ -17,7 +17,19 @@ export class JobRepository
     }
     async findByIdWithDetails(jobId: string): Promise<IJobDocument | null> {
         return this.model.findById(jobId)
-        .populate("clientId")
+        .populate({
+            path: "clientId",
+            select: [
+                "name",
+                "username",
+                "email",
+                "profileImage",
+                "location",
+                "company",
+                "description",
+                "isVerified",
+            ],
+        })
         .populate("skills", "name _id")
         .populate({
             path: "acceptedProposalIds",

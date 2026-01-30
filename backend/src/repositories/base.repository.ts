@@ -118,6 +118,11 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T>{
         };
     }
 
+    async exists(filter: FilterQuery<T>): Promise<boolean> {
+        const result = await this.model.exists(filter);
+        return Boolean(result);
+    }
+
     // session 
     async createWithSession(data: Partial<T>, session: ClientSession): Promise<T> {
         const docs = await this.model.create([data], { session });
