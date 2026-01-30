@@ -106,6 +106,8 @@ const userSchema = new Schema({
         website : { type : String }
     },
 
+    stripeAccountId: { type: String, default: null },
+
     interests : [{ 
 
         type : {

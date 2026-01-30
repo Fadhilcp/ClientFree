@@ -502,15 +502,38 @@ export class ProposalService implements IProposalService {
         if(!invitation){
             throw createHttpError(HttpStatus.BAD_REQUEST, "No active invitation found");
         }
-        invitation.status = "accepted";
-        if (!invitation.invitation) {
-            invitation.invitation = {};
+
+        const job = await this._jobRepository.findById(jobId);
+
+        if (!job || job.isDeleted) {
+            throw createHttpError(HttpStatus.NOT_FOUND, "Job not found or no longer available");
         }
-        invitation.invitation.respondedAt = new Date();
+
+        if (job.status !== "open") {
+            throw createHttpError(HttpStatus.BAD_REQUEST, "Cannot accept invitation for a closed job");
+        }
+  
+        invitation.isInvitation = false;
+        invitation.status = "pending";
+
+        if (!invitation.bidAmount && job.payment?.budget) {
+            invitation.bidAmount = job.payment.budget;
+        }
+
+        invitation.invitation = {
+            ...invitation.invitation,
+            respondedAt: new Date()
+        };
+
         await invitation.save();
 
+        await this._jobRepository.findByIdAndUpdate(jobId, {
+            $inc: { proposalCount: 1 },
+            $addToSet: { proposals: invitation._id },
+        } as UpdateQuery<IJobDocument>);
+
         return {
-            message: "Invitation accepted. Redirect freelancer to proposal page." 
+            message: "Invitation accepted. A proposal has been created with the job budget. You can now review and edit your bid before submitting."
         };
     }
 

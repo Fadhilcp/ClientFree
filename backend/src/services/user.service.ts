@@ -10,7 +10,7 @@ import { UserProfileDto } from "../dtos/profile.dto.types";
 import { UserListingDto } from "../dtos/userListing.dto";
 import { PaginatedResult } from "../types/pagination";
 import { calculateProfileCompletion } from "../utils/profileCompletion";
-import { FilterQuery } from "mongoose";
+import { FilterQuery, Types } from "mongoose";
 import cloudinary from "../config/cloudinary.config";
 import { uploadToCloudinary } from "../utils/cloudinary.helper";
 import { FreelancerListItemDto } from "../dtos/freelancerProfile.dto";
@@ -120,6 +120,7 @@ export class UserService implements IUserService {
             hourlyRateMin?: number;
             hourlyRateMax?: number;
             ratingMin?: number;
+            skills?: string[];
         }
     ): Promise<{ freelancers: FreelancerListItemDto[], nextCursor: string | null }> {
 
@@ -165,6 +166,9 @@ export class UserService implements IUserService {
             filter["ratings.asFreelancer"] = { $gte: filters.ratingMin };
         }
 
+        if (filters?.skills && filters.skills.length > 0) {
+            filter.skills = { $all: filters.skills.map(id => new Types.ObjectId(id)) };
+        }
 
         if(cursor && cursor !== "undefined" && cursor !== "null") {
             filter._id = { $lt: cursor };

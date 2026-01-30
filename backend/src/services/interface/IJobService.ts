@@ -11,6 +11,8 @@ export interface IJobService {
             budgetMin?: number;
             budgetMax?: number;
             location?: string;
+            workMode?: "fixed" | "hourly";
+            skills?: string[];
         }
     ): Promise<{ jobs: JobListDTO[], nextCursor: string | null }>;
     
@@ -25,6 +27,8 @@ export interface IJobService {
             budgetMin?: number;
             budgetMax?: number;
             location?: string;
+            workMode?: "fixed" | "hourly";
+            skills?: string[];
         }
     ): Promise<{ jobs: JobDetailDTO[], nextCursor: string | null }>;
 
@@ -38,6 +42,8 @@ export interface IJobService {
             budgetMin?: number;
             budgetMax?: number;
             location?: string;
+            workMode?: "fixed" | "hourly";
+            skills?: string[];
         }
     ): Promise<{ jobs: JobListDTO[], nextCursor: string | null }>;
     

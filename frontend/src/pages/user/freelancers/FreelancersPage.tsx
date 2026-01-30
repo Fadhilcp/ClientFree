@@ -55,6 +55,7 @@ const FreelancersPage: React.FC = () => {
   const filters = {
     location: searchParams.get("location") || undefined,
     experience: searchParams.get("experience") || undefined,
+
     hourlyRateMin: searchParams.get("hourlyRateMin")
       ? Number(searchParams.get("hourlyRateMin"))
       : undefined,
@@ -64,17 +65,26 @@ const FreelancersPage: React.FC = () => {
     ratingMin: searchParams.get("ratingMin")
       ? Number(searchParams.get("ratingMin"))
       : undefined,
+
+    skills: searchParams.getAll("skills"),
   };
 // to convert object filter fields into query params
   const filterQuery = useMemo(() => {
     const params = new URLSearchParams();
 
     Object.entries(filters).forEach(([key, value]) => {
-      if (
-        value !== undefined && value !== "" && !(typeof value === "number" && Number.isNaN(value))
-      ) {
-        params.append(key, String(value));
+      if (value === undefined || value === "") return;
+
+      if (Array.isArray(value)) {
+        value.forEach((v) => {
+          if (v) params.append(key, v);
+        });
+        return;
       }
+
+      if (typeof value === "number" && Number.isNaN(value)) return;
+
+      params.append(key, String(value));
     });
 
     return params.toString(); 

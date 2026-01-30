@@ -40,9 +40,9 @@ export function mapProposal(
           respondedAt: doc.invitation.respondedAt,
         }
       : undefined,
-    bidAmount: doc.bidAmount,
-    duration: doc.duration,
-    description: doc.description,
+    bidAmount: doc.bidAmount ?? 0,
+    duration: doc.duration ?? "",
+    description: doc.description ?? "",
     milestones: doc.milestones?.map((m) => ({
       title: m.title,
       amount: m.amount,

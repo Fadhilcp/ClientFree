@@ -73,6 +73,8 @@ export class JobService implements IJobService {
             budgetMin?: number;
             budgetMax?: number;
             location?: string;
+            workMode?: "fixed" | "hourly";
+            skills?: string[];
         }
     ): Promise<{ jobs: JobListDTO[], nextCursor: string | null }> {
         let interestedJobIds: string[] = [];
@@ -120,6 +122,15 @@ export class JobService implements IJobService {
                 { "locationPreference.city": { $regex: loc, $options: "i" } },
                 { "locationPreference.country": { $regex: loc, $options: "i" } },
             ];
+        }
+        // workmode
+        if (filters?.workMode) {
+            filter["payment.type"] = filters.workMode;
+        }
+
+        // Skills
+        if (filters?.skills && filters.skills.length > 0) {
+            filter.skills = { $all: filters.skills.map(id => new Types.ObjectId(id)) };
         }
 
         const jobs = await this._jobRepository.findWithSkillsPaginated(filter,limit);
@@ -185,6 +196,8 @@ export class JobService implements IJobService {
             budgetMin?: number;
             budgetMax?: number;
             location?: string;
+            workMode?: "fixed" | "hourly";
+            skills?: string[];
         }
     ): Promise<{ jobs: JobDetailDTO[], nextCursor: string | null }> {
         const filter: FilterQuery<IJobDocument> = { clientId, isDeleted: false };
@@ -222,6 +235,10 @@ export class JobService implements IJobService {
                 filter["payment.budget"].$lte = filters.budgetMax;
             }
         }
+        // workmode
+        if (filters?.workMode) {
+            filter["payment.type"] = filters.workMode;
+        }
         // location filter (city or country)
         if (filters?.location?.trim()) {
             const loc = filters.location.trim();
@@ -231,6 +248,10 @@ export class JobService implements IJobService {
                 { "locationPreference.city": { $regex: loc, $options: "i" } },
                 { "locationPreference.country": { $regex: loc, $options: "i" } },
             ];
+        }
+
+        if (filters?.skills && filters.skills.length > 0) {
+            filter.skills = { $all: filters.skills.map(id => new Types.ObjectId(id)) };
         }
 
         const jobs = await this._jobRepository.findWithSkillsPaginated(filter, limit);
@@ -318,6 +339,8 @@ export class JobService implements IJobService {
             budgetMin?: number;
             budgetMax?: number;
             location?: string;
+            workMode?: "fixed" | "hourly";
+            skills?: string[];
         }
     ): Promise<{ jobs: JobListDTO[], nextCursor: string | null }> {
         const assignmentFilter: FilterQuery<IJobAssignmentDocument> = { freelancerId: new Types.ObjectId(freelancerId) };
@@ -367,6 +390,15 @@ export class JobService implements IJobService {
                 { "job.locationPreference.city": { $regex: loc, $options: "i" } },
                 { "job.locationPreference.country": { $regex: loc, $options: "i" } },
             ];
+        }
+        // work mode
+        if (filters?.workMode) {
+            jobFilter["job.payment.type"] = filters.workMode;
+        }
+
+        // Skills
+        if (filters?.skills && filters.skills.length > 0) {
+            jobFilter["job.skills"] = { $all: filters.skills.map(id => new Types.ObjectId(id)) };
         }
 
         const assignments = await this._jobAssignmentRepository.findWithJobDetailPaginated(

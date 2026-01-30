@@ -8,4 +8,7 @@ export interface FreelancerFilters {
   hourlyRateMin?: number;
   hourlyRateMax?: number;
   ratingMin?: number;
+
+  workMode?: "fixed" | "hourly" | "all";
+  skills?: string[];
 }

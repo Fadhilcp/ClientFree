@@ -36,28 +36,45 @@ const BrowseJobsPage: React.FC = () => {
   const isInterestedPage = location.pathname.includes("/find-jobs/interested");
 
   const [searchParams] = useSearchParams();
-    const filters = {
-      category: searchParams.get("category") || undefined,
-      location: searchParams.get("location") || undefined,
-      budgetMin: searchParams.get("budgetMin")
-        ? Number(searchParams.get("budgetMin"))
-        : undefined,
-      budgetMax: searchParams.get("budgetMax")
-        ? Number(searchParams.get("budgetMax"))
-        : undefined,
-    };
-    // to convert object filter fields into query params
-      const filterQuery = useMemo(() => {
-        const params = new URLSearchParams();
+  
+  const filters = {
+    location: searchParams.get("location") || undefined,
+    experience: searchParams.get("experience") || undefined,
+    workMode: searchParams.get("workMode") || undefined,
 
-        Object.entries(filters).forEach(([key, value]) => {
-          if (value !== undefined && !Number.isNaN(value)) {
-            params.append(key, String(value));
-          }
+    hourlyRateMin: searchParams.get("hourlyRateMin")
+      ? Number(searchParams.get("hourlyRateMin"))
+      : undefined,
+    hourlyRateMax: searchParams.get("hourlyRateMax")
+      ? Number(searchParams.get("hourlyRateMax"))
+      : undefined,
+    ratingMin: searchParams.get("ratingMin")
+      ? Number(searchParams.get("ratingMin"))
+      : undefined,
+
+    skills: searchParams.getAll("skills"),
+  };
+// to convert object filter fields into query params
+  const filterQuery = useMemo(() => {
+    const params = new URLSearchParams();
+
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value === undefined || value === "") return;
+
+      if (Array.isArray(value)) {
+        value.forEach((v) => {
+          if (v) params.append(key, v);
         });
+        return;
+      }
 
-        return params.toString(); 
-      }, [filters]);
+      if (typeof value === "number" && Number.isNaN(value)) return;
+
+      params.append(key, String(value));
+    });
+
+    return params.toString(); 
+  }, [filters]);
 
   const fetchJobs = useCallback(async (loadMore = false) => {
     if(loading) return;

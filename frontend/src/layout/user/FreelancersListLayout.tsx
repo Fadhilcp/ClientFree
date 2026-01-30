@@ -7,7 +7,7 @@ const freelancersMenuItems = [
 ];
 
 const FreelancerFilters = () => (
-  <FiilterBox enabledFilters={["location", "experience", "hourlyRateMin", "hourlyRateMax", "ratingMin"]}/>
+  <FiilterBox enabledFilters={["location", "experience", "hourlyRateMin", "hourlyRateMax", "ratingMin", "skills"]}/>
 );
 
 const FreelancersLayout: React.FC = () => {

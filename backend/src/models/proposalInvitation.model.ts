@@ -60,4 +60,9 @@ const proposalInvitationSchema = new Schema({
   }
 },{ timestamps: true });
 
+proposalInvitationSchema.index(
+  { jobId: 1, freelancerId: 1 },
+  { unique: true }
+);
+
 export default model<IProposalInvitationDocument>("ProposalInvitation", proposalInvitationSchema);

@@ -82,6 +82,8 @@ export interface IUserProfile {
         name?: string;
         website?: string;
     };
+    
+    stripeAccountId: string | null
 
     interests?: {
         type: "freelancerJob" | "clientFreelancer";

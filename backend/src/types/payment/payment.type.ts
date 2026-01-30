@@ -14,6 +14,8 @@ export interface IPayment {
   providerOrderId?: string;
   providerSignature?: string;
 
+  stripeAccountId?: string;
+
   jobId?: Types.ObjectId | string;
   milestoneId?: Types.ObjectId | string;
   proposalId?: Types.ObjectId | string;

@@ -2,6 +2,9 @@ import React, { useState } from 'react'
 import { useSearchParams } from 'react-router-dom';
 import { filtersToSearchParams } from '../../utils/filtersToSearchParams';
 import { JOB_CATEGORIES } from '../../constants/jobCategories';
+import { skillService } from '../../services/skill.service';
+import { notify } from '../../utils/toastService';
+import SkillsSelect from '../user/profileModal/SkillSelect';
 
 type FilterKey =
   | "category"
@@ -11,7 +14,9 @@ type FilterKey =
   | "experience"
   | "hourlyRateMin"
   | "hourlyRateMax"
-  | "ratingMin";
+  | "ratingMin"
+  | "skills" 
+  | "workMode";
 
 type FilterBoxProps = {
   enabledFilters: FilterKey[];
@@ -42,6 +47,37 @@ const FiilterBox: React.FC<FilterBoxProps> = ({ enabledFilters = [] }) => {
       searchParams.get("ratingMin") || "all"
     );
 
+    const [workMode, setWorkMode] = useState(
+      searchParams.get("workMode") || "all"
+    );
+
+    const [skills, setSkills] = useState<string[]>(
+      searchParams.getAll("skills")
+    );
+
+    const [availableSkills, setAvailableSkills] = useState<any[]>([]);
+    const [loadingSkills, setLoadingSkills] = useState(false);
+
+    const fetchSkills = async () => {
+      setLoadingSkills(true);
+      try {
+        const res = await skillService.getActive();
+        setAvailableSkills(res.data.skills);
+      } catch (error: any) {
+        notify.error(
+          error.response?.data?.error || "Failed to load skills"
+        );
+      } finally {
+        setLoadingSkills(false);
+      }
+    };
+
+    React.useEffect(() => {
+      if (has("skills")) {
+        fetchSkills();
+      }
+    }, []);
+
     const applyFilters = () => {
 
       const params = filtersToSearchParams({
@@ -61,8 +97,15 @@ const FiilterBox: React.FC<FilterBoxProps> = ({ enabledFilters = [] }) => {
         ...(has("ratingMin") && ratingMin !== "all"
           ? { ratingMin: Number(ratingMin) }
           : {}),
+
+        ...(has("workMode") && workMode !== "all"
+          ? { workMode: workMode as "fixed" | "hourly" }
+          : {}),
+
+        ...(has("skills") && skills.length > 0
+          ? { skills }
+          : {}),
       });
-      console.log("🚀 ~ applyFilters ~ params:", params)
 
       params.delete("cursor");
       setSearchParams(params);
@@ -191,6 +234,43 @@ const FiilterBox: React.FC<FilterBoxProps> = ({ enabledFilters = [] }) => {
                 </select>
               </div>
             )}
+            
+            {/* Work Mode */}
+            {has("workMode") && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Work Mode
+                </label>
+                <select
+                  value={workMode}
+                  onChange={(e) => setWorkMode(e.target.value)}
+                  className="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 bg-white dark:text-gray-200"
+                >
+                  <option value="all">All</option>
+                  <option value="fixed">Fixed Price</option>
+                  <option value="hourly">Hourly</option>
+                </select>
+              </div>
+            )}
+
+            {/* Skills */}
+            {has("skills") && (
+              <div>
+
+                <SkillsSelect
+                  value={skills}
+                  onChange={(selected) => setSkills(selected)}
+                  options={availableSkills}
+                  error={undefined}
+                />
+
+                {loadingSkills && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Loading skills...
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* Location */}
             {has("location") && (
@@ -207,6 +287,9 @@ const FiilterBox: React.FC<FilterBoxProps> = ({ enabledFilters = [] }) => {
                 />
               </div>
             )}
+
+
+
             {/* Divider */}
             <hr className="border-gray-200 dark:border-gray-700" />
 

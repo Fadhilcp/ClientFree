@@ -26,6 +26,7 @@ export interface IUserService {
             hourlyRateMin?: number;
             hourlyRateMax?: number;
             ratingMin?: number;
+            skills?: string[];
         }
     ): Promise<{ freelancers: FreelancerListItemDto[], nextCursor: string | null }>;
     getInterestedFreelancers(

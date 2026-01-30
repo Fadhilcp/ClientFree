@@ -139,9 +139,15 @@ export class ProfileController {
             const hourlyRateMax = req.query.hourlyRateMax ? Number(req.query.hourlyRateMax) : undefined;
             const ratingMin = req.query.ratingMin ? Number(req.query.ratingMin) : undefined;
 
+            const skills = req.query.skills
+                ? Array.isArray(req.query.skills)
+                    ? (req.query.skills as string[])
+                    : [req.query.skills as string]
+                : [];
+
             const { freelancers, nextCursor } = await this._userService.getFreelancers(
                 clientId, search, limit, cursor,
-                { location, experience, hourlyRateMin, hourlyRateMax, ratingMin }
+                { location, experience, hourlyRateMin, hourlyRateMax, ratingMin, skills }
             );
 
             sendResponse(res, HttpStatus.OK, { freelancers, nextCursor });

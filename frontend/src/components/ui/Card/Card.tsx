@@ -125,10 +125,15 @@ return (
 
         {/* Description */}
         {description && (
-          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-3">
+          <p
+            className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed 
+                      line-clamp-3 break-words break-all whitespace-normal"
+          >
             {description}
           </p>
         )}
+
+
 
         {/* Status */}
         {status && (

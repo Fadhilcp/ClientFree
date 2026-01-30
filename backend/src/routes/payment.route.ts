@@ -54,7 +54,8 @@ const paymentService = new PaymentService(
     walletRepository,
     walletTransactionRepository,
     sessionProvider,
-    chatService
+    chatService,
+    userRepository
 );
 
 const paymentController = new PaymentController(paymentService);

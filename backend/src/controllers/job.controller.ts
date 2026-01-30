@@ -44,6 +44,7 @@ export class JobController {
             const location = req.query.location as string | undefined;
             const budgetMin = req.query.budgetMin ? Number(req.query.budgetMin) : undefined;
             const budgetMax = req.query.budgetMax ? Number(req.query.budgetMax) : undefined;
+            const workMode = req.query.workMode as "fixed" | "hourly" | undefined;
 
             if (
                 (budgetMin !== undefined && Number.isNaN(budgetMin)) ||
@@ -52,9 +53,15 @@ export class JobController {
                 throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid budget values");
             }
 
+            const skills = req.query.skills
+                ? Array.isArray(req.query.skills)
+                    ? (req.query.skills as string[])
+                    : [req.query.skills as string]
+                : [];
+
             const { jobs, nextCursor } = await this._jobService.getAllJobs(
                 freelancerId, status, search, limit, cursor,
-                { category, location, budgetMin, budgetMax }
+                { category, location, budgetMin, budgetMax, workMode, skills }
             );
     
             sendResponse(res, HttpStatus.OK, { jobs, nextCursor });
@@ -132,6 +139,13 @@ export class JobController {
                 ? Number(req.query.budgetMax)
                 : undefined;
 
+            const workMode = req.query.workMode as "fixed" | "hourly" | undefined;
+            const skills = req.query.skills 
+                ? Array.isArray(req.query.skills) 
+                    ? (req.query.skills as string[]) 
+                    : [req.query.skills as string]
+                : [];
+
             if (
                 (budgetMin !== undefined && Number.isNaN(budgetMin)) ||
                 (budgetMax !== undefined && Number.isNaN(budgetMax))
@@ -141,7 +155,7 @@ export class JobController {
 
             const { jobs, nextCursor }= await this._jobService.getClientJobs(
                 clientId, status, search, limit, cursor,
-                { category, location, budgetMin, budgetMax }
+                { category, location, budgetMin, budgetMax, workMode, skills }
             );
 
             sendResponse(res, HttpStatus.OK, { jobs, nextCursor });
@@ -205,6 +219,13 @@ export class JobController {
                 ? Number(req.query.budgetMax)
                 : undefined;
 
+            const workMode = req.query.workMode as "fixed" | "hourly" | undefined;
+            const skills = req.query.skills
+                ? Array.isArray(req.query.skills)
+                    ? (req.query.skills as string[])
+                    : [req.query.skills as string]
+                : [];
+
             if (
                 (budgetMin !== undefined && Number.isNaN(budgetMin)) ||
                 (budgetMax !== undefined && Number.isNaN(budgetMax))
@@ -223,6 +244,8 @@ export class JobController {
                     location,
                     budgetMin,
                     budgetMax,
+                    workMode, 
+                    skills
                 }
             );
 

@@ -12,5 +12,13 @@ export function filtersToSearchParams(filters: FreelancerFilters): URLSearchPara
   if (filters.hourlyRateMax !== undefined) params.set("hourlyRateMax", String(filters.hourlyRateMax));
   if (filters.ratingMin !== undefined) params.set("ratingMin", String(filters.ratingMin));
 
+  if (filters.workMode) params.set("workMode", filters.workMode);
+
+  if (filters.skills && filters.skills.length > 0) {
+    filters.skills.forEach((skill) => {
+      params.append("skills", skill);
+    });
+  }
+
   return params;
 }

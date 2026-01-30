@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import Card from "../../ui/Card/Card";
+import Card, { type ActionItem } from "../../ui/Card/Card";
 import type { IProposal } from "../../../types/job/proposal.type";
 import { proposalService } from "../../../services/proposal.service";
 import { notify } from "../../../utils/toastService";
 import Pagination from "../Pagination";
 import ConfirmationModal from "../../ui/Modal/ConfirmationModal";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../../store/store";
 
 interface InvitationsSectionProps {
   jobId: string;
@@ -28,6 +30,8 @@ const InvitationsSection: React.FC<InvitationsSectionProps> = ({
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+
+  const { user } = useSelector((state: RootState) => state.auth);
   
   // for proposal and invitation 
   const fetchData = async () => {
@@ -79,6 +83,27 @@ const InvitationsSection: React.FC<InvitationsSectionProps> = ({
     }
   };
 
+  const handleAcceptInvitation = async (proposal: IProposal) => {
+    try {
+      if(!proposal.job?.id) return;
+      
+      const res = await proposalService.acceptInvitation(
+        proposal.job?.id,
+        proposal.freelancer.id
+      );
+
+      if (res.data.success) {
+        notify.success(res.data.message || "Invitation accepted");
+        await fetchData();
+      }
+    } catch (err: any) {
+      notify.error(
+        err.response?.data?.error || "Failed to accept invitation"
+      );
+    }
+  };
+
+
   return (
     <div className="p-6">
       <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
@@ -108,20 +133,23 @@ const InvitationsSection: React.FC<InvitationsSectionProps> = ({
               description={p.invitation.message || "This freelancer was invited to bid."}
               status={p.status}
               footer={`Invited on: ${new Date(p.createdAt).toLocaleDateString()}`}
-              actions={
+              actions={[
                 isJobOwner &&
                 jobStatus === "open" &&
                 p.isInvitation &&
-                p.status === "invited"
-                  ? [
+                p.status === "invited" ?
                       {
                         label: "Withdraw",
                         variant: "secondary",
                         onClick: () => setWithdrawTarget(p),
+                      } : null,
+                    user?.id === p.freelancer.id &&  {
+                        label: "Accept",
+                        variant: "primary",
+                        onClick: () => handleAcceptInvitation(p),
                       },
-                    ]
-                  : []
-              }
+                ].filter(Boolean) as ActionItem[]
+              } 
             />
           ))}
         </div>
