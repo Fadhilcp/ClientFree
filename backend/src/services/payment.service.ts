@@ -472,166 +472,156 @@ export class PaymentService implements IPaymentService {
 
 
 
-// async withdraw(
-//   userId: string,
-//   role: UserRole,
-//   amount: number
-// ): Promise<{ paymentId: string; onboardingUrl?: string }> {
-//   // 1. Basic Validations (Existing)
-//   if (!amount || amount <= 0) {
-//     throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid withdrawal amount");
-//   }
+    // async withdraw(
+    //   userId: string,
+    //   role: UserRole,
+    //   amount: number
+    // ): Promise<{ paymentId: string; onboardingUrl?: string }> {
+      
+    //   if (!amount || amount <= 0) {
+    //     throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid withdrawal amount");
+    //   }
 
-//   if (!["freelancer", "client"].includes(role)) {
-//     throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid role");
-//   }
+    //   if (!["freelancer", "client"].includes(role)) {
+    //     throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid role");
+    //   }
 
-//   // 2. Ensure Stripe Account exists & Check Onboarding Status
-//   const { stripeAccountId, detailsSubmitted } = await this.ensureStripeAccount(userId);
-//   // If they haven't finished Stripe onboarding, they can't withdraw yet.
-//   console.log("🚀 ~ PaymentService ~ withdraw ~ detailsSubmitted:", detailsSubmitted)
-//   if (!detailsSubmitted) {
-//     const onboardingUrl = await this.generateOnboardingLink(stripeAccountId);
-//     return { paymentId: "pending_onboarding", onboardingUrl };
-//   }
+    //   const { stripeAccountId, detailsSubmitted } = await this.ensureStripeAccount(userId);
 
-//   return this._sessionProvider.runInTransaction(
-//     async (session: ClientSession) => {
-//       // 3. Fetch Wallet & Verify Balance (Existing)
-//       const wallet = await this._walletRepository.findOneWithSession(
-//         { userId, role, status: "active" },
-//         session
-//       );
+    //   console.log("🚀 ~ PaymentService ~ withdraw ~ detailsSubmitted:", detailsSubmitted)
+    //   if (!detailsSubmitted) {
+    //     const onboardingUrl = await this.generateOnboardingLink(stripeAccountId);
+    //     return { paymentId: "pending_onboarding", onboardingUrl };
+    //   }
 
-//       if (!wallet) {
-//         throw createHttpError(HttpStatus.BAD_REQUEST, "Wallet not found");
-//       }
+    //   return this._sessionProvider.runInTransaction(
+    //     async (session: ClientSession) => {
 
-//       if (wallet.balance.available < amount) {
-//         throw createHttpError(HttpStatus.BAD_REQUEST, "Insufficient balance");
-//       }
+    //       const wallet = await this._walletRepository.findOneWithSession(
+    //         { userId, role, status: "active" },
+    //         session
+    //       );
 
-//       // 4. Create local payment record (Existing)
-//       const payment = await this._paymentRepository.createWithSession(
-//         {
-//           type: "withdrawal",
-//           status: "pending",
-//           amount,
-//           currency: wallet.currency ?? "INR",
-//           userId: wallet.userId,
-//           method: "stripe",
-//           provider: "stripe",
-//           paymentDate: new Date(),
-//           withdrawalDate: new Date(),
-//           stripeAccountId, // Added field
-//         },
-//         session
-//       );
+    //       if (!wallet) {
+    //         throw createHttpError(HttpStatus.BAD_REQUEST, "Wallet not found");
+    //       }
 
-//       payment.referenceId = `WD-${payment._id.toString().slice(-8).toUpperCase()}`;
-//       await payment.save({ session });
+    //       if (wallet.balance.available < amount) {
+    //         throw createHttpError(HttpStatus.BAD_REQUEST, "Insufficient balance");
+    //       }
 
-//       // 5. Update Wallet Balances (Existing)
-//       wallet.balance.available -= amount;
-//       wallet.balance.pending += amount;
-//       wallet.updatedAt = new Date();
-//       await wallet.save({ session });
+    //       const payment = await this._paymentRepository.createWithSession(
+    //         {
+    //           type: "withdrawal",
+    //           status: "pending",
+    //           amount,
+    //           currency: wallet.currency ?? "INR",
+    //           userId: wallet.userId,
+    //           method: "stripe",
+    //           provider: "stripe",
+    //           paymentDate: new Date(),
+    //           withdrawalDate: new Date(),
+    //           stripeAccountId,
+    //         },
+    //         session
+    //       );
 
-//       // 6. Log Wallet Transaction (Existing)
-//       await this._walletTransactionRepository.createWithSession(
-//         {
-//           walletId: wallet._id,
-//           userId: wallet.userId,
-//           paymentId: payment._id,
-//           type: "withdrawal",
-//           direction: "debit",
-//           amount,
-//           status: "pending",
-//           balanceAfter: {
-//             available: wallet.balance.available,
-//             escrow: wallet.balance.escrow,
-//             pending: wallet.balance.pending,
-//           },
-//         },
-//         session
-//       );
+    //       payment.referenceId = `WD-${payment._id.toString().slice(-8).toUpperCase()}`;
+    //       await payment.save({ session });
 
-//       try {
-//         // 7. Execute Stripe Transfer (Platform -> Freelancer)
-//         // Note: Using transfers.create instead of payouts.create
-//         const transfer = await stripe.transfers.create(
-//           {
-//             amount: Math.round(amount * 100), // Convert to cents/paise
-//             currency: (wallet.currency ?? "INR").toLowerCase(),
-//             destination: stripeAccountId,
-//             description: `Withdrawal for User ${userId}`,
-//             metadata: { 
-//                 paymentId: payment._id.toString(),
-//                 internalRef: payment.referenceId 
-//             },
-//           },
-//           {
-//             // Prevents duplicate transfers if the request is retried
-//             idempotencyKey: `transfer-${payment._id.toString()}`,
-//           }
-//         );
+    //       wallet.balance.available -= amount;
+    //       wallet.balance.pending += amount;
+    //       wallet.updatedAt = new Date();
+    //       await wallet.save({ session });
 
-//         payment.providerPaymentId = transfer.id;
-//         await payment.save({ session });
+    //       await this._walletTransactionRepository.createWithSession(
+    //         {
+    //           walletId: wallet._id,
+    //           userId: wallet.userId,
+    //           paymentId: payment._id,
+    //           type: "withdrawal",
+    //           direction: "debit",
+    //           amount,
+    //           status: "pending",
+    //           balanceAfter: {
+    //             available: wallet.balance.available,
+    //             escrow: wallet.balance.escrow,
+    //             pending: wallet.balance.pending,
+    //           },
+    //         },
+    //         session
+    //       );
 
-//         return { paymentId: payment._id.toString() };
+    //       try {
 
-//       } catch (stripeError: any) {
-//         // If Stripe fails, the transaction rolls back, and the wallet balance is restored.
-//         console.error("Stripe Transfer Error:", stripeError);
-//         throw createHttpError(
-//           HttpStatus.INTERNAL_SERVER_ERROR,
-//           `Stripe Transfer Failed: ${stripeError.message}`
-//         );
-//       }
-//     }
-//   );
-// }
+    //         const transfer = await stripe.transfers.create(
+    //           {
+    //             amount: Math.round(amount * 100), 
+    //             currency: (wallet.currency ?? "INR").toLowerCase(),
+    //             destination: stripeAccountId,
+    //             description: `Withdrawal for User ${userId}`,
+    //             metadata: { 
+    //                 paymentId: payment._id.toString(),
+    //                 internalRef: payment.referenceId 
+    //             },
+    //           },
+    //           {
+    //             idempotencyKey: `transfer-${payment._id.toString()}`,
+    //           }
+    //         );
 
-// // --- HELPER METHODS ---
+    //         payment.providerPaymentId = transfer.id;
+    //         await payment.save({ session });
 
-// private async ensureStripeAccount(userId: string): Promise<{ stripeAccountId: string; detailsSubmitted: boolean }> {
-//   const user = await this._userRepository.findById(userId);
-//   if (!user) throw createHttpError(HttpStatus.NOT_FOUND, "User not found");
+    //         return { paymentId: payment._id.toString() };
 
-//   let accountId = user.stripeAccountId;
+    //       } catch (stripeError: any) {
+    //         console.error("Stripe Transfer Error:", stripeError);
+    //         throw createHttpError(
+    //           HttpStatus.INTERNAL_SERVER_ERROR,
+    //           `Stripe Transfer Failed: ${stripeError.message}`
+    //         );
+    //       }
+    //     }
+    //   );
+    // }
 
-//   if (!accountId) {
-//     const account = await stripe.accounts.create({
-//       type: "express",
-//       country: "US", // Use "IN" for India, etc.
-//       email: user.email,
-//       capabilities: { transfers: { requested: true } },
-//     });
-//     accountId = account.id;
-//     user.stripeAccountId = accountId;
-//     await user.save();
-//   }
+    // private async ensureStripeAccount(userId: string): Promise<{ stripeAccountId: string; detailsSubmitted: boolean }> {
+    //   const user = await this._userRepository.findById(userId);
+    //   if (!user) throw createHttpError(HttpStatus.NOT_FOUND, "User not found");
 
-//   // Retrieve account to see if they finished onboarding (bank details, etc.)
-//   const stripeAccount = await stripe.accounts.retrieve(accountId);
-//   console.log("🚀 ~ PaymentService ~ ensureStripeAccount ~ stripeAccount:", stripeAccount)
-  
-//   return { 
-//     stripeAccountId: accountId, 
-//     detailsSubmitted: stripeAccount.details_submitted 
-//   };
-// }
+    //   let accountId = user.stripeAccountId;
 
-// private async generateOnboardingLink(stripeAccountId: string): Promise<string> {
-//   const accountLink = await stripe.accountLinks.create({
-//     account: stripeAccountId,
-//     refresh_url: "https://your-frontend.com/reauth",
-//     return_url: "https://your-frontend.com/wallet",
-//     type: "account_onboarding",
-//   });
-//   return accountLink.url;
-// }
+    //   if (!accountId) {
+    //     const account = await stripe.accounts.create({
+    //       type: "express",
+    //       country: "IN", 
+    //       email: user.email,
+    //       capabilities: { transfers: { requested: true } },
+    //     });
+    //     accountId = account.id;
+    //     user.stripeAccountId = accountId;
+    //     await user.save();
+    //   }
+
+    //   const stripeAccount = await stripe.accounts.retrieve(accountId);
+    //   console.log("🚀 ~ PaymentService ~ ensureStripeAccount ~ stripeAccount:", stripeAccount)
+      
+    //   return { 
+    //     stripeAccountId: accountId, 
+    //     detailsSubmitted: stripeAccount.details_submitted 
+    //   };
+    // }
+
+    // private async generateOnboardingLink(stripeAccountId: string): Promise<string> {
+    //   const accountLink = await stripe.accountLinks.create({
+    //     account: stripeAccountId,
+    //     refresh_url: "https://your-frontend.com/reauth",
+    //     return_url: "https://your-frontend.com/wallet",
+    //     type: "account_onboarding",
+    //   });
+    //   return accountLink.url;
+    // }
 
 
     async withdraw(userId: string, role: UserRole, amount: number): Promise<{ paymentId: string }> {
