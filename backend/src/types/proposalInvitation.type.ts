@@ -62,6 +62,7 @@ export interface CreateProposalResponse {
         price: number;
         name: string;
     } | null;
+    warning?: string | null;
 }
 
 export interface IProposalInvitationPayload {

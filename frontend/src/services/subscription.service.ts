@@ -44,6 +44,13 @@ class SubscriptionService {
     getMyHistory(page: number, limit: number){
         return axios.get(endPoints.SUBSCRIPTION.GET_HISTORY(page, limit));
     }
+
+    upgrade(data: {
+        planId: string;
+        billingInterval: "monthly" | "yearly";
+    }) {
+        return axios.patch(endPoints.SUBSCRIPTION.UPGRADE, data);
+    }
 }
 
 export const subscriptionService = new SubscriptionService();

@@ -56,6 +56,7 @@ export const endPoints = {
             `/subscription?search=${search}&status=${status}&page=${page}&limt=${limit}`,
 
         CREATE: '/subscription',
+        UPGRADE: '/subscription',
         VERIFY: '/subscription/verify',
         CANCEL: '/subscription/cancel',
         CURRENT: '/subscription/current',

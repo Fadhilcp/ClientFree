@@ -26,6 +26,7 @@ import { cosineSimilarity } from "../helpers/similarity.helper";
 import { IUserDocument } from "../types/user.type";
 import { PaginatedResult } from "../types/pagination";
 import { INotificationService } from "./interface/INotificationService";
+import { PROPOSAL_WORKLOAD_LIMITS } from "constants/proposalWorkloadLimits";
 
 export class ProposalService implements IProposalService {
     constructor(
@@ -44,6 +45,7 @@ export class ProposalService implements IProposalService {
     ): Promise<CreateProposalResponse> {
 
         const job = await this._jobRepository.findById(jobId);
+
         if (!job) throw createHttpError(HttpStatus.NOT_FOUND, "Job not found");
         if(job.status !== "open") {
             throw createHttpError(HttpStatus.CONFLICT, "Proposals can only be submitted to open jobs");
@@ -58,8 +60,12 @@ export class ProposalService implements IProposalService {
         });
         // if it is invitation
         if (invitation) {
-            const proposal = await this._handleInvitation(invitation, jobId, payload);
-            return await this._finalizeProposalResponse(proposal, freelancerId, jobId, addOn);
+            // const proposal = await this._handleInvitation(invitation, jobId, payload);
+            // return await this._finalizeProposalResponse(proposal, freelancerId, jobId, addOn);
+            throw createHttpError(
+                HttpStatus.CONFLICT,
+                "You are already invited to this job. Please check your invitations."
+            );
         }
         // check the freelancer already submitted or not
         const existing = await this._proposalRepository.findOne({ jobId, freelancerId });
@@ -69,6 +75,8 @@ export class ProposalService implements IProposalService {
             }
             return await this._retryUpgrade(existing, freelancerId, payload);
         }
+
+        const workloadWarning = await this._checkFreelancerWorkload(freelancerId);
 
         const user = await this._assertProposalLimit(freelancerId);
 
@@ -80,7 +88,12 @@ export class ProposalService implements IProposalService {
             } as UpdateQuery<IUserDocument> );
         }
 
-        return await this._finalizeProposalResponse(proposal, freelancerId, jobId, addOn)
+        const response = await this._finalizeProposalResponse(proposal, freelancerId, jobId, addOn);
+
+        return {
+            ...response,
+            warning: workloadWarning
+        };
     }
 
     private async _retryUpgrade(
@@ -277,6 +290,27 @@ export class ProposalService implements IProposalService {
 
         return proposal;
     }
+    // to check how many pending or active assignment the freelancer has
+    private async _checkFreelancerWorkload(freelancerId: string): Promise<string | null> {
+
+        const activeAssignmentsCount = await this._jobAssignmentRepository.count({
+            freelancerId,
+            status: { $in: ["pending", "active" ] }
+        });
+
+        if(activeAssignmentsCount >= PROPOSAL_WORKLOAD_LIMITS.BLOCK) {
+            throw createHttpError(
+                HttpStatus.FORBIDDEN,
+                "You’ve reached the maximum number of active jobs. Complete or close a job to apply for more."
+            );
+        }
+
+        if (activeAssignmentsCount >= PROPOSAL_WORKLOAD_LIMITS.WARN) {
+            return "You already have several ongoing jobs. Make sure you can handle another one.";
+        }
+
+        return null;
+    }
 
     async verifyUpgradePayment({
                 paymentRecordId,
@@ -340,6 +374,8 @@ export class ProposalService implements IProposalService {
         });
         return true;
     }
+
+    
 
 
     async getProposalsForJob(jobId: string, status?: string, isInvitation?: boolean, page?: number, limit?: number): Promise<PaginatedResult<ProposalDTO>> {
@@ -472,6 +508,17 @@ export class ProposalService implements IProposalService {
                 $inc: { "limits.invitesRemaining": -1 },
             } as UpdateQuery<IUserDocument> );
         }
+
+        // Auto notification
+        await this._notificationService.createNotification({
+            scope: "users",
+            userIds: [new Types.ObjectId(freelancerId)],
+            category: "proposal_received",
+            subject: "You’ve been invited to a job",
+            message: `The client has invited you to apply for the job "${job.title}". 
+                        Review the invitation and submit your proposal if you’re interested.`,
+            sendAs: "in-app",
+        });
 
         return mapProposal(invitation);
     }

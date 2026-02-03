@@ -15,6 +15,8 @@ import { IWalletTransactionRepository } from "repositories/interfaces/IWalletTra
 import { IRevenueRepository } from "repositories/interfaces/IRevenueRepository";
 import { HttpResponse } from "constants/responseMessage.constant";
 import { UserRole } from "constants/user.constants";
+import { UpdateQuery } from "mongoose";
+import { ISubscriptionDocument } from "types/subscription.type";
 
 export class StripeWebhookService implements IStripeWebhookService {
 
@@ -52,6 +54,13 @@ export class StripeWebhookService implements IStripeWebhookService {
                     event.data.object as Stripe.Subscription
                 );
                 break;
+
+            case "invoice.paid":
+                await this._handleUpgradeInvoice(
+                    event.data.object as Stripe.Invoice
+                );
+                break;
+
             // Milestones 
             case "payment_intent.succeeded": 
                 await this._handleMilestoneSuccess(
@@ -173,17 +182,54 @@ export class StripeWebhookService implements IStripeWebhookService {
         const localSubscription = await this._subscriptionRepository.findOne({
             subscriptionId: stripeSub.id,
         });
-
         if (!localSubscription) return;
+
+        const item = stripeSub.items.data[0];
+        if (!item?.price) return;
+
+        const priceId = item.price.id;
+        const interval = item.price.recurring?.interval; // "month" | "year"
+
+        if (!interval) return;
+
+        const billingInterval =
+            interval === "month" ? "monthly" : "yearly";
+
+        const plan = await this._planRepository.findOne({
+            $or: [
+                { stripePriceIdMonthly: priceId },
+                { stripePriceIdYearly: priceId },
+            ],
+        });
+
+        if (!plan) {
+            console.warn(`[Stripe] Unknown priceId ${priceId}`);
+            return;
+        }
+
+        const planChanged =
+            String(localSubscription.planId) !== String(plan._id);
+
+        const intervalChanged =
+            localSubscription.billingInterval !== billingInterval;
 
         await this._subscriptionRepository.updateOne(
             { _id: localSubscription._id },
             {
-                expiryDate: new Date(stripeSub.items.data[0].current_period_end * 1000),
+                planId: plan._id,
+                billingInterval,
+                expiryDate: new Date(item.current_period_end * 1000),
                 autoRenew: !stripeSub.cancel_at_period_end,
                 updatedAt: new Date(),
             }
         );
+
+        if (planChanged || intervalChanged) {
+            await this._applyPlanToUser(
+            localSubscription.userId.toString(),
+            plan._id.toString()
+            );
+        }
     }
 
     private async _handleSubscriptionDeleted(subscription: Stripe.Subscription): Promise<void> {
@@ -212,6 +258,50 @@ export class StripeWebhookService implements IStripeWebhookService {
             },
         });
     }
+
+    private async _handleUpgradeInvoice(invoice: Stripe.Invoice): Promise<void> {
+        if (invoice.billing_reason !== "subscription_update") return;
+        if (invoice.status !== "paid") return;
+
+        const exists = await this._paymentRepository.findOne({
+            providerPaymentId: invoice.id,
+        });
+
+        if (exists) return;
+
+        await this._paymentRepository.create({
+            type: "subscription",
+            status: "completed",
+            amount: invoice.total / 100,
+            currency: invoice.currency.toUpperCase(),
+            provider: "stripe",
+            method: "stripe",
+            providerPaymentId: invoice.id,
+            referenceId: invoice.id,
+            userId: invoice.metadata?.userId,
+            paymentDate: new Date(),
+        });
+    }
+
+    private async _applyPlanToUser(userId: string, planId: string) {
+
+        const plan = await this._planRepository.findById(planId);
+        if (!plan) return;
+
+        await this._userRepository.findByIdAndUpdate(userId, {
+            isVerified: Boolean(plan.features.VerifiedBadge),
+            limits: {
+            invitesRemaining: plan.features.UnlimitedInvites
+                ? 999999
+                : PLAN_LIMITS.FREE.invites,
+            proposalsRemaining: plan.features.UnlimitedProposals
+                ? 999999
+                : PLAN_LIMITS.FREE.proposals,
+            },
+        });
+    }
+
+
 
     private async _handleMilestoneSuccess(intent: Stripe.PaymentIntent): Promise<void> {
         

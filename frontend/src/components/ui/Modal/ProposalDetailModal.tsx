@@ -2,6 +2,7 @@ import React from "react";
 import { type IProposal } from "../../../types/job/proposal.type";
 import UserInfo from "../../user/UserInfo";
 import Button from "../Button";
+import { useNavigate } from "react-router-dom";
 
 interface ProposalDetailModalProps {
   proposal: IProposal | null;
@@ -11,6 +12,12 @@ interface ProposalDetailModalProps {
 
 const ProposalDetailModal: React.FC<ProposalDetailModalProps> = ({ proposal, isOpen, onClose }) => {
   if (!isOpen || !proposal) return null;
+
+  const navigate = useNavigate();
+
+  const showFreelancerProfile = (freelancerId: string) => {
+    navigate(`/users/${freelancerId}`);
+  };
 
 return (
   <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4">
@@ -27,7 +34,7 @@ return (
       </div>
 
       {/* Freelancer Info */}
-      <div className="mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <UserInfo
           username={proposal.freelancer.username}
           email={proposal.freelancer.email}
@@ -35,6 +42,16 @@ return (
           size={48}
           isVerified={proposal.freelancer.isVerified}
         />
+
+        {/* View Profile button */}
+        <button
+          onClick={() => showFreelancerProfile(proposal.freelancer.id)}
+          className="px-4 py-2 text-xs font-semibold rounded-md 
+                    dark:bg-indigo-500 bg-indigo-600 text-white hover:bg-indigo-700
+                    hover:dark:bg-indigo-600 transition shadow"
+        >
+          View Profile 
+        </button>
       </div>
 
       {/* Job Info */}

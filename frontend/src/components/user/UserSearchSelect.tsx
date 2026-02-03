@@ -12,7 +12,6 @@ interface UserSearchSelectProps {
 }
 
 const UserSearchSelect: React.FC<UserSearchSelectProps> = ({ value, onChange }) => {
-  console.log("🚀 ~ UserSearchSelect ~ value:", value)
   const [query, setQuery] = useState('');
   const [options, setOptions] = useState<UserOption[]>([]);
   const [selected, setSelected] = useState<UserOption[]>([]);

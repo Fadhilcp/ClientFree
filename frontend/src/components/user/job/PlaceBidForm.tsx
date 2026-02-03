@@ -167,15 +167,19 @@ const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ user, jobId, isProfileCompl
     };
 
 
-      const res = await proposalService.createProposal(payload);
-      const { paymentOrder, paymentId, addOn } = res.data;
+    const res = await proposalService.createProposal(payload);
+    const { paymentOrder, paymentId, addOn, warning } = res.data;
 
-        if (!paymentOrder) {
-        notify.success("Bid placed successfully!");
-        resetForm();
-        return;
-      }
-      const options = {
+    if (warning) {
+      notify.warn(warning);
+    }
+
+    if (!paymentOrder) {
+      notify.success("Bid placed successfully!");
+      resetForm();
+      return;
+    }
+    const options = {
       key: env.RAZORPAY_KEY_ID,
       amount: paymentOrder.amount,
       currency: paymentOrder.currency,
@@ -222,8 +226,6 @@ const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ user, jobId, isProfileCompl
     razor.on("payment.failed", function () {
       notify.error("Payment failed");
     });
-
-    
 
     } catch (error: any) {
       notify.error(error.response?.data?.error || "Failed to place bid");

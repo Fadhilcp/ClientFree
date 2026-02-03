@@ -2,7 +2,7 @@ import { ISubscription, ISubscriptionDocument } from "../types/subscription.type
 import { ISubscriptionService } from "./interface/ISubscriptionService";
 import { createHttpError } from "../utils/httpError.util";
 import { HttpStatus } from "../constants/status.constants";
-import { SubscriptionDto } from "../dtos/subscription.dto";
+import { getActiveFeaturesDto, SubscriptionDto } from "../dtos/subscription.dto";
 import { mapSubscription } from "../mappers/subscription.mapper";
 import { ISubscriptionRepository } from "../repositories/interfaces/ISubscriptionRepository";
 import { IPlanRepository } from "../repositories/interfaces/IPlanRepository";
@@ -24,7 +24,7 @@ import { UserSubscriptionsDTO } from "dtos/userSubscriptions.dto";
 
 export class SubscriptionService implements ISubscriptionService {
     constructor(
-        private _subscriptionRepository: ISubscriptionRepository, private _planRepostory: IPlanRepository,
+        private _subscriptionRepository: ISubscriptionRepository, private _planRepository: IPlanRepository,
         private _userRepository: IUserRepository,private _paymentRepository: IPaymentRepository, 
         private _revenueRepository: IRevenueRepository, private _sessionProvider: IDatabaseSessionProvider
     ) {}
@@ -58,7 +58,7 @@ export class SubscriptionService implements ISubscriptionService {
 
         if(existing) throw createHttpError(HttpStatus.CONFLICT, HttpResponse.USER_ALREADY_ACTIVE);
 
-        const plan = await this._planRepostory.findById(String(data.planId));
+        const plan = await this._planRepository.findById(String(data.planId));
 
         if (!plan || !plan.active) throw createHttpError(HttpStatus.NOT_FOUND, "Plan not available");
 
@@ -113,6 +113,80 @@ export class SubscriptionService implements ISubscriptionService {
         return { checkoutUrl: session.url! };
     }
 
+    async upgradeSubscription(userId: string, planId: string, billingInterval: "monthly" | "yearly")
+    : Promise<{ paymentUrl?: string }> {
+
+        const activeSub = await this._subscriptionRepository.findOne({
+            userId: userId,
+            status: "active",
+        });
+
+        if (!activeSub)
+            throw createHttpError(404, "No active subscription");
+
+        const newPlan = await this._planRepository.findById(planId);
+        if (!newPlan || !newPlan.active)
+            throw createHttpError(404, "Plan not available");
+
+        // Prevent same plan upgrade
+        const isSamePlan =
+            String(activeSub.planId) === String(newPlan._id);
+
+            const isSameInterval =
+            activeSub.billingInterval === billingInterval;
+
+        if (isSamePlan && isSameInterval) {
+            throw createHttpError(
+                400,
+                "Already on this plan with the same billing interval"
+            );
+        }
+
+        if(!activeSub.subscriptionId) return {};
+
+        const stripeSub = await stripe.subscriptions.retrieve(
+            activeSub.subscriptionId
+        );
+
+        const item = stripeSub.items.data[0];
+        if (!item) throw new Error("Stripe subscription item missing");
+
+        const newPriceId =
+            billingInterval === "monthly"
+                ? newPlan.stripePriceIdMonthly
+                : newPlan.stripePriceIdYearly;
+
+        if (!newPriceId?.startsWith("price_"))
+            throw createHttpError(500, "Stripe price ID not configured");
+
+        const updated = await stripe.subscriptions.update(stripeSub.id, {
+            items: [{ id: item.id, price: newPriceId }],
+            proration_behavior: "create_prorations",
+            payment_behavior: "pending_if_incomplete",
+            expand: ["latest_invoice"],
+        });
+
+        const invoice = updated.latest_invoice as Stripe.Invoice | null;
+        console.log("🚀 ~ SubscriptionService ~ upgradeSubscription ~ invoice:", invoice)
+        if (!invoice) return {};
+
+        await stripe.invoices.update(invoice.id, {
+            metadata: {
+                upgradeFrom: activeSub.planId.toString(),
+                upgradeTo: newPlan._id.toString(),
+                userId,
+                billingInterval: billingInterval,
+            },
+        });
+
+        if (invoice.status !== "paid") {
+            return {
+                paymentUrl: invoice.hosted_invoice_url ?? undefined,
+            };
+        }
+        return {};
+    }
+
     async cancelSubscription(userId: string): Promise<{ message: string; }> {
         
         const subscription = await this._subscriptionRepository.findOne({
@@ -157,8 +231,7 @@ export class SubscriptionService implements ISubscriptionService {
         return mapSubscription(subscription)
     }
 
-    async getActiveFeatures(userId: string)
-    : Promise<{ planName: string, userType: string, features: PlanFeatures, expiryDate: Date } | null> {
+    async getActiveFeatures(userId: string): Promise<getActiveFeaturesDto | null> {
         
         const subscription = await this._subscriptionRepository.findOneActiveByUser(userId);
 
@@ -167,10 +240,13 @@ export class SubscriptionService implements ISubscriptionService {
         const plan = subscription.planId;
 
         return {
+            planId: plan._id.toString(),
+            subscriptionId: subscription._id.toString(),
             planName: plan.planName,
             userType: plan.userType,
             features: plan.features,
             expiryDate: subscription.expiryDate,
+            billingInterval: subscription.billingInterval,
         };
     }
 

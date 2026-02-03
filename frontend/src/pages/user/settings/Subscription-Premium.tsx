@@ -10,32 +10,12 @@ import SettingSection from "../../../components/user/settings/SettingSection";
 import Pagination from "../../../components/user/Pagination";
 import ConfirmationModal from "../../../components/ui/Modal/ConfirmationModal";
 import { capitalize } from "../../../utils/formatters";
-
-interface PlanFeatures {
-  VerifiedBadge: boolean;
-  PremiumSupport: boolean;
-  BestMatch: boolean;
-  HigherJobVisibility: boolean;
-  UnlimitedInvites: boolean;
-  DirectMessaging: boolean;
-  AIProposalShortlisting: boolean;
-  HigherProfileVisibility: boolean;
-  UnlimitedProposals: boolean;
-  PriorityNotifications: boolean;
-}
-
-interface SubscriptionInfo {
-  planName: string;
-  userType: "client" | "freelancer";
-  features: PlanFeatures;
-  expiryDate: string;
-}
+import type { SubscriptionInfo } from "../../../types/subscription/subscription";
 
 const SubscriptionSetting = () => {
   const [loading, setLoading] = useState(false);
   const [activeSubscription, setActiveSubscription] = useState<SubscriptionInfo | null>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
-  console.log("🚀 ~ SubscriptionSetting ~ transactions:", transactions)
   const [showCancelModal, setShowCancelModal] = useState(false);
 
   const [page, setPage] = useState(1);

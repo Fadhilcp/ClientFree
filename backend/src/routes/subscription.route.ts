@@ -36,6 +36,7 @@ subscriptionRouter.use(authMiddleware, verifyUserNotBanned);
 
 subscriptionRouter.get('/',authorizeRole(UserRole.ADMIN),subscriptionController.getAllSubscription.bind(subscriptionController))
 subscriptionRouter.post('/',subscriptionController.createSubscription.bind(subscriptionController));
+subscriptionRouter.patch('/',subscriptionController.upgradeSubscription.bind(subscriptionController));
 subscriptionRouter.get('/me',subscriptionController.getActiveFeatures.bind(subscriptionController));
 subscriptionRouter.get('/history',subscriptionController.getMySubscriptions.bind(subscriptionController));
 subscriptionRouter.patch('/cancel',subscriptionController.cancelSubscription.bind(subscriptionController));

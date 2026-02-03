@@ -21,6 +21,14 @@ export class ChatRepository
                 },
             },
             {
+                // normalize sort field - handles null lastMessageAt
+                $addFields: {
+                    sortLastMessageAt: {
+                        $ifNull: ["$lastMessageAt", "$createdAt"],
+                    },
+                },
+            },
+            {
                 $lookup: {
                     from: "users",
                     localField: "participants",
@@ -57,8 +65,7 @@ export class ChatRepository
 
         pipeline.push({
             $sort: {
-                lastMessageAt: -1,
-                updatedAt: -1,
+                sortLastMessageAt: -1
             },
         });
 

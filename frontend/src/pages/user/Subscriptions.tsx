@@ -7,6 +7,7 @@ import { notify } from '../../utils/toastService';
 import { planService } from '../../services/plan.service';
 import { subscriptionService } from '../../services/subscription.service';
 import Button from '../../components/ui/Button';
+import type { SubscriptionInfo } from '../../types/subscription/subscription';
 
 interface RawPlan {
   id: string;
@@ -29,8 +30,22 @@ const Subscriptions: React.FC = () => {
   const [plans, setPlans] = useState<RawPlan[]>([]);
   const [billingInterval, setBillingInterval] = useState<'monthly' | 'yearly'>('monthly');
   const [loading, setLoading] = useState(true);
+  const [activeSubscription, setActiveSubscription] = useState<SubscriptionInfo | null>(null);
   const user = useSelector((state: RootState) => state.auth.user);
- 
+
+  useEffect(() => {
+    const loadActiveSubscription = async () => {
+      try {
+        const res = await subscriptionService.getMySubscription();
+        setActiveSubscription(res.data.subscription || null);
+      } catch {
+        notify.error("Failed to load active subscription");
+      }
+    };
+
+    loadActiveSubscription();
+  }, []);
+
   useEffect(() => {
     planService.getActivePlans(user?.role || '')
       .then((res) => {
@@ -52,22 +67,48 @@ const Subscriptions: React.FC = () => {
       return;
     }
 
+    const hasActiveSub = Boolean(activeSubscription);
+
     try {
-      const response = await subscriptionService.create({
-        userId: user.id,
-        email: user.email,
-        contact: user.phone,
-        planId,
-        billingInterval,
-      });
+      if(!hasActiveSub) {
+        const response = await subscriptionService.create({
+          userId: user.id,
+          email: user.email,
+          contact: user.phone,
+          planId,
+          billingInterval,
+        });
 
-      const { checkoutUrl } = response.data;
+        const { checkoutUrl } = response.data;
 
-      if (!checkoutUrl) {
-        throw new Error("Stripe checkout URL missing");
+        if (!checkoutUrl) {
+          throw new Error("Stripe checkout URL missing");
+        }
+
+        window.location.href = checkoutUrl;
+        return;
       }
 
-      window.location.href = checkoutUrl;
+      if (
+        activeSubscription?.planId === planId &&
+        activeSubscription?.billingInterval === billingInterval
+      ) {
+        notify.info("You are already on this plan");
+        return;
+      }
+
+      const response = await subscriptionService.upgrade({ planId, billingInterval });
+      console.log("🚀 ~ handleSubscribe ~ response:", response)
+      
+      if (response.data?.paymentUrl) {
+        window.location.href = response.data.paymentUrl;
+        return;
+      }
+      notify.success("Subscription upgraded successfully");
+
+      // refresh active subscription
+      const res = await subscriptionService.getMySubscription();
+      setActiveSubscription(res.data.subscription || null);
 
     } catch (error: any) {
       notify.error(error.response?.data?.error || 'Failed to start subscription');
@@ -86,6 +127,7 @@ const Subscriptions: React.FC = () => {
           <span className="text-black dark:text-white">Go</span>{' '}
           <span className="text-indigo-600 dark:text-indigo-500">Premium</span>
         </h1>
+
         <p className="text-gray-500 dark:text-gray-400 mb-6">
           Choose the plan that fits your goals
         </p>
@@ -128,16 +170,28 @@ const Subscriptions: React.FC = () => {
           ) : (
           <div className="flex justify-center">
             <div className={`grid gap-4 ${plans.length === 1 ? 'grid-cols-1' : plans.length === 2 ? 'grid-cols-2' : 'sm:grid-cols-2 lg:grid-cols-3'}`}>
-              {plans.map((plan) => (
-                <SubscriptionCard
-                  key={plan.id}
-                  planType={plan.planName}
-                  billingInterval={billingInterval}
-                  price={billingInterval === 'monthly' ? plan.price.monthly : plan.price.yearly}
-                  features={mapFeatures(plan.features)}
-                  onSubscribe={() => handleSubscribe(plan.id, billingInterval)}
-                />
-              ))}
+              {plans.map((plan) => {
+                const isActive =
+                  activeSubscription && 
+                  activeSubscription.planId === plan.id && 
+                  billingInterval === activeSubscription.billingInterval;
+
+                return (
+                  <SubscriptionCard
+                    key={plan.id}
+                    planType={plan.planName}
+                    billingInterval={billingInterval}
+                    price={
+                      billingInterval === "monthly"
+                        ? plan.price.monthly
+                        : plan.price.yearly
+                    }
+                    features={mapFeatures(plan.features)}
+                    onSubscribe={() => handleSubscribe(plan.id, billingInterval)}
+                    isActive={isActive ?? false}
+                  />
+                );
+              })}
             </div>
           </div>
           )}

@@ -87,7 +87,16 @@ export class JobService implements IJobService {
                 .map(i => i.jobId!.toString()) ?? [];
             }
         }
-        const filter: FilterQuery<IJobDocument> = { isDeleted: false };
+        const filter: FilterQuery<IJobDocument> = { 
+            status: "open",
+            visibility: "public",
+            isDeleted: false,
+            $or: [
+                { isMultiFreelancer: true },
+                { acceptedProposalIds: { $size: 0 } }
+            ]
+        };
+        
         if(status) filter.status = status;
         // cursor for infinite scroll
         if(cursor && cursor !== "undefined" && cursor !== "null") {

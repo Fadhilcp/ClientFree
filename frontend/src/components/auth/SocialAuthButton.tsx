@@ -6,6 +6,7 @@ import { setCredentials } from '../../features/authSlice'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { notify } from '../../utils/toastService'
 import Loader from '../ui/Loader/Loader'
+import { tokenStore } from '../../utils/tokenStore'
 
 const SocialAuthButton : React.FC = () => {
 
@@ -34,7 +35,7 @@ const SocialAuthButton : React.FC = () => {
           }
         }
 
-        localStorage.setItem('token', response.data.token);
+        tokenStore.set(response.data.token);
         dispatch(setCredentials(response.data));
         if(response.data.isNewUser) notify.success('User verified');
         navigate('/home');

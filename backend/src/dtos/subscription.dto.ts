@@ -16,4 +16,12 @@ export interface SubscriptionDto {
 }
 
 
-export interface getActiveFeaturesDto { planName: string, userType: string, features: PlanFeatures, expiryDate: Date };
+export interface getActiveFeaturesDto { 
+  planId: string;
+  subscriptionId: string;
+  planName: string;
+  userType: string;
+  features: PlanFeatures;
+  expiryDate: Date;
+  billingInterval: "monthly" | "yearly"
+};

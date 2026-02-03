@@ -151,6 +151,7 @@ const UserRoutes: React.FC = () => {
                 <Route index element={<Navigate to="active-jobs" replace />} />
                 <Route path="active-jobs" element={<JobsPage status="active" title="Active Jobs" />}/>
                 <Route path="posted-jobs" element={<JobsPage status="open" title="Posted Jobs" />}/>
+                <Route path="hired-jobs" element={<JobsPage status="pending" title="Hired Jobs" />}/>
                 <Route path="completed-jobs" element={<JobsPage status="completed" title="Completed Jobs" />}/>
                 <Route path="proposals-invitations" element={<ProposalAndInvitation/>}/>
             </Route>

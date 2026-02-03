@@ -28,6 +28,7 @@ const clientMenuItems = [
 
 const freelancerMenuItems = [
   { label: "Active Jobs", path: "/my-jobs/active-jobs" },
+  { label: "Hired Jobs", path: "/my-jobs/hired-jobs" },
   { label: "Completed Jobs", path: "/my-jobs/completed-jobs" },
   { label: "Task List", path: "/my-jobs/tasks" },
 ];

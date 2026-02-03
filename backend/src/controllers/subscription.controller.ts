@@ -48,6 +48,29 @@ export class SubscriptionController {
         }
     }
 
+    async upgradeSubscription(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const userId = req.user?._id;
+            const { planId, billingInterval } = req.body;
+
+            if(!userId) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
+
+            if(!planId || !billingInterval) {
+                throw createHttpError(HttpStatus.BAD_REQUEST, "planId and billingInterval are required");
+            }
+
+            if(!["monthly", "yearly"].includes(billingInterval)) {
+                throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid billing interval");
+            }
+
+            const { paymentUrl } = await this._subscriptionService.upgradeSubscription(userId, planId, billingInterval);
+
+            sendResponse(res, HttpStatus.OK, { paymentUrl }, "Subscription upgraded successfully");
+        } catch (error) {
+            next(error);
+        }
+    }
+
     async cancelSubscription(req: Request, res: Response, next: NextFunction) {
         try {
             const userId = req.user?._id;

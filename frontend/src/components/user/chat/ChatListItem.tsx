@@ -19,10 +19,12 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
       onClick={onClick}
       className={`
         flex items-center px-4 py-3 cursor-pointer transition-colors
-        hover:bg-indigo-50 dark:hover:bg-indigo-900/30
-        ${isSelected ? "bg-indigo-50 dark:bg-indigo-900/40" : ""}
+        ${isSelected 
+          ? "bg-indigo-50 dark:bg-indigo-900/40" 
+          : "hover:bg-indigo-50 dark:hover:bg-indigo-900/20"}
       `}
     >
+
       {/* Avatar */}
       <ProfileImage size={49} src={otherUser.profileImage}/>
 

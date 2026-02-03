@@ -265,7 +265,7 @@ const ProposalsSection: React.FC<ProposalsSectionProps> = ({
         ).toLocaleDateString()} • Updated: ${new Date(
           p.updatedAt
         ).toLocaleDateString()}`,
-        actions: getProposalActions(p),
+        actions: getProposalActions(p), //actions(button)
         ...upgradeProps
      }
   };
