@@ -22,9 +22,23 @@ export interface FreelancerProfileDto {
   }[];
 
   portfolio?: {
-    portfolioFile?: string;
-    resume?: string;
+    title: string;
+    link?: string;
+    file?: string;
+    createdAt?: Date;
+  }[];
+
+  resume?: {
+    fileUrl?: string;
+    uploadedAt?: Date;
   };
+
+  education?: {
+    degree: string;
+    institution: string;
+    startYear: number;
+    endYear?: number;
+  }[];
 
   stats: {
     jobsCompleted: number;

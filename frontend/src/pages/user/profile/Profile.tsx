@@ -10,7 +10,7 @@ import type { UserProfileDto } from "../../../types/user/userProfile.type";
 import { notify } from "../../../utils/toastService";
 import Loader from "../../../components/ui/Loader/Loader";
 import type { ClientProfileDto } from "../../../types/user/clientProfile.dto";
-import type { FreelancerProfileDto } from "../../../types/user/freelancerProfile.dto";
+import type { EducationItem, FreelancerProfileDto, PortfolioItem, Resume } from "../../../types/user/freelancerProfile.dto";
 import type { SkillItem } from "../../../types/skill.types";
 import ProfileModal from "./ProfileModal";
 import { skillService } from "../../../services/skill.service";
@@ -108,6 +108,9 @@ const Profile: React.FC = () => {
   let location: { city?: string; state?: string; country?: string } | undefined;
   let stats: Record<string, number> = {};
   let ratingValue = "";
+  let portfolio: PortfolioItem[] = [];
+  let resume: Resume | undefined;
+  let education: EducationItem[] = [];
 
   if (isFreelancer) {
     const freelancer = profileData as FreelancerProfileDto;
@@ -122,6 +125,9 @@ const Profile: React.FC = () => {
     location = freelancer.location;
     stats = freelancer.stats;
     ratingValue = freelancer.ratings.asFreelancer.toFixed(1);
+    portfolio = freelancer.portfolio ?? [];
+    resume = freelancer.resume; 
+    education = freelancer.education ?? [];
   } else if (isClient) {
     const client = profileData as ClientProfileDto;
     name = client.name ?? username;
@@ -135,13 +141,13 @@ const Profile: React.FC = () => {
   return (
   <>
    {/* Profile creation modal */}
-        <ProfileModal open={isModalOpen}
-          role={role === "freelancer" ? "freelancer" : "client" }
-          onSave={handleCreateProfile}  
-          onClose={()=> setIsModalOpen(false)}
-          availableSkills={availableSkills}
-          defaultValues={profileData as Partial<ProfileFormData>}
-        />
+    <ProfileModal open={isModalOpen}
+      role={role === "freelancer" ? "freelancer" : "client" }
+      onSave={handleCreateProfile}  
+      onClose={()=> setIsModalOpen(false)}
+      availableSkills={availableSkills}
+      defaultValues={profileData as Partial<ProfileFormData>}
+    />
     <div className="bg-gray-50 dark:bg-gray-900 min-h-screen p-4">
       <div className="max-w-6xl mx-auto">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
@@ -192,6 +198,77 @@ const Profile: React.FC = () => {
 
               {isFreelancer && about && <ProfileSection title="About" content={about} />}
               {description && <ProfileSection title="Description" content={description} />}
+
+              {resume?.fileUrl && (
+                <ProfileSection title="Resume">
+                  <div className="rounded-lg p-4 shadow-sm bg-gray-700 text-white">
+                    <a
+                      href={resume.fileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline font-medium"
+                    >
+                      View Resume
+                    </a>
+                    <p className="text-sm text-gray-200 mt-1">
+                      Uploaded on {new Date(resume.uploadedAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </ProfileSection>
+              )}
+
+              {portfolio.length > 0 && (
+                <ProfileSection title="Portfolio">
+                  <ul className="space-y-3">
+                    {portfolio.map((item, idx) => (
+                      <li
+                        key={idx}
+                        className="rounded-lg p-4 shadow-sm bg-gray-700 text-white"
+                      >
+                        <p className="font-semibold">{item.title}</p>
+                        {item.link && (
+                          <a
+                            href={item.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm hover:underline text-blue-500"
+                          >
+                            Visit link
+                          </a>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </ProfileSection>
+              )}
+
+              
+              {education.length > 0 && (
+                <ProfileSection title="Education">
+                  <div className="relative">
+                    {/* Vertical line */}
+                    <div className="absolute left-4.5 top-0 h-full w-0.5 bg-blue-600"></div>
+
+                    <ul className="space-y-6 ml-8">
+                      {education.map((edu, idx) => (
+                        <li key={idx} className="relative">
+                          {/* Arrow dot */}
+                          <div className="absolute -left-5 top-2 w-3 h-3 rounded-full bg-blue-600 border-2 border-white"></div>
+
+                          <div className="rounded-lg p-4 shadow-sm bg-gray-700 text-white">
+                            <p className="font-semibold">{edu.degree}</p>
+                            <p className="text-sm text-gray-200">{edu.institution}</p>
+                            <p className="text-xs text-gray-300">
+                              {edu.startYear} – {edu.endYear}
+                            </p>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </ProfileSection>
+              )}
+
 
               {company && (
                 <InfoSection

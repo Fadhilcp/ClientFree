@@ -1,7 +1,7 @@
 import { FreelancerListItemDto, FreelancerProfileDto } from "../dtos/freelancerProfile.dto";
 import { IUserDocument } from "../types/user.type";
 
-export function mapUserToFreelancerDto(user: IUserDocument): FreelancerProfileDto {
+export function mapUserToFreelancerDto(user: IUserDocument & { resumeSignedUrl?: string }): FreelancerProfileDto {
   return {
     id: user._id.toString(),
     username: user.username,
@@ -18,7 +18,28 @@ export function mapUserToFreelancerDto(user: IUserDocument): FreelancerProfileDt
     description: user.description,
     skills: user.skills ?? [],
     externalLinks: user.externalLinks ?? [],
-    portfolio: user.portfolio ?? {},
+
+    portfolio: user.portfolio?.map(p => ({
+      title: p.title,
+      link: p.link,
+      file: p.file,
+      createdAt: p.createdAt,
+    })) ?? [],
+    
+    resume: user.resume
+      ? {
+          fileUrl: user.resumeSignedUrl,
+          uploadedAt: user.resume.uploadedAt,
+        }
+      : undefined,
+
+    education: user.education?.map(e => ({
+      degree: e.degree,
+      institution: e.institution,
+      startYear: e.startYear,
+      endYear: e.endYear,
+    })) ?? [],
+
     isProfileComplete: user.isProfileCompleted ?? false,
     isVerified: user.isVerified ?? false,
 

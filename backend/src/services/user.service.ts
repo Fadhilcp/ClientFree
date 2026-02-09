@@ -2,7 +2,7 @@ import { HttpResponse } from "../constants/responseMessage.constant";
 import { HttpStatus } from "../constants/status.constants";
 import { IUserRepository } from "repositories/interfaces/IUserRepository";
 import { IUserService } from "./interface/IUserService";
-import { IUser, IUserDocument } from "../types/user.type";
+import { IUser, IUserDocument, UserWithSignedResume } from "../types/user.type";
 import { createHttpError } from "../utils/httpError.util";
 import { mapUserToListingDto, mapUserToSelect } from "../mappers/userListing.mapper";
 import { mapUserProfile } from "../mappers/mapUserProfile";
@@ -16,6 +16,7 @@ import { uploadToCloudinary } from "../utils/cloudinary.helper";
 import { FreelancerListItemDto } from "../dtos/freelancerProfile.dto";
 import { mapUserToFreelancerListItemDto } from "../mappers/freelancer.mapper";
 import { UserToSelectDto } from "dtos/user.dto";
+import { generateSignedUrl } from "utils/getSignedUrl.util";
 
 export class UserService implements IUserService {
 
@@ -28,7 +29,9 @@ export class UserService implements IUserService {
 
         if(!user) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
 
-        return mapUserProfile(user);
+        const userWithSignedResume = await this._attachResumeSignedUrl(user);
+
+        return mapUserProfile(userWithSignedResume);
     }
 
     async updateProfile(userId: string, userData: Partial<IUser>): Promise<UserProfileDto> {
@@ -42,7 +45,9 @@ export class UserService implements IUserService {
             await updatedUser.save();
         }
 
-        return mapUserProfile(updatedUser);
+        const userWithSignedResume = await this._attachResumeSignedUrl(updatedUser);
+
+        return mapUserProfile(userWithSignedResume);
     }
 
     async getUserProfileById(userId: string): Promise<UserProfileDto> {
@@ -50,7 +55,9 @@ export class UserService implements IUserService {
 
         if(!user) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
 
-        return mapUserProfile(user);
+        const userWithSignedResume = await this._attachResumeSignedUrl(user);
+
+        return mapUserProfile(userWithSignedResume);
     }
 
     async getAllUsers(search: string, page=1, limit=10): Promise<PaginatedResult<UserListingDto>> {
@@ -351,5 +358,35 @@ export class UserService implements IUserService {
         const users = await this._userRepository.findByIds(userIds);
 
         return users.map(mapUserToSelect);
+    }
+
+    async uploadResume(userId: string, resume: { key: string, uploadedAt: Date })
+    : Promise<{ fileUrl: string, uploadedAt: Date }> {
+
+        const user = await this._userRepository.findByIdAndUpdate(userId, {
+            resume,
+        });
+
+        if (!user) {
+            throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
+        }
+
+        return {
+            fileUrl: user.resume?.key ?? "",
+            uploadedAt: user.resume?.uploadedAt ?? new Date()
+        }
+    }
+
+    private async _attachResumeSignedUrl(user: IUserDocument): Promise<UserWithSignedResume> {
+        if (!user.resume?.key) {
+            return user;
+        }
+
+        const signedUrl = await generateSignedUrl(user.resume.key);
+
+        return {
+            ...user.toObject(),
+            resumeSignedUrl: signedUrl,
+        } as UserWithSignedResume;
     }
 }

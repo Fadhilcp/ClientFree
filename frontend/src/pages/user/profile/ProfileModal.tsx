@@ -7,13 +7,16 @@ import Button from "../../../components/ui/Button";
 import SkillsSelect from "../../../components/user/profileModal/SkillSelect";
 import { notify } from "../../../utils/toastService";
 import { validateProfileForm } from "../../../utils/validators/profileForm";
-import type { ProfileFormData, FormErrors } from "../../../types/profileModal.types";
+import type { ProfileFormData, FormErrors, Education } from "../../../types/profileModal.types";
 import ProfileImageUploader from "../../../components/user/profile/ProfileImageUploader";
 import { userService } from "../../../services/user.service";
 import Loader from "../../../components/ui/Loader/Loader";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../../../store/store";
 import { setUser } from "../../../features/authSlice";
+import ResumeSection from "../../../components/user/profile/ResumeSection";
+import PortfolioSection from "../../../components/user/profile/PortfolioSection";
+import EducationSection from "../../../components/user/profile/EducationSection";
 
 interface ProfileModalProps {
   open: boolean;
@@ -26,6 +29,8 @@ interface ProfileModalProps {
   username?: string;
 }
 
+const emptyPortfolioItem = { title: "", link: "" };
+const emptyEducationItem: Education = { degree: "", institution: "", startYear: "", endYear: "" };
 
 const ProfileModal: React.FC<ProfileModalProps> = ({
   open,
@@ -45,7 +50,9 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
     description: "",
     profileImage: "",
     location: { city: "", state: "", country: "" },
-    portfolio: { portfolioFile: "", resume: "" },
+    portfolio: [],
+    resume: { fileUrl: "" },
+    education: [],
     skills: [],
     professionalTitle: "",
     hourlyRate: null,
@@ -71,10 +78,9 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
             ...defaultValues,
             skills: normalizedSkills,
             location: { ...prev.location, ...defaultValues.location },
-            portfolio: {
-              portfolioFile: defaultValues?.portfolio?.portfolioFile || prev.portfolio.portfolioFile,
-              resume: defaultValues?.portfolio?.resume || prev.portfolio.resume,
-            },
+            portfolio: defaultValues.portfolio || [],
+            resume: defaultValues.resume || { fileUrl: "" },
+            education: defaultValues.education || [],
             company: { ...prev.company, ...defaultValues.company },
             externalLinks: defaultValues.externalLinks?.length
               ? defaultValues.externalLinks
@@ -96,25 +102,60 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    
+
     if (name.startsWith("location.")) {
       const key = name.split(".")[1];
       setFormData({ ...formData, location: { ...formData.location, [key]: value } });
     } else if (name.startsWith("company.")) {
       const key = name.split(".")[1];
       setFormData({ ...formData, company: { ...formData.company, [key]: value } });
-    } else if (name.startsWith("portfolio.")) {
-      const key = name.split(".")[1];
-      setFormData({ ...formData, portfolio: { ...formData.portfolio, [key]: value } });
+    } else if (name === "hourlyRate") {
+      setFormData({ ...formData, hourlyRate: value === "" ? null : Number(value), });
     } else {
       setFormData({ ...formData, [name]: value });
     }
   };
+
+  
+  // Portfolio handlers
+  const updatePortfolio = (index: number, key: string, value: string) => {
+    const updated = [...formData.portfolio];
+    updated[index] = { ...updated[index], [key]: value };
+    setFormData({ ...formData, portfolio: updated });
+  };
+
+  const addPortfolio = () =>
+    setFormData({ ...formData, portfolio: [...formData.portfolio, emptyPortfolioItem] });
+
+  const removePortfolio = (i: number) =>
+    setFormData({ ...formData, portfolio: formData.portfolio.filter((_, idx) => idx !== i) });
+
+  // Education handlers
+  const updateEducation = (index: number, key: string, value: any) => {
+    const updated = [...formData.education];
+    if (key === "startYear" || key === "endYear") {
+      updated[index] = { ...updated[index], [key]: value === "" ? null : Number(value) };
+    } else {
+      updated[index] = { ...updated[index], [key]: value };
+    }
+    setFormData({ ...formData, education: updated });
+  };
+
+  const addEducation = () =>
+    setFormData({ ...formData, education: [...formData.education, emptyEducationItem] });
+
+  const removeEducation = (i: number) =>
+    setFormData({ ...formData, education: formData.education.filter((_, idx) => idx !== i) });
+
   
   // to update profile image and also for show preview of the image
   const [backendImage, setBackendImage] = useState<string>(defaultValues?.profileImage || "");
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(defaultValues?.profileImage || null);
+
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [resumeUploading, setResumeUploading] = useState(false);
+
   // function to upload image in cloudinary,return url 
   const uploadProfileImage = async() => {
     try {
@@ -135,9 +176,38 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
       setLoading(false);
     }
   }
-  
+
+  const uploadResume = async () => {
+    if (!resumeFile) return formData.resume?.fileUrl || "";
+
+    try {
+      setResumeUploading(true);
+
+      const data = new FormData();
+      data.append("resume", resumeFile);
+
+      await userService.uploadResume(data);
+
+      notify.success("Resume uploaded successfully");
+    } catch (err: any) {
+      notify.error(err.response?.data?.error || "Failed to upload resume");
+      return formData.resume?.fileUrl || "";
+    } finally {
+      setResumeUploading(false);
+    }
+  };
+
+  const onResumeSelected = async (file: File) => {
+    setResumeFile(file);
+    await uploadResume();
+  };
 
   const handleSave = async() => {
+
+    if (resumeUploading) {
+      notify.warn("Please wait for resume upload to finish");
+      return;
+    }
     const validationErrors = validateProfileForm(formData, role);
     const hasErrors = Object.values(validationErrors).some((val) => {
       if (Array.isArray(val)) return val.some((e) => Object.keys(e).length > 0);
@@ -152,9 +222,14 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
     }
 
     setErrors({});
+
     const profileImage = await uploadProfileImage();
-    const payload = {...formData, profileImage}
-    onSave(payload)
+
+    const payload = {
+      ...formData, 
+      profileImage
+    }
+    onSave(payload);
   };
 
   // reset the data when closing modal - start ===============
@@ -165,7 +240,9 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
       description: "",
       profileImage: "",
       location: { city: "", state: "", country: "" },
-      portfolio: { portfolioFile: "", resume: "" },
+      portfolio: [],
+      education: [],
+      resume: { fileUrl: "" },
       skills: [],
       professionalTitle: "",
       hourlyRate: null,
@@ -177,6 +254,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
 
     setErrors({});
     setSelectedImageFile(null);
+    setResumeFile(null);
     setPreviewUrl(null);
     setBackendImage(defaultValues?.profileImage || "");
   };
@@ -228,7 +306,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
         <div className="absolute inset-0 bg-black opacity-50" onClick={onClose}></div>
 
         {/* Modal */}
-        <div className="relative bg-white dark:bg-gray-900 text-black dark:text-white rounded-2xl shadow-xl dark:shadow-2xl w-full max-w-5xl h-[90vh] overflow-y-auto p-6 md:p-10 scrollbar-thin">
+        <div className="relative bg-white dark:bg-gray-900 text-black dark:text-white rounded-2xl shadow-xl dark:shadow-2xl w-full max-w-5xl h-[90vh] overflow-y-auto p-6 md:p-10 no-scrollbar">
           <h2 className="text-2xl font-semibold mb-6">
             {defaultValues ? "Edit" : "Create"} {role === "freelancer" ? "Freelancer" : "Client"} Profile
           </h2>
@@ -240,7 +318,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
             {/* Common Fields */}
             <InputSection label="Name" name="name" value={formData.name} error={errors.name} onChange={handleChange} />
             <InputSection label="Phone" name="phone" value={formData.phone} error={errors.phone} onChange={handleChange} />
@@ -306,8 +384,32 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
                   }} 
                 />
 
-                <InputSection label="Portfolio File" name="portfolio.portfolioFile" value={formData.portfolio.portfolioFile} error={errors.portfolio?.portfolioFile} onChange={handleChange} />
-                <InputSection label="Resume" name="portfolio.resume" value={formData.portfolio.resume} error={errors.portfolio?.resume} onChange={handleChange} />
+                {/* RESUME */}
+                <ResumeSection
+                  resumeFile={resumeFile}
+                  resumeUrl={formData.resume?.fileUrl}
+                  uploading={resumeUploading}
+                  setResumeFile={onResumeSelected}
+                  error={errors.resume?.fileUrl}
+                />
+
+                {/* PORTFOLIO */}
+                <PortfolioSection
+                  portfolio={formData.portfolio}
+                  updatePortfolio={updatePortfolio}
+                  removePortfolio={removePortfolio}
+                  addPortfolio={addPortfolio}
+                  errors={errors.portfolio}
+                />
+                {/* EDUCATION */}
+                <EducationSection
+                  education={formData.education}
+                  updateEducation={updateEducation}
+                  removeEducation={removeEducation}
+                  addEducation={addEducation}
+                  errors={errors.education}
+                />
+
               </>
             )}
 
@@ -322,14 +424,17 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
           </div>
 
           {/* Location */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 border-t border-gray-700 pt-4">
           <InputSection label="City" name="location.city" value={formData.location.city} error={errors.location?.city} onChange={handleChange} />
           <InputSection label="State" name="location.state" value={formData.location.state} error={errors.location?.state} onChange={handleChange} />
           <InputSection label="Country" name="location.country" value={formData.location.country} error={errors.location?.country} onChange={handleChange} />
 
+          </div>
+
           {/* Actions */}
           <div className="flex justify-end gap-3 mt-8">
             <Button label="Cancel" onClick={handleClose} variant="secondary" />
-            <Button label="Save" onClick={handleSave} variant="primary" />
+            <Button label={resumeUploading ? "Uploading resume..." : "Save"} onClick={handleSave} variant="primary" />
           </div>
         </div>
       </div>

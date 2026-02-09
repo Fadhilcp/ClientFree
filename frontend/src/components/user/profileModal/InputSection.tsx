@@ -8,7 +8,7 @@ export const InputSection: React.FC<InputProps> = ({ label, error, ...props }) =
     <label className="block font-semibold mb-1 text-gray-800 dark:text-gray-200">{label}</label>
     <input
       {...props}
-      className="w-full px-3 py-4 rounded-lg font-medium 
+      className="w-full px-3 py-3 rounded-lg font-medium 
         bg-gray-100 dark:bg-gray-800 
         border border-gray-200 dark:border-gray-700 
         placeholder-gray-500 dark:placeholder-gray-400 

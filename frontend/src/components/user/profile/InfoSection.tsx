@@ -23,7 +23,9 @@ const InfoSection: React.FC<InfoSectionProps> = ({ title, items }) => {
           <p key={index}>
             <span className="font-medium text-gray-700 dark:text-gray-200">{label}:</span>{' '}
             {link ? (
-              <a href={value} className="text-blue-600 hover:underline">
+              <a href={value} className="text-blue-600 hover:underline block truncate max-w-xs"
+               title={value} 
+              >
                 {value}
               </a>
             ) : (

@@ -17,6 +17,7 @@ import matchRouter from "./match.route";
 import notificationRouter from "./notification.route";
 import chatRouter from "./chat.route";
 import messageRouter from "./message.route";
+import reviewRouter from "./review.route";
 
 const router = Router();
 
@@ -37,5 +38,6 @@ router.use("/match", matchRouter);
 router.use("/notification",notificationRouter);
 router.use("/chats",chatRouter);
 router.use("/messages",messageRouter);
+router.use("/reviews",reviewRouter);
 
 export default router;

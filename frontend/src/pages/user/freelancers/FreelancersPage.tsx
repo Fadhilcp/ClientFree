@@ -302,31 +302,42 @@ const FreelancersPage: React.FC = () => {
       {loading && <Loader />}
       <div className="container mx-auto">
         {/* Title + Search aligned */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-indigo-600 dark:text-indigo-500">
-            {isInterestedPage ? "Interested Freelancers" : "Freelancers"}
-          </h2>
-          { bestMatch && 
-            <Button
-              label={isBestMatchMode ? "All Freelancer" : "Best Match"}
-              onClick={() => {
-                if (isBestMatchMode) {
-                  setIsBestMatchMode(false);
-                  setSelectedJobId("");
-                  setCursor(null);
-                  setHasMore(true);
-                  fetchFreelancers(false);
-                } else {
-                  setIsBestMatchOpen(true);
-                }
-              }} />
-            }
-          <SearchBar
-            placeholder={isInterestedPage ? "Search interested freelancers..." : "Search freelancers..."}
-            onSearch={handleSearch}
-          />
-        </div>
+     
+          {/* Title + Search aligned */}
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 gap-4">
+            {/* Title */}
+            <h2 className="text-2xl font-bold text-indigo-600 dark:text-indigo-500">
+              {isInterestedPage ? "Interested Freelancers" : "Freelancers"}
+            </h2>
 
+            {/* Best Match Button (conditionally rendered) */}
+            {bestMatch && (
+              <Button
+                label={isBestMatchMode ? "All Freelancer" : "Best Match"}
+                onClick={() => {
+                  if (isBestMatchMode) {
+                    setIsBestMatchMode(false);
+                    setSelectedJobId("");
+                    setCursor(null);
+                    setHasMore(true);
+                    fetchFreelancers(false);
+                  } else {
+                    setIsBestMatchOpen(true);
+                  }
+                }}
+              />
+            )}
+
+            {/* Search Bar */}
+            <SearchBar
+              placeholder={
+                isInterestedPage
+                  ? "Search interested freelancers..."
+                  : "Search freelancers..."
+              }
+              onSearch={handleSearch}
+            />
+        </div>
         <BestMatchModal
           open={isBestMatchOpen}
           jobs={clientJobs}

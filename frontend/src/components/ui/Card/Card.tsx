@@ -157,7 +157,7 @@ return (
 
       {/* Actions */}
       {actions.length > 0 && (
-        <div className="flex-shrink-0 lg:pl-8 mt-6 lg:mt-0 flex flex-col gap-3">
+        <div className="flex-shrink-0 mt-6 lg:mt-0 flex flex-col gap-3">
           {actions.map((action, i) => (
             <Button
               key={i}

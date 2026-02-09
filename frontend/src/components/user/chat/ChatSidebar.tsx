@@ -19,10 +19,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   onSearch,
 }) => {
   return (
-    <div className="w-1/4 flex flex-col bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-lg rounded-l-xl overflow-hidden">
-      {/* Header */}
-      {/* <SidebarHeader /> */}
-
+    <div className="flex flex-col w-full bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-lg md:rounded-l-xl overflow-hidden">
       {/* Search */}
       <div className="border-b border-gray-200 dark:border-gray-700">
         <ChatSearch value={search} onChange={onSearch} />
@@ -30,11 +27,11 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
 
       {/* Chat list */}
       <div className="flex-1 overflow-y-auto">
-          <div className="bg-gray-50 dark:bg-gray-800 flex-1 overflow-auto">
+        <div className="bg-gray-50 dark:bg-gray-800 flex-1 overflow-auto">
           {chats.map((chat, i) => (
-            <ChatListItem 
-              key={i} 
-              chat={chat} 
+            <ChatListItem
+              key={i}
+              chat={chat}
               isSelected={chat.id === selectedChatId}
               onClick={() => onSelectChat(chat.id)}
             />

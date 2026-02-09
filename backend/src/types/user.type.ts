@@ -1,8 +1,6 @@
 import { UserRole } from "constants/user.constants";
 import { Document, Types } from "mongoose"; 
 
-// export type UserRole = "freelancer" | "client" | "admin"
-
 export interface IUserBase {
     username: string;
     email: string;
@@ -68,11 +66,26 @@ export interface IUserProfile {
         type: "github" | "linkedin" | "website" | "dribbble" | "behance" | "twitter";
         url: string;
     }[];
-
+    
     portfolio?: {
-        portfolioFile?: string;
-        resume?: string;
+        title: string;
+        link?: string;
+        file?: string;
+        createdAt?: Date;
+    }[];
+
+    resume?: {
+        key?: string;
+        uploadedAt?: Date;
     };
+
+    education?: {
+        degree: string;
+        institution: string;
+        startYear: number;
+        endYear?: number;
+        createdAt?: Date;
+    }[];
 
     hourlyRate?: number;
     experienceLevel?: string;
@@ -102,3 +115,7 @@ export type IUserDocument = IUser & Document & {
     createdAt: Date;
     updatedAt: Date;
 }
+
+export type UserWithSignedResume = IUserDocument & {
+  resumeSignedUrl?: string;
+};

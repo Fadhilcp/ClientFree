@@ -33,6 +33,7 @@ export const endPoints = {
         SEARCH: (search: string, page: number, limit: number) => 
             `/user/search?search=${search ?? ""}&page=${page ?? 1}&limit=${limit ?? 10}`,
         USERS_BY_ID: '/user/by-ids',
+        UPLOAD_RESUME: '/user/resume',
     },
     SKILL: {
         GET_ACTIVE: '/skills/active',
@@ -206,4 +207,10 @@ export const endPoints = {
         DELETE: (messageId: string) => `/messages/${messageId}`,
         SIGNED_URL: (messageId: string) => `/messages/file/${messageId}/signed-url`,
     },
+    REVEIW: {
+        CREATE: `/reviews`,
+        GET_USER_REVIEW: (userId: string, role: string, page: number, limit: number) => 
+            `/reviews/user/${userId}?role=${role}&page=${page ?? 1}&limit=${limit ?? 10}`,
+        HAS_REVIEWED: (jobId: string) => `/reviews/job/${jobId}/has-reviewed`,
+    }
 }

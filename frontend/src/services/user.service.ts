@@ -65,6 +65,10 @@ class UserService {
             paramsSerializer: { indexes: null }
         });
     }
+
+    uploadResume(formData: FormData) {
+        return axios.post(endPoints.USER.UPLOAD_RESUME, formData)
+    }
 }
 
 export const userService = new UserService();

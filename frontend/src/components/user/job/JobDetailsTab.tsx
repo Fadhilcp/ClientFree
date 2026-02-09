@@ -6,6 +6,7 @@ import type { SkillItem } from "../../../types/skill.types";
 import { notify } from "../../../utils/toastService";
 import Button from "../../ui/Button";
 import Card, { type ActionItem } from "../../ui/Card/Card";
+import CreateReviewSection from "../reviews/CreateReviewSection";
 import ClarificationBoard from "./ClarificationBoard";
 import JobDetails from "./JobDetails";
 import MilestoneForm from "./MilestoneForm";
@@ -58,6 +59,10 @@ const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
   return (
     <div className="p-8">
       <JobDetails job={job} />
+
+      {job.status === "completed" && (
+        <CreateReviewSection jobId={job.id} />
+      )}
 
       <div className="my-8 border-t border-gray-200 dark:border-gray-700 opacity-70"></div>
 
@@ -227,9 +232,11 @@ const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
       {/* Start Job */}
 
       {/* Clarification Board */}
-      <div className="mt-10">
-        <ClarificationBoard jobId={job.id} />
-      </div>
+      {job.status === "open" && (
+        <div className="mt-10">
+          <ClarificationBoard jobId={job.id} />
+        </div>
+      )}
     </div>
   );
 };

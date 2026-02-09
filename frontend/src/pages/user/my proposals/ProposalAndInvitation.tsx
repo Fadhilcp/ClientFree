@@ -37,8 +37,6 @@ const ProposalAndInvitation: React.FC = () => {
       );
       if (response.data.success) {
         const { proposals, nextCursor } = response.data;
-        console.log("🚀 ~ fetchProposals ~ proposals:", proposals)
-
 
         loadMore ? setProposals(prev => [ ...prev, ...proposals]) : setProposals(proposals);
 

@@ -45,14 +45,60 @@ export const validateProfileForm = (formData: ProfileFormData, role: 'freelancer
 
   if (role === 'freelancer') {
     if (!formData.professionalTitle.trim()) errors.professionalTitle = 'Professional title is required';
-    if (!formData.hourlyRate.trim()) errors.hourlyRate = 'Hourly rate is required';
+    if (formData.hourlyRate === null || formData.hourlyRate <= 0) errors.hourlyRate = 'Hourly rate must be greater than 0';
     if (!formData.about.trim()) errors.about = 'About section is required';
     if (!formData.skills.length) errors.skills = 'At least one skill is required';
 
-    errors.portfolio = {};
-    if (!formData.portfolio.portfolioFile.trim()) errors.portfolio.portfolioFile = 'Portfolio file is required';
-    if (!formData.portfolio.resume.trim()) errors.portfolio.resume = 'Resume is required';
+    if (formData.portfolio.length) {
+      errors.portfolio = [];
 
+      formData.portfolio.forEach((item, index) => {
+        const itemErrors: Record<string, string> = {};
+
+        if (!item.title.trim()) {
+          itemErrors.title = "Title is required";
+        }
+
+        if (item.link) {
+          try {
+            new URL(item.link);
+          } catch {
+            itemErrors.link = "Invalid URL";
+          }
+        }
+
+        errors.portfolio![index] = itemErrors;
+      });
+    }
+
+    if (formData.education.length) {
+      errors.education = [];
+
+      formData.education.forEach((edu, index) => {
+        const eduErrors: Record<string, string> = {};
+
+        if (!edu.degree.trim())
+          eduErrors.degree = "Degree is required";
+
+        if (!edu.institution.trim())
+          eduErrors.institution = "Institution is required";
+
+        if (!edu.startYear)
+          eduErrors.startYear = "Start year is required";
+
+        if (
+          edu.endYear &&
+          edu.startYear &&
+          Number(edu.endYear) < Number(edu.startYear)
+        ) {
+          eduErrors.endYear = "End year cannot be before start year";
+        }
+
+        errors.education![index] = eduErrors;
+      });
+    }
+
+    
     if (Array.isArray(formData.externalLinks)) {
       errors.externalLinks = formData.externalLinks.map<ExternalLinkErrors>((link: ExternalLink) => {
         const linkErrors: ExternalLinkErrors = {};

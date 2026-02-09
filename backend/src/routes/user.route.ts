@@ -7,6 +7,7 @@ import { profileUpload } from "../middlewares/profileUpload.middleware";
 import { verifyUserNotBanned } from "../middlewares/verifyUserNotBanned.middleware";
 import { authorizeRole } from "middlewares/authorizeRole";
 import { UserRole } from "constants/user.constants";
+import upload from "utils/uploader-s3.util";
 
 const userRouter = Router();
 
@@ -29,6 +30,9 @@ userRouter.post('/profile-image',profileUpload.single('profileImage'),
         userController.setProfileImage.bind(userController)
     );
 userRouter.delete('/profile-image',userController.removeProfileImage.bind(userController));
+
+userRouter.post('/resume',upload.single("resume"),userController.uploadResume.bind(userController));
+
 userRouter.patch('/:id/status',userController.updateStatus.bind(userController));
 
 userRouter.get('/interested',userController.getInterestedFreelancer.bind(userController));

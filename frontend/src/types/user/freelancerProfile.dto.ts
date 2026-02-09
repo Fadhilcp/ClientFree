@@ -1,5 +1,24 @@
 import type { SkillItem } from "../skill.types";
 
+export interface PortfolioItem {
+  title: string;
+  link?: string;
+  file?: string;
+  createdAt: string | Date;
+}
+
+export interface EducationItem {
+  degree: string;
+  institution: string;
+  startYear: number;
+  endYear?: number;
+}
+
+export interface Resume {
+  fileUrl: string;
+  uploadedAt: string | Date;
+}
+
 export interface FreelancerProfileDto {
   id: string;
   username: string;
@@ -21,10 +40,11 @@ export interface FreelancerProfileDto {
     url: string;
   }[];
 
-  portfolio?: {
-    portfolioFile?: string;
-    resume?: string;
-  };
+  portfolio?: PortfolioItem[]
+
+  resume?: Resume;
+
+  education?: EducationItem[];
 
   stats: {
     jobsCompleted: number;

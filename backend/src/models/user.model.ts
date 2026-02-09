@@ -92,10 +92,29 @@ const userSchema = new Schema({
             url: { type: String }
         }
     ],
-    portfolio: {
-        portfolioFile: { type: String },
-        resume: { type: String }
+    portfolio: [
+        {
+            title: { type: String, required: true },
+            link: { type: String },
+            file: { type: String },
+            createdAt: { type: Date, default: Date.now }
+        }
+    ],
+
+    resume: {
+        key: { type: String },
+        uploadedAt: { type: Date, default: Date.now }
     },
+
+    education: [
+        {
+            degree: { type: String, required: true },
+            institution: { type: String, required: true },
+            startYear: { type: Number, required: true },
+            endYear: { type: Number },
+            createdAt: { type: Date, default: Date.now }
+        }
+    ],
 
     hourlyRate : { type : Number },
     experienceLevel : { type : String },

@@ -21,14 +21,19 @@ const Chat: React.FC = () => {
     }, [search]);
 
     const selectedChat = chats.find(c => c.id === selectedChatId) ?? null;
-
-  return (
-    <div className="bg-gray-100 dark:bg-gray-900 flex flex-col">
-      {/* Chat container */}
-      <div className="container mx-auto flex-1 py-2.5">
-        <div className="h-[calc(98vh-4rem)]">
-          <div className="flex rounded-xl shadow-2xl bg-white dark:bg-gray-800 h-full overflow-hidden">
-            {/* Sidebar */}
+return (
+  <div className="bg-gray-100 dark:bg-gray-900 flex flex-col">
+    {/* Chat container */}
+    <div className="container mx-auto flex-1 py-2.5">
+      <div className="h-[calc(98vh-4rem)]">
+        <div className="flex rounded-xl shadow-2xl bg-white dark:bg-gray-800 h-full overflow-hidden">
+          
+          {/* Sidebar */}
+          <div
+            className={`${
+              selectedChat ? "hidden md:flex" : "flex"
+            } w-full md:w-1/4`}
+          >
             <ChatSidebar
               chats={chats}
               selectedChatId={selectedChatId}
@@ -36,22 +41,30 @@ const Chat: React.FC = () => {
               search={search}
               onSearch={setSearch}
             />
+          </div>
 
-            {/* Chat window */}
-            {!selectedChat ?
-              (
-                <div className="w-3/4 flex items-center justify-center bg-gray-50 dark:bg-gray-800 text-gray-500">
-                  Select a chat to start messaging
-                </div>
-              ) : (
-                <ChatWindow selectedChat={selectedChat} />
-              ) 
-            }
+          {/* Chat window */}
+          <div
+            className={`${
+              selectedChat ? "flex" : "hidden md:flex"
+            } w-full md:w-3/4`}
+          >
+            {!selectedChat ? (
+              <div className="flex-1 flex items-center justify-center bg-gray-50 dark:bg-gray-800 text-gray-500">
+                Select a chat to start messaging
+              </div>
+            ) : (
+              <ChatWindow
+                selectedChat={selectedChat}
+                onBack={() => setSelectedChatId(null)} // back button for mobile
+              />
+            )}
           </div>
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 };
 
 export default Chat;

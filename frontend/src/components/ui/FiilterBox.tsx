@@ -112,7 +112,7 @@ const FiilterBox: React.FC<FilterBoxProps> = ({ enabledFilters = [] }) => {
     };
 
   return (
-      <aside className="border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 sticky top-0 h-screen max-w-3xs">
+      <aside className="md:flex md:w-60 lg:w-72 md:flex-shrink-0 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
         <div className="rounded-lg shadow-md bg-gray-100 dark:bg-gray-800 p-6">
 
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">

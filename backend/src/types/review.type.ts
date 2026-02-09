@@ -3,10 +3,10 @@ import { Document, Types } from "mongoose";
 export type ReviewRole = "client" | "freelancer";
 
 export interface IReview {
-  jobId: Types.ObjectId;
+  jobId: string | Types.ObjectId;
 
-  reviewerId: Types.ObjectId;
-  revieweeId: Types.ObjectId;
+  reviewerId: string | Types.ObjectId;
+  revieweeId: string | Types.ObjectId;
 
   reviewerRole: ReviewRole;
   revieweeRole: ReviewRole;
@@ -21,8 +21,8 @@ export interface IReview {
   editedAt?: Date | null;
   reportedAt?: Date | null;
 
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface IReviewDocument extends IReview, Document {

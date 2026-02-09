@@ -36,7 +36,8 @@ export class ProfileController {
             const userId = req.user?._id;
             const schema = req.user.role === UserRole.FREELANCER ? freelancerUpdateSchema : clientUpdateSchema;
 
-            const result = schema.safeParse(req.body)
+            const result = schema.safeParse(req.body);
+            console.log("🚀 ~ ProfileController ~ update ~ result:", result)
             if(!result.success){
                 throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.INVALID_CREDENTIALS);
             }
@@ -248,6 +249,28 @@ export class ProfileController {
             const users = await this._userService.getUsersByIds(userIds);
 
             sendResponse(res, HttpStatus.OK, { users });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async uploadResume(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const userId = req.user?._id;
+            if(!userId) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
+
+            if (!req.file) {
+                throw createHttpError(HttpStatus.BAD_REQUEST, "Resume file is required");
+            }
+
+            const file = req.file as Express.MulterS3.File;
+
+            const resume = await this._userService.uploadResume(userId, {
+                key: file.key,
+                uploadedAt: new Date(),
+            });
+
+            sendResponse(res, HttpStatus.OK, { resume }, "Resume uploaded successfully");
         } catch (error) {
             next(error);
         }

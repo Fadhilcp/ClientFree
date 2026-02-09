@@ -41,4 +41,6 @@ export interface IUserService {
     searchUsersForSelect(search: string, page: number, limit: number)
     : Promise<{ id: string; label: string }[]>;
     getUsersByIds(userIds: string[]): Promise<UserToSelectDto[]>;
+    uploadResume(userId: string, resume: { key: string, uploadedAt: Date })
+    : Promise<{ fileUrl: string, uploadedAt: Date }>;
 }
