@@ -42,6 +42,7 @@ import BillingCancel from "../components/user/billing/BillingCancel";
 import SubscriptionSetting from "../pages/user/settings/Subscription-Premium";
 import NotificationsPage from "../pages/user/notification/NotificationsPage";
 import Chat from "../pages/user/chat/Chat";
+import NotFoundPage from "../pages/user/NotFoundPage";
 
 
 const UserRoutes: React.FC = () => {
@@ -239,6 +240,8 @@ const UserRoutes: React.FC = () => {
                 <Route path="subscription-premium" element={<SubscriptionSetting/>}/>
             </Route>
             {/* Setting routes under user layout - end */}
+
+            <Route path="*" element={<NotFoundPage />} />
             </Route>
         </Routes>
     )

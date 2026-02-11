@@ -18,17 +18,18 @@ import EscrowMilestones from '../pages/admin/EscrowMilestones'
 import Wallets from '../pages/admin/Wallets'
 import WalletTransactionsPage from '../pages/admin/WalletTransactions'
 import AdminNotificationsPage from '../pages/admin/AdminNotificationsPage'
+import NotFoundPage from '../pages/user/NotFoundPage'
 
 const AdminRoutes: React.FC = () => {
   return (
     <Routes>
 
-        <Route path="/admin/login" element={
+        <Route path="login" element={
           <NoAuthProtectedRoute>
             <Login/>
           </NoAuthProtectedRoute>
         }/>
-        <Route path='/admin' element={<AdminLayout/>}>
+        <Route element={<AdminLayout/>}>
             <Route path="users" element={
               <AuthProtectedRoute allowedRoles={['admin']}>
                 <Users/>
@@ -101,7 +102,7 @@ const AdminRoutes: React.FC = () => {
             }/>
 
         </Route>
-        {/* <Route path="*" element={<NotFoundPage />} /> */}
+        <Route path="*" element={<NotFoundPage />} />
     </Routes>
   )
 }

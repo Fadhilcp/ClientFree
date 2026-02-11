@@ -5,12 +5,17 @@ import Loader from "../../../components/ui/Loader/Loader";
 import { useNavigate, useLocation } from "react-router-dom";
 import { proposalService } from "../../../services/proposal.service";
 import type { IProposal } from "../../../types/job/proposal.type";
+import Spinner from "../../../components/ui/Loader/Spinner";
 
 const LIMIT=20;
 
 const MyProposals: React.FC = () => {
   const [proposals, setProposals] = useState<IProposal[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const isInitialLoading = loading && proposals.length === 0;
+  const isScrollLoading  = loading && proposals.length > 0;
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -88,17 +93,18 @@ const MyProposals: React.FC = () => {
 
   return (
     <section className="bg-white dark:bg-gray-900 min-h-screen">
-        {loading && <Loader />}
+        {isInitialLoading && <Loader />}
         <div className="container mx-auto">
         {/* Title + Search aligned */}
-        <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-indigo-600 dark:text-indigo-500">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+        {/* Title */}
+          <h2 className="text-2xl font-bold text-indigo-600 dark:text-indigo-500 order-1 sm:order-none">
             {isInvitation ? "Invitations" : "Proposals"}
-            </h2>
-            <SearchBar
+          </h2>
+          <SearchBar
             placeholder={isInvitation ? "Search invitations..." : "Search jobs..."}
             onSearch={handleSearch}
-            />
+          />
         </div>
 
         {/* Empty State */}
@@ -112,36 +118,42 @@ const MyProposals: React.FC = () => {
         {proposals &&
             proposals.length > 0 &&
             proposals.map((proposal) => (
-            <Card
-                key={proposal.id}
-                title={proposal.invitation?.title || `Job #${proposal.job?.title}`}
-                subtitle={
-                isInvitation
-                    ? `Invitation from ${proposal.invitedBy ?? "Client"}`
-                    : `Bid: ₹${proposal.bidAmount}`
-                }
-                meta={[
-                { label: "Duration", value: proposal.duration || "N/A" },
-                { label: "Status", value: proposal.status },
-                {
-                    label: "Created",
-                    value: new Date(proposal.createdAt).toLocaleDateString(),
-                },
-                ]}
-                description={
-                isInvitation
-                    ? proposal.invitation?.message || "No message provided."
-                    : proposal.description
-                }
-                actions={[
-                {
-                    label: "View Details",
-                    onClick: () => handleViewDetails(proposal.job?.id!),
-                    variant: "primary",
-                },
-                ].filter(Boolean) as ActionItem[]}
-            />
+              <Card
+                  key={proposal.id}
+                  title={proposal.invitation?.title || `Job #${proposal.job?.title}`}
+                  subtitle={
+                  isInvitation
+                      ? `Invitation from ${proposal.invitedBy ?? "Client"}`
+                      : `Bid: ₹${proposal.bidAmount}`
+                  }
+                  meta={[
+                    { label: "Duration", value: proposal.duration || "N/A" },
+                    { label: "Status", value: proposal.status },
+                    {
+                        label: "Created",
+                        value: new Date(proposal.createdAt).toLocaleDateString(),
+                    },
+                  ]}
+                  description={
+                  isInvitation
+                      ? proposal.invitation?.message || "No message provided."
+                      : proposal.description
+                  }
+                  actions={[
+                    {
+                        label: "View Details",
+                        onClick: () => handleViewDetails(proposal.job?.id!),
+                        variant: "primary",
+                    },
+                  ].filter(Boolean) as ActionItem[]}
+              />
             ))}
+
+            {isScrollLoading && hasMore && (
+              <div className="flex justify-center py-4">
+                <Spinner size={36} />
+              </div>
+            )}
         </div>
     </section>
     );

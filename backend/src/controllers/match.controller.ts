@@ -4,6 +4,7 @@ import { NextFunction, Request, Response } from "express";
 import { IMatchService } from "../services/interface/IMatchService";
 import { createHttpError } from "../utils/httpError.util";
 import { sendResponse } from "../utils/response.util";
+import { JobSort } from "types/filter.type";
 
 export class MatchController {
 
@@ -27,6 +28,15 @@ export class MatchController {
             const location = req.query.location as string | undefined;
             const budgetMin = req.query.budgetMin ? Number(req.query.budgetMin) : undefined;
             const budgetMax = req.query.budgetMax ? Number(req.query.budgetMax) : undefined;
+            const sort = (req.query.sort as JobSort) ?? "newest";
+
+            const workMode = req.query.workMode as "fixed" | "hourly" | undefined;
+            const skills = req.query.skills
+                ? Array.isArray(req.query.skills)
+                    ? (req.query.skills as string[])
+                    : [req.query.skills as string]
+                : [];
+
 
             if (
                 (budgetMin !== undefined && Number.isNaN(budgetMin)) ||
@@ -37,7 +47,8 @@ export class MatchController {
 
             const { jobs, nextCursor } = await this._matchService.getBestMatchJobs(
                 freelancerId, limit, cursor, search,
-                { category, location, budgetMin, budgetMax }
+                { category, location, budgetMin, budgetMax, workMode, skills },
+                sort
             );
 
             sendResponse(res, HttpStatus.OK, { jobs, nextCursor });

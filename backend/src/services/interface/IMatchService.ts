@@ -1,3 +1,4 @@
+import { JobFilters, JobSort } from "types/filter.type";
 import { FreelancerListItemDto } from "../../dtos/freelancerProfile.dto";
 import { JobListDTO } from "../../dtos/job.dto";
 
@@ -7,12 +8,8 @@ export interface IMatchService {
         limit: number,
         cursor?: string,
         search?: string,
-        filters?: {
-            category?: string;
-            location?: string;
-            budgetMin?: number;
-            budgetMax?: number;
-        }
+        filters?: JobFilters,
+        sort?: JobSort
     ): Promise<{ jobs: JobListDTO[], nextCursor: string | null }>;
     getBestMatchFreelancers(
         jobId: string,

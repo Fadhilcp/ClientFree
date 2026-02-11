@@ -32,7 +32,6 @@ const WithdrawalsPage: React.FC = () => {
       setLoading(true);
 
       const res = await paymentService.getWithdrawals(pageNumber, limit);
-      console.log("🚀 ~ fetchWithdrawals ~ res:", res)
 
       if (res.data.success) {
         const {

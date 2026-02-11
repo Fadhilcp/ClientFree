@@ -8,6 +8,7 @@ import { useDispatch } from "react-redux";
 import { setCredentials } from "../../features/authSlice";
 import Loader from "../../components/ui/Loader/Loader";
 import { validateEmail, validatePassword } from "../../utils/validators/profileForm";
+import { tokenStore } from "../../utils/tokenStore";
 
 const AdminLogin: React.FC = () => {
 
@@ -46,10 +47,9 @@ const AdminLogin: React.FC = () => {
         setLoading(true);
         try {
           const response = await authService.login(values);
-          console.log("🚀 ~ handleSubmit ~ response.data.user:", response.data.user)
           if(response.data.user.role !== 'admin') return notify.warn('Your are not a Admin') 
             const { user, token } = response.data;
-            localStorage.setItem('token',token)
+            tokenStore.set(token);
             dispatch(setCredentials({user,token}))
     
             notify.success('Admin logged')

@@ -5,6 +5,7 @@ import { IJobService } from "../services/interface/IJobService";
 import { createHttpError } from "../utils/httpError.util";
 import { sendResponse } from "../utils/response.util";
 import { UserRole } from "constants/user.constants";
+import { JobSort } from "types/filter.type";
 
 export class JobController {
     constructor(private _jobService: IJobService){}
@@ -45,6 +46,7 @@ export class JobController {
             const budgetMin = req.query.budgetMin ? Number(req.query.budgetMin) : undefined;
             const budgetMax = req.query.budgetMax ? Number(req.query.budgetMax) : undefined;
             const workMode = req.query.workMode as "fixed" | "hourly" | undefined;
+            const sort = (req.query.sort as JobSort) ?? "newest";
 
             if (
                 (budgetMin !== undefined && Number.isNaN(budgetMin)) ||
@@ -61,7 +63,8 @@ export class JobController {
 
             const { jobs, nextCursor } = await this._jobService.getAllJobs(
                 freelancerId, status, search, limit, cursor,
-                { category, location, budgetMin, budgetMax, workMode, skills }
+                { category, location, budgetMin, budgetMax, workMode, skills },
+                sort
             );
     
             sendResponse(res, HttpStatus.OK, { jobs, nextCursor });
@@ -132,6 +135,8 @@ export class JobController {
             
             const category = req.query.category as string | undefined;
             const location = req.query.location as string | undefined;
+            const sort = (req.query.sort as JobSort) ?? "newest";
+
             const budgetMin = req.query.budgetMin
                 ? Number(req.query.budgetMin)
                 : undefined;
@@ -155,7 +160,8 @@ export class JobController {
 
             const { jobs, nextCursor }= await this._jobService.getClientJobs(
                 clientId, status, search, limit, cursor,
-                { category, location, budgetMin, budgetMax, workMode, skills }
+                { category, location, budgetMin, budgetMax, workMode, skills },
+                sort
             );
 
             sendResponse(res, HttpStatus.OK, { jobs, nextCursor });
@@ -212,6 +218,8 @@ export class JobController {
 
             const category = req.query.category as string | undefined;
             const location = req.query.location as string | undefined;
+            const sort = (req.query.sort as JobSort) ?? "newest";
+
             const budgetMin = req.query.budgetMin
                 ? Number(req.query.budgetMin)
                 : undefined;
@@ -246,7 +254,8 @@ export class JobController {
                     budgetMax,
                     workMode, 
                     skills
-                }
+                },
+                sort
             );
 
             sendResponse(res, HttpStatus.OK, { jobs, nextCursor })
@@ -270,6 +279,15 @@ export class JobController {
             const location = req.query.location as string | undefined;
             const budgetMin = req.query.budgetMin ? Number(req.query.budgetMin) : undefined;
             const budgetMax = req.query.budgetMax ? Number(req.query.budgetMax) : undefined;
+            const sort = (req.query.sort as JobSort) ?? "newest";
+
+            
+            const workMode = req.query.workMode as "fixed" | "hourly" | undefined;
+            const skills = req.query.skills
+                ? Array.isArray(req.query.skills)
+                    ? (req.query.skills as string[])
+                    : [req.query.skills as string]
+                : [];
 
             if (
                 (budgetMin !== undefined && Number.isNaN(budgetMin)) ||
@@ -280,7 +298,8 @@ export class JobController {
 
             const { jobs, nextCursor } = await this._jobService.getInterestedJobsForFreelancer(
                 freelancerId, search, limit, cursor,
-                { category, location, budgetMin, budgetMax }
+                { category, location, budgetMin, budgetMax, workMode, skills },
+                sort
             );
 
             sendResponse(res, HttpStatus.OK, { jobs, nextCursor });
@@ -336,5 +355,4 @@ export class JobController {
             next(error);
         }
     }
-
 }

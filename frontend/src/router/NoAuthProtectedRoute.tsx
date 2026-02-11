@@ -14,7 +14,6 @@ const NoAuthProtectedRoute: React.FC<NoAuthProtectedRouteProps> = ({ children })
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log(token, user)
 
     if (token && user) {
       if (user.role === "admin") {

@@ -1,7 +1,6 @@
 import React from "react";
 import type { FreelancerProfileDto } from "../../../types/user/freelancerProfile.dto";
 import type { ClientProfileDto } from "../../../types/user/clientProfile.dto";
-import Button from "../Button";
 import ProfileImage from "../../user/profile/ProfileImage";
 
 interface UserDetailModalProps {
@@ -25,8 +24,12 @@ const UserDetailModal: React.FC<UserDetailModalProps> = ({ isOpen, onClose, user
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">
             {user.name || user.username}
           </h2>
-          <Button onClick={onClose} className="text-sm bg-transparent hover:bg-transparent text-indigo-600 dark:text-indigo-500 hover:underline"
-          label="Close"/>
+          <button
+          onClick={onClose} 
+          className="text-sm bg-transparent hover:bg-transparent text-indigo-600 dark:text-indigo-500 hover:underline"
+          >
+            Close
+          </button>
         </div>
 
         <div className="space-y-3 text-sm">

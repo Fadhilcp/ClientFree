@@ -11,6 +11,7 @@ export interface IJobAssignmentRepository extends IBaseRepository<IJobAssignment
     findWithJobDetailPaginated(
             assignmentFilter: FilterQuery<IJobAssignmentDocument>, 
             jobFilter: FilterQuery<IJobDocument>,
+            sortQuery: Record<string, 1 | -1>,
             limit: number
         ): Promise<(IJobAssignmentDocument & { job: IJobDocument })[]>
     findApprovedMilestonesPaginated(

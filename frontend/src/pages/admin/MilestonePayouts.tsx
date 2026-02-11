@@ -24,7 +24,6 @@ const milestoneTabs: string[] = ['All', 'Approved', 'Released'];
 
 const MilestonePayouts = () => {
   const [milestones, setMilestones] = useState<AdminApprovedMilestoneDto[]>([]);
-  console.log("🚀 ~ MilestonePayouts ~ milestones:", milestones)
   const [loading, setLoading] = useState(false);
 
   const [selectedMilestone, setSelectedMilestone] = useState<AdminApprovedMilestoneDto | null>(null);

@@ -404,7 +404,7 @@ const JobLayout: React.FC = () => {
             </div>
 
             <FiilterBox
-              enabledFilters={["category", "budgetMin", "budgetMax", "location", "workMode", "skills"]}
+              enabledFilters={["category", "budgetMin", "budgetMax", "location", "workMode", "skills", "sort"]}
             />
           </div>
         </div>
@@ -414,7 +414,7 @@ const JobLayout: React.FC = () => {
       {!hideFilterBox && (
         <aside className="hidden md:block border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 sticky top-0 h-screen p-6">
           <FiilterBox
-            enabledFilters={["category", "budgetMin", "budgetMax", "location", "workMode", "skills"]}
+            enabledFilters={["category", "budgetMin", "budgetMax", "location", "workMode", "skills", "sort"]}
           />
         </aside>
       )}

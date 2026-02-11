@@ -1,3 +1,4 @@
+import { JobFilters, JobSort } from "types/filter.type";
 import { JobDetailDTO, JobListDTO } from "../../dtos/job.dto";
 import { AuthPayload } from "../../types/auth.type";
 import { IJob } from "../../types/job.type";
@@ -6,14 +7,8 @@ export interface IJobService {
     createJob(jobData: IJob): Promise<JobDetailDTO>;
     getAllJobs(
         freelancerId: string, status: string, search: string, limit: number, cursor?: string,
-        filters?: {
-            category?: string;
-            budgetMin?: number;
-            budgetMax?: number;
-            location?: string;
-            workMode?: "fixed" | "hourly";
-            skills?: string[];
-        }
+        filters?: JobFilters,
+        sort?: JobSort
     ): Promise<{ jobs: JobListDTO[], nextCursor: string | null }>;
     
     getJobById(jobId: string, user: AuthPayload): Promise<JobDetailDTO>;
@@ -22,14 +17,8 @@ export interface IJobService {
 
     getClientJobs(
         freelancerId: string, status: string, search: string, limit: number, cursor?: string,
-        filters?: {
-            category?: string;
-            budgetMin?: number;
-            budgetMax?: number;
-            location?: string;
-            workMode?: "fixed" | "hourly";
-            skills?: string[];
-        }
+        filters?: JobFilters,
+        sort?: JobSort,
     ): Promise<{ jobs: JobDetailDTO[], nextCursor: string | null }>;
 
     changeStatus(jobId: string, clientId: string, status: string): Promise<void>;
@@ -37,24 +26,14 @@ export interface IJobService {
 
     getFreelancerJobs(
         freelancerId: string, status: string, search: string, limit: number, cursor?: string,
-        filters?: {
-            category?: string;
-            budgetMin?: number;
-            budgetMax?: number;
-            location?: string;
-            workMode?: "fixed" | "hourly";
-            skills?: string[];
-        }
+        filters?: JobFilters,
+        sort?: JobSort,
     ): Promise<{ jobs: JobListDTO[], nextCursor: string | null }>;
     
     getInterestedJobsForFreelancer(
         freelancerId: string, search: string, limit: number, cursor?: string,
-        filters?: {
-            category?: string;
-            budgetMin?: number;
-            budgetMax?: number;
-            location?: string;
-        }
+        filters?: JobFilters,
+        sort?: JobSort,
     ): Promise<{ jobs: JobListDTO[], nextCursor: string | null }>;
 
     addJobInterest(freelancerId: string, jobId: string): Promise<void>;

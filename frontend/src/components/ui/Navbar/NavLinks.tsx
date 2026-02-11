@@ -14,7 +14,10 @@ const NavLinks: React.FC<NavLinksProps> = ({ links, navigate, routes }) => {
    return (
     <ul className="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
       {links.map((label, i) => {
-        const isActive = location.pathname.startsWith(routes[label]);
+
+        const isActive = routes[label] === "/"
+          ? location.pathname === "/"
+          : location.pathname.startsWith(routes[label]);
 
         return (
           <li key={i}>

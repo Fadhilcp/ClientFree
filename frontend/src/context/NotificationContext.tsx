@@ -31,7 +31,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const fetchNotifications = async () => {
     if (!user?.id) return;
     const res = await notificationService.getMyNotifications(1, MAX_LATEST);
-    console.log("🚀 ~ fetchNotifications ~ res:", res)
     if (res.data.success) {
         const { notifications } = res.data;
         setLatestNotifications(notifications.data || []);

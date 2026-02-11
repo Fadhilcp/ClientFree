@@ -66,6 +66,7 @@ const GlobalCallModal = () => {
     return (
       <div className="fixed inset-0 z-50 bg-black flex">
         <video
+        key={remoteStream?.id}
           ref={remoteRef}
           autoPlay
           playsInline
@@ -75,8 +76,8 @@ const GlobalCallModal = () => {
         <video
           ref={localRef}
           autoPlay
-          playsInline
           muted
+          playsInline
           className="w-1/4 absolute bottom-4 right-4 rounded-lg shadow-lg border border-white/20"
         />
 

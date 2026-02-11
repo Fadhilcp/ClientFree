@@ -141,6 +141,7 @@ const SubscriptionSetting = () => {
         title="Subscription History"
         description="All your subscription-related transactions."
       >
+        
         <ListWithHeader
           title="All Subscriptions"
           items={transactions}

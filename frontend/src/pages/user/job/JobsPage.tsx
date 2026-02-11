@@ -13,6 +13,7 @@ import {
 } from "react-router-dom";
 import { notify } from "../../../utils/toastService";
 import ConfirmationModal from "../../../components/ui/Modal/ConfirmationModal";
+import Spinner from "../../../components/ui/Loader/Spinner";
 
 const LIMIT = 20;
 
@@ -22,6 +23,10 @@ const JobsPage: React.FC<{ status: string; title: string }> = ({
 }) => {
   const [jobs, setJobs] = useState<JobListDTO[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const isInitialLoading = loading && jobs.length === 0;
+  const isScrollLoading = loading && jobs.length > 0;
+
 
   // infinite scroll
   const [cursor, setCursor] = useState<string | null>(null);
@@ -40,21 +45,18 @@ const JobsPage: React.FC<{ status: string; title: string }> = ({
   const [searchParams] = useSearchParams();
 
   const filters = {
+    category: searchParams.get("category") || undefined,
     location: searchParams.get("location") || undefined,
-    experience: searchParams.get("experience") || undefined,
     workMode: searchParams.get("workMode") || undefined,
 
-    hourlyRateMin: searchParams.get("hourlyRateMin")
-      ? Number(searchParams.get("hourlyRateMin"))
+    budgetMin: searchParams.get("budgetMin")
+      ? Number(searchParams.get("budgetMin"))
       : undefined,
-    hourlyRateMax: searchParams.get("hourlyRateMax")
-      ? Number(searchParams.get("hourlyRateMax"))
+    budgetMax: searchParams.get("budgetMax")
+      ? Number(searchParams.get("budgetMax"))
       : undefined,
-    ratingMin: searchParams.get("ratingMin")
-      ? Number(searchParams.get("ratingMin"))
-      : undefined,
-
     skills: searchParams.getAll("skills"),
+    sort: searchParams.get("sort") || undefined,
   };
 // to convert object filter fields into query params
   const filterQuery = useMemo(() => {
@@ -195,7 +197,7 @@ const JobsPage: React.FC<{ status: string; title: string }> = ({
 
   return (
     <section className="bg-white dark:bg-gray-900 min-h-screen">
-      {loading && <Loader />}
+      {isInitialLoading && <Loader/>}
 
       <ConfirmationModal
         isOpen={isDeleteModalOpen}
@@ -206,12 +208,19 @@ const JobsPage: React.FC<{ status: string; title: string }> = ({
       />
 
       <div className="container mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-indigo-600 dark:text-indigo-500">
-            {title}
-          </h2>
-          <SearchBar placeholder="Search jobs..." onSearch={handleSearch} />
-        </div>
+      {/* Title + Search aligned */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+        {/* Title */}
+        <h2 className="text-2xl font-bold text-indigo-600 dark:text-indigo-500 order-1 sm:order-none">
+          {title}
+        </h2>
+
+        {/* Search Bar */}
+        <SearchBar
+          placeholder="Search jobs..."
+          onSearch={handleSearch}
+        />
+      </div>
 
         {jobs.length === 0 && !loading && (
           <p className="text-gray-500 text-center py-10">
@@ -266,6 +275,12 @@ const JobsPage: React.FC<{ status: string; title: string }> = ({
           <p className="text-center text-gray-400 py-4">
             No more jobs.
           </p>
+        )}
+        
+        {isScrollLoading && hasMore && (
+          <div className="flex justify-center py-3">
+            <Spinner size={36} />
+          </div>
         )}
       </div>
     </section>

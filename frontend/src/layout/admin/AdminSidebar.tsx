@@ -1,5 +1,19 @@
 import React, { type JSX } from 'react';
 import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faUsers,
+  faBrain,
+  faCreditCard,
+  faPuzzlePiece,
+  faMoneyBillWave,
+  faBalanceScale,
+  faWallet,
+  faArrowDown,
+  faBell,
+  faExclamationTriangle,
+} from '@fortawesome/free-solid-svg-icons';
+
 
 interface SidebarItem {
   label: string;
@@ -11,225 +25,59 @@ const sidebarItems: SidebarItem[] = [
   {
     label: 'Users',
     path: '/admin/users',
-    icon: (
-      <svg
-        className="size-4"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-        <circle cx="9" cy="7" r="4" />
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-      </svg>
-    ),
+    icon: <FontAwesomeIcon icon={faUsers} className="size-4" />,
   },
   {
     label: 'Skills',
     path: '/admin/skills',
-    icon: (
-      <svg
-        className="size-4"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M12 2l4 4-4 4-4-4z" />
-        <path d="M2 12l4 4-4 4-4-4z" />
-        <path d="M22 12l-4 4 4 4 4-4z" />
-      </svg>
-    ),
+    icon: <FontAwesomeIcon icon={faBrain} className="size-4" />,
   },
   {
     label: 'Subscriptions',
     path: '/admin/subscriptions',
-    icon: (
-      <svg
-        className="size-4"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M12 2l4 4-4 4-4-4z" />
-        <path d="M2 12l4 4-4 4-4-4z" />
-        <path d="M22 12l-4 4 4 4 4-4z" />
-      </svg>
-    ),
+    icon: <FontAwesomeIcon icon={faCreditCard} className="size-4" />,
   },
   {
     label: 'AddOns',
     path: '/admin/addOns',
-    icon: (
-      <svg
-        className="size-4"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M12 2l4 4-4 4-4-4z" />
-        <path d="M2 12l4 4-4 4-4-4z" />
-        <path d="M22 12l-4 4 4 4 4-4z" />
-      </svg>
-    ),
+    icon: <FontAwesomeIcon icon={faPuzzlePiece} className="size-4" />,
   },
   {
     label: 'Payouts',
     path: '/admin/payouts',
-    icon: (
-      <svg
-        className="size-4"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M12 2l4 4-4 4-4-4z" />
-        <path d="M2 12l4 4-4 4-4-4z" />
-        <path d="M22 12l-4 4 4 4 4-4z" />
-      </svg>
-    ),
+    icon: <FontAwesomeIcon icon={faMoneyBillWave} className="size-4" />,
   },
   {
     label: 'Disputes',
     path: '/admin/disputes',
-    icon: (
-      <svg
-        className="size-4"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M12 2l4 4-4 4-4-4z" />
-        <path d="M2 12l4 4-4 4-4-4z" />
-        <path d="M22 12l-4 4 4 4 4-4z" />
-      </svg>
-    ),
+    icon: <FontAwesomeIcon icon={faExclamationTriangle} className="size-4" />,
   },
   {
     label: 'Payments',
     path: '/admin/payments',
-    icon: (
-      <svg
-        className="size-4"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M12 2l4 4-4 4-4-4z" />
-        <path d="M2 12l4 4-4 4-4-4z" />
-        <path d="M22 12l-4 4 4 4 4-4z" />
-      </svg>
-    ),
+    icon: <FontAwesomeIcon icon={faCreditCard} className="size-4" />,
   },
   {
     label: 'Escrow',
     path: '/admin/escrow-milestones',
-    icon: (
-      <svg
-        className="size-4"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M12 2l4 4-4 4-4-4z" />
-        <path d="M2 12l4 4-4 4-4-4z" />
-        <path d="M22 12l-4 4 4 4 4-4z" />
-      </svg>
-    ),
+    icon: <FontAwesomeIcon icon={faBalanceScale} className="size-4" />,
   },
   {
     label: 'Wallets',
     path: '/admin/wallets',
-    icon: (
-      <svg
-        className="size-4"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M12 2l4 4-4 4-4-4z" />
-        <path d="M2 12l4 4-4 4-4-4z" />
-        <path d="M22 12l-4 4 4 4 4-4z" />
-      </svg>
-    ),
+    icon: <FontAwesomeIcon icon={faWallet} className="size-4" />,
   },
   {
     label: 'Withdrawals',
     path: '/admin/withdrawals',
-    icon: (
-      <svg
-        className="size-4"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M12 2l4 4-4 4-4-4z" />
-        <path d="M2 12l4 4-4 4-4-4z" />
-        <path d="M22 12l-4 4 4 4 4-4z" />
-      </svg>
-    ),
+    icon: <FontAwesomeIcon icon={faArrowDown} className="size-4" />,
   },
   {
     label: 'Notifications',
     path: '/admin/notifications',
-    icon: (
-      <svg
-        className="size-4"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M12 2l4 4-4 4-4-4z" />
-        <path d="M2 12l4 4-4 4-4-4z" />
-        <path d="M22 12l-4 4 4 4 4-4z" />
-      </svg>
-    ),
+    icon: <FontAwesomeIcon icon={faBell} className="size-4" />,
   },
-];
+]; 
 
 const AdminSidebar: React.FC = () => {
   return (

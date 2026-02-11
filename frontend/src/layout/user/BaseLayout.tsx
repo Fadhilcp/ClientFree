@@ -35,40 +35,40 @@ const BaseLayout: React.FC<BaseLayoutProps> = ({ menuItems, filterBox }) => {
 
         <Outlet />
       </main>
-{filterBox && (
-  <div
-    className={`fixed inset-0 z-50 md:hidden transition-opacity duration-300 ${
-      showMobileFilter ? "opacity-100" : "opacity-0 pointer-events-none"
-    }`}
-    onClick={() => setShowMobileFilter(false)}
-  >
-    {/* Backdrop */}
-    <div className="absolute inset-0 bg-black/40" />
-
-    {/* Sliding panel */}
-    <div
-      className={`absolute right-0 top-0 h-full w-full max-w-xs no-scrollbar
-                  bg-white dark:bg-gray-900 p-4 overflow-y-auto
-                  transform transition-transform duration-300 ease-in-out
-                  ${showMobileFilter ? "translate-x-0" : "translate-x-full"}`}
-      onClick={(e) => e.stopPropagation()}
-    >
-      {/* Modal header */}
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400">
-          Filters
-        </h3>
-        <button
+      {filterBox && (
+        <div
+          className={`fixed inset-0 z-50 md:hidden transition-opacity duration-300 ${
+            showMobileFilter ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
           onClick={() => setShowMobileFilter(false)}
-          className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700"
         >
-          <i className="fa-solid fa-xmark text-gray-600 dark:text-gray-300" />
-        </button>
-      </div>
-      {filterBox}
-    </div>
-  </div>
-)}
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/40" />
+
+          {/* Sliding panel */}
+          <div
+            className={`absolute right-0 top-0 h-full w-full max-w-xs no-scrollbar
+                        bg-white dark:bg-gray-900 p-4 overflow-y-auto
+                        transform transition-transform duration-300 ease-in-out
+                        ${showMobileFilter ? "translate-x-0" : "translate-x-full"}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal header */}
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400">
+                Filters
+              </h3>
+              <button
+                onClick={() => setShowMobileFilter(false)}
+                className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700"
+              >
+                <i className="fa-solid fa-xmark text-gray-600 dark:text-gray-300" />
+              </button>
+            </div>
+            {filterBox}
+          </div>
+        </div>
+      )}
 
 
       {/* Filter box */}

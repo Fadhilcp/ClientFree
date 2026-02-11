@@ -7,6 +7,7 @@ export interface IJobRepository extends IBaseRepository<IJobDocument>{
     findByIdWithDetails(jobId: string): Promise<IJobDocument | null>;
     findWithSkillsPaginated(
         filter: FilterQuery<IJobDocument>,
-        limit: number
+        limit: number,
+        sort: Record<string, 1 | -1>
     ): Promise<IJobDocument[]>
 };

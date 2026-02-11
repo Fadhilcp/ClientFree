@@ -15,12 +15,17 @@ import Button from "../../../components/ui/Button";
 import { matchService } from "../../../services/match.service";
 import BestMatchModal from "../../../components/ui/Modal/BestMatchModal";
 import { chatService } from "../../../services/chat.service";
+import Spinner from "../../../components/ui/Loader/Spinner";
 
 const LIMIT = 20;
 
 const FreelancersPage: React.FC = () => {
   const [freelancers, setFreelancers] = useState<FreelancerListItemDto[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const isInitialLoading = loading && freelancers.length === 0;
+  const isScrollLoading = loading && freelancers.length > 0;
+
   const navigate = useNavigate();
   const location = useLocation();
   // for infinit scroll
@@ -299,7 +304,7 @@ const FreelancersPage: React.FC = () => {
 
   return (
     <section className="bg-white dark:bg-gray-900 min-h-screen">
-      {loading && <Loader />}
+      {isInitialLoading && <Loader/>}
       <div className="container mx-auto">
         {/* Title + Search aligned */}
      
@@ -437,6 +442,12 @@ const FreelancersPage: React.FC = () => {
               )}
             </div>
           </UserModal>
+
+          {isScrollLoading && hasMore && (
+            <div className="flex justify-center py-3">
+              <Spinner size={36} />
+            </div>
+          )}
           
       </div>
     </section>

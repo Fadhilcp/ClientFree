@@ -5,6 +5,7 @@ import { JOB_CATEGORIES } from '../../constants/jobCategories';
 import { skillService } from '../../services/skill.service';
 import { notify } from '../../utils/toastService';
 import SkillsSelect from '../user/profileModal/SkillSelect';
+import type { JobSort } from '../../types/filter.type';
 
 type FilterKey =
   | "category"
@@ -16,7 +17,8 @@ type FilterKey =
   | "hourlyRateMax"
   | "ratingMin"
   | "skills" 
-  | "workMode";
+  | "workMode"
+  | "sort";
 
 type FilterBoxProps = {
   enabledFilters: FilterKey[];
@@ -49,6 +51,10 @@ const FiilterBox: React.FC<FilterBoxProps> = ({ enabledFilters = [] }) => {
 
     const [workMode, setWorkMode] = useState(
       searchParams.get("workMode") || "all"
+    );
+
+    const [sort, setSort] = useState(
+      searchParams.get("sort") || "newest"
     );
 
     const [skills, setSkills] = useState<string[]>(
@@ -105,6 +111,8 @@ const FiilterBox: React.FC<FilterBoxProps> = ({ enabledFilters = [] }) => {
         ...(has("skills") && skills.length > 0
           ? { skills }
           : {}),
+
+        ...(sort ? { sort: sort as JobSort } : {}),
       });
 
       params.delete("cursor");
@@ -166,6 +174,24 @@ const FiilterBox: React.FC<FilterBoxProps> = ({ enabledFilters = [] }) => {
                     />
                   )}
                 </div>
+              </div>
+            )}
+
+            {/* Budget Sorting */}
+            {has("sort") && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Sort Jobs
+                </label>
+                <select
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value)}
+                  className="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 bg-white dark:text-gray-200"
+                >
+                  <option value="newest">Newest</option>
+                  <option value="budget_desc">High → Low</option>
+                  <option value="budget_asc">Low → High</option>
+                </select>
               </div>
             )}
             

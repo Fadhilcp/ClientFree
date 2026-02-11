@@ -100,7 +100,6 @@ const DisputeDetailPage: React.FC = () => {
       navigate(-1);
 
       const res = await paymentService.getDisputeById(id!);
-      console.log("🚀 ~ handleReleaseToFreelancer ~ res:", res)
       if (res.data.success) {
         setDispute(res.data.dispute);
       }

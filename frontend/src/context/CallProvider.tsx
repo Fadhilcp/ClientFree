@@ -73,16 +73,19 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
     }, []);
 
+    const isCaller = activeChatId && activeReceiverId && !incomingOffer;
+
     useEffect(() => {
-        if (activeChatId && activeReceiverId && !inCall && !incomingOffer) {
+        if (isCaller && !inCall) {
             startCall();
         }
-    }, [activeChatId, activeReceiverId]);
+    }, [isCaller]);
 
     // outgoing call - both chatId and receiverId
     const startOutgoingCall = (chatId: string, receiverId: string) => {
         setActiveChatId(chatId);
         setActiveReceiverId(receiverId);
+        startCall();
     };
 
     const acceptIncomingCall = () => {

@@ -13,6 +13,7 @@ export function filtersToSearchParams(filters: FreelancerFilters): URLSearchPara
   if (filters.ratingMin !== undefined) params.set("ratingMin", String(filters.ratingMin));
 
   if (filters.workMode) params.set("workMode", filters.workMode);
+  if (filters.sort) params.set("sort", filters.sort);
 
   if (filters.skills && filters.skills.length > 0) {
     filters.skills.forEach((skill) => {

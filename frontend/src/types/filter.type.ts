@@ -1,3 +1,5 @@
+export type JobSort = "newest" | "budget_asc" | "budget_desc";
+
 export interface FreelancerFilters {
   category?: string;
   budgetMin?: number;
@@ -11,4 +13,5 @@ export interface FreelancerFilters {
 
   workMode?: "fixed" | "hourly" | "all";
   skills?: string[];
+  sort?: JobSort;
 }

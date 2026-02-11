@@ -21,6 +21,8 @@ import { IDatabaseSessionProvider } from "../repositories/db/session-provider.in
 import { IUserDocument } from "../types/user.type";
 import { UserRole } from "constants/user.constants";
 import { INotificationService } from "./interface/INotificationService";
+import { JobFilters, JobSort } from "types/filter.type";
+import { buildJobSort } from "../helpers/buildJobSort";
 
 export class JobService implements IJobService {
 
@@ -68,14 +70,8 @@ export class JobService implements IJobService {
 
     async getAllJobs(
         freelancerId: string, status: string, search: string, limit: number, cursor?: string,
-        filters?: {
-            category?: string;
-            budgetMin?: number;
-            budgetMax?: number;
-            location?: string;
-            workMode?: "fixed" | "hourly";
-            skills?: string[];
-        }
+        filters?: JobFilters,
+        sort: JobSort = "newest"
     ): Promise<{ jobs: JobListDTO[], nextCursor: string | null }> {
         let interestedJobIds: string[] = [];
 
@@ -96,6 +92,8 @@ export class JobService implements IJobService {
                 { acceptedProposalIds: { $size: 0 } }
             ]
         };
+        // buget based sort
+        const sortQuery = buildJobSort(sort);
         
         if(status) filter.status = status;
         // cursor for infinite scroll
@@ -142,18 +140,18 @@ export class JobService implements IJobService {
             filter.skills = { $all: filters.skills.map(id => new Types.ObjectId(id)) };
         }
 
-        const jobs = await this._jobRepository.findWithSkillsPaginated(filter,limit);
+        const jobs = await this._jobRepository.findWithSkillsPaginated(filter, limit, sortQuery);
         //setting cursor for infinite scroll
         const nextCursor = jobs.length > 0 
         ? jobs[jobs.length - 1]._id.toString()
         : null;
 
         return {
-           jobs: jobs.map(job => ({
-            ...JobMapper.toListDTO(job),
-            isInterested: interestedJobIds.includes(job.id)
-        })),
-        nextCursor
+            jobs: jobs.map(job => ({
+                ...JobMapper.toListDTO(job),
+                isInterested: interestedJobIds.includes(job.id)
+            })),
+            nextCursor
         };
     }
 
@@ -200,14 +198,8 @@ export class JobService implements IJobService {
 
     async getClientJobs(
         clientId: string, status: string, search: string, limit: number, cursor?: string,
-          filters?: {
-            category?: string;
-            budgetMin?: number;
-            budgetMax?: number;
-            location?: string;
-            workMode?: "fixed" | "hourly";
-            skills?: string[];
-        }
+        filters?: JobFilters,
+        sort: JobSort = "newest"
     ): Promise<{ jobs: JobDetailDTO[], nextCursor: string | null }> {
         const filter: FilterQuery<IJobDocument> = { clientId, isDeleted: false };
         
@@ -262,8 +254,10 @@ export class JobService implements IJobService {
         if (filters?.skills && filters.skills.length > 0) {
             filter.skills = { $all: filters.skills.map(id => new Types.ObjectId(id)) };
         }
+        // sort filter
+        const sortQuery = buildJobSort(sort);
 
-        const jobs = await this._jobRepository.findWithSkillsPaginated(filter, limit);
+        const jobs = await this._jobRepository.findWithSkillsPaginated(filter, limit, sortQuery);
 
         //setting cursor for infinite scroll
         const nextCursor = jobs.length > 0 
@@ -343,14 +337,8 @@ export class JobService implements IJobService {
 
     async getFreelancerJobs(
         freelancerId: string, status: string, search: string, limit: number, cursor?: string,
-        filters?: {
-            category?: string;
-            budgetMin?: number;
-            budgetMax?: number;
-            location?: string;
-            workMode?: "fixed" | "hourly";
-            skills?: string[];
-        }
+        filters?: JobFilters,
+        sort: JobSort = "newest",
     ): Promise<{ jobs: JobListDTO[], nextCursor: string | null }> {
         const assignmentFilter: FilterQuery<IJobAssignmentDocument> = { freelancerId: new Types.ObjectId(freelancerId) };
 
@@ -410,8 +398,26 @@ export class JobService implements IJobService {
             jobFilter["job.skills"] = { $all: filters.skills.map(id => new Types.ObjectId(id)) };
         }
 
+        // sort filter
+        let sortQuery: Record<string, 1 | -1>;
+
+        switch (sort) {
+            case "budget_asc":
+                sortQuery = { "job.payment.budget": 1, "_id": -1 };
+                break;
+
+            case "budget_desc":
+                sortQuery = { "job.payment.budget": -1, "_id": -1 };
+                break;
+
+            case "newest":
+            default:
+                sortQuery = { "_id": -1 };
+                break;
+        }
+
         const assignments = await this._jobAssignmentRepository.findWithJobDetailPaginated(
-            assignmentFilter, jobFilter, limit
+            assignmentFilter, jobFilter, sortQuery, limit
         );
 
         if (!assignments || assignments.length === 0) {
@@ -432,12 +438,8 @@ export class JobService implements IJobService {
 
     async getInterestedJobsForFreelancer(
         freelancerId: string, search: string, limit: number, cursor?: string, 
-        filters?: {
-            category?: string;
-            budgetMin?: number;
-            budgetMax?: number;
-            location?: string;
-        }
+        filters?: JobFilters,
+        sort: JobSort = "newest",
     ): Promise<{ jobs: JobListDTO[], nextCursor: string | null }> {
 
         const user = await this._userRepository.findById(freelancerId);
@@ -482,10 +484,20 @@ export class JobService implements IJobService {
                 { "locationPreference.country": { $regex: loc, $options: "i" } },
             ];
         }
+        // workmode
+        if (filters?.workMode) {
+            filter["payment.type"] = filters.workMode;
+        }
+        if (filters?.skills && filters.skills.length > 0) {
+            filter.skills = { $all: filters.skills.map(id => new Types.ObjectId(id)) };
+        }
+        // sort filter
+        const sortQuery = buildJobSort(sort);
 
         const jobs = await this._jobRepository.findWithSkillsPaginated(
             filter,
-            limit
+            limit, 
+            sortQuery
         );
 
         const nextCursor = jobs.length > 0 

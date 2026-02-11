@@ -103,11 +103,11 @@ const SignUp: React.FC = () => {
         <div className="max-w-screen-xl m-0 sm:m-10 bg-white dark:bg-gray-800 shadow sm:rounded-lg flex justify-center flex-1">
           <div className="lg:w-1/2 xl:w-5/12 p-6 sm:p-1">
             <div className="mt-12 flex flex-col items-center">
-              <h1 className="text-indigo-600 dark:text-indigo-400 text-2xl xl:text-3xl font-bold">
+              <h1 className="text-indigo-600 dark:text-indigo-400 text-2xl xl:text-2xl font-bold">
                 Sign up as {role}
               </h1>
 
-              <div className="w-full flex-1 mt-7">
+              <div className="w-full flex-1 mt-5">
                 <div className="flex flex-col items-center">
                   <SocialAuthButton />
                 </div>
@@ -123,7 +123,6 @@ const SignUp: React.FC = () => {
                 <div className="mx-auto w-full max-w-115">
                   <InputSection<FormValues>
                     name="username"
-                    label="Username"
                     type="text"
                     value={values.username}
                     onChange={handleChange}

@@ -28,20 +28,21 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder = "Search...", onSear
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-center gap-2">
+    <form onSubmit={handleSubmit} className="flex items-center gap-2 w-full sm:w-auto">
       <input
         type="text"
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder={placeholder}
         className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md 
-                   bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 
-                   focus:outline-none focus:ring-1 focus:ring-indigo-500 w-64 font-light"
+                  bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 
+                  focus:outline-none focus:ring-1 focus:ring-indigo-500 
+                  w-full sm:w-64 font-light"
       />
       <button
-      className="px-3 py-2 text-sm rounded-md bg-indigo-600 dark:bg-indigo-500"
-      type="submit"
-      onClick={(e) => handleSubmit(e)}
+        className="px-3 py-2 text-sm rounded-md bg-indigo-600 dark:bg-indigo-500 text-white"
+        type="submit"
+        onClick={(e) => handleSubmit(e)}
       >
         Search
       </button>

@@ -98,7 +98,6 @@ const Subscriptions: React.FC = () => {
       }
 
       const response = await subscriptionService.upgrade({ planId, billingInterval });
-      console.log("🚀 ~ handleSubscribe ~ response:", response)
       
       if (response.data?.paymentUrl) {
         window.location.href = response.data.paymentUrl;

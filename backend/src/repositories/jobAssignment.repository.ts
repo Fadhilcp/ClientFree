@@ -95,13 +95,12 @@ export class JobAssignmentRepository
         async findWithJobDetailPaginated(
             assignmentFilter: FilterQuery<IJobAssignmentDocument>, 
             jobFilter: FilterQuery<IJobDocument>,
+            sortQuery: Record<string, 1 | -1>,
             limit: number
         ): Promise<(IJobAssignmentDocument & { job: IJobDocument })[]> {
 
             return this.model.aggregate([
                 { $match: assignmentFilter },
-                { $sort: { _id: -1 } },
-
                 {
                     $lookup: {
                         from: "jobs",
@@ -112,7 +111,6 @@ export class JobAssignmentRepository
                 },
                 { $unwind: "$job" },
                 { $match: jobFilter },
-
                 {
                     $lookup: {
                         from: "skills",
@@ -121,6 +119,7 @@ export class JobAssignmentRepository
                         as: "job.skills",
                     },
                 },
+                { $sort: sortQuery },
                 { $limit: limit },
             ]).exec();
         }

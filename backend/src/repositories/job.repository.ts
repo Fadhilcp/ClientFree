@@ -61,6 +61,7 @@ export class JobRepository
     async findWithSkillsPaginated(
         filter: FilterQuery<IJobDocument>,
         limit: number,
+        sort: Record<string, 1 | -1>
     ): Promise<IJobDocument[]> {
     const paginatedFilter: FilterQuery<IJobDocument> = { ...filter };
 
@@ -68,7 +69,7 @@ export class JobRepository
         .find(paginatedFilter)
         .populate("clientId", "isVerified")
         .populate("skills", "name _id")
-        .sort({ _id: -1 })
+        .sort(sort)
         .limit(limit)
         .exec();
     }

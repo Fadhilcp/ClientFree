@@ -10,13 +10,17 @@ import Button from "../../../components/ui/Button";
 import { matchService } from "../../../services/match.service";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../../store/store";
+import Spinner from "../../../components/ui/Loader/Spinner";
 
 const LIMIT = 20;
 
 const BrowseJobsPage: React.FC = () => {
   const [jobs, setJobs] = useState<JobListDTO[]>([]);
-
   const [loading, setLoading] = useState(false);
+
+  const isInitialLoading = loading && jobs.length === 0;
+  const isScrollLoading = loading && jobs.length > 0;
+
   // for infinit scroll
   const [cursor, setCursor] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
@@ -38,20 +42,18 @@ const BrowseJobsPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   
   const filters = {
+    category: searchParams.get("category") || undefined,
     location: searchParams.get("location") || undefined,
-    experience: searchParams.get("experience") || undefined,
     workMode: searchParams.get("workMode") || undefined,
 
-    hourlyRateMin: searchParams.get("hourlyRateMin")
-      ? Number(searchParams.get("hourlyRateMin"))
+    budgetMin: searchParams.get("budgetMin")
+      ? Number(searchParams.get("budgetMin"))
       : undefined,
-    hourlyRateMax: searchParams.get("hourlyRateMax")
-      ? Number(searchParams.get("hourlyRateMax"))
-      : undefined,
-    ratingMin: searchParams.get("ratingMin")
-      ? Number(searchParams.get("ratingMin"))
+    budgetMax: searchParams.get("budgetMax")
+      ? Number(searchParams.get("budgetMax"))
       : undefined,
 
+    sort: searchParams.get("sort") || undefined,
     skills: searchParams.getAll("skills"),
   };
 // to convert object filter fields into query params
@@ -232,30 +234,35 @@ const BrowseJobsPage: React.FC = () => {
 
   return (
     <section className="bg-white dark:bg-gray-900 min-h-screen">
-      {loading && <Loader />}
+      {isInitialLoading && <Loader />}
       <div className="container mx-auto">
-        {/* Title + Search aligned */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-indigo-600 dark:text-indigo-500">
-            {isInterestedPage ? "Interested Jobs" : "Find Jobs"}
-          </h2>
+      {/* Title + Search aligned */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+        {/* Title */}
+        <h2 className="text-2xl font-bold text-indigo-600 dark:text-indigo-500 order-1 sm:order-none">
+          {isInterestedPage ? "Interested Jobs" : "Find Jobs"}
+        </h2>
 
-          { bestMatch &&
+        {/* Best Match Button */}
+        {bestMatch && (
           <Button
-          label={isBestMatch ? "All Jobs" : "Best Match"}
-          onClick={() => {
-            setIsBestMatch(prev => !prev);
-            setJobs([]);
-            setCursor(null);
-            setHasMore(true);
-          }} />
-          }
-
-          <SearchBar
-            placeholder={isInterestedPage ? "Search interested jobs..." : "Search jobs..."}
-            onSearch={handleSearch}
+            className="px-4 py-1 rounded font-bold transition-colors duration-200"
+            label={isBestMatch ? "All Jobs" : "Best Match"}
+            onClick={() => {
+              setIsBestMatch(prev => !prev);
+              setJobs([]);
+              setCursor(null);
+              setHasMore(true);
+            }}
           />
-        </div>
+        )}
+
+        {/* Search Bar */}
+        <SearchBar
+          placeholder={isInterestedPage ? "Search interested jobs..." : "Search jobs..."}
+          onSearch={handleSearch}
+        />
+      </div>
 
         {/* Empty State */}
         {(!jobs || jobs.length === 0) && (
@@ -297,11 +304,11 @@ const BrowseJobsPage: React.FC = () => {
           ))}
 
           {/* infinite scroll loader */}
-        {loading && jobs.length > 0 && (
-          <div className="py-4 text-center">
-            <Loader />
-          </div>
-        )}
+          {isScrollLoading && hasMore && (
+            <div className="flex justify-center py-3">
+              <Spinner size={36} />
+            </div>
+          )}
 
         {!hasMore && (
           <p className="text-center text-gray-400 py-4">No more jobs.</p>

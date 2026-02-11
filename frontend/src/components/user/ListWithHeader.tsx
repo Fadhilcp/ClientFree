@@ -13,6 +13,15 @@ interface ListWithHeaderProps<T> {
 }
 
 function ListWithHeader<T extends { id: string }>({ title, items, columns }: ListWithHeaderProps<T>) {
+
+  if (!items || items.length === 0) {
+    return (
+      <div className="py-10 text-center text-gray-500">
+        No records found.
+      </div>
+    );
+  }
+
   return (
     <div className="">
       {/* Header */}

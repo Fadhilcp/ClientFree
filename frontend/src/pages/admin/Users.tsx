@@ -136,7 +136,6 @@ const Users: React.FC = () => {
           setSelectedStatus({ status: user.status });
           setIsStatusModalOpen(true);
         } catch (error: any) {
-          console.log("🚀 ~ handleStatus ~ error:", error)
           notify.error( error.response?.data?.error || 'Failed to fetch user status');
         } finally {
           setLoading(false);

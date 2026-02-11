@@ -10,11 +10,13 @@ import { HttpResponse } from "../constants/responseMessage.constant";
 import { MatchCacheService } from "../utils/bestMatchCache.util";
 import { MatchScoreHelper } from "../helpers/matchScore.helper";
 import { FreelancerListItemDto } from "../dtos/freelancerProfile.dto";
-import { FilterQuery } from "mongoose";
+import { FilterQuery, Types } from "mongoose";
 import { IJobDocument } from "../types/job.type";
 import { IUserDocument } from "../types/user.type";
 import { mapUserToFreelancerListItemDto } from "../mappers/freelancer.mapper";
 import { UserRole } from "constants/user.constants";
+import { JobFilters, JobSort } from "types/filter.type";
+import { buildJobSort } from "helpers/buildJobSort";
 
 export class MatchService implements IMatchService {
     constructor(
@@ -28,12 +30,8 @@ export class MatchService implements IMatchService {
         limit: number,
         cursor?: string,
         search?: string,
-        filters?: {
-            category?: string;
-            location?: string;
-            budgetMin?: number;
-            budgetMax?: number;
-        }
+        filters?: JobFilters,
+        sort: JobSort = "newest"
     ): Promise<{ jobs: JobListDTO[], nextCursor: string | null }> {
 
         const plan = await this._subscriptionService.getActiveFeatures(freelancerId);
@@ -60,9 +58,9 @@ export class MatchService implements IMatchService {
         if(search && search.trim()) {
             const regex = new RegExp(search.trim(), "i");
             filter.$or = [
-            { title: regex },
-            { category: regex },
-            { subcategory: regex }
+                { title: regex },
+                { category: regex },
+                { subcategory: regex }
             ];
         }
 
@@ -81,7 +79,18 @@ export class MatchService implements IMatchService {
             ];
         }
 
-        const jobs = await this._jobRepository.findWithSkillsPaginated(filter, limit * 3);
+        // workmode
+        if (filters?.workMode) {
+            filter["payment.type"] = filters.workMode;
+        }
+        // Skills
+        if (filters?.skills && filters.skills.length > 0) {
+            filter.skills = { $all: filters.skills.map(id => new Types.ObjectId(id)) };
+        }
+        
+        const sortQuery = buildJobSort(sort);
+
+        const jobs = await this._jobRepository.findWithSkillsPaginated(filter, limit * 3, sortQuery);
 
         const ranked = await Promise.all(
             jobs.map(async job => {
@@ -106,7 +115,7 @@ export class MatchService implements IMatchService {
             })
         );
 
-        const filtered = ranked.filter(j => j.matchScore >= 60)
+        const filtered = ranked.filter(j => j.matchScore >= 10)
                                 .sort((a,b) => b.matchScore - a.matchScore);
 
         const paginated = filtered.slice(0, limit);

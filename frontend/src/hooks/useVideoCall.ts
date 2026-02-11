@@ -12,19 +12,22 @@ export const useVideoCall = (
 ) => {
     const pcRef = useRef<RTCPeerConnection | null>(null);
     const localStreamRef = useRef<MediaStream | null>(null);
+    const pendingCandidatesRef = useRef<RTCIceCandidateInit[]>([]);
+    const remoteStreamRef = useRef<MediaStream>(new MediaStream());
 
     const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
     const [inCall, setInCall] = useState(false);
 
     // cleanup function
     const cleanup = () => {
-        pcRef.current?.getSenders().forEach(s => s.track?.stop());
+        // pcRef.current?.getSenders().forEach(s => s.track?.stop());
         pcRef.current?.close();
         pcRef.current = null;
 
         localStreamRef.current?.getTracks().forEach(t => t.stop());
         localStreamRef.current = null;
 
+        remoteStreamRef.current = new MediaStream();
         setRemoteStream(null);
         setInCall(false);
     };
@@ -43,7 +46,14 @@ export const useVideoCall = (
         };
 
         pc.ontrack = e => {
-            setRemoteStream(e.streams[0]);
+            console.log("ONTRACK:", e.track.kind);
+
+            remoteStreamRef.current.addTrack(e.track);
+            setRemoteStream(remoteStreamRef.current);
+        };
+
+        pc.onconnectionstatechange = () => {
+            console.log("PC state:", pc.connectionState);
         };
 
         pcRef.current = pc;
@@ -86,7 +96,7 @@ export const useVideoCall = (
     const acceptCall = async () => {
         if (!incomingOffer || !receiverId) return;
 
-        cleanup();
+        if (pcRef.current) cleanup();
 
         const stream = await getMedia();
         const pc = createPeer();
@@ -94,6 +104,11 @@ export const useVideoCall = (
         stream.getTracks().forEach(track => pc.addTrack(track, stream));
 
         await pc.setRemoteDescription(incomingOffer);
+
+        pendingCandidatesRef.current.forEach(c =>
+            pcRef.current?.addIceCandidate(c)
+        );
+        pendingCandidatesRef.current = [];
 
         const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
@@ -116,12 +131,23 @@ export const useVideoCall = (
 
         // socket listeners
     useEffect(() => {
-        const onAnswer = ({ answer }: any) => {
-            pcRef.current?.setRemoteDescription(answer);
+        const onAnswer = async ({ answer }: any) => {
+            if(!pcRef.current) return;
+
+            await pcRef.current?.setRemoteDescription(answer);
+
+            pendingCandidatesRef.current.forEach(c => 
+                pcRef.current?.addIceCandidate(c)
+            );
+            pendingCandidatesRef.current = [];
         };
 
         const onIce = ({ candidate }: any) => {
-            pcRef.current?.addIceCandidate(candidate);
+            if (!pcRef.current?.remoteDescription) {
+                pendingCandidatesRef.current.push(candidate);
+            } else {
+                pcRef.current.addIceCandidate(candidate);
+            }
         };
 
         const onEnd = cleanup;

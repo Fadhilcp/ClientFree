@@ -5,6 +5,7 @@ import Loader from "../../../components/ui/Loader/Loader";
 import { useNavigate } from "react-router-dom";
 import { proposalService } from "../../../services/proposal.service";
 import type { IProposal } from "../../../types/job/proposal.type";
+import Spinner from "../../../components/ui/Loader/Spinner";
 
 
 const LIMIT = 20;
@@ -12,6 +13,11 @@ const LIMIT = 20;
 const ProposalAndInvitation: React.FC = () => {
   const [proposals, setProposals] = useState<IProposal[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const isInitialLoading = loading && proposals.length === 0;
+  const isScrollLoading  = loading && proposals.length > 0;
+
+
   const [isInvitation, setIsInvitation] = useState(false);
   const navigate = useNavigate();
 
@@ -89,33 +95,36 @@ const ProposalAndInvitation: React.FC = () => {
 
   return (
     <section className="bg-white dark:bg-gray-900 min-h-screen">
-      {loading && <Loader />}
+      {isInitialLoading && <Loader />}
       <div className="container mx-auto">
-        {/* Title + Search + Dropdown aligned */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-indigo-600 dark:text-indigo-500">
-            {isInvitation ? "Invitations" : "Proposals"}
-          </h2>
+      {/* Title + Search + Dropdown aligned */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+        {/* Title */}
+        <h2 className="text-2xl font-bold text-indigo-600 dark:text-indigo-500 order-1 sm:order-none">
+          {isInvitation ? "Invitations" : "Proposals"}
+        </h2>
 
-          <div className="flex items-center gap-4">
-            {/* Dropdown toggle */}
-            <select
-              value={isInvitation ? "invitations" : "proposals"}
-              onChange={(e) => setIsInvitation(e.target.value === "invitations")}
-              className="px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 
-                         bg-white dark:bg-gray-700 text-gray-700 dark:text-white 
-                         focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="proposals">Proposals</option>
-              <option value="invitations">Invitations</option>
-            </select>
+        {/* Dropdown + Search grouped */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 order-2 sm:order-none w-full sm:w-auto">
+          {/* Dropdown toggle */}
+          <select
+            value={isInvitation ? "invitations" : "proposals"}
+            onChange={(e) => setIsInvitation(e.target.value === "invitations")}
+            className="px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 
+                      bg-white dark:bg-gray-700 text-gray-700 dark:text-white 
+                      focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full sm:w-auto"
+          >
+            <option value="proposals">Proposals</option>
+            <option value="invitations">Invitations</option>
+          </select>
 
-            <SearchBar
-              placeholder={isInvitation ? "Search invitations..." : "Search jobs..."}
-              onSearch={handleSearch}
-            />
-          </div>
+          {/* Search Bar */}
+          <SearchBar
+            placeholder={isInvitation ? "Search invitations..." : "Search jobs..."}
+            onSearch={handleSearch}
+          />
         </div>
+      </div>
 
         {/* Empty State */}
         {(!proposals || proposals.length === 0) && (
@@ -159,13 +168,13 @@ const ProposalAndInvitation: React.FC = () => {
             />
           ))}
 
-            {/* infinite scroll loader */}
-          {loading && proposals.length > 0 && (
-            <div className="py-4 text-center">
-              <Loader />
+          {/* infinite scroll loader */}
+          {isScrollLoading && hasMore && (
+            <div className="flex justify-center py-4">
+              <Spinner size={36} />
             </div>
           )}
-
+          
           {!hasMore && (
             <p className="text-center text-gray-400 py-4">{ isInvitation ? `No more invitation` : `No more proposals` }.</p>
           )}
