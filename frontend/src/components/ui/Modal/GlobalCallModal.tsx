@@ -10,6 +10,10 @@ const GlobalCallModal = () => {
     endCall,
     localStream,
     remoteStream,
+    isMicOn,
+    isCameraOn,
+    toggleMic,
+    toggleCamera,
   } = useCall();
 
   const localRef = useRef<HTMLVideoElement>(null);
@@ -18,14 +22,18 @@ const GlobalCallModal = () => {
   useEffect(() => {
     if (localRef.current && localStream) {
       localRef.current.srcObject = localStream;
+      localRef.current.play().catch(() => {});
     }
-  }, [localStream]);
+  }, [localStream, inCall]); 
 
   useEffect(() => {
     if (remoteRef.current && remoteStream) {
       remoteRef.current.srcObject = remoteStream;
+
+      remoteRef.current.play().catch(() => {});
     }
-  }, [remoteStream]);
+  }, [remoteStream, inCall]);
+  
 
   // Incoming call modal
   if (incomingCall && !inCall) {
@@ -60,38 +68,59 @@ const GlobalCallModal = () => {
       </div>
     );
   }
-
   // Active call modal
   if (inCall) {
     return (
-      <div className="fixed inset-0 z-50 bg-black flex">
+      <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
+        {/* Remote video */}
         <video
-        key={remoteStream?.id}
           ref={remoteRef}
           autoPlay
           playsInline
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover md:object-contain"
         />
 
+        {/* Local/self video */}
         <video
           ref={localRef}
           autoPlay
           muted
           playsInline
-          className="w-1/4 absolute bottom-4 right-4 rounded-lg shadow-lg border border-white/20"
+          className="absolute bottom-4 right-4 
+                    w-1/3 sm:w-1/4 md:w-1/5 lg:w-1/6 
+                    rounded-lg shadow-lg border border-white/20 
+                    object-cover"
         />
 
         {/* Control bar */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-6">
+          {/* Mic */}
+          <button
+            onClick={toggleMic}
+            className={`w-12 h-12 rounded-full flex items-center justify-center text-white
+              ${isMicOn ? "bg-gray-700" : "bg-red-600"}`}
+          >
+            <i className={`fa-solid ${isMicOn ? "fa-microphone" : "fa-microphone-slash"}`} />
+          </button>
+
+          {/* Camera */}
+          <button
+            onClick={toggleCamera}
+            className={`w-12 h-12 rounded-full flex items-center justify-center text-white
+              ${isCameraOn ? "bg-gray-700" : "bg-red-600"}`}
+          >
+            <i className={`fa-solid ${isCameraOn ? "fa-video" : "fa-video-slash"}`} />
+          </button>
+
+          {/* End */}
           <button
             onClick={endCall}
-            className="w-14 h-14 flex items-center justify-center rounded-full 
-                      bg-red-600 text-white hover:bg-red-700 transition shadow-lg"
-            title="End Call"
+            className="w-12 h-12 rounded-full bg-red-600 text-white"
           >
-            <i className="fa-solid fa-phone-slash text-lg"></i>
+            <i className="fa-solid fa-phone-slash" />
           </button>
         </div>
+
       </div>
     );
   }

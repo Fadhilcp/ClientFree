@@ -16,9 +16,10 @@ interface PlaceBidPageProps {
   user: User;
   jobId: string;
   isProfileComplete: boolean;
+  onBidSuccess: () => void;
 }
 
-const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ user, jobId, isProfileComplete }) => {
+const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ user, jobId, isProfileComplete, onBidSuccess }) => {
   const [addOns, setAddOns] = useState<AddOn[]>([]);
   const [selectedUpgradeId, setSelectedUpgradeId] = useState<string | null>(null);
 
@@ -177,6 +178,7 @@ const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ user, jobId, isProfileCompl
     if (!paymentOrder) {
       notify.success("Bid placed successfully!");
       resetForm();
+      onBidSuccess();
       return;
     }
     const options = {
@@ -199,6 +201,7 @@ const PlaceBidPage: React.FC<PlaceBidPageProps> = ({ user, jobId, isProfileCompl
           if (verifyRes.data.success) {
             notify.success("Bid placed & upgrade activated!");
             resetForm();
+            onBidSuccess();
           } else {
             notify.error("Payment verification failed");
           }

@@ -12,6 +12,7 @@ export type SkillForm = {
 }
 
 export interface SkillItem {
+  _id: string;
   id: string;
   name: string;
 }

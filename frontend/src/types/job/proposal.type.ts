@@ -52,3 +52,15 @@ export interface IProposalForm {
   milestones: Milestone[];
   optionalUpgradeId?: string;
 }
+
+export type IProposalStatus =
+  | "NONE"
+  | "SUBMITTED"
+  | "INVITED"
+  | "UPGRADE_PENDING";
+
+export interface ProposalCheckStatusResponse {
+  status: IProposalStatus;
+  message: string;
+  proposalId?: string;
+}

@@ -1,4 +1,5 @@
 import type { ExternalLinkErrors, ProfileFormData, FormErrors, ExternalLink } from "../../types/profileModal.types";
+import { isValidUrl } from "./isValidUrl";
 
 export const validateUsername = (username : string) : string => {
     if(!username.trim()) return 'Username is required';
@@ -59,11 +60,11 @@ export const validateProfileForm = (formData: ProfileFormData, role: 'freelancer
           itemErrors.title = "Title is required";
         }
 
-        if (item.link) {
-          try {
-            new URL(item.link);
-          } catch {
-            itemErrors.link = "Invalid URL";
+        if(!item.link?.trim()) {
+          itemErrors.link = "Link is required"
+        } else if (item.link?.trim()) {
+          if (!isValidUrl(item.link)) {
+            itemErrors.link = "Enter a valid URL (https://...)";
           }
         }
 
@@ -120,7 +121,12 @@ export const validateProfileForm = (formData: ProfileFormData, role: 'freelancer
     errors.company = {};
     if (!formData.company.name.trim()) errors.company.name = 'Company name is required';
     if (!formData.company.industry.trim()) errors.company.industry = 'Industry is required';
-    if (!formData.company.website.trim()) errors.company.website = 'Website is required';
+
+    if (!formData.company.website.trim()) {
+      errors.company.website = "Website is required";
+    } else if (!isValidUrl(formData.company.website)) {
+      errors.company.website = "Enter a valid website URL (https://...)";
+    }
   }
 
   return errors;

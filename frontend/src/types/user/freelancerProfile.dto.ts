@@ -24,7 +24,7 @@ export interface FreelancerProfileDto {
   username: string;
   email: string;
   profileImage?: string;
-  role: string;
+  role: "freelancer"; 
   status: string;
   name?: string;
   phone?: string;

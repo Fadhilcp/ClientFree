@@ -56,6 +56,10 @@ class ProposalService {
   withdrawInvitation(proposalId: string) {
     return axios.patch(endPoints.PROPOSAL.WITHDRAW_INVITATION(proposalId));
   }
+
+  getProposalIsSubmitted(jobId: string) {
+    return axios.get(endPoints.PROPOSAL.IS_SUBMITTED(jobId))
+  }
 }
 
 export const proposalService = new ProposalService();

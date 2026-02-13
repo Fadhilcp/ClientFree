@@ -105,6 +105,7 @@ export const endPoints = {
 
         VERIFY: '/proposal/verify-upgrade-payment',
         WITHDRAW_INVITATION: (proposalId: string) => `/proposal/${proposalId}/withdraw-invitation`,
+        IS_SUBMITTED: (jobId: string) => `/proposal/status/${jobId}`,
     },
     ASSIGNMENT: {
         GET_JOB_ASSIGNMENTS: (jobId: string) => `/assignment/job/${jobId}`,

@@ -55,6 +55,7 @@ export class ProfileController {
             const { id } = req.params
 
             const user = await this._userService.getUserProfileById(id);
+            console.log("🚀 ~ ProfileController ~ getById ~ user:", user)
             
             sendResponse(res, HttpStatus.OK, { user });
         } catch (error) {

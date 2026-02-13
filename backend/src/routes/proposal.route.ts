@@ -13,6 +13,8 @@ import { UserRepository } from "../repositories/user.repository";
 import { NotificationRecipientRepository } from "repositories/notificationRecipient.repository";
 import { NotificationRepository } from "repositories/notification.repository";
 import { NotificationService } from "services/notification.service";
+import { authorizeRole } from "middlewares/authorizeRole";
+import { UserRole } from "constants/user.constants";
 
 const proposalRouter = Router();
 
@@ -52,6 +54,9 @@ proposalRouter.post('/verify-upgrade-payment',proposalController.verifyUpgradePa
 proposalRouter.get('/me',proposalController.getMyProposals.bind(proposalController));
 proposalRouter.get('/client',proposalController.getProposalsForClient.bind(proposalController));
 proposalRouter.get('/job/:jobId',proposalController.getProposalsForJob.bind(proposalController));
+
+proposalRouter.get('/status/:jobId',authorizeRole(UserRole.FREELANCER),proposalController.getProposalIsSubmitted.bind(proposalController));
+
 proposalRouter.get('/:proposalId',proposalController.getById.bind(proposalController));
 proposalRouter.put('/:proposalId',proposalController.update.bind(proposalController));
 

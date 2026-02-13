@@ -3,7 +3,7 @@ export interface ClientProfileDto {
   username: string;
   email: string;
   name?: string;
-  role: string;
+  role: "client"; 
   phone?: string;
   status: string;
   profileImage?: string;

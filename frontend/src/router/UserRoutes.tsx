@@ -1,49 +1,60 @@
-import React from "react";
+import React, { lazy } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+
 import UserLayout from "../layout/user/UserLayout";
-import HeroSection from "../pages/user/landingPage/HeroSection";
-import RoleSelect from "../pages/auth/roleSelect";
-import SignUp from "../pages/auth/signUp";
-import Login from "../pages/auth/login";
-import VerifyOtp from "../pages/auth/verifyOtp";
-import ResetPassword from "../pages/auth/ResetPassword";
-import ForgotPassword from "../pages/auth/ForgotPassword";
-import Home from "../pages/user/Home";
-import Profile from "../pages/user/profile/Profile";
+
 import ProtectedRoute from "./ProtectedRoute";
 import AuthProtectedRoute from "./AuthProtectedRoute";
 import useAuthVerifier from "../hooks/useAuthVerifier";
 import NoAuthProtectedRoute from "./NoAuthProtectedRoute";
 import Loader from "../components/ui/Loader/Loader";
-import Subscriptions from "../pages/user/Subscriptions";
 import SettingsLayout from "../layout/user/SettingsLayout";
-import SecuritySetting from "../pages/user/settings/SecuritySetting";
 import JobLayout from "../layout/user/JobLayout";
-import JobsPage from "../pages/user/job/JobsPage";
-import JobDetailPage from "../pages/user/job/JobDetailPage";
 import FindJobsLayout from "../layout/user/FindJobsLayout";
-import BrowseJobsPage from "../pages/user/find jobs/BrowseJobsPage";
 import FreelancersLayout from "../layout/user/FreelancersListLayout";
-import FreelancersPage from "../pages/user/freelancers/FreelancersPage";
-import UserDetailPage from "../pages/user/UserDetailPage";
 import MyPrposalsLayout from "../layout/user/MyProposalsLayout";
-import MyProposals from "../pages/user/my proposals/MyProposals";
-import ProposalAndInvitation from "../pages/user/my proposals/ProposalAndInvitation";
-import WalletPage from "../pages/user/payments/WalletPage";
 import PaymentsLayout from "../layout/user/PaymentsLayout";
-import InEscrowPage from "../pages/user/payments/InEscrowPage";
-import TransactionsPage from "../pages/user/payments/TransactionsPage";
-import InvoicesAndReports from "../pages/user/payments/Invoices-Report";
-import WithdrawalsPage from "../pages/user/payments/WithdrawalsPage";
-import EscrowAndMilestonesPage from "../pages/user/payments/Escrow-Milestones";
-import OverviewPage from "../pages/user/payments/OverviewPage";
+
 import BillingSuccess from "../components/user/billing/BillingSuccess";
 import BillingCancel from "../components/user/billing/BillingCancel";
-import SubscriptionSetting from "../pages/user/settings/Subscription-Premium";
-import NotificationsPage from "../pages/user/notification/NotificationsPage";
-import Chat from "../pages/user/chat/Chat";
-import NotFoundPage from "../pages/user/NotFoundPage";
 
+import HeroSection from "../pages/user/landingPage/HeroSection";
+import RoleSelect from "../pages/auth/roleSelect";
+import SignUp from "../pages/auth/signUp";
+import Login from "../pages/auth/login";
+
+const VerifyOtp = lazy(() => import("../pages/auth/verifyOtp"));
+const ResetPassword = lazy(() => import("../pages/auth/ResetPassword"));
+const ForgotPassword = lazy(() => import("../pages/auth/ForgotPassword"));
+
+const Home = lazy(() => import("../pages/user/Home"));
+const Profile = lazy(() => import("../pages/user/profile/Profile"));
+const JobsPage = lazy(() => import("../pages/user/job/JobsPage"));
+const JobDetailPage = lazy(() => import("../pages/user/job/JobDetailPage"));
+const BrowseJobsPage = lazy(() => import("../pages/user/find jobs/BrowseJobsPage"));
+
+const Subscriptions = lazy(() => import("../pages/user/Subscriptions"));
+const FreelancersPage = lazy(() => import("../pages/user/freelancers/FreelancersPage"));
+const UserDetailPage = lazy(() => import("../pages/user/UserDetailPage"));
+const MyProposals = lazy(() => import("../pages/user/my proposals/MyProposals"));
+const ProposalAndInvitation = lazy(() => import("../pages/user/my proposals/ProposalAndInvitation"));
+
+const NotificationsPage = lazy(() => import("../pages/user/notification/NotificationsPage"));
+const Chat = lazy(() => import("../pages/user/chat/Chat"));
+
+const WalletPage = lazy(() => import("../pages/user/payments/WalletPage"));
+
+const TransactionsPage = lazy(() => import("../pages/user/payments/TransactionsPage"));
+const InvoicesAndReports = lazy(() => import("../pages/user/payments/Invoices-Report"));
+const InEscrowPage = lazy(() => import("../pages/user/payments/InEscrowPage"));
+const WithdrawalsPage = lazy(() => import("../pages/user/payments/WithdrawalsPage"));
+const EscrowAndMilestonesPage = lazy(() => import("../pages/user/payments/Escrow-Milestones"));
+const OverviewPage = lazy(() => import("../pages/user/payments/OverviewPage"));
+
+const NotFoundPage = lazy(() => import("../pages/user/NotFoundPage"));
+
+const SecuritySetting = lazy(() => import("../pages/user/settings/SecuritySetting"));
+const SubscriptionSetting = lazy(() => import("../pages/user/settings/Subscription-Premium"));
 
 const UserRoutes: React.FC = () => {
 

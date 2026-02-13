@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { Suspense, useEffect } from 'react'
 import Navbar from './Navbar'
 import { Outlet } from 'react-router-dom'
 import { useSelector } from 'react-redux'
@@ -8,6 +8,7 @@ import { tokenStore } from '../../utils/tokenStore'
 import { NotificationProvider } from '../../context/NotificationContext'
 import { CallProvider } from '../../context/CallProvider'
 import GlobalCallModal from '../../components/ui/Modal/GlobalCallModal'
+import Loader from '../../components/ui/Loader/Loader'
 
 const UserLayout: React.FC = () => {
 
@@ -45,7 +46,10 @@ const UserLayout: React.FC = () => {
       {role !== "admin" && <Navbar role={role} />}
       <main className='pt-15'>
         <GlobalCallModal/>
-        <Outlet/>
+
+        <Suspense fallback={<Loader />}>
+          <Outlet/>
+        </Suspense>
       </main>
 
       </CallProvider>

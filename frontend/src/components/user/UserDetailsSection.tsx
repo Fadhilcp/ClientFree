@@ -1,50 +1,10 @@
 import React from "react";
 import ProfileImage from "./profile/ProfileImage";
 import Button from "../ui/Button";
-import type { EducationItem, PortfolioItem, Resume } from "../../types/user/freelancerProfile.dto";
+import type { FreelancerProfileDto } from "../../types/user/freelancerProfile.dto";
+import type { ClientProfileDto } from "../../types/user/clientProfile.dto";
 
-interface SkillItem {
-  _id: string;
-  name: string;
-}
-
-export interface UserDetailDto {
-  id: string;
-  username: string;
-  name: string;
-  email: string;
-  role: "client" | "freelancer" | "admin";
-  professionalTitle?: string;
-  about?: string;
-  description?: string;
-  skills?: SkillItem[];
-  ratings?: {
-    asFreelancer: number;
-  };
-  profileImage?: string;
-  status?: string;
-  hourlyRate?: string;
-  experienceLevel?: string;
-  location?: {
-    city: string;
-    state: string;
-    country: string;
-  };
-  phone?: string;
-  portfolio?: PortfolioItem[];
-  resume?: Resume;
-  education?: EducationItem[];
-  stats?: {
-    jobsCompleted: number;
-    reviewsCount: number;
-    earningTotal: number;
-  };
-  externalLinks?: {
-    label: string;
-    url: string;
-  }[];
-  createdAt?: string;
-}
+type UserDetailDto = FreelancerProfileDto | ClientProfileDto;
 
 interface Props {
   user: UserDetailDto;
@@ -79,7 +39,11 @@ const UserDetailsSection: React.FC<Props> = ({ user, onBack }) => {
                 <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
                     {user.name || user.username}
                 </h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{user.professionalTitle || user.role}</p>
+                <p className="text-sm text-gray-600">
+                {user.role === "freelancer"
+                    ? user.professionalTitle
+                    : user.role}
+                </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
                 {user.phone && (
                     <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
@@ -90,7 +54,7 @@ const UserDetailsSection: React.FC<Props> = ({ user, onBack }) => {
         </div>
 
         {/* Skills */}
-        {user.skills && user.skills?.length > 0 && (
+        {user.role === "freelancer" && user.skills && user.skills?.length > 0 && (
             <div className="mb-4">
             {/* <h2 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2">Skills</h2> */}
             <div className="flex flex-wrap gap-2">
@@ -107,7 +71,7 @@ const UserDetailsSection: React.FC<Props> = ({ user, onBack }) => {
             </div>
         )}
         {/* About / Description */}
-        {user.about && (
+        {user.role === "freelancer" && user.about && (
             <div className="mb-6">
                 <h2 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2">About</h2>
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{user.about}</p>
@@ -120,6 +84,42 @@ const UserDetailsSection: React.FC<Props> = ({ user, onBack }) => {
             </div>
         )}
 
+        {user.role === "client" && user.company && (
+            <div className="mb-6">
+                <h2 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2">
+                    Company
+                </h2>
+
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 shadow-sm space-y-2">
+                    {user.company.name && (
+                        <p className="text-gray-700 dark:text-gray-300">
+                            <span className="font-semibold">Name:</span> {user.company.name}
+                        </p>
+                    )}
+
+                    {user.company.industry && (
+                        <p className="text-gray-700 dark:text-gray-300">
+                            <span className="font-semibold">Industry:</span> {user.company.industry}
+                        </p>
+                    )}
+
+                    {user.company.website && (
+                        <p className="text-gray-700 dark:text-gray-300">
+                            <span className="font-semibold">Website:</span>{" "}
+                            <a
+                                href={user.company.website}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-indigo-600 dark:text-indigo-400 hover:underline break-all"
+                            >
+                                {user.company.website}
+                            </a>
+                        </p>
+                    )}
+                </div>
+            </div>
+        )}
+
 
         {/* Ratings / Status / Joined */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -128,9 +128,13 @@ const UserDetailsSection: React.FC<Props> = ({ user, onBack }) => {
                     <h2 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2">
                         Ratings
                     </h2>
-                    <p className="text-gray-700 dark:text-gray-300">
-                        {user.ratings.asFreelancer} / 5
-                    </p>
+                    {user.role === "freelancer" && (
+                        <p className="text-gray-700 dark:text-gray-300">{user.ratings.asFreelancer} / 5</p>
+                    )}
+
+                    {user.role === "client" && (
+                        <p className="text-gray-700 dark:text-gray-300">{user.ratings.asClient} / 5</p>
+                    )}
                 </div>
             )}
 
@@ -158,20 +162,27 @@ const UserDetailsSection: React.FC<Props> = ({ user, onBack }) => {
             {user.stats && (
                 <div className="mb-6 bg-gray-50 dark:bg-gray-700 rounded-lg p-4 shadow-sm">
                     <h2 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2">Stats</h2>
-                    <p className="text-gray-700 dark:text-gray-300">
-                        Jobs Completed: {user.stats.jobsCompleted} | Reviews: {user.stats.reviewsCount} | Earnings: ₹{user.stats.earningTotal}
-                    </p>
+                    {user.role === "freelancer" && (
+                        <p className="text-gray-700 dark:text-gray-300">
+                            Jobs Completed: {user.stats.jobsCompleted} | Reviews: {user.stats.reviewsCount} | Earnings: ₹{user.stats.earningTotal}
+                        </p>
+                    )}
+                    {user.role === "client" && (
+                        <p className="text-gray-700 dark:text-gray-300">
+                            Projects Posted: {user.stats.totalProjectsPosted} | Total Spent: ₹{user.stats.totalSpent}
+                        </p>
+                    )}
                 </div>
             )}
         {/* Experience + Hourly Rate */}
         <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-            {user.experienceLevel && (
+            {user.role === "freelancer" && user.experienceLevel && (
                 <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 shadow-sm">
                     <h2 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2">Experience Level</h2>
                     <p className="text-gray-700 dark:text-gray-300">{user.experienceLevel}</p>
                 </div>
             )}
-            {user.hourlyRate && (
+            {user.role === "freelancer" && user.hourlyRate && (
                 <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 shadow-sm">
                     <h2 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2">Hourly Rate</h2>
                     <p className="text-gray-700 dark:text-gray-300">₹ {user.hourlyRate}</p>
@@ -180,7 +191,7 @@ const UserDetailsSection: React.FC<Props> = ({ user, onBack }) => {
         </div>
 
         {/* Resume */}
-        {user.resume && (
+        {user.role === "freelancer" && user.resume && (
             <div className="mb-6 bg-gray-50 dark:bg-gray-700 rounded-lg p-4 shadow-sm">
                 <h2 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2">Resume</h2>
                 <a
@@ -208,7 +219,7 @@ const UserDetailsSection: React.FC<Props> = ({ user, onBack }) => {
         )}
 
         {/* External Links */}
-        {user.externalLinks && user.externalLinks?.length > 0 && (
+        {user.role === "freelancer" && user.externalLinks && user.externalLinks?.length > 0 && (
             <div className="mb-6">
                 <h2 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2">External Links</h2>
                 <ul className="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-1">
@@ -220,7 +231,7 @@ const UserDetailsSection: React.FC<Props> = ({ user, onBack }) => {
                         rel="noopener noreferrer"
                         className="text-indigo-600 dark:text-indigo-400 hover:underline"
                         >
-                        {link.label || link.url}
+                        {link.url}
                         </a>
                     </li>
                     ))}
@@ -229,7 +240,7 @@ const UserDetailsSection: React.FC<Props> = ({ user, onBack }) => {
         )}
 
         {/* Portfolio */}
-        {user.portfolio && user.portfolio?.length > 0 && (
+        {user.role === "freelancer" && user.portfolio && user.portfolio?.length > 0 && (
             <div className="mb-6">
                 <h2 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2">Portfolio</h2>
                 <ul className="space-y-3">
@@ -253,7 +264,7 @@ const UserDetailsSection: React.FC<Props> = ({ user, onBack }) => {
         )} 
 
         {/* Education */}
-        {user.education && user.education?.length > 0 && (
+        {user.role === "freelancer" && user.education && user.education?.length > 0 && (
             <div className="mb-6">
                 <h2 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mb-2">Education</h2>
                 <ul className="space-y-3">

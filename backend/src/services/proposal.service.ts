@@ -5,7 +5,7 @@ import { IJobRepository } from "../repositories/interfaces/IJobRepository";
 import { CreateProposalResponse, IInvitationDetails, IProposalInvitation, IProposalInvitationDocument, IProposalInvitationPayload, ProposalStatus } from "../types/proposalInvitation.type";
 import { IProposalService } from "./interface/IProposalService";
 import { mapProposal } from "../mappers/proposal.mapper";
-import { ProposalDTO } from "../dtos/proposal.dto";
+import { ProposalCheckStatusResponse, ProposalDTO } from "../dtos/proposal.dto";
 import { FilterQuery, Types, UpdateQuery } from "mongoose";
 import { IJobDocument } from "../types/job.type";
 import { HttpResponse } from "../constants/responseMessage.constant";
@@ -807,5 +807,46 @@ export class ProposalService implements IProposalService {
         await proposal.save();
 
         return mapProposal(proposal);
+    }
+
+    async getProposalIsSubmitted(
+        jobId: string,
+        freelancerId: string
+    ): Promise<ProposalCheckStatusResponse> {
+
+        const proposal = await this._proposalRepository.findOne({
+            jobId,
+            freelancerId,
+        });
+
+        if (!proposal) {
+            return {
+                status: "NONE",
+                message: "You have not submitted a proposal for this job.",
+            };
+        }
+
+        if (proposal.isInvitation) {
+            return {
+                status: "INVITED",
+                message: "You are invited to this job. Please check your invitations.",
+                proposalId: proposal._id.toString(),
+            };
+        }
+
+        if (proposal.upgradeStatus === "pending") {
+            return {
+                status: "UPGRADE_PENDING",
+                message: 
+                    "Your proposal has been submitted, but the optional upgrade is still pending. You can resubmit the bid to add or modify the upgrade.",
+                proposalId: proposal._id.toString(),
+            };
+        }
+
+        return {
+                status: "SUBMITTED",
+                message: "You have already submitted a proposal for this job.",
+                proposalId: proposal._id.toString(),
+        };
     }
 }

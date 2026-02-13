@@ -3,22 +3,26 @@ import { socket } from "../config/socket.config";
 import { useVideoCall } from "../hooks/useVideoCall";
 
 interface CallContextType {
-  incomingCall: boolean;
-  incomingChatId: string | null;
-  activeChatId: string | null;
-  inCall: boolean;
-  localStream: MediaStream | null;
-  remoteStream: MediaStream | null;
-  startCall: (chatId: string, receiverId: string) => void;
-  acceptCall: () => void;
-  rejectCall: () => void;
-  endCall: () => void;
+    incomingCall: boolean;
+    incomingChatId: string | null;
+    activeChatId: string | null;
+    inCall: boolean;
+    localStream: MediaStream | null;
+    remoteStream: MediaStream | null;
+    startCall: (chatId: string, receiverId: string) => void;
+    acceptCall: () => void;
+    rejectCall: () => void;
+    endCall: () => void;
+    isMicOn: boolean;
+    isCameraOn: boolean;
+    toggleMic: () => void;
+    toggleCamera: () => void;
 }
 
 interface CallOfferPayload {
-  offer: RTCSessionDescriptionInit;
-  chatId: string;
-  from: string; // caller userId
+    offer: RTCSessionDescriptionInit;
+    chatId: string;
+    from: string; // caller userId
 }
 
 const CallContext = createContext<CallContextType | null>(null);
@@ -40,6 +44,10 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
         inCall,
         localStream,
         remoteStream,
+        isMicOn,
+        isCameraOn,
+        toggleMic,
+        toggleCamera,
     } = useVideoCall(activeChatId, activeReceiverId, incomingOffer);
 
     // socket events
@@ -53,39 +61,50 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setActiveChatId(chatId);
             setActiveReceiverId(from);
         };
-
-        const reset = () => {
-            setIncomingOffer(null);
-            setIncomingChatId(null);
-            setIncomingCallerId(null);
-            setActiveChatId(null);
-            setActiveReceiverId(null);
+        const onRemoteEnd = () => {
+            endCall();        // WebRTC cleanup
+            resetCallState(); // UI cleanup
         };
 
         socket.on("call:offer", onOffer);
-        socket.on("call:reject", reset);
-        socket.on("call:end", reset);
+        socket.on("call:end", onRemoteEnd);
+        socket.on("call:reject", onRemoteEnd);
 
         return () => {
             socket.off("call:offer", onOffer);
-            socket.off("call:reject", reset);
-            socket.off("call:end", reset);
+            socket.off("call:end", onRemoteEnd);
+            socket.off("call:reject", onRemoteEnd);
         };
     }, []);
 
-    const isCaller = activeChatId && activeReceiverId && !incomingOffer;
-
     useEffect(() => {
-        if (isCaller && !inCall) {
-            startCall();
-        }
-    }, [isCaller]);
+        const onRemoteEnd = () => {
+            resetCallState();
+        };
+
+        socket.on("call:end", onRemoteEnd);
+        socket.on("call:reject", onRemoteEnd);
+
+        return () => {
+            socket.off("call:end", onRemoteEnd);
+            socket.off("call:reject", onRemoteEnd);
+        };
+    }, []);
 
     // outgoing call - both chatId and receiverId
     const startOutgoingCall = (chatId: string, receiverId: string) => {
         setActiveChatId(chatId);
         setActiveReceiverId(receiverId);
-        startCall();
+
+        startCall(chatId, receiverId);
+    };
+
+    const resetCallState = () => {
+        setIncomingOffer(null);
+        setIncomingChatId(null);
+        setIncomingCallerId(null);
+        setActiveChatId(null);
+        setActiveReceiverId(null);
     };
 
     const acceptIncomingCall = () => {
@@ -97,14 +116,15 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const endActiveCall = () => {
-        endCall();
+        if (activeReceiverId) {
+            socket.emit("call:end", { receiverId: activeReceiverId });
+        }
 
-        setIncomingOffer(null);
-        setIncomingChatId(null);
-        setIncomingCallerId(null);
-        setActiveChatId(null);
-        setActiveReceiverId(null);
+        endCall();
+        resetCallState();
     };
+
+
 
     // reject
     const rejectCall = () => {
@@ -131,6 +151,10 @@ export const CallProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 acceptCall: acceptIncomingCall,
                 rejectCall,
                 endCall: endActiveCall,
+                isMicOn,
+                isCameraOn,
+                toggleMic,
+                toggleCamera,
             }}
         >
             {children}

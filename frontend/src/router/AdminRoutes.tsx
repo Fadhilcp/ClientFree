@@ -1,24 +1,27 @@
-import React from 'react'
+import React, { lazy } from 'react'
 import { Route, Routes } from 'react-router-dom'
-import Login from '../pages/admin/login'
+
 import AdminLayout from '../layout/admin/AdminLayout'
-import Users from '../pages/admin/Users'
-import Skills from '../pages/admin/Skills'
 import NoAuthProtectedRoute from './NoAuthProtectedRoute'
 import AuthProtectedRoute from './AuthProtectedRoute'
-import Subscriptions from '../pages/admin/Subscriptions'
-import AddOns from '../pages/admin/AddOns'
-import MilestonePayouts from '../pages/admin/MilestonePayouts'
-import DisputesPage from '../pages/admin/dispute/Disputes'
-import DisputeDetailPage from '../pages/admin/dispute/DisputeDetailPage'
-import PayoutDetailPage from '../pages/admin/PayoutDetailPage'
-import Payments from '../pages/admin/Payments'
-import Withdrawals from '../pages/admin/Withdrawals'
-import EscrowMilestones from '../pages/admin/EscrowMilestones'
-import Wallets from '../pages/admin/Wallets'
-import WalletTransactionsPage from '../pages/admin/WalletTransactions'
-import AdminNotificationsPage from '../pages/admin/AdminNotificationsPage'
-import NotFoundPage from '../pages/user/NotFoundPage'
+
+import Login from '../pages/admin/login';
+
+const Users = lazy(() => import("../pages/admin/Users"));
+const Skills = lazy(() => import("../pages/admin/Skills"));
+const Subscriptions = lazy(() => import("../pages/admin/Subscriptions"));
+const AddOns = lazy(() => import("../pages/admin/AddOns"));
+const MilestonePayouts = lazy(() => import("../pages/admin/MilestonePayouts"));
+const DisputesPage = lazy(() => import("../pages/admin/dispute/Disputes"));
+const DisputeDetailPage = lazy(() => import("../pages/admin/dispute/DisputeDetailPage"));
+const PayoutDetailPage = lazy(() => import("../pages/admin/PayoutDetailPage"));
+const Payments = lazy(() => import("../pages/admin/Payments"));
+const Withdrawals = lazy(() => import("../pages/admin/Withdrawals"));
+const EscrowMilestones = lazy(() => import("../pages/admin/EscrowMilestones"));
+const Wallets = lazy(() => import("../pages/admin/Wallets"));
+const WalletTransactionsPage = lazy(() => import("../pages/admin/WalletTransactions"));
+const AdminNotificationsPage = lazy(() => import("../pages/admin/AdminNotificationsPage"));
+const NotFoundPage = lazy(() => import("../pages/user/NotFoundPage"));
 
 const AdminRoutes: React.FC = () => {
   return (

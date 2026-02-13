@@ -1,4 +1,4 @@
-import { ProposalStatus } from "../types/proposalInvitation.type";
+import { ProposalStatus } from "types/proposalInvitation.type";
 
 export interface ProposalDTO {
   id: string;
@@ -51,4 +51,17 @@ export interface ProposalDTO {
 
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+
+export type IProposalStatus =
+  | "NONE"
+  | "SUBMITTED"
+  | "INVITED"
+  | "UPGRADE_PENDING";
+
+export interface ProposalCheckStatusResponse {
+  status: IProposalStatus;
+  message: string;
+  proposalId?: string;
 }

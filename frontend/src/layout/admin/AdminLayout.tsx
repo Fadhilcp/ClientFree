@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import AdminSidebar from './AdminSidebar';
 import AdminNavbar from './AdminNavbar';
 import { Outlet } from 'react-router-dom';
+import Loader from '../../components/ui/Loader/Loader';
 
 const AdminLayout: React.FC = () => {
   return (
@@ -13,7 +14,9 @@ const AdminLayout: React.FC = () => {
       <div className="lg:pl-50 transition-all">
         <AdminNavbar />
         <main className="p-6">
-          <Outlet />
+          <Suspense fallback={<Loader />}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
     </div>

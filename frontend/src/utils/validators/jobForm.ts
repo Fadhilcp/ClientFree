@@ -13,7 +13,7 @@ export const validateJobForm = (data: JobForm) => {
       ? /^[0-9]+(\.[0-9]+)?$/.test(v.trim())
       : false;
 
-  const MAX_TITLE_LENGTH = 30;
+  const MAX_TITLE_LENGTH = 50;
 
   if (isEmpty(data.title)) {
     errors.title = "Title is required";

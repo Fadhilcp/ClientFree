@@ -1,7 +1,9 @@
 import { Routes, Route } from "react-router-dom";
-import UserRoutes from "./UserRoutes";
-import AdminRoutes from "./AdminRoutes";
 import NotFoundPage from "../pages/user/NotFoundPage";
+import { lazy } from "react";
+
+const UserRoutes = lazy(() => import("./UserRoutes"));
+const AdminRoutes = lazy(() => import("./AdminRoutes"));
 
 const AppRoutes = () => {
     return (

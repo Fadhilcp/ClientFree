@@ -36,7 +36,7 @@ return (
           <div
             className={`text-sm ${
               !n.isRead
-                ? "font-semibold text-indigo-500 dark:text-indigo-600"
+                ? "font-semibold text-indigo-600 dark:text-indigo-500"
                 : "text-gray-800 dark:text-gray-200"
             }`}          >
             {n.subject}

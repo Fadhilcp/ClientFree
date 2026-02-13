@@ -279,4 +279,19 @@ export class ProposalController {
             next(error);
         }
     }
+
+    async getProposalIsSubmitted(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const freelancerId = req.user?._id;
+            const { jobId } = req.params;
+
+            if(!freelancerId) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
+
+            const data = await this._proposalService.getProposalIsSubmitted(jobId, freelancerId);
+
+            sendResponse(res, HttpStatus.OK, { data });
+        } catch (error) {
+            next(error);
+        }
+    }
 }

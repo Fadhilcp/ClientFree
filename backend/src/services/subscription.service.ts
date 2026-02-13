@@ -167,7 +167,7 @@ export class SubscriptionService implements ISubscriptionService {
         });
 
         const invoice = updated.latest_invoice as Stripe.Invoice | null;
-        console.log("🚀 ~ SubscriptionService ~ upgradeSubscription ~ invoice:", invoice)
+        
         if (!invoice) return {};
 
         await stripe.invoices.update(invoice.id, {

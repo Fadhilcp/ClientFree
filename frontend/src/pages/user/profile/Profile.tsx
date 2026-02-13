@@ -21,6 +21,7 @@ import { setUser } from "../../../features/authSlice";
 
 const Profile: React.FC = () => {
   const [profileData, setProfileData] = useState<UserProfileDto | null>(null);
+  console.log("🚀 ~ Profile ~ profileData:", profileData)
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [availableSkills, setAvailableSkills] = useState<[]>([]);
@@ -97,6 +98,7 @@ const Profile: React.FC = () => {
   let name = username;
 
   // role specific fields
+  let phone = "";
   let professionalTitle = "";
   let hourlyRate = "";
   let experienceLevel = "";
@@ -115,6 +117,7 @@ const Profile: React.FC = () => {
   if (isFreelancer) {
     const freelancer = profileData as FreelancerProfileDto;
     name = freelancer.name ?? username;
+    phone = freelancer.phone ?? "";
     professionalTitle = freelancer.professionalTitle ?? "";
     hourlyRate = freelancer.hourlyRate ?? "";
     about = freelancer.about ?? "";
@@ -131,6 +134,7 @@ const Profile: React.FC = () => {
   } else if (isClient) {
     const client = profileData as ClientProfileDto;
     name = client.name ?? username;
+    phone = client.phone ?? "";
     description = client.description ?? ""
     company = client.company;
     location = client.location;
@@ -281,10 +285,13 @@ const Profile: React.FC = () => {
                 />
               )}
             </div>
-
               
             {/* Right Column */}
             <div className="space-y-8">
+              {phone && (
+                <InfoSection title="Contact" items={[{ label: "Phone", value: phone }]} />
+              )}
+
               {isFreelancer  && (
                 <TagListSection title="Skills" items={skills} />
               )}

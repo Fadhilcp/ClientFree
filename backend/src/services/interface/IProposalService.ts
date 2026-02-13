@@ -1,4 +1,4 @@
-import { ProposalDTO } from "../../dtos/proposal.dto";
+import { ProposalCheckStatusResponse, ProposalDTO } from "../../dtos/proposal.dto";
 import { CreateProposalResponse, IInvitationDetails, IProposalInvitationPayload } from "../../types/proposalInvitation.type";
 import { IProposalInvitation, ProposalStatus } from "../../types/proposalInvitation.type";
 import { IRazoryPaymentResponse } from "../../types/razorpay.types";
@@ -37,4 +37,5 @@ export interface IProposalService {
     aiShortlistTopProposals(jobId: string, topN: number)
     : Promise<{ shortlisted: number, proposalIds?: Types.ObjectId[] }>;
     withdrawInvitation(proposalId: string, clinetId: string): Promise<ProposalDTO>;
+    getProposalIsSubmitted(jobId: string, freelancerId: string): Promise<ProposalCheckStatusResponse>;
 }
