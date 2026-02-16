@@ -5,8 +5,8 @@ export type ReviewRole = "client" | "freelancer";
 export interface IReview {
   jobId: string | Types.ObjectId;
 
-  reviewerId: string | Types.ObjectId;
-  revieweeId: string | Types.ObjectId;
+  reviewerId: Types.ObjectId;
+  revieweeId: Types.ObjectId;
 
   reviewerRole: ReviewRole;
   revieweeRole: ReviewRole;

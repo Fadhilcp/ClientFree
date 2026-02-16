@@ -4,7 +4,7 @@ import Loader from "../../components/ui/Loader/Loader";
 import { userService } from "../../services/user.service";
 import type { FreelancerProfileDto } from "../../types/user/freelancerProfile.dto";
 import UserDetailsSection from "../../components/user/UserDetailsSection";
-import UserReviewsSection from "../../components/user/UserReviewsSection";
+import UserReviewsSection from "../../components/user/reviews/UserReviewsSection";
 import type { ClientProfileDto } from "../../types/user/clientProfile.dto";
 
 type UserDetailDto = FreelancerProfileDto | ClientProfileDto;

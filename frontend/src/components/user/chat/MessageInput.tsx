@@ -1,6 +1,8 @@
 import { useRef, useState } from "react";
+import { socket } from "../../../config/socket.config";
 
 interface MessageInputProps {
+  chatId: string;
   onSend: (data: {
     type: "text" | "voice" | "file";
     content?: string;
@@ -9,7 +11,7 @@ interface MessageInputProps {
   }) => void;
 }
 
-const MessageInput: React.FC<MessageInputProps> = ({ onSend }) => {
+const MessageInput: React.FC<MessageInputProps> = ({ chatId, onSend }) => {
   const [message, setMessage] = useState("");
   const [recording, setRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
@@ -19,11 +21,16 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSend }) => {
   const audioChunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<number | null>(null);
   const discardedRef = useRef(false);
+  const typingTimeout = useRef<number | null>(null);
 
   // send text
   const handleSendText = () => {
     if (!message.trim()) return;
+
     onSend({ type: "text", content: message });
+
+    socket.emit("chat:typing:stop", { chatId });
+
     setMessage("");
   };
 
@@ -85,7 +92,24 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSend }) => {
     setRecordingTime(0);
     if (timerRef.current) clearInterval(timerRef.current);
   };
+  // typing indicators
+  const handleTypingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setMessage(value);
 
+    // start typing
+    socket.emit("chat:typing:start", { chatId });
+
+    // debounce stop typing
+    if (typingTimeout.current) {
+      clearTimeout(typingTimeout.current);
+    }
+
+    typingTimeout.current = window.setTimeout(() => {
+      socket.emit("chat:typing:stop", { chatId });
+    }, 800);
+  };
+  
   // format mm:ss
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60).toString().padStart(2, "0");
@@ -125,7 +149,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSend }) => {
       ) : (
         <input
           value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          onChange={handleTypingChange}
           onKeyDown={(e) => e.key === "Enter" && handleSendText()}
           className="flex-1 rounded-full px-4 py-2 text-sm 
                      bg-gray-100 dark:bg-gray-700 

@@ -27,6 +27,8 @@ const reviewController = new ReviewController(reviewService);
 reviewRouter.use(authMiddleware, verifyUserNotBanned);
 
 reviewRouter.post("/",reviewController.createReview.bind(reviewController));
+reviewRouter.put("/:reviewId",reviewController.editReview.bind(reviewController));
+reviewRouter.get("/job/:jobId/my",reviewController.getMyReviewForJob.bind(reviewController));
 reviewRouter.get("/user/:userId",reviewController.getReviewsForUser.bind(reviewController));
 reviewRouter.get("/job/:jobId/has-reviewed",reviewController.hasReviewed.bind(reviewController));
 

@@ -19,6 +19,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedChat, onBack }) => {
   const [loading, setLoading] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
   const [blockReason, setBlockReason] = useState<string | null>(null);
+  const [isOtherTyping, setIsOtherTyping] = useState(false);
 
   const { startCall } = useCall();
 
@@ -101,6 +102,19 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedChat, onBack }) => {
     fetchMessages();
   }, [selectedChat.id]);
 
+  useEffect(() => {
+    const handleTyping = ({ userId, isTyping }: any) => {
+      if (userId === selectedChat.otherUser.id) {
+        setIsOtherTyping(isTyping);
+      }
+    };
+
+    socket.on("chat:typing", handleTyping);
+    return () => { 
+      socket.off("chat:typing", handleTyping)
+    };
+  }, [selectedChat.id]);
+
   const handleSendMessage = async (data: {
     type: "text" | "voice" | "file";
     content?: string;
@@ -143,6 +157,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedChat, onBack }) => {
       <ChatHeader
         chat={selectedChat}
         disabled={isBlocked}
+        isOtherTyping={isOtherTyping}
         onStartCall={() =>
           startCall(
             selectedChat.id,
@@ -166,7 +181,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ selectedChat, onBack }) => {
             : "Chat is currently blocked."}
         </div>
       ) : (
-        <MessageInput onSend={handleSendMessage} />
+        <MessageInput chatId={selectedChat.id} onSend={handleSendMessage} />
       )}
     </div>
   );

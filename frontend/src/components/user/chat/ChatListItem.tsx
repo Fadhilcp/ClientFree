@@ -1,3 +1,4 @@
+import { usePresence } from "../../../context/PresenceContext";
 import type { ChatListDTO } from "../../../types/chat/chat.dto";
 import ProfileImage from "../profile/ProfileImage";
 
@@ -12,7 +13,10 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
   isSelected,
   onClick,
 }) => {
+  const { isOnline } = usePresence();
   const { otherUser, job, lastMessageAt } = chat;
+
+  const online = isOnline(otherUser.id);
 
   return (
     <div
@@ -24,9 +28,17 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
           : "hover:bg-indigo-50 dark:hover:bg-indigo-900/20"}
       `}
     >
+      
+      <div className="relative">
+        <ProfileImage size={49} src={otherUser.profileImage} />
 
-      {/* Avatar */}
-      <ProfileImage size={49} src={otherUser.profileImage}/>
+        {/* Online badge */}
+        {online && (
+          <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white dark:border-gray-800" />
+        )}
+      </div>
+
+
 
       {/* Content */}
       <div className="ml-4 flex-1 border-b border-gray-200 dark:border-gray-700 pb-3">

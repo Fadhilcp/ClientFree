@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import Loader from "../ui/Loader/Loader";
-import ListWithHeader from "./ListWithHeader";
-import Pagination from "./Pagination";
-import { reviewService } from "../../services/review.service";
+import Loader from "../../ui/Loader/Loader";
+import ListWithHeader from "../ListWithHeader";
+import Pagination from "../Pagination";
+import { reviewService } from "../../../services/review.service";
 
 interface ReviewDto {
   id: string;

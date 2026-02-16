@@ -30,6 +30,50 @@ export class ReviewController {
         }
     }
 
+    async editReview(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { reviewId } = req.params;
+            const { rating, title, comment } = req.body;
+            const reviewerId = req.user?._id;
+
+            if (!reviewerId) {
+                throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
+            }
+
+            const review = await this._reviewService.editReview(
+                reviewId,
+                reviewerId,
+                rating,
+                title,
+                comment
+            );
+
+            sendResponse(res, HttpStatus.OK, { review }, "Review updated");
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getMyReviewForJob(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const { jobId } = req.params;
+            const reviewerId = req.user?._id;
+
+            if (!reviewerId) {
+            throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
+            }
+
+            const review = await this._reviewService.getMyReviewForJob(
+                jobId,
+                reviewerId
+            );
+
+            sendResponse(res, HttpStatus.OK, { review });
+        } catch (error) {
+            next(error);
+        }
+    }
+
     async getReviewsForUser(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { userId } = req.params;

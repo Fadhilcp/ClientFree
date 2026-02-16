@@ -3,6 +3,7 @@ import http from "http";
 import { socketAuthMiddleware } from "middlewares/socketAuth.middleware";
 import { env } from "./env.config";
 import { registerCallSocket } from "sockets/call.socket";
+import { userConnected, userDisconnected, isUserOnline } from "sockets/presence.socket";
 
 let io: Server;
 
@@ -24,6 +25,10 @@ export const initSocket = (server: http.Server): Server => {
         socket.join(`user:${_id}`);
         socket.join(`role:${role}`);
 
+        userConnected(_id);
+
+        socket.broadcast.emit("user:online", { userId: _id });
+
         // Chat rooms
         socket.on("chat:join", (chatId: string) => {
             socket.join(`chat:${chatId}`);
@@ -36,9 +41,19 @@ export const initSocket = (server: http.Server): Server => {
         });
 
         // Typing indicator
-        socket.on("chat:typing", ({ chatId }: { chatId: string }) => {
+        socket.on("chat:typing:start", ({ chatId }: { chatId: string }) => {
             socket.to(`chat:${chatId}`).emit("chat:typing", {
+                chatId,
                 userId: _id,
+                isTyping: true,
+            });
+        });
+
+        socket.on("chat:typing:stop", ({ chatId }: { chatId: string }) => {
+            socket.to(`chat:${chatId}`).emit("chat:typing", {
+                chatId,
+                userId: _id,
+                isTyping: false,
             });
         });
 
@@ -51,7 +66,11 @@ export const initSocket = (server: http.Server): Server => {
         });
 
         socket.on("disconnect", () => {
-            console.log(`Socket disconnected: ${_id}`);
+            userDisconnected(_id);
+
+            if(!isUserOnline(_id)) {
+                socket.broadcast.emit("user:offline", { userId: _id });
+            }
         });
     });
 

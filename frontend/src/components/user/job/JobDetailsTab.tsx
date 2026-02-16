@@ -14,6 +14,9 @@ import MilestoneForm from "./MilestoneForm";
 import PlaceBidPage from "./PlaceBidForm";
 import type { ProposalCheckStatusResponse } from "../../../types/job/proposal.type";
 import { proposalService } from "../../../services/proposal.service";
+import { reviewService } from "../../../services/review.service";
+import type { ReviewDto } from "../../../types/review.types";
+import Spinner from "../../ui/Loader/Spinner";
 
 interface JobDetailsTabProps {
   job: JobDetailDTO;
@@ -43,6 +46,8 @@ const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
 }) => {
 
     const [proposalStatus, setProposalStatus] = useState<ProposalCheckStatusResponse | null>(null);
+    const [existingReview, setExistingReview] = useState<ReviewDto | null>(null);
+    const [reviewLoading, setReviewLoading] = useState(false);
 
     const fetchProposalStatus = async () => {
       if (!user || user.role !== "freelancer") return;
@@ -54,6 +59,24 @@ const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
     useEffect(() => {
       fetchProposalStatus();
     }, [job.id, user?.id]);
+
+    useEffect(() => {
+      if (job.status !== "completed") return;
+
+      const fetchReview = async () => {
+        try {
+          setReviewLoading(true);
+          const res = await reviewService.getMyReviewForJob(job.id);
+          setExistingReview(res.data.review ?? null);
+        } catch {
+          setExistingReview(null);
+        } finally {
+          setReviewLoading(false);
+        }
+      };
+
+      fetchReview();
+    }, [job.id, job.status]);
 
     const canPlaceBid =
       proposalStatus?.status === "NONE" ||
@@ -82,7 +105,17 @@ const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
       <JobDetails job={job} />
 
       {job.status === "completed" && (
-        <CreateReviewSection jobId={job.id} />
+        <>
+        {reviewLoading &&   
+          <div className="flex justify-center">
+            <Spinner size={30} />
+          </div>
+        }
+        <CreateReviewSection jobId={job.id} 
+          existingReview={existingReview}
+          onReviewSaved={setExistingReview}
+        />
+        </>
       )}
 
       <div className="my-8 border-t border-gray-200 dark:border-gray-700 opacity-70"></div>

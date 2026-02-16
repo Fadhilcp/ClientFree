@@ -9,6 +9,7 @@ import { NotificationProvider } from '../../context/NotificationContext'
 import { CallProvider } from '../../context/CallProvider'
 import GlobalCallModal from '../../components/ui/Modal/GlobalCallModal'
 import Loader from '../../components/ui/Loader/Loader'
+import { PresenceProvider } from '../../context/PresenceContext'
 
 const UserLayout: React.FC = () => {
 
@@ -42,16 +43,18 @@ const UserLayout: React.FC = () => {
   return (
     <NotificationProvider>
       <CallProvider>
+        <PresenceProvider>
 
-      {role !== "admin" && <Navbar role={role} />}
-      <main className='pt-15'>
-        <GlobalCallModal/>
+          {role !== "admin" && <Navbar role={role} />}
+          <main className='pt-15'>
+            <GlobalCallModal/>
 
-        <Suspense fallback={<Loader />}>
-          <Outlet/>
-        </Suspense>
-      </main>
+            <Suspense fallback={<Loader />}>
+              <Outlet/>
+            </Suspense>
+          </main>
 
+        </PresenceProvider>
       </CallProvider>
     </NotificationProvider>
   );

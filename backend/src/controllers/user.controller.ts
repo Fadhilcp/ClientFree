@@ -37,7 +37,7 @@ export class ProfileController {
             const schema = req.user.role === UserRole.FREELANCER ? freelancerUpdateSchema : clientUpdateSchema;
 
             const result = schema.safeParse(req.body);
-            console.log("🚀 ~ ProfileController ~ update ~ result:", result)
+
             if(!result.success){
                 throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.INVALID_CREDENTIALS);
             }
@@ -55,7 +55,6 @@ export class ProfileController {
             const { id } = req.params
 
             const user = await this._userService.getUserProfileById(id);
-            console.log("🚀 ~ ProfileController ~ getById ~ user:", user)
             
             sendResponse(res, HttpStatus.OK, { user });
         } catch (error) {

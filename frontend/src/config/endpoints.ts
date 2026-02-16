@@ -210,6 +210,8 @@ export const endPoints = {
     },
     REVEIW: {
         CREATE: `/reviews`,
+        UPDATE: (reviewId: string) => `/reviews/${reviewId}`,
+        GET_MY: (jobId: string) => `/reviews/job/${jobId}/my`,
         GET_USER_REVIEW: (userId: string, role: string, page: number, limit: number) => 
             `/reviews/user/${userId}?role=${role}&page=${page ?? 1}&limit=${limit ?? 10}`,
         HAS_REVIEWED: (jobId: string) => `/reviews/job/${jobId}/has-reviewed`,

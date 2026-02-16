@@ -77,7 +77,7 @@ export class ReviewService implements IReviewService{
 
         const review = await this._reviewRepository.create({
             jobId,
-            reviewerId,
+            reviewerId: new Types.ObjectId(reviewerId),
             revieweeId,
             reviewerRole,
             revieweeRole,
@@ -120,6 +120,92 @@ export class ReviewService implements IReviewService{
 
         await user.save();
     }
+
+    async editReview(
+        reviewId: string,
+        reviewerId: string,
+        rating: number,
+        title?: string,
+        comment?: string
+    ): Promise<ReviewDto> {
+
+        const review = await this._reviewRepository.findById(reviewId);
+        if (!review) {
+            throw createHttpError(HttpStatus.NOT_FOUND, "Review not found");
+        }
+
+        if (!review.reviewerId.equals(reviewerId)) {
+            throw createHttpError(HttpStatus.FORBIDDEN, "Not allowed to edit this review");
+        }
+
+        const oldRating = review.rating;
+
+        review.rating = rating;
+        review.title = title;
+        review.comment = comment;
+        review.editedAt = new Date();
+
+        await review.save();
+
+        await this._recalculateUserRatingOnEdit(
+            review.revieweeId,
+            review.revieweeRole,
+            oldRating,
+            rating
+        );
+
+        return mapReview(review);
+    }
+
+    private async _recalculateUserRatingOnEdit(
+        userId: Types.ObjectId,
+        role: "client" | "freelancer",
+        oldRating: number,
+        newRating: number
+    ): Promise<void> {
+
+        const user = await this._userRepository.findById(userId.toString());
+        if (!user) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
+
+        const ratings = {
+            asClient: user.ratings?.asClient ?? 0,
+            asFreelancer: user.ratings?.asFreelancer ?? 0,
+        };
+
+        const stats = {
+            reviewsCount: user.stats?.reviewsCount ?? 0,
+        };
+
+        if (stats.reviewsCount <= 0) return;
+
+        if (role === "freelancer") {
+            ratings.asFreelancer =
+                (ratings.asFreelancer * stats.reviewsCount - oldRating + newRating) /
+                stats.reviewsCount;
+        } else {
+            ratings.asClient =
+                (ratings.asClient * stats.reviewsCount - oldRating + newRating) /
+                stats.reviewsCount;
+        }
+
+        user.ratings = ratings;
+        user.stats = stats;
+
+        await user.save();
+    }
+
+    async getMyReviewForJob(jobId: string, reviewerId: string): Promise<ReviewDto | null> {
+
+        const review = await this._reviewRepository.findOne({
+            jobId: new Types.ObjectId(jobId),
+            reviewerId: new Types.ObjectId(reviewerId),
+        });
+
+        if (!review) return null;
+
+        return mapReview(review);
+    }
+
 
     async getReviewsForUser(userId: string, role: UserRole, page: number, limit: number): Promise<PaginatedResult<ReviewDto>> {
 

@@ -10,6 +10,14 @@ export interface IReviewService {
         title,
         comment,
     }: CreateReviewInput): Promise<ReviewDto>;
+    editReview(
+        reviewId: string,
+        reviewerId: string,
+        rating: number,
+        title?: string,
+        comment?: string
+    ): Promise<ReviewDto>;
+    getMyReviewForJob(jobId: string, reviewerId: string): Promise<ReviewDto | null>;
     getReviewsForUser(
         userId: string, role: UserRole, page: number, limit: number
     ): Promise<PaginatedResult<ReviewDto>>;
