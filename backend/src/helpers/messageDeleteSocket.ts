@@ -1,4 +1,4 @@
-import { getIO } from "config/socket.config";
+import { getIO } from "../config/socket.config";
 
 export const emitMessageDeleted = (
   chatId: string,

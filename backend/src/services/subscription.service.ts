@@ -7,26 +7,21 @@ import { mapSubscription } from "../mappers/subscription.mapper";
 import { ISubscriptionRepository } from "../repositories/interfaces/ISubscriptionRepository";
 import { IPlanRepository } from "../repositories/interfaces/IPlanRepository";
 import { env } from "../config/env.config";
-import { IPaymentRepository } from "../repositories/interfaces/IPaymentRepository";
-import { IRevenueRepository } from "../repositories/interfaces/IRevenueRepository";
 import { HttpResponse } from "../constants/responseMessage.constant";
 import { PaginatedResult } from "../types/pagination";
 import { IUserRepository } from "../repositories/interfaces/IUserRepository";
 import { ClientSession, FilterQuery } from "mongoose";
-import { PlanFeatures } from "../types/plan.type";
 import { IDatabaseSessionProvider } from "../repositories/db/session-provider.interface";
 import { PLAN_LIMITS } from "../constants/planLimits";
 import { stripe } from "../config/stripe.config";
 import Stripe from "stripe";
-import { mapUserSubscriptions } from "mappers/userSubscriptions.mapper";
-import { UserSubscriptionsDTO } from "dtos/userSubscriptions.dto";
-
+import { mapUserSubscriptions } from "../mappers/userSubscriptions.mapper";
+import { UserSubscriptionsDTO } from "../dtos/userSubscriptions.dto";
 
 export class SubscriptionService implements ISubscriptionService {
     constructor(
         private _subscriptionRepository: ISubscriptionRepository, private _planRepository: IPlanRepository,
-        private _userRepository: IUserRepository,private _paymentRepository: IPaymentRepository, 
-        private _revenueRepository: IRevenueRepository, private _sessionProvider: IDatabaseSessionProvider
+        private _userRepository: IUserRepository, private _sessionProvider: IDatabaseSessionProvider
     ) {}
 
     async getAll(search: string, status: string, page=1, limit=10): Promise<PaginatedResult<SubscriptionDto>> {

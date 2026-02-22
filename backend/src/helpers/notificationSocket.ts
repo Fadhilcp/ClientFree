@@ -1,6 +1,6 @@
-import { NotificationRecipientRepository } from "repositories/notificationRecipient.repository";
+import { NotificationRecipientRepository } from "../repositories/notificationRecipient.repository";
 import { getIO } from "../config/socket.config";
-import { INotificationDocument } from "types/notification.type";
+import { INotificationDocument } from "../types/notification.type";
 
 const notificationRecipientRepository = new NotificationRecipientRepository();
 

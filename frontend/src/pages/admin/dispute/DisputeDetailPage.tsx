@@ -47,7 +47,6 @@ const DisputeDetailPage: React.FC = () => {
             setDispute(dispute);
         }
       } catch (error: any) {
-        console.error("Error fetching dispute:", error);
         notify.error(error.response?.data?.error || 'Failed to load disputes');
       } finally {
         setLoading(false);
@@ -72,16 +71,7 @@ const DisputeDetailPage: React.FC = () => {
       setFormData({ reason: "" });
 
       navigate(-1);
-
-      // refresh dispute
-      // const res = await paymentService.getDisputeById(id!);
-      // console.log("🚀 ~ handleRefundSubmit ~ res:", res)
-      // if (res.data.success) {
-      //   setDispute(res.data.dispute);
-      // }
-
     } catch (error: any) {
-      console.error("Refund failed", error);
       notify.error(error.response?.data?.error || 'Failed to refund to freelancer');
     } finally {
       setSubmitting(false);
@@ -104,7 +94,6 @@ const DisputeDetailPage: React.FC = () => {
         setDispute(res.data.dispute);
       }
     } catch (error: any) {
-      console.error("Release failed", error);
       notify.error(error.response?.data?.error || 'Failed to release to freelancer');
     } finally {
       setSubmitting(false);

@@ -1,4 +1,4 @@
-import { UserRole } from "constants/user.constants";
+import { UserRole } from "../constants/user.constants";
 import { ObjectId, Document } from "mongoose";
 
 export interface IOtpUserStore {

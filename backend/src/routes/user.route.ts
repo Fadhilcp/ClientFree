@@ -5,9 +5,9 @@ import { UserService } from "../services/user.service";
 import { authMiddleware } from "../middlewares/authMiddleware";
 import { profileUpload } from "../middlewares/profileUpload.middleware";
 import { verifyUserNotBanned } from "../middlewares/verifyUserNotBanned.middleware";
-import { authorizeRole } from "middlewares/authorizeRole";
-import { UserRole } from "constants/user.constants";
-import upload from "utils/uploader-s3.util";
+import { authorizeRole } from "../middlewares/authorizeRole";
+import { UserRole } from "../constants/user.constants";
+import upload from "../utils/uploader-s3.util";
 
 const userRouter = Router();
 

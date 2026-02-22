@@ -9,7 +9,7 @@ import { mapPlan } from "../mappers/plan.mapper";
 import { PlanDetailAdminDTO, PlanDetailUserDTO, PlanTableDTO } from "../dtos/plan.dto";
 import { PaginatedResult } from "../types/pagination";
 import { stripe } from "../config/stripe.config";
-import { UserRole } from "constants/user.constants";
+import { UserRole } from "../constants/user.constants";
 
 export class PlanService implements IPlanService {
     constructor(private _planRepository: IPlanRepository) {}

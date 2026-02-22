@@ -7,9 +7,9 @@ import { FilterQuery, Types } from "mongoose";
 import { ISubscriptionService } from "./interface/ISubscriptionService";
 import { ChatMapper } from "../mappers/chat.mapper";
 import { ChatDTO, ChatListDTO } from "../dtos/chat.dto";
-import { IJobRepository } from "repositories/interfaces/IJobRepository";
-import { emitChatBlocked } from "helpers/chatBlockSocket";
-import { IChatDocument } from "types/chat.type";
+import { IJobRepository } from "../repositories/interfaces/IJobRepository";
+import { emitChatBlocked } from "../helpers/chatBlockSocket";
+import { IChatDocument } from "../types/chat.type";
 
 export class ChatService implements IChatService {
     constructor(

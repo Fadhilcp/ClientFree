@@ -1,5 +1,4 @@
 import React from "react";
-import ListWithHeader from "../ListWithHeader";
 
 interface WalletCardProps {
   balance: number;
@@ -7,7 +6,7 @@ interface WalletCardProps {
   transactions: { id: string; label: string; amount: number; type: string }[];
 }
 
-const WalletCard: React.FC<WalletCardProps> = ({ balance, currency, transactions }) => {
+const WalletCard: React.FC<WalletCardProps> = ({ balance, currency }) => {
   return (
     <div className="rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 bg-gradient-to-r from-indigo-50 to-indigo-100 dark:from-gray-800 dark:to-gray-900 p-6">
       {/* Header */}

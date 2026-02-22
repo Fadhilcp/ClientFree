@@ -15,8 +15,8 @@ import cloudinary from "../config/cloudinary.config";
 import { uploadToCloudinary } from "../utils/cloudinary.helper";
 import { FreelancerListItemDto } from "../dtos/freelancerProfile.dto";
 import { mapUserToFreelancerListItemDto } from "../mappers/freelancer.mapper";
-import { UserToSelectDto } from "dtos/user.dto";
-import { generateSignedUrl } from "utils/getSignedUrl.util";
+import { UserToSelectDto } from "../dtos/user.dto";
+import { generateSignedUrl } from "../utils/getSignedUrl.util";
 
 export class UserService implements IUserService {
 

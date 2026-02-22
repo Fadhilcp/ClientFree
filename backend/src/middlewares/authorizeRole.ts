@@ -2,7 +2,7 @@ import { HttpResponse } from "../constants/responseMessage.constant";
 import { HttpStatus } from "../constants/status.constants";
 import { Request, Response, NextFunction } from "express";
 import { createHttpError } from "../utils/httpError.util";
-import { UserRole } from "constants/user.constants";
+import { UserRole } from "../constants/user.constants";
 
 export const authorizeRole =
   (...allowedRoles: UserRole[]) =>

@@ -20,7 +20,7 @@ import { IWalletRepository } from "../repositories/interfaces/IWalletRepository"
 import { IWalletDocument } from "../types/wallet.type";
 import { ISubscriptionService } from "./interface/ISubscriptionService";
 import { getActiveFeaturesDto } from "../dtos/subscription.dto";
-import { UserRole } from "constants/user.constants";
+import { UserRole } from "../constants/user.constants";
 
 
 export class AuthService implements IAuthService {
@@ -45,7 +45,6 @@ export class AuthService implements IAuthService {
             throw createHttpError(HttpStatus.CONFLICT, HttpResponse.EMAIL_EXIST)
         }
         const otp = generateOtp();
-        console.log("🚀 ~ AuthService ~ signUp ~ otp:", otp)
 
         if(pendingUser){
             await this._otpUserStoreRepository.updateOne({email : userData.email},{otp , expiresAt : new Date(Date.now() + 1 * 60 * 1000)});
@@ -136,7 +135,6 @@ export class AuthService implements IAuthService {
         if(!user) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);
 
         const otp = generateOtp();
-        console.log("🚀 ~ AuthService ~ forgotPassword ~ otp:", otp)
         
         const expiresAt = new Date(Date.now() + 1 * 60 * 1000);
 
@@ -259,7 +257,6 @@ export class AuthService implements IAuthService {
         if(!pendingUser) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.OTP_NOT_FOUND);
 
         const otp = generateOtp();
-        console.log("🚀 ~ AuthService ~ resendOtp ~ otp:", otp)
         const expiresAt = new Date(Date.now() + 1 * 60 * 1000);
 
         await this._otpUserStoreRepository.updateOne(
@@ -272,7 +269,6 @@ export class AuthService implements IAuthService {
 
     async verifyOtp(email : string, otp : string, purpose : OtpPurpose) : Promise<void> {
         const record = await this._otpUserStoreRepository.findOne({email, purpose});
-        console.log("🚀 ~ AuthService ~ verifyOtp ~ record:", record)
 
         if(!record || record.otp !== otp){
             throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.OTP_INCORRECT);
@@ -388,7 +384,6 @@ export class AuthService implements IAuthService {
                 console.error('googleAuth service error', error.message);
                 throw error;
             } else {
-                console.error('googleAuth service unknown error', error);
                 throw createHttpError(HttpStatus.INTERNAL_SERVER_ERROR, 'An unexpected error occurred');
             }
         }

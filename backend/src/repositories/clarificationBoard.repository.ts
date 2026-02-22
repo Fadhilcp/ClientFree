@@ -1,4 +1,4 @@
-import { IClarificationBoardDocument } from "types/clarificationBoard";
+import { IClarificationBoardDocument } from "../types/clarificationBoard";
 import { BaseRepository } from "./base.repository";
 import { IClarificationBoardRepository } from "./interfaces/IClarificationBoardRepository";
 import clarificationBoardModel from "../models/clarificationBoard.model";

@@ -1,4 +1,3 @@
-
 import { transporter } from '../config/mail.config';
 import { env } from '../config/env.config';
 

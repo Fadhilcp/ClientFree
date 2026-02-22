@@ -1,4 +1,4 @@
-import { UserRole } from "constants/user.constants";
+import { UserRole } from "../constants/user.constants";
 import { Document, Types } from "mongoose"; 
 
 export interface IUserBase {

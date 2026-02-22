@@ -1,0 +1,23 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const plan_controller_1 = require("../controllers/plan.controller");
+const plan_repository_1 = require("../repositories/plan.repository");
+const plan_service_1 = require("../services/plan.service");
+const authMiddleware_1 = require("../middlewares/authMiddleware");
+const verifyUserNotBanned_middleware_1 = require("../middlewares/verifyUserNotBanned.middleware");
+const planRouter = express_1.default.Router();
+const planRepository = new plan_repository_1.PlanRepository();
+const planService = new plan_service_1.PlanService(planRepository);
+const planController = new plan_controller_1.PlanController(planService);
+planRouter.use(authMiddleware_1.authMiddleware, verifyUserNotBanned_middleware_1.verifyUserNotBanned);
+planRouter.get('/', planController.getAllPlans.bind(planController));
+planRouter.get('/active', planController.getActivePlans.bind(planController));
+planRouter.get('/:id', planController.getPlan.bind(planController));
+planRouter.post('/', planController.createPlan.bind(planController));
+planRouter.put('/:id', planController.updatePlan.bind(planController));
+planRouter.delete('/:id', planController.deletePlan.bind(planController));
+exports.default = planRouter;

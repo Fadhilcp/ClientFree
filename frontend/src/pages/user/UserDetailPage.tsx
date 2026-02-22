@@ -6,6 +6,7 @@ import type { FreelancerProfileDto } from "../../types/user/freelancerProfile.dt
 import UserDetailsSection from "../../components/user/UserDetailsSection";
 import UserReviewsSection from "../../components/user/reviews/UserReviewsSection";
 import type { ClientProfileDto } from "../../types/user/clientProfile.dto";
+import { notify } from "../../utils/toastService";
 
 type UserDetailDto = FreelancerProfileDto | ClientProfileDto;
 
@@ -25,8 +26,8 @@ const UserDetailPage: React.FC = () => {
         if (response?.data.success) {
           setUser(response.data.user);
         }
-      } catch (err) {
-        console.error("Failed to load user:", err);
+      } catch (err: any) {
+        notify.error(err.response?.data?.error || 'Failed to load user');
       } finally {
         setLoading(false);
       }

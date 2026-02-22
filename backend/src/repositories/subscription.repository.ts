@@ -3,7 +3,7 @@ import subscriptionModel from '../models/subscription.model';
 import { BaseRepository } from './base.repository';
 import { ISubscriptionRepository } from './interfaces/ISubscriptionRepository';
 import { ClientSession, Types } from 'mongoose';
-import { IPlanDocument } from 'types/plan.type';
+import { IPlanDocument } from '../types/plan.type';
 
 export class SubscriptionRepository 
   extends BaseRepository<ISubscriptionDocument> 

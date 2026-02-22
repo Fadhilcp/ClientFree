@@ -10,8 +10,8 @@ import { FilterQuery, Types } from "mongoose";
 import { IReviewDocument } from "../types/review.type";
 import { UserRole } from "../constants/user.constants";
 import { CreateReviewInput, ReviewDto } from "../dtos/review.dto";
-import { mapReview } from "mappers/review.mapper";
-import { PaginatedResult } from "types/pagination";
+import { mapReview } from "../mappers/review.mapper";
+import { PaginatedResult } from "../types/pagination";
 
 export class ReviewService implements IReviewService{
 

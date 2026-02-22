@@ -3,7 +3,7 @@ import { HttpStatus } from "../constants/status.constants";
 import { NextFunction, Request, Response } from "express";
 import { createHttpError } from "../utils/httpError.util";
 import { sendResponse } from "../utils/response.util";
-import { INotificationService } from "services/interface/INotificationService";
+import { INotificationService } from "../services/interface/INotificationService";
 
 export class NotificationController {
     constructor(private _notificationService: INotificationService){};

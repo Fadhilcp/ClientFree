@@ -1,9 +1,9 @@
 import { Server } from "socket.io";
 import http from "http";
-import { socketAuthMiddleware } from "middlewares/socketAuth.middleware";
+import { socketAuthMiddleware } from "../middlewares/socketAuth.middleware";
 import { env } from "./env.config";
-import { registerCallSocket } from "sockets/call.socket";
-import { userConnected, userDisconnected, isUserOnline } from "sockets/presence.socket";
+import { registerCallSocket } from "../sockets/call.socket";
+import { userConnected, userDisconnected, isUserOnline } from "../sockets/presence.socket";
 
 let io: Server;
 

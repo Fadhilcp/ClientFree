@@ -1,4 +1,4 @@
-import { JobFilters, JobSort } from "types/filter.type";
+import { JobFilters, JobSort } from "../../types/filter.type";
 import { FreelancerListItemDto } from "../../dtos/freelancerProfile.dto";
 import { JobListDTO } from "../../dtos/job.dto";
 

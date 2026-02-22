@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { IMessageDocument } from "types/message.type";
+import { IMessageDocument } from "../types/message.type";
 
 const messageSchema = new Schema({
   chatId: {

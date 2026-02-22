@@ -10,7 +10,7 @@ import { WalletService } from "../services/wallet.service";
 import { WalletRepository } from "../repositories/wallet.repository";
 import { WalletTransactionRepository } from "../repositories/walletTransaction.repository";
 import { authorizeRole } from "../middlewares/authorizeRole";
-import { UserRole } from "constants/user.constants";
+import { UserRole } from "../constants/user.constants";
 
 const walletRepository = new WalletRepository();
 const walletTransactionRepository = new WalletTransactionRepository();

@@ -1,4 +1,4 @@
-import { JobSort } from "types/filter.type";
+import { JobSort } from "../types/filter.type";
 
 // reusable sort function in every job listing
 export function buildJobSort(sort: JobSort): Record<string, 1 | -1> {

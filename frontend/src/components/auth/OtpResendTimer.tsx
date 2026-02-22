@@ -1,6 +1,7 @@
 
 
 import React, { useEffect, useState } from 'react';
+import { notify } from '../../utils/toastService';
 
 interface OtpResendTimerProps {
   onResend: () => Promise<void>;
@@ -33,8 +34,8 @@ const OtpResendTimer: React.FC<OtpResendTimerProps> = ({
     try {
       await onResend();
       setSeconds(initialSeconds);
-    } catch (err) {
-      console.error('Resend failed:', err);
+    } catch (err: any) {
+      notify.error(err.response?.data?.error || 'Resend OTP failed');
     } finally {
       setLoading(false);
     }

@@ -120,7 +120,6 @@ const BrowseJobsPage: React.FC = () => {
         setHasMore(Boolean(nextCursor));
       }
     } catch (error: any) {
-      console.error("Failed to load jobs:", error);
       notify.error(error.response?.data?.error || "Failed to load jobs, Try again");
     } finally {
       setLoading(false);
@@ -227,7 +226,6 @@ const BrowseJobsPage: React.FC = () => {
 
       fetchJobs();
     } catch (error: any) {
-      console.error("Failed to update interested:", error);
       notify.error(error.response?.data?.error || "Failed to update interested");
     }
   };

@@ -1,4 +1,4 @@
-import { MessageDTO } from "dtos/message.dto";
+import { MessageDTO } from "../../dtos/message.dto";
 
 export interface IMessageService {
     sendMessage(

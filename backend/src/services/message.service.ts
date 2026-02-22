@@ -1,18 +1,18 @@
-import { IChatRepository } from "repositories/interfaces/IChatRepository";
+import { IChatRepository } from "../repositories/interfaces/IChatRepository";
 import { IMessageService } from "./interface/IMessageService";
-import { IMessageRepository } from "repositories/interfaces/IMessageRepository";
-import { createHttpError } from "utils/httpError.util";
-import { HttpStatus } from "constants/status.constants";
-import { HttpResponse } from "constants/responseMessage.constant";
-import { emitMessageToChat } from "helpers/messageSocket";
-import { MessageMapper } from "mappers/message.mapper";
-import { MessageDTO } from "dtos/message.dto";
-import { uploadToCloudinary } from "utils/cloudinary.helper";
-import s3 from "config/s3.config";
+import { IMessageRepository } from "../repositories/interfaces/IMessageRepository";
+import { createHttpError } from "../utils/httpError.util";
+import { HttpStatus } from "../constants/status.constants";
+import { HttpResponse } from "../constants/responseMessage.constant";
+import { emitMessageToChat } from "../helpers/messageSocket";
+import { MessageMapper } from "../mappers/message.mapper";
+import { MessageDTO } from "../dtos/message.dto";
+import { uploadToCloudinary } from "../utils/cloudinary.helper";
+import s3 from "../config/s3.config";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { env } from "config/env.config";
-import { generateSignedUrl } from "utils/getSignedUrl.util";
-import { emitMessageDeleted } from "helpers/messageDeleteSocket";
+import { env } from "../config/env.config";
+import { generateSignedUrl } from "../utils/getSignedUrl.util";
+import { emitMessageDeleted } from "../helpers/messageDeleteSocket";
 
 export class MessageService implements IMessageService {
     constructor(

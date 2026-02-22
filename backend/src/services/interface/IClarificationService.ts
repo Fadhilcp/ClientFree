@@ -1,4 +1,4 @@
-import { UserRole } from "constants/user.constants";
+import { UserRole } from "../../constants/user.constants";
 import { ClarificationBoardDto } from "../../dtos/clarificationBoard.dto";
 import { ClarificationMessageDto } from "../../dtos/clarificationMessage.dto";
 

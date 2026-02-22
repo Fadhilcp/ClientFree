@@ -10,14 +10,13 @@ import { PaymentRepository } from "../repositories/payment.repository";
 import { WalletRepository } from "../repositories/wallet.repository";
 import { WalletTransactionRepository } from "../repositories/walletTransaction.repository";
 import { PaymentService } from "../services/payment.service";
-import { UserRole } from "constants/user.constants";
-import { ChatService } from "services/chat.service";
-import { ChatRepository } from "repositories/chat.repository";
-import { SubscriptionRepository } from "repositories/subscription.repository";
-import { PlanRepository } from "repositories/plan.repository";
-import { RevenueRepository } from "repositories/revenue.repository";
-import { UserRepository } from "repositories/user.repository";
-import { SubscriptionService } from "services/subscription.service";
+import { UserRole } from "../constants/user.constants";
+import { ChatService } from "../services/chat.service";
+import { ChatRepository } from "../repositories/chat.repository";
+import { SubscriptionRepository } from "../repositories/subscription.repository";
+import { PlanRepository } from "../repositories/plan.repository";
+import { UserRepository } from "../repositories/user.repository";
+import { SubscriptionService } from "../services/subscription.service";
 
 const paymentRepository = new PaymentRepository();
 const jobAssignmentRepository = new JobAssignmentRepository();
@@ -30,16 +29,13 @@ const sessionProvider = new MongooseSessionProvider();
 //=======================
 const subscriptionRepository = new SubscriptionRepository();
 const planRepository = new PlanRepository();
-const revenueRepository = new RevenueRepository();
 const userRepository = new UserRepository();
 
 const subscriptionService = new SubscriptionService(
     subscriptionRepository, 
     planRepository, 
-    userRepository, 
-    paymentRepository, 
-    revenueRepository,
-    sessionProvider,
+    userRepository,
+    sessionProvider
 );
 
 const chatRepository = new ChatRepository();

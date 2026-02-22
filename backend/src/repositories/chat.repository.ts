@@ -1,8 +1,8 @@
-import { IChatDocument } from "types/chat.type";
+import { IChatDocument } from "../types/chat.type";
 import { BaseRepository } from "./base.repository";
 import { IChatRepository } from "./interfaces/IChatRepository";
-import chatModel from "models/chat.model";
-import { FilterQuery, PipelineStage } from "mongoose";
+import chatModel from "../models/chat.model";
+import { PipelineStage } from "mongoose";
 import { Types } from "mongoose";
 
 export class ChatRepository 

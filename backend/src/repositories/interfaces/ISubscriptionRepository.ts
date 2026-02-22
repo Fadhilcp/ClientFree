@@ -1,4 +1,4 @@
-import { IPlanDocument } from "types/plan.type";
+import { IPlanDocument } from "../../types/plan.type";
 import { ISubscriptionDocument } from "../../types/subscription.type";
 import { IBaseRepository } from "./IBaseRepository";
 import { ClientSession } from "mongoose";

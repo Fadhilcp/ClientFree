@@ -21,10 +21,10 @@ import { mapPayment } from "../mappers/payment.mapper";
 import { mapAdminPayment } from "../mappers/adminPayment.mapper";
 import { AdminPaymentDto } from "../dtos/adminPayment.dto";
 import { stripe } from "../config/stripe.config";
-import { UserRole } from "constants/user.constants";
-import { GetWithdrawalsResponse } from "dtos/payment.dto";
+import { UserRole } from "../constants/user.constants";
+import { GetWithdrawalsResponse } from "../dtos/payment.dto";
 import { IChatService } from "./interface/IChatService";
-import { IUserRepository } from "repositories/interfaces/IUserRepository";
+import { IUserRepository } from "../repositories/interfaces/IUserRepository";
 
 export class PaymentService implements IPaymentService {
     constructor(
@@ -213,7 +213,6 @@ export class PaymentService implements IPaymentService {
     : Promise<{ payment: IPaymentDocument, assignment: IJobAssignmentDocument }> {
       
       const payment = await this._paymentRepository.findById(paymentId);
-      console.log("🚀 ~ PaymentService ~ releaseMilestone ~ payment:", payment)
       if (!payment) {
         throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.PAYMENT_NOT_FOUND);
       }
@@ -469,160 +468,6 @@ export class PaymentService implements IPaymentService {
         data: result.data.map(mapAdminWithdrawal)
       }
     }
-
-
-
-    // async withdraw(
-    //   userId: string,
-    //   role: UserRole,
-    //   amount: number
-    // ): Promise<{ paymentId: string; onboardingUrl?: string }> {
-      
-    //   if (!amount || amount <= 0) {
-    //     throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid withdrawal amount");
-    //   }
-
-    //   if (!["freelancer", "client"].includes(role)) {
-    //     throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid role");
-    //   }
-
-    //   const { stripeAccountId, detailsSubmitted } = await this.ensureStripeAccount(userId);
-
-    //   console.log("🚀 ~ PaymentService ~ withdraw ~ detailsSubmitted:", detailsSubmitted)
-    //   if (!detailsSubmitted) {
-    //     const onboardingUrl = await this.generateOnboardingLink(stripeAccountId);
-    //     return { paymentId: "pending_onboarding", onboardingUrl };
-    //   }
-
-    //   return this._sessionProvider.runInTransaction(
-    //     async (session: ClientSession) => {
-
-    //       const wallet = await this._walletRepository.findOneWithSession(
-    //         { userId, role, status: "active" },
-    //         session
-    //       );
-
-    //       if (!wallet) {
-    //         throw createHttpError(HttpStatus.BAD_REQUEST, "Wallet not found");
-    //       }
-
-    //       if (wallet.balance.available < amount) {
-    //         throw createHttpError(HttpStatus.BAD_REQUEST, "Insufficient balance");
-    //       }
-
-    //       const payment = await this._paymentRepository.createWithSession(
-    //         {
-    //           type: "withdrawal",
-    //           status: "pending",
-    //           amount,
-    //           currency: wallet.currency ?? "INR",
-    //           userId: wallet.userId,
-    //           method: "stripe",
-    //           provider: "stripe",
-    //           paymentDate: new Date(),
-    //           withdrawalDate: new Date(),
-    //           stripeAccountId,
-    //         },
-    //         session
-    //       );
-
-    //       payment.referenceId = `WD-${payment._id.toString().slice(-8).toUpperCase()}`;
-    //       await payment.save({ session });
-
-    //       wallet.balance.available -= amount;
-    //       wallet.balance.pending += amount;
-    //       wallet.updatedAt = new Date();
-    //       await wallet.save({ session });
-
-    //       await this._walletTransactionRepository.createWithSession(
-    //         {
-    //           walletId: wallet._id,
-    //           userId: wallet.userId,
-    //           paymentId: payment._id,
-    //           type: "withdrawal",
-    //           direction: "debit",
-    //           amount,
-    //           status: "pending",
-    //           balanceAfter: {
-    //             available: wallet.balance.available,
-    //             escrow: wallet.balance.escrow,
-    //             pending: wallet.balance.pending,
-    //           },
-    //         },
-    //         session
-    //       );
-
-    //       try {
-
-    //         const transfer = await stripe.transfers.create(
-    //           {
-    //             amount: Math.round(amount * 100), 
-    //             currency: (wallet.currency ?? "INR").toLowerCase(),
-    //             destination: stripeAccountId,
-    //             description: `Withdrawal for User ${userId}`,
-    //             metadata: { 
-    //                 paymentId: payment._id.toString(),
-    //                 internalRef: payment.referenceId 
-    //             },
-    //           },
-    //           {
-    //             idempotencyKey: `transfer-${payment._id.toString()}`,
-    //           }
-    //         );
-
-    //         payment.providerPaymentId = transfer.id;
-    //         await payment.save({ session });
-
-    //         return { paymentId: payment._id.toString() };
-
-    //       } catch (stripeError: any) {
-    //         console.error("Stripe Transfer Error:", stripeError);
-    //         throw createHttpError(
-    //           HttpStatus.INTERNAL_SERVER_ERROR,
-    //           `Stripe Transfer Failed: ${stripeError.message}`
-    //         );
-    //       }
-    //     }
-    //   );
-    // }
-
-    // private async ensureStripeAccount(userId: string): Promise<{ stripeAccountId: string; detailsSubmitted: boolean }> {
-    //   const user = await this._userRepository.findById(userId);
-    //   if (!user) throw createHttpError(HttpStatus.NOT_FOUND, "User not found");
-
-    //   let accountId = user.stripeAccountId;
-
-    //   if (!accountId) {
-    //     const account = await stripe.accounts.create({
-    //       type: "express",
-    //       country: "IN", 
-    //       email: user.email,
-    //       capabilities: { transfers: { requested: true } },
-    //     });
-    //     accountId = account.id;
-    //     user.stripeAccountId = accountId;
-    //     await user.save();
-    //   }
-
-    //   const stripeAccount = await stripe.accounts.retrieve(accountId);
-    //   console.log("🚀 ~ PaymentService ~ ensureStripeAccount ~ stripeAccount:", stripeAccount)
-      
-    //   return { 
-    //     stripeAccountId: accountId, 
-    //     detailsSubmitted: stripeAccount.details_submitted 
-    //   };
-    // }
-
-    // private async generateOnboardingLink(stripeAccountId: string): Promise<string> {
-    //   const accountLink = await stripe.accountLinks.create({
-    //     account: stripeAccountId,
-    //     refresh_url: "https://your-frontend.com/reauth",
-    //     return_url: "https://your-frontend.com/wallet",
-    //     type: "account_onboarding",
-    //   });
-    //   return accountLink.url;
-    // }
-
 
     async withdraw(userId: string, role: UserRole, amount: number): Promise<{ paymentId: string }> {
 

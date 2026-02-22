@@ -106,8 +106,7 @@ const ProposalsSection: React.FC<ProposalsSectionProps> = ({
         };
 
     } catch (err) {
-      notify.error('Pleaes try again!')
-      console.error("Failed:", err);
+      notify.error('Pleaes try again!');
     } finally {
       setProposalsLoading(false);
     }
@@ -146,7 +145,6 @@ const ProposalsSection: React.FC<ProposalsSectionProps> = ({
         );
       }
     } catch (error: any) {
-      console.error("Failed to update status:", error);
       notify.error(error.response?.data?.error || "Failed to update proposal status");
     }
   }

@@ -27,7 +27,6 @@ export class AuthController {
     async verifySignupOtp(req : Request, res : Response, next : NextFunction) : Promise<void> {
         try {
             const { email, otp, purpose } = req.body;
-            console.log(email,otp)
 
             const { user, accessToken, refreshToken } = await this._authService.verifySignupOtp(email, otp, purpose);
 
@@ -64,7 +63,6 @@ export class AuthController {
         try {
 
             const { email } = req.body;
-            console.log("🚀 ~ AuthController ~ forgotPassword ~ email:", email)
 
             if(!email || typeof email !== 'string') {
              throw createHttpError(HttpStatus.BAD_REQUEST, HttpResponse.INVALID_EMAIL)
@@ -104,7 +102,6 @@ export class AuthController {
     async verifyOtp(req : Request, res : Response, next : NextFunction) : Promise<void> {
         try {
             const { email, otp, purpose } = req.body;
-            console.log("🚀 ~ AuthController ~ verifyOtp ~ otp:", otp);
 
             if (!email || !otp || !purpose) {
                throw createHttpError(HttpStatus.BAD_REQUEST, 'Email, OTP, and purpose are required');
@@ -144,7 +141,6 @@ export class AuthController {
     async accessRefreshToken(req : Request, res : Response, next : NextFunction) : Promise<void> {
         try {
             const refreshToken = req.cookies.refreshToken;
-            console.log("🚀 ~ AuthController ~ accessRefreshToken ~ refreshToken:", refreshToken)
 
             const { accessToken, newRefreshToken } = await this._authService.accessRefreshToken(refreshToken);
 

@@ -19,7 +19,7 @@ import { AdminApprovedMilestoneDetailMapper } from "../mappers/adminApprovedMile
 import { IWalletService } from "./interface/IWalletService";
 import { mapEscrowMilestone } from "../mappers/escrowMilestone.mapper";
 import { AdminEscrowMilestoneDTO } from "../dtos/adminEscrowMilestone.dto";
-import { UserRole } from "constants/user.constants";
+import { UserRole } from "../constants/user.constants";
 
 
 export class JobAssignmentService implements IJobAssignmentService {

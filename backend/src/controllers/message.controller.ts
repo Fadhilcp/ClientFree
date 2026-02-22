@@ -1,9 +1,9 @@
-import { HttpResponse } from "constants/responseMessage.constant";
-import { HttpStatus } from "constants/status.constants";
+import { HttpResponse } from "../constants/responseMessage.constant";
+import { HttpStatus } from "../constants/status.constants";
 import { NextFunction, Request, Response } from "express";
-import { IMessageService } from "services/interface/IMessageService";
-import { createHttpError } from "utils/httpError.util";
-import { sendResponse } from "utils/response.util";
+import { IMessageService } from "../services/interface/IMessageService";
+import { createHttpError } from "../utils/httpError.util";
+import { sendResponse } from "../utils/response.util";
 
 export class MessageController {
     

@@ -56,7 +56,6 @@ const Subscriptions: React.FC = () => {
       })
       .catch((err) => {
         notify.error(err.response?.data?.error ||'Failed to fetch plans');
-        console.error('Failed to fetch plans:', err);
         setLoading(false);
       });
   }, []);

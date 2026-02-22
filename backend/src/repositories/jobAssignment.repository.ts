@@ -5,7 +5,7 @@ import { BaseRepository } from "./base.repository";
 import { FilterQuery, PipelineStage, PopulateOptions, Types } from "mongoose";
 import { PopulatedAssignment } from "../types/jobAssignment/jobAssignment.populated";
 import { ApprovedMilestoneAssignment } from "../types/jobAssignment/jobAssignment.approvedMilestone";
-import { IJobDocument } from "types/job.type";
+import { IJobDocument } from "../types/job.type";
 
 export class JobAssignmentRepository 
     extends BaseRepository<IJobAssignmentDocument> 

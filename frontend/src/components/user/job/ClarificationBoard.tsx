@@ -45,7 +45,6 @@ const ClarificationBoard: React.FC<ClarificationBoardProps> = ({ jobId }) => {
           setMessages(messages || []);
         }
       } catch (error: any) {
-        console.error("Failed to load clarification board", error);
         notify.error(error.response?.data?.error || "Failed to load clarification board");
       }
     };
@@ -66,7 +65,6 @@ const ClarificationBoard: React.FC<ClarificationBoardProps> = ({ jobId }) => {
         setNewMessage("");
       }
     } catch (error: any) {
-      console.error("Failed to send message", error);
       notify.error(error.response?.data?.error || "Failed to send message");
     } finally {
       setLoading(false);

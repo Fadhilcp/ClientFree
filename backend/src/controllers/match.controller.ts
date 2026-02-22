@@ -4,7 +4,7 @@ import { NextFunction, Request, Response } from "express";
 import { IMatchService } from "../services/interface/IMatchService";
 import { createHttpError } from "../utils/httpError.util";
 import { sendResponse } from "../utils/response.util";
-import { JobSort } from "types/filter.type";
+import { JobSort } from "../types/filter.type";
 
 export class MatchController {
 

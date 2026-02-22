@@ -6,8 +6,8 @@ import { NotificationRepository } from "../repositories/notification.repository"
 import { NotificationRecipientRepository } from "../repositories/notificationRecipient.repository";
 import { UserRepository } from "../repositories/user.repository";
 import { NotificationService } from "../services/notification.service";
-import { authorizeRole } from "middlewares/authorizeRole";
-import { UserRole } from "constants/user.constants";
+import { authorizeRole } from "../middlewares/authorizeRole";
+import { UserRole } from "../constants/user.constants";
 
 const notificationRouter = Router();
 

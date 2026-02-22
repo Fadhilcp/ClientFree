@@ -3,7 +3,7 @@ import { IUser } from "../../types/user.type";
 import { UserProfileDto } from "../../dtos/profile.dto.types";
 import { PaginatedResult } from "../../types/pagination";
 import { FreelancerListItemDto } from "../../dtos/freelancerProfile.dto";
-import { UserToSelectDto } from "dtos/user.dto";
+import { UserToSelectDto } from "../../dtos/user.dto";
 
 
 export interface IUserService {

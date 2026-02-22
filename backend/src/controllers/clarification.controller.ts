@@ -4,7 +4,7 @@ import { NextFunction, Request, Response } from "express";
 import { IClarificationService } from "../services/interface/IClarificationService";
 import { createHttpError } from "../utils/httpError.util";
 import { sendResponse } from "../utils/response.util";
-import { UserRole } from "constants/user.constants";
+import { UserRole } from "../constants/user.constants";
 
 export class ClarificationController {
     constructor(private _clarificationService: IClarificationService){}

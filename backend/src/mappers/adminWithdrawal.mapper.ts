@@ -1,4 +1,4 @@
-import { IUserDocument } from "types/user.type";
+import { IUserDocument } from "../types/user.type";
 import { AdminWithdrawalDTO } from "../dtos/adminWithdrawal.dto";
 import { IPaymentDocument } from "../types/payment/payment.type";
 

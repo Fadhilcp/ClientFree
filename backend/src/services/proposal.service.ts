@@ -26,7 +26,7 @@ import { cosineSimilarity } from "../helpers/similarity.helper";
 import { IUserDocument } from "../types/user.type";
 import { PaginatedResult } from "../types/pagination";
 import { INotificationService } from "./interface/INotificationService";
-import { PROPOSAL_WORKLOAD_LIMITS } from "constants/proposalWorkloadLimits";
+import { PROPOSAL_WORKLOAD_LIMITS } from "../constants/proposalWorkloadLimits";
 
 export class ProposalService implements IProposalService {
     constructor(
@@ -707,20 +707,15 @@ export class ProposalService implements IProposalService {
         }
 
         const jobText = `${job.title}\n${job.description || ''}`;
-        console.log("🚀 ~ ProposalService ~ aiShortlistTopProposals ~ jobText:", jobText)
         const jobEmbedding = await getEmbedding(jobText);
-        console.log("🚀 ~ ProposalService ~ aiShortlistTopProposals ~ jobEmbedding:", jobEmbedding)
 
         const scored = [];
 
         for(const proposal of proposals){
             const proposalText = proposal.description || "";
-            console.log("🚀 ~ ProposalService ~ aiShortlistTopProposals ~ proposalText:", proposalText)
             const proposalEmbedding = await getEmbedding(proposalText);
-            console.log("🚀 ~ ProposalService ~ aiShortlistTopProposals ~ proposalEmbedding:", proposalEmbedding)
 
             const score = cosineSimilarity(jobEmbedding, proposalEmbedding);
-            console.log("🚀 ~ ProposalService ~ aiShortlistTopProposals ~ score:", score)
 
             scored.push({
                 proposalId: proposal._id,

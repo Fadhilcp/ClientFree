@@ -4,13 +4,6 @@ import { store } from "./store/store";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AppRoutes from "./router/AppRoutes";
-// import Lenis from "lenis";
-
-// const lenis = new Lenis({
-//   autoRaf: true,
-// });
-
-// lenis.on('scroll', () => {});
 
 const App: React.FC = () => {
   

@@ -14,9 +14,9 @@ import { FilterQuery, Types } from "mongoose";
 import { IJobDocument } from "../types/job.type";
 import { IUserDocument } from "../types/user.type";
 import { mapUserToFreelancerListItemDto } from "../mappers/freelancer.mapper";
-import { UserRole } from "constants/user.constants";
-import { JobFilters, JobSort } from "types/filter.type";
-import { buildJobSort } from "helpers/buildJobSort";
+import { UserRole } from "../constants/user.constants";
+import { JobFilters, JobSort } from "../types/filter.type";
+import { buildJobSort } from "../helpers/buildJobSort";
 
 export class MatchService implements IMatchService {
     constructor(

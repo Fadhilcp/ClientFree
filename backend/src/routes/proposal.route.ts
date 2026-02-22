@@ -10,11 +10,11 @@ import { PaymentRepository } from "../repositories/payment.repository";
 import { RevenueRepository } from "../repositories/revenue.repository";
 import { verifyUserNotBanned } from "../middlewares/verifyUserNotBanned.middleware";
 import { UserRepository } from "../repositories/user.repository";
-import { NotificationRecipientRepository } from "repositories/notificationRecipient.repository";
-import { NotificationRepository } from "repositories/notification.repository";
-import { NotificationService } from "services/notification.service";
-import { authorizeRole } from "middlewares/authorizeRole";
-import { UserRole } from "constants/user.constants";
+import { NotificationRecipientRepository } from "../repositories/notificationRecipient.repository";
+import { NotificationRepository } from "../repositories/notification.repository";
+import { NotificationService } from "../services/notification.service";
+import { authorizeRole } from "../middlewares/authorizeRole";
+import { UserRole } from "../constants/user.constants";
 
 const proposalRouter = Router();
 

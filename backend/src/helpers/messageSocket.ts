@@ -1,5 +1,5 @@
-import { getIO } from "config/socket.config";
-import { IMessageDocument } from "types/message.type";
+import { getIO } from "../config/socket.config";
+import { IMessageDocument } from "../types/message.type";
 
 
 export const emitMessageToChat = async(

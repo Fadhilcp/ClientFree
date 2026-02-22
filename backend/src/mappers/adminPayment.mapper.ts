@@ -1,6 +1,6 @@
 import { IPaymentDocument } from "../types/payment/payment.type";
 import { AdminPaymentDto } from "../dtos/adminPayment.dto";
-import { IUserDocument } from "types/user.type";
+import { IUserDocument } from "../types/user.type";
 
 export function mapAdminPayment(payment: IPaymentDocument): AdminPaymentDto {
   const userDoc = payment.userId as unknown as Partial<IUserDocument>;

@@ -1,7 +1,7 @@
 import { Socket } from "socket.io";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { HttpResponse } from "constants/responseMessage.constant";
-import { env } from "config/env.config";
+import { HttpResponse } from "../constants/responseMessage.constant";
+import { env } from "../config/env.config";
 
 interface SocketUserPayload extends JwtPayload {
     userId: string;

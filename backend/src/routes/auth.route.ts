@@ -9,8 +9,6 @@ import { verifyUserNotBanned } from "../middlewares/verifyUserNotBanned.middlewa
 import { WalletRepository } from "../repositories/wallet.repository";
 import { SubscriptionRepository } from "../repositories/subscription.repository";
 import { PlanRepository } from "../repositories/plan.repository";
-import { PaymentRepository } from "../repositories/payment.repository";
-import { RevenueRepository } from "../repositories/revenue.repository";
 import { MongooseSessionProvider } from "../repositories/db/session-provider";
 import { SubscriptionService } from "../services/subscription.service";
 
@@ -22,18 +20,14 @@ const walletRepository = new WalletRepository();
 
 const subscriptionRepository = new SubscriptionRepository();
 const planRepository = new PlanRepository();
-const paymentRepository = new PaymentRepository();
-const revenueRepository = new RevenueRepository();
 // transaction session
 const sessionProvider = new MongooseSessionProvider();
 
 const subscriptionService = new SubscriptionService(
     subscriptionRepository, 
     planRepository, 
-    userRepository, 
-    paymentRepository, 
-    revenueRepository,
-    sessionProvider,
+    userRepository,
+    sessionProvider
 );
 
 const authService = new AuthService(
@@ -44,8 +38,6 @@ const authService = new AuthService(
 );
 
 const authController = new AuthController(authService);
-
-
 
 authRouter.post('/signup',authController.signUp.bind(authController));
 authRouter.post('/verify-signup-otp',authController.verifySignupOtp.bind(authController));

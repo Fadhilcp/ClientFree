@@ -12,9 +12,9 @@ import { UserRepository } from "../repositories/user.repository";
 import { WalletRepository } from "../repositories/wallet.repository";
 import { WalletTransactionRepository } from "../repositories/walletTransaction.repository";
 import { JobService } from "../services/job.service";
-import { NotificationRepository } from "repositories/notification.repository";
-import { NotificationRecipientRepository } from "repositories/notificationRecipient.repository";
-import { NotificationService } from "services/notification.service";
+import { NotificationRepository } from "../repositories/notification.repository";
+import { NotificationRecipientRepository } from "../repositories/notificationRecipient.repository";
+import { NotificationService } from "../services/notification.service";
 
 const jobRouter = Router();
 

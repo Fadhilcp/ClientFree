@@ -1,0 +1,33 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const subscription_repository_1 = require("../repositories/subscription.repository");
+const subscription_service_1 = require("../services/subscription.service");
+const subscription_controller_1 = require("../controllers/subscription.controller");
+const plan_repository_1 = require("../repositories/plan.repository");
+const authMiddleware_1 = require("../middlewares/authMiddleware");
+const user_repository_1 = require("../repositories/user.repository");
+const verifyUserNotBanned_middleware_1 = require("../middlewares/verifyUserNotBanned.middleware");
+const session_provider_1 = require("../repositories/db/session-provider");
+const authorizeRole_1 = require("../middlewares/authorizeRole");
+const user_constants_1 = require("../constants/user.constants");
+const subscriptionRouter = express_1.default.Router();
+const subscriptionRepository = new subscription_repository_1.SubscriptionRepository();
+const planRepository = new plan_repository_1.PlanRepository();
+const userRepository = new user_repository_1.UserRepository();
+// transaction session
+const sessionProvider = new session_provider_1.MongooseSessionProvider();
+const subscriptionService = new subscription_service_1.SubscriptionService(subscriptionRepository, planRepository, userRepository, sessionProvider);
+const subscriptionController = new subscription_controller_1.SubscriptionController(subscriptionService);
+subscriptionRouter.use(authMiddleware_1.authMiddleware, verifyUserNotBanned_middleware_1.verifyUserNotBanned);
+subscriptionRouter.get('/', (0, authorizeRole_1.authorizeRole)(user_constants_1.UserRole.ADMIN), subscriptionController.getAllSubscription.bind(subscriptionController));
+subscriptionRouter.post('/', subscriptionController.createSubscription.bind(subscriptionController));
+subscriptionRouter.patch('/', subscriptionController.upgradeSubscription.bind(subscriptionController));
+subscriptionRouter.get('/me', subscriptionController.getActiveFeatures.bind(subscriptionController));
+subscriptionRouter.get('/history', subscriptionController.getMySubscriptions.bind(subscriptionController));
+subscriptionRouter.patch('/cancel', subscriptionController.cancelSubscription.bind(subscriptionController));
+subscriptionRouter.get('/current', subscriptionController.getCurrentPlan.bind(subscriptionController));
+exports.default = subscriptionRouter;

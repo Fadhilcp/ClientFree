@@ -54,7 +54,6 @@ const PayoutDetailPage: React.FC = () => {
           setAssignment(res.data.assignment);
         }
       } catch (error: any) {
-        console.error("Error fetching payout:", error);
         notify.error(error.response?.data?.error || "Failed to load payout");
       } finally {
         setLoading(false);
@@ -72,7 +71,6 @@ const PayoutDetailPage: React.FC = () => {
 
       navigate(-1)
     } catch (error: any) {
-      console.error("Release failed", error);
       notify.error(error.response?.data?.error || "Failed to release payout");
     } finally {
       setSubmitting(false);

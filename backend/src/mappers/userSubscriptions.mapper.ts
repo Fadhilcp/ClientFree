@@ -1,6 +1,6 @@
-import { ISubscriptionDocument } from "types/subscription.type";
+import { ISubscriptionDocument } from "../types/subscription.type";
 import { UserSubscriptionsDTO } from "../dtos/userSubscriptions.dto";
-import { IPlanDocument } from "types/plan.type";
+import { IPlanDocument } from "../types/plan.type";
 
 export function mapUserSubscriptions(
   subscription: ISubscriptionDocument

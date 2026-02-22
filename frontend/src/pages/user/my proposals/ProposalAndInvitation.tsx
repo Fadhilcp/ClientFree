@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { proposalService } from "../../../services/proposal.service";
 import type { IProposal } from "../../../types/job/proposal.type";
 import Spinner from "../../../components/ui/Loader/Spinner";
+import { notify } from "../../../utils/toastService";
 
 
 const LIMIT = 20;
@@ -49,8 +50,8 @@ const ProposalAndInvitation: React.FC = () => {
         setCursor(nextCursor);
         setHasMore(Boolean(nextCursor));
       }
-    } catch (err) {
-      console.error("Failed to load proposals:", err);
+    } catch (err: any) {
+      notify.error(err.response?.data?.error || 'Failed to load proposals');
     } finally {
       setLoading(false);
     }

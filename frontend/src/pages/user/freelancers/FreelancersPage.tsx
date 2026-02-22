@@ -123,8 +123,8 @@ const FreelancersPage: React.FC = () => {
         setCursor(nextCursor);
         setHasMore(Boolean(nextCursor));
       }
-    } catch (err) {
-      console.error("Failed to load freelancers:", err);
+    } catch (err: any) {
+      notify.error(err.response?.data?.error || 'Failed to load freelancers');
     } finally {
       setLoading(false);
     }
@@ -138,8 +138,8 @@ const FreelancersPage: React.FC = () => {
         const { jobs } = response.data;
         setClientJobs(jobs);
       }
-    } catch (error) {
-      console.error("Failed to load client jobs:", error);
+    } catch (error: any) {
+      notify.error(error.response?.data?.error || 'Failed to load client jobs');
     }
   }, [user]);
 
@@ -286,8 +286,8 @@ const FreelancersPage: React.FC = () => {
       }
       
     fetchFreelancers();
-    } catch (err) {
-      console.error("Failed to toggle freelancer interest:", err);
+    } catch (err: any) {
+      notify.error(err.response?.data?.error || 'Failed to toggle freelancer interest');
     }
   };
 

@@ -1,6 +1,6 @@
-import { AdminNotificationDTO, NotificationDTO } from "dtos/notification.dto";
-import { INotificationDocument } from "types/notification.type";
-import { INotificationRecipientDocument } from "types/notificationRecipient.type";
+import { AdminNotificationDTO, NotificationDTO } from "../dtos/notification.dto";
+import { INotificationDocument } from "../types/notification.type";
+import { INotificationRecipientDocument } from "../types/notificationRecipient.type";
 
 // for user
 export const mapUserNotification = (

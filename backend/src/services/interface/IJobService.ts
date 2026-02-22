@@ -1,4 +1,4 @@
-import { JobFilters, JobSort } from "types/filter.type";
+import { JobFilters, JobSort } from "../../types/filter.type";
 import { JobDetailDTO, JobListDTO } from "../../dtos/job.dto";
 import { AuthPayload } from "../../types/auth.type";
 import { IJob } from "../../types/job.type";

@@ -54,7 +54,6 @@ const InvitationsSection: React.FC<InvitationsSectionProps> = ({
 
     } catch (err) {
       notify.error('Pleaes try again!')
-      console.error("Failed:", err);
     } finally {
       setInvitationsLoading(false);
     }

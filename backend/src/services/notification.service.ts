@@ -7,11 +7,11 @@ import { HttpStatus } from "../constants/status.constants";
 import { HttpResponse } from "../constants/responseMessage.constant";
 import { mapUserNotification } from "../mappers/notification.mapper";
 import { mapNotification } from "../mappers/adminNotification.mapper";
-import { INotificationRepository } from "repositories/interfaces/INotificationRepository";
+import { INotificationRepository } from "../repositories/interfaces/INotificationRepository";
 import { INotificationRecipientRepository } from "../repositories/interfaces/INotificationRecipientRepository";
-import { emitNotificationToUser } from "helpers/notificationSocket";
-import { AdminNotificationDTO, CreateNotificationDTO, NotificationDTO } from "dtos/notification.dto";
-import { PaginatedResult } from "types/pagination";
+import { emitNotificationToUser } from "../helpers/notificationSocket";
+import { AdminNotificationDTO, CreateNotificationDTO, NotificationDTO } from "../dtos/notification.dto";
+import { PaginatedResult } from "../types/pagination";
 
 export class NotificationService implements INotificationService {
     constructor(

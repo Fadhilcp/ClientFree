@@ -1,12 +1,12 @@
-import { ReviewController } from "controllers/review.controller";
+import { ReviewController } from "../controllers/review.controller";
 import { Router } from "express";
-import { authMiddleware } from "middlewares/authMiddleware";
-import { verifyUserNotBanned } from "middlewares/verifyUserNotBanned.middleware";
-import { JobRepository } from "repositories/job.repository";
-import { JobAssignmentRepository } from "repositories/jobAssignment.repository";
-import { ReviewRepository } from "repositories/review.repository";
-import { UserRepository } from "repositories/user.repository";
-import { ReviewService } from "services/review.service";
+import { authMiddleware } from "../middlewares/authMiddleware";
+import { verifyUserNotBanned } from "../middlewares/verifyUserNotBanned.middleware";
+import { JobRepository } from "../repositories/job.repository";
+import { JobAssignmentRepository } from "../repositories/jobAssignment.repository";
+import { ReviewRepository } from "../repositories/review.repository";
+import { UserRepository } from "../repositories/user.repository";
+import { ReviewService } from "../services/review.service";
 
 const reviewRouter = Router();
 

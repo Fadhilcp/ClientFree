@@ -1,4 +1,4 @@
-import { UserSubscriptionsDTO } from "dtos/userSubscriptions.dto";
+import { UserSubscriptionsDTO } from "../../dtos/userSubscriptions.dto";
 import { getActiveFeaturesDto, SubscriptionDto } from "../../dtos/subscription.dto";
 import { PaginatedResult } from "../../types/pagination";
 import { ISubscription } from "../../types/subscription.type";

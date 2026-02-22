@@ -4,7 +4,7 @@ import { sendResponse } from "../utils/response.util";
 import { HttpStatus } from "../constants/status.constants";
 import { createHttpError } from "../utils/httpError.util";
 import { HttpResponse } from "../constants/responseMessage.constant";
-import { UserRole } from "constants/user.constants";
+import { UserRole } from "../constants/user.constants";
 
 export class ProposalController {
     constructor(private _proposalService: IProposalService) {}

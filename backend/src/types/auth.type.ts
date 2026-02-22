@@ -1,4 +1,4 @@
-import { UserRole } from "constants/user.constants";
+import { UserRole } from "../constants/user.constants";
 
 export type AuthPayload = {
   _id: string;

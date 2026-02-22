@@ -1,6 +1,6 @@
-import { PaginatedResult } from "types/pagination";
+import { PaginatedResult } from "../../types/pagination";
 import { UserRole } from "../../constants/user.constants";
-import { CreateReviewInput, ReviewDto } from "dtos/review.dto";
+import { CreateReviewInput, ReviewDto } from "../../dtos/review.dto";
 
 export interface IReviewService {
     createReview({

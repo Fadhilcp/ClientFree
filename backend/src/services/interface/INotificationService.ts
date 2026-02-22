@@ -1,6 +1,6 @@
-import { AdminNotificationDTO, CreateNotificationDTO, NotificationDTO } from "dtos/notification.dto";
-import { INotification } from "types/notification.type";
-import { PaginatedResult } from "types/pagination";
+import { AdminNotificationDTO, CreateNotificationDTO, NotificationDTO } from "../../dtos/notification.dto";
+import { INotification } from "../../types/notification.type";
+import { PaginatedResult } from "../../types/pagination";
 
 export interface INotificationService { 
     createNotification(data: CreateNotificationDTO): Promise<AdminNotificationDTO>;

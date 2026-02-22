@@ -9,7 +9,7 @@ import { ClarificationMessageDto } from "../dtos/clarificationMessage.dto";
 import { ClarificationBoardDto } from "../dtos/clarificationBoard.dto";
 import { mapClarificationBoard } from "../mappers/clarificationBoard.mapper";
 import { mapClarificationMessage } from "../mappers/clarificationMessage.mapper";
-import { UserRole } from "constants/user.constants";
+import { UserRole } from "../constants/user.constants";
 
 export class ClarificationService implements IClarificationService {
 

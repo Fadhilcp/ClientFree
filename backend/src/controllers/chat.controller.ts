@@ -1,9 +1,9 @@
-import { HttpResponse } from "constants/responseMessage.constant";
-import { HttpStatus } from "constants/status.constants";
+import { HttpResponse } from "../constants/responseMessage.constant";
+import { HttpStatus } from "../constants/status.constants";
 import { NextFunction, Request, Response } from "express";
-import { IChatService } from "services/interface/IChatService";
-import { createHttpError } from "utils/httpError.util";
-import { sendResponse } from "utils/response.util";
+import { IChatService } from "../services/interface/IChatService";
+import { createHttpError } from "../utils/httpError.util";
+import { sendResponse } from "../utils/response.util";
 
 export class ChatController {
 

@@ -19,9 +19,9 @@ import { IWalletRepository } from "../repositories/interfaces/IWalletRepository"
 import { IWalletTransactionRepository } from "../repositories/interfaces/IWalletTransactionRepository";
 import { IDatabaseSessionProvider } from "../repositories/db/session-provider.interface";
 import { IUserDocument } from "../types/user.type";
-import { UserRole } from "constants/user.constants";
+import { UserRole } from "../constants/user.constants";
 import { INotificationService } from "./interface/INotificationService";
-import { JobFilters, JobSort } from "types/filter.type";
+import { JobFilters, JobSort } from "../types/filter.type";
 import { buildJobSort } from "../helpers/buildJobSort";
 
 export class JobService implements IJobService {

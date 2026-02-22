@@ -21,7 +21,6 @@ import { setUser } from "../../../features/authSlice";
 
 const Profile: React.FC = () => {
   const [profileData, setProfileData] = useState<UserProfileDto | null>(null);
-  console.log("🚀 ~ Profile ~ profileData:", profileData)
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [availableSkills, setAvailableSkills] = useState<[]>([]);
@@ -42,7 +41,6 @@ const Profile: React.FC = () => {
       }
     } catch (error: any) {
       notify.error(error.response?.data?.error || "Failed to load profile");
-      console.error(error);
     } finally {
       setLoading(false);
     }

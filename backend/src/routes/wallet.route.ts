@@ -6,7 +6,7 @@ import { verifyUserNotBanned } from "../middlewares/verifyUserNotBanned.middlewa
 import { WalletRepository } from "../repositories/wallet.repository";
 import { WalletTransactionRepository } from "../repositories/walletTransaction.repository";
 import { WalletService } from "../services/wallet.service";
-import { UserRole } from "constants/user.constants";
+import { UserRole } from "../constants/user.constants";
 
 const walletRouter = Router();
 

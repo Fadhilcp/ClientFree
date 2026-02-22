@@ -1,15 +1,15 @@
-import { StripeWebhookController } from "controllers/stripeWebhook.controller";
+import { StripeWebhookController } from "../controllers/stripeWebhook.controller";
 import { Router, raw } from "express";
-import { MongooseSessionProvider } from "repositories/db/session-provider";
-import { JobAssignmentRepository } from "repositories/jobAssignment.repository";
-import { PaymentRepository } from "repositories/payment.repository";
-import { PlanRepository } from "repositories/plan.repository";
-import { RevenueRepository } from "repositories/revenue.repository";
-import { SubscriptionRepository } from "repositories/subscription.repository";
-import { UserRepository } from "repositories/user.repository";
-import { WalletRepository } from "repositories/wallet.repository";
-import { WalletTransactionRepository } from "repositories/walletTransaction.repository";
-import { StripeWebhookService } from "services/stripeWebhook.service";
+import { MongooseSessionProvider } from "../repositories/db/session-provider";
+import { JobAssignmentRepository } from "../repositories/jobAssignment.repository";
+import { PaymentRepository } from "../repositories/payment.repository";
+import { PlanRepository } from "../repositories/plan.repository";
+import { RevenueRepository } from "../repositories/revenue.repository";
+import { SubscriptionRepository } from "../repositories/subscription.repository";
+import { UserRepository } from "../repositories/user.repository";
+import { WalletRepository } from "../repositories/wallet.repository";
+import { WalletTransactionRepository } from "../repositories/walletTransaction.repository";
+import { StripeWebhookService } from "../services/stripeWebhook.service";
 
 const stripeWebhookRouter = Router();
 

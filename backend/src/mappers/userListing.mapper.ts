@@ -1,4 +1,4 @@
-import { UserToSelectDto } from "dtos/user.dto";
+import { UserToSelectDto } from "../dtos/user.dto";
 import { UserListingDto } from "../dtos/userListing.dto";
 import { IUserDocument } from "../types/user.type";
 

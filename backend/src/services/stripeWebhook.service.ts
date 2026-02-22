@@ -7,16 +7,14 @@ import { stripe } from "../config/stripe.config";
 import { PLAN_LIMITS } from "../constants/planLimits";
 import { IPaymentRepository } from "../repositories/interfaces/IPaymentRepository";
 import { IJobAssignmentRepository } from "../repositories/interfaces/IJobAssignmentRepository";
-import { IDatabaseSessionProvider } from "repositories/db/session-provider.interface";
-import { IWalletRepository } from "repositories/interfaces/IWalletRepository";
-import { createHttpError } from "utils/httpError.util";
-import { HttpStatus } from "constants/status.constants";
-import { IWalletTransactionRepository } from "repositories/interfaces/IWalletTransactionRepository";
-import { IRevenueRepository } from "repositories/interfaces/IRevenueRepository";
-import { HttpResponse } from "constants/responseMessage.constant";
-import { UserRole } from "constants/user.constants";
-import { UpdateQuery } from "mongoose";
-import { ISubscriptionDocument } from "types/subscription.type";
+import { IDatabaseSessionProvider } from "../repositories/db/session-provider.interface";
+import { IWalletRepository } from "../repositories/interfaces/IWalletRepository";
+import { createHttpError } from "../utils/httpError.util";
+import { HttpStatus } from "../constants/status.constants";
+import { IWalletTransactionRepository } from "../repositories/interfaces/IWalletTransactionRepository";
+import { IRevenueRepository } from "../repositories/interfaces/IRevenueRepository";
+import { HttpResponse } from "../constants/responseMessage.constant";
+import { UserRole } from "../constants/user.constants";
 
 export class StripeWebhookService implements IStripeWebhookService {
 
@@ -34,7 +32,6 @@ export class StripeWebhookService implements IStripeWebhookService {
 
     async handleStripeEvent(event: Stripe.Event): Promise<void> {
         
-        console.log("🚀 ~ StripeWebhookService ~ handleStripeEvent ~ event.type:", event.type);
         switch(event.type) {
             // Subscriptions 
             case "checkout.session.completed": 
@@ -93,12 +90,6 @@ export class StripeWebhookService implements IStripeWebhookService {
         if (!localSubscription || localSubscription.status === "active") return;
 
         const invoice = await stripe.invoices.retrieve(session.invoice as string);
-
-        if(invoice.status !== "paid") {
-            console.warn(
-                `[Stripe] Invoice not paid yet. Skipping payment creation. invoice=${invoice.id}`
-            );
-        }
 
         const stripeSubscription = await stripe.subscriptions.retrieve(session.subscription as string);
 
@@ -203,7 +194,6 @@ export class StripeWebhookService implements IStripeWebhookService {
         });
 
         if (!plan) {
-            console.warn(`[Stripe] Unknown priceId ${priceId}`);
             return;
         }
 

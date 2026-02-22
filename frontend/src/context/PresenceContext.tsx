@@ -12,7 +12,6 @@ export const PresenceProvider: React.FC<{ children: React.ReactNode }> = ({
     children,
 }) => {
     const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
-    console.log("🚀 ~ PresenceProvider ~ onlineUsers:", onlineUsers)
 
     useEffect(() => {
         const onOnline = ({ userId }: { userId: string }) => {

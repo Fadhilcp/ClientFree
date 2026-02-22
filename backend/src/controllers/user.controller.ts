@@ -6,7 +6,7 @@ import { HttpResponse } from "../constants/responseMessage.constant";
 import { clientUpdateSchema, freelancerUpdateSchema } from "../schema/profile.schema";
 import { sendResponse } from "../utils/response.util";
 import { IUser } from "../types/user.type";
-import { UserRole } from "constants/user.constants";
+import { UserRole } from "../constants/user.constants";
 
 
 export class ProfileController {

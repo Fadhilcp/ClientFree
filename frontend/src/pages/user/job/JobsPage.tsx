@@ -118,7 +118,6 @@ const JobsPage: React.FC<{ status: string; title: string }> = ({
           setHasMore(Boolean(nextCursor));
         }
       } catch (error: any) {
-        console.error("Failed to load jobs:", error);
         notify.error(
           error.response?.data?.error || "Failed to load jobs"
         );
