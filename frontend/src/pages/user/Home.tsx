@@ -72,7 +72,7 @@ const Home : React.FC = () => {
 
 
         {/* Home page */}
-        <section className="bg-white dark:bg-gray-900 pt-4 md:pt-4 lg:pt-1">
+        <section className="bg-white dark:bg-gray-900 min-h-screen pt-4 md:pt-4 lg:pt-1">
             <div className="max-w-screen-xl px-4 mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 
