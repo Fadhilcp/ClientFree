@@ -1,11 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isUserOnline = exports.userDisconnected = exports.userConnected = void 0;
+exports.isUserOnline = exports.userDisconnected = exports.getOnlineUserIds = exports.userConnected = void 0;
 const onlineUsers = new Map();
 const userConnected = (userId) => {
     onlineUsers.set(userId, (onlineUsers.get(userId) ?? 0) + 1);
 };
 exports.userConnected = userConnected;
+const getOnlineUserIds = () => {
+    return Array.from(onlineUsers.keys());
+};
+exports.getOnlineUserIds = getOnlineUserIds;
 const userDisconnected = (userId) => {
     const count = onlineUsers.get(userId);
     if (!count)

@@ -13,7 +13,7 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { env } from "../config/env.config";
 import { generateSignedUrl } from "../utils/getSignedUrl.util";
 import { emitMessageDeleted } from "../helpers/messageDeleteSocket";
-import { emitChatLastMessage } from "sockets/chatList.socket";
+import { emitChatLastMessage } from "../sockets/chatList.socket";
 
 export class MessageService implements IMessageService {
     constructor(

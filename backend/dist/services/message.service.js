@@ -15,6 +15,7 @@ const client_s3_1 = require("@aws-sdk/client-s3");
 const env_config_1 = require("../config/env.config");
 const getSignedUrl_util_1 = require("../utils/getSignedUrl.util");
 const messageDeleteSocket_1 = require("../helpers/messageDeleteSocket");
+const chatList_socket_1 = require("../sockets/chatList.socket");
 class MessageService {
     constructor(_chatRepository, _messageRepository) {
         this._chatRepository = _chatRepository;
@@ -92,6 +93,7 @@ class MessageService {
         chat.lastMessageAt = new Date();
         await chat.save();
         await (0, messageSocket_1.emitMessageToChat)(chatId, message);
+        (0, chatList_socket_1.emitChatLastMessage)(chatId, chat.participants.map(id => id.toString()), chat.lastMessageAt);
         return message_mapper_1.MessageMapper.toDTO(message);
     }
     async getChatMessages(chatId, userId) {

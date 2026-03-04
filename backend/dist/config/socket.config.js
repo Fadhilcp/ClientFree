@@ -21,6 +21,9 @@ const initSocket = (server) => {
         socket.join(`user:${_id}`);
         socket.join(`role:${role}`);
         (0, presence_socket_1.userConnected)(_id);
+        socket.emit("presence:init", {
+            onlineUserIds: (0, presence_socket_1.getOnlineUserIds)(),
+        });
         socket.broadcast.emit("user:online", { userId: _id });
         // Chat rooms
         socket.on("chat:join", (chatId) => {
