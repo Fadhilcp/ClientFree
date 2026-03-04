@@ -13,6 +13,7 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { env } from "../config/env.config";
 import { generateSignedUrl } from "../utils/getSignedUrl.util";
 import { emitMessageDeleted } from "../helpers/messageDeleteSocket";
+import { emitChatLastMessage } from "sockets/chatList.socket";
 
 export class MessageService implements IMessageService {
     constructor(
@@ -115,6 +116,12 @@ export class MessageService implements IMessageService {
         await chat.save();
 
         await emitMessageToChat(chatId, message);
+
+        emitChatLastMessage(
+            chatId,
+            chat.participants.map(id => id.toString()),
+            chat.lastMessageAt
+        );
 
         return MessageMapper.toDTO(message);
     }

@@ -14,6 +14,10 @@ export const PresenceProvider: React.FC<{ children: React.ReactNode }> = ({
     const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
 
     useEffect(() => {
+        const onInit = ({ onlineUserIds }: { onlineUserIds: string[] }) => {
+            setOnlineUsers(new Set(onlineUserIds));
+        };
+
         const onOnline = ({ userId }: { userId: string }) => {
             setOnlineUsers(prev => new Set(prev).add(userId));
         };
@@ -26,10 +30,12 @@ export const PresenceProvider: React.FC<{ children: React.ReactNode }> = ({
             });
         };
 
+        socket.on("presence:init", onInit);
         socket.on("user:online", onOnline);
         socket.on("user:offline", onOffline);
 
         return () => {
+            socket.on("presence:init", onInit);
             socket.off("user:online", onOnline);
             socket.off("user:offline", onOffline);
         };

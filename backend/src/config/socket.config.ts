@@ -3,7 +3,7 @@ import http from "http";
 import { socketAuthMiddleware } from "../middlewares/socketAuth.middleware";
 import { env } from "./env.config";
 import { registerCallSocket } from "../sockets/call.socket";
-import { userConnected, userDisconnected, isUserOnline } from "../sockets/presence.socket";
+import { userConnected, userDisconnected, isUserOnline, getOnlineUserIds } from "../sockets/presence.socket";
 
 let io: Server;
 
@@ -26,6 +26,10 @@ export const initSocket = (server: http.Server): Server => {
         socket.join(`role:${role}`);
 
         userConnected(_id);
+
+        socket.emit("presence:init", {
+            onlineUserIds: getOnlineUserIds(),
+        });
 
         socket.broadcast.emit("user:online", { userId: _id });
 

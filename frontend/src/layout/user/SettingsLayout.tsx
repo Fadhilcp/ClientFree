@@ -5,9 +5,9 @@ import { Outlet } from "react-router-dom";
 const settingsMenu = [
   { label: "Account & Security", path: "/settings/account-security" },
   { label: "Subscription & Premium", path: "/settings/subscription-premium" },
-  { label: "Payment Methods", path: "/settings/payment-methods" },
-  { label: "Notifications", path: "/settings/notifications" },
-  { label: "Role & Permissions", path: "/settings/roles-permissions" },
+  // { label: "Payment Methods", path: "/settings/payment-methods" },
+  // { label: "Notifications", path: "/settings/notifications" },
+  // { label: "Role & Permissions", path: "/settings/roles-permissions" },
 ];
 
 const SettingsLayout: React.FC = () => {

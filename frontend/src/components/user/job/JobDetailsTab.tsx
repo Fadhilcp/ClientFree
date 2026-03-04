@@ -77,17 +77,35 @@ const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
 
       fetchReview();
     }, [job.id, job.status]);
-
+    // =================
     const canPlaceBid =
       proposalStatus?.status === "NONE" ||
       proposalStatus?.status === "UPGRADE_PENDING";
+    // =================
+    const hasAcceptedFreelancers =
+      (job.acceptedProposals?.length ?? 0) > 0;
+
+    const isAlreadyHired =
+      job.acceptedProposals?.some(
+        (p) => p.freelancer?.id === user?.id
+      );
+
+    const canAcceptMoreFreelancers =
+      job.isMultiFreelancer || !hasAcceptedFreelancers;
+
+    const canShowPlaceBid =
+      user?.role === "freelancer" &&
+      job.status === "open" &&
+      !isAlreadyHired &&
+      canAcceptMoreFreelancers;
+    // ==================
 
     const isHiredFreelancer =
         user?.role === "freelancer" &&
         job.acceptedProposals?.some(
             (p) => p.freelancer?.id === user.id
         );
-
+    // ==================
 
     const handleChat = async (receiverId: string) => {
         try {
@@ -262,7 +280,7 @@ const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
       })}
 
       {/* Place Bid */}
-      {user?.role === "freelancer" && job.status === "open" && (
+      {canShowPlaceBid && (
         canPlaceBid ? (
           <div className="space-y-3">
             {proposalStatus?.status === "UPGRADE_PENDING" && (

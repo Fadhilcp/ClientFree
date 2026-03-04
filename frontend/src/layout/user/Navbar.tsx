@@ -17,7 +17,7 @@ const Navbar: React.FC<NavbarProps> = ({ role }) => {
     const navRoutes = {
       landing: {
         Home: "/",
-        About: "/about",
+        // About: "/about",
       },
       freelancer: {
         Home: "/home",
