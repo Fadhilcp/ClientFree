@@ -7,7 +7,8 @@ function setCookie(res, refreshToken) {
         httpOnly: true,
         secure: true,
         maxAge: 7 * 24 * 60 * 60 * 1000,
-        sameSite: 'none'
+        sameSite: 'none',
+        path: '/',
     });
 }
 ;
@@ -15,6 +16,7 @@ function clearCookie(res) {
     res.clearCookie('refreshToken', {
         httpOnly: true,
         secure: true,
-        sameSite: 'none'
+        sameSite: 'none',
+        path: '/'
     });
 }
