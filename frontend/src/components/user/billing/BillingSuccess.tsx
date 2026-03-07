@@ -14,21 +14,20 @@ const BillingSuccess = () => {
 
   useEffect(() => {
     let attempts = 0;
-    const maxAttempts = 10;
+    const maxAttempts = 25;
+    let delay = 2000;
+    let timeoutId: ReturnType<typeof setTimeout>;
 
-    const interval = setInterval(async () => {
+    const checkSubscription = async () => {
       try {
         attempts++;
 
         const res = await subscriptionService.getMySubscription();
-
         const subscription = res?.data?.subscription ?? null;
 
         if (subscription) {
           dispatch(setSubscription(subscription));
           setStatus("active");
-
-          clearInterval(interval);
 
           setTimeout(() => {
             navigate("/home", { replace: true });
@@ -37,18 +36,22 @@ const BillingSuccess = () => {
           return;
         }
 
-        // still waiting for webhook
         if (attempts >= maxAttempts) {
-          clearInterval(interval);
           setStatus("failed");
+          return;
         }
-      } catch (error) {
-        clearInterval(interval);
+
+        delay = Math.min(delay + 500, 6000);
+
+        timeoutId = setTimeout(checkSubscription, delay);
+      } catch {
         setStatus("failed");
       }
-    }, 2000);
+    };
 
-    return () => clearInterval(interval);
+    timeoutId = setTimeout(checkSubscription, delay);
+
+    return () => clearTimeout(timeoutId);
   }, [dispatch, navigate]);
 
  return (

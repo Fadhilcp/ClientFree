@@ -48,6 +48,7 @@ instance.interceptors.response.use((response) => response,
             
             originalRequest.headers.Authorization = `Bearer ${token}`;
             
+            return instance(originalRequest);
         } catch (error) {
             tokenStore.clear();
             notify.error('Session expired. Please log in again.');
