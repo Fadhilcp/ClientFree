@@ -5,7 +5,7 @@ export function setCookie(res : Response, refreshToken : string) {
         httpOnly : true,
         secure : true,
         maxAge : 7 * 24 * 60 * 60 * 1000,
-        sameSite : 'none',
+        sameSite : 'none' as const,
         path: '/',
     })
 };
@@ -14,6 +14,7 @@ export function clearCookie(res : Response){
     res.clearCookie('refreshToken', {
         httpOnly : true,
         secure : true,
-        sameSite : 'none'
+        sameSite : 'none',
+        path: '/'
     })
 }
