@@ -36,6 +36,7 @@ const freelancerMenuItems = [
 const jobFields = [
   { name: "title", label: "Job Title", placeholder: "Enter job title" },
   { name: "paymentBudget", label: "Budget", placeholder: "Enter budget" },
+  { name: "hoursPerDay", label: "Hours Per Day", placeholder: "Example: 2" },
 ];
 
 const jobDropdowns = [
@@ -106,6 +107,7 @@ const JobLayout: React.FC = () => {
         subcategory: "",
         skills: [],
         duration: "",
+        hoursPerDay: "",
         paymentBudget: "",
         paymentType: "fixed",
         description: "",
@@ -178,6 +180,7 @@ const JobLayout: React.FC = () => {
         subcategory: job.subcategory || "",
         skills: job.skills?.map(s => s.id) || [],
         duration: job.duration || "",
+        hoursPerDay: job.hoursPerDay?.toString() || "",
         paymentBudget: job.payment?.budget?.toString() || "",
         paymentType: job.payment?.type || "fixed",
         description: job.description || "",
@@ -206,6 +209,7 @@ const JobLayout: React.FC = () => {
         subcategory: formData.subcategory,
         skills: formData.skills,
         duration: formData.duration,
+        hoursPerDay: Number(formData.hoursPerDay),
         payment: {
           budget: formData.paymentBudget,
           type: formData.paymentType
@@ -258,6 +262,7 @@ const JobLayout: React.FC = () => {
           subcategory: "",
           skills: [],
           duration: "",
+          hoursPerDay: "",
           paymentBudget: "",
           paymentType: "fixed",
           description: "",
@@ -404,7 +409,7 @@ const JobLayout: React.FC = () => {
             </div>
 
             <FiilterBox
-              enabledFilters={["category", "budgetMin", "budgetMax", "location", "workMode", "skills", "sort"]}
+              enabledFilters={["category", "budgetMin", "budgetMax", "location", "workMode", "skills", "sort", "hoursPerDay"]}
             />
           </div>
         </div>
@@ -414,7 +419,7 @@ const JobLayout: React.FC = () => {
       {!hideFilterBox && (
         <aside className="hidden md:block border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 sticky top-0 h-screen p-6">
           <FiilterBox
-            enabledFilters={["category", "budgetMin", "budgetMax", "location", "workMode", "skills", "sort"]}
+            enabledFilters={["category", "budgetMin", "budgetMax", "location", "workMode", "skills", "sort", "hoursPerDay"]}
           />
         </aside>
       )}

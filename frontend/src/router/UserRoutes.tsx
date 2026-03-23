@@ -5,9 +5,7 @@ import UserLayout from "../layout/user/UserLayout";
 
 import ProtectedRoute from "./ProtectedRoute";
 import AuthProtectedRoute from "./AuthProtectedRoute";
-import useAuthVerifier from "../hooks/useAuthVerifier";
 import NoAuthProtectedRoute from "./NoAuthProtectedRoute";
-import Loader from "../components/ui/Loader/Loader";
 import SettingsLayout from "../layout/user/SettingsLayout";
 import JobLayout from "../layout/user/JobLayout";
 import FindJobsLayout from "../layout/user/FindJobsLayout";
@@ -57,12 +55,6 @@ const SecuritySetting = lazy(() => import("../pages/user/settings/SecuritySettin
 const SubscriptionSetting = lazy(() => import("../pages/user/settings/Subscription-Premium"));
 
 const UserRoutes: React.FC = () => {
-
-    const { loading } = useAuthVerifier();
-
-    if(loading){
-        return <Loader/>
-    }
 
     return (
 

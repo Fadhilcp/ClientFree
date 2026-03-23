@@ -14,6 +14,7 @@ export interface JobBaseDTO {
   isVerified: boolean;
 
   duration?: string;
+  hoursPerDay?: number;
 
   payment?: {
     budget?: number;

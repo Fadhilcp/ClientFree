@@ -27,7 +27,6 @@ const JobsPage: React.FC<{ status: string; title: string }> = ({
   const isInitialLoading = loading && jobs.length === 0;
   const isScrollLoading = loading && jobs.length > 0;
 
-
   // infinite scroll
   const [cursor, setCursor] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
@@ -55,6 +54,11 @@ const JobsPage: React.FC<{ status: string; title: string }> = ({
     budgetMax: searchParams.get("budgetMax")
       ? Number(searchParams.get("budgetMax"))
       : undefined,
+
+    hoursPerDay: searchParams.get("hoursPerDay")
+      ? Number(searchParams.get("hoursPerDay"))
+      : undefined,
+      
     skills: searchParams.getAll("skills"),
     sort: searchParams.get("sort") || undefined,
   };
@@ -239,6 +243,7 @@ const JobsPage: React.FC<{ status: string; title: string }> = ({
                 value: new Date(job.createdAt).toLocaleDateString(),
               },
               { label: "Duration", value: job.duration || "N/A" },
+              { label: "Hours/Day", value: job.hoursPerDay?.toString() || "N/A" },
             ]}
             tags={job.skills?.map((s) => s.name) || []}
             description={job.description}

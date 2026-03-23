@@ -57,13 +57,17 @@ const JobDetails: React.FC<{ job: JobDetailDTO }> = ({ job }) => {
       )}
 
       {/* Meta Info */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
         <p>
           <i className="fa-regular fa-calendar"></i> Created:{" "}
           {new Date(job.createdAt).toLocaleDateString()}
         </p>
         <p>
           <i className="fa-solid fa-clock"></i> Duration: {job.duration ?? "N/A"}
+        </p>
+        <p>
+          <i className="fa-solid fa-hourglass-half"></i> Hours/Day:{" "}
+          {job.hoursPerDay ?? "N/A"}
         </p>
         <p>
           <i className="fa-solid fa-users"></i> Proposals: {job.proposalCount}

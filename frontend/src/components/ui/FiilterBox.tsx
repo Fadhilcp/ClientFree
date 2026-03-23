@@ -18,7 +18,8 @@ type FilterKey =
   | "ratingMin"
   | "skills" 
   | "workMode"
-  | "sort";
+  | "sort"
+  | "hoursPerDay";
 
 type FilterBoxProps = {
   enabledFilters: FilterKey[];
@@ -59,6 +60,10 @@ const FiilterBox: React.FC<FilterBoxProps> = ({ enabledFilters = [] }) => {
 
     const [skills, setSkills] = useState<string[]>(
       searchParams.getAll("skills")
+    );
+
+    const [hoursPerDay, setHoursPerDay] = useState(
+      searchParams.get("hoursPerDay") || "all"
     );
 
     const [availableSkills, setAvailableSkills] = useState<any[]>([]);
@@ -112,6 +117,10 @@ const FiilterBox: React.FC<FilterBoxProps> = ({ enabledFilters = [] }) => {
           ? { skills }
           : {}),
 
+        ...(has("hoursPerDay") && hoursPerDay !== "all"
+          ? { hoursPerDay: Number(hoursPerDay) }
+          : {}),
+
         ...(sort ? { sort: sort as JobSort } : {}),
       });
 
@@ -142,6 +151,26 @@ const FiilterBox: React.FC<FilterBoxProps> = ({ enabledFilters = [] }) => {
                       {category}
                     </option>
                   ))}
+                </select>
+              </div>
+            )}
+
+            {has("hoursPerDay") && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Hours per Day
+                </label>
+
+                <select
+                  value={hoursPerDay}
+                  onChange={(e) => setHoursPerDay(e.target.value)}
+                  className="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 bg-white dark:text-gray-200"
+                >
+                  <option value="all">Any</option>
+                  <option value="1">1 hour/day</option>
+                  <option value="2">2 hours/day</option>
+                  <option value="4">4 hours/day</option>
+                  <option value="8">Full time (8h)</option>
                 </select>
               </div>
             )}

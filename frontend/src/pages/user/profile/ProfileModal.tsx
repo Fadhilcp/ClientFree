@@ -335,7 +335,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
             {role === "freelancer" && (
               <>
                 <InputSection label="Professional Title" name="professionalTitle" value={formData.professionalTitle} error={errors.professionalTitle} onChange={handleChange} />
-                <InputSection label="Hourly Rate" type="number" name="hourlyRate" value={formData.hourlyRate ?? 0} error={errors.hourlyRate} onChange={handleChange} />
+                <InputSection label="Hourly Rate" type="number" name="hourlyRate" value={formData.hourlyRate ?? ""} error={errors.hourlyRate} onChange={handleChange} />
                 <SelectSection
                   label="Experience Level"
                   name="experienceLevel"

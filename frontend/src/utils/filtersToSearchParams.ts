@@ -11,6 +11,7 @@ export function filtersToSearchParams(filters: FreelancerFilters): URLSearchPara
   if (filters.hourlyRateMin !== undefined) params.set("hourlyRateMin", String(filters.hourlyRateMin));
   if (filters.hourlyRateMax !== undefined) params.set("hourlyRateMax", String(filters.hourlyRateMax));
   if (filters.ratingMin !== undefined) params.set("ratingMin", String(filters.ratingMin));
+  if (filters.hoursPerDay !== undefined) params.set("hoursPerDay", String(filters.hoursPerDay));
 
   if (filters.workMode) params.set("workMode", filters.workMode);
   if (filters.sort) params.set("sort", filters.sort);

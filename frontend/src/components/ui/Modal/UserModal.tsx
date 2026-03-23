@@ -59,7 +59,8 @@ const UserModal = <T extends Record<string, string>>({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-transparent backdrop-blur-sm overflow-y-auto">
-      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg w-full sm:max-w-lg md:max-w-2xl lg:max-w-3xl p-6 max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg w-full sm:max-w-lg 
+        md:max-w-2xl lg:max-w-3xl p-6 max-h-[90vh] overflow-y-auto no-scrollbar">
         <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
           {title}
         </h2>

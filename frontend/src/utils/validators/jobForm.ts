@@ -32,11 +32,24 @@ export const validateJobForm = (data: JobForm) => {
   } else if (!isNumeric(data.paymentBudget)) {
     errors.paymentBudget = "Budget must be a number";
   }
+
+  if (isEmpty(data.hoursPerDay)) {
+    errors.hoursPerDay = "Hours per day is required";
+  } else if (!isNumeric(data.hoursPerDay)) {
+    errors.hoursPerDay = "Hours must be a number";
+  } else {
+    const hours = Number(data.hoursPerDay);
+    if (hours < 1 || hours > 24) {
+      errors.hoursPerDay = "Hours must be between 1 and 24";
+    }
+  }
+
   if (isEmpty(data.description)) {
     errors.description = "Description is required";
   } else if (data.description.trim().length < 20) {
     errors.description = "Description must be at least 20 characters";
   }
+  
   if (isEmpty(data.duration)) {
     errors.duration = "Duration is required";
   }

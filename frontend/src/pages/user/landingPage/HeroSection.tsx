@@ -3,7 +3,7 @@ import Button from '../../../components/ui/Button';
 
 const HeroSection: React.FC = () => {
   return (
-    <section className="bg-white dark:bg-gray-900 pt-6 pb-10 md:pt-4 lg:pt-1">
+    <section className="bg-white dark:bg-gray-900 min-h-screen pt-6 md:pt-4 lg:pt-1 overflow-x-hidden">
 
       <div className="max-w-screen-xl px-4 mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">

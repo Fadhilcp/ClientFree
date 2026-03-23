@@ -1,11 +1,17 @@
 import { Routes, Route } from "react-router-dom";
 import NotFoundPage from "../pages/user/NotFoundPage";
 import { lazy } from "react";
+import useAuthVerifier from "../hooks/useAuthVerifier";
+import Loader from "../components/ui/Loader/Loader";
 
 const UserRoutes = lazy(() => import("./UserRoutes"));
 const AdminRoutes = lazy(() => import("./AdminRoutes"));
 
 const AppRoutes = () => {
+
+    const { loading } = useAuthVerifier();
+
+    if(loading) return <Loader/>
     return (
         <Routes>
             {/* Admin routes */}

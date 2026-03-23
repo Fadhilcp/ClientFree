@@ -16,6 +16,7 @@ const LIMIT = 20;
 
 const BrowseJobsPage: React.FC = () => {
   const [jobs, setJobs] = useState<JobListDTO[]>([]);
+  console.log("🚀 ~ BrowseJobsPage ~ jobs:", jobs)
   const [loading, setLoading] = useState(false);
 
   const isInitialLoading = loading && jobs.length === 0;
@@ -51,6 +52,10 @@ const BrowseJobsPage: React.FC = () => {
       : undefined,
     budgetMax: searchParams.get("budgetMax")
       ? Number(searchParams.get("budgetMax"))
+      : undefined,
+
+    hoursPerDay: searchParams.get("hoursPerDay")
+      ? Number(searchParams.get("hoursPerDay"))
       : undefined,
 
     sort: searchParams.get("sort") || undefined,
@@ -282,6 +287,7 @@ const BrowseJobsPage: React.FC = () => {
                 { label: "Proposals", value: String(job.proposalCount ?? 0) },
                 { label: "Created", value: new Date(job.createdAt).toLocaleDateString() },
                 { label: "Duration", value: job.duration || "N/A" },
+                { label: "Hours/Day", value: job.hoursPerDay?.toString() || "N/A" },
               ]}
               tags={job.skills ? job.skills.map((s) => s.name) : []}
               description={job.description}
