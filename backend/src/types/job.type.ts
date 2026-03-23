@@ -24,6 +24,7 @@ export interface IJob {
   skills?: string[];
 
   duration?: string;
+  hoursPerDay?: number;
 
   payment?: IPayment;
 

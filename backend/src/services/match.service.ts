@@ -83,6 +83,10 @@ export class MatchService implements IMatchService {
         if (filters?.workMode) {
             filter["payment.type"] = filters.workMode;
         }
+        // hours filter
+        if (filters?.hoursPerDay !== undefined) {
+            filter.hoursPerDay = { $lte: filters.hoursPerDay };
+        }
         // Skills
         if (filters?.skills && filters.skills.length > 0) {
             filter.skills = { $all: filters.skills.map(id => new Types.ObjectId(id)) };

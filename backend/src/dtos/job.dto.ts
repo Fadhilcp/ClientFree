@@ -12,6 +12,7 @@ export interface JobBaseDTO {
   skills?: { id: string, name: string }[];
 
   duration?: string;
+  hoursPerDay?: number;
   // for subscribed client job
   isVerified: boolean;
 

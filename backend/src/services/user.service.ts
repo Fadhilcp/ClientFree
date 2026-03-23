@@ -34,7 +34,7 @@ export class UserService implements IUserService {
         return mapUserProfile(userWithSignedResume);
     }
 
-    async updateProfile(userId: string, userData: Partial<IUser>): Promise<UserProfileDto> {
+    async updateProfile(userId: string, userData: IUser): Promise<UserProfileDto> {
         const updatedUser = await this._userRepository.findByIdAndUpdate(userId, userData);
 
         if(!updatedUser) throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.USER_NOT_FOUND);

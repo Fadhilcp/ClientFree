@@ -39,6 +39,7 @@ export class JobMapper {
             isVerified: clientDoc.isVerified ?? false,
 
             duration: job.duration,
+            hoursPerDay: job.hoursPerDay,
 
             payment: job.payment
                 ? {

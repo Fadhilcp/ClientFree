@@ -4,6 +4,7 @@ export interface JobFilters {
     category?: string;
     budgetMin?: number;
     budgetMax?: number;
+    hoursPerDay?: number;
     location?: string;
     workMode?: "fixed" | "hourly";
     skills?: string[];

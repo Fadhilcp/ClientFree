@@ -6,6 +6,13 @@ export const createJobSchema = z.object({
   subcategory: z.string().min(1),
   skills: z.array(z.string()).optional(),
   duration: z.string().min(1),
+  hoursPerDay: z.preprocess(
+    (val) => Number(val),
+    z.number()
+      .min(1, "Minimum 1 hour required")
+      .max(24, "Hours cannot exceed 24")
+  ),
+
   payment: z.object({
     budget: z.preprocess((val) => Number(val), z.number().positive()),
     type: z.enum(["fixed", "hourly"])   

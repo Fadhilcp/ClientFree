@@ -15,6 +15,12 @@ const JobSchema = new Schema({
 
   duration: String,
 
+  hoursPerDay: {
+    type: Number,
+    min: 1,
+    max: 24
+  },
+
   payment: {
     budget: Number,
     type: { type: String, enum: ["fixed", "hourly"] }

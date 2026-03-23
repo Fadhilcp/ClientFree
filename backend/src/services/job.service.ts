@@ -134,7 +134,9 @@ export class JobService implements IJobService {
         if (filters?.workMode) {
             filter["payment.type"] = filters.workMode;
         }
-
+        if (filters?.hoursPerDay !== undefined) {
+            filter.hoursPerDay = { $lte: filters.hoursPerDay };
+        }
         // Skills
         if (filters?.skills && filters.skills.length > 0) {
             filter.skills = { $all: filters.skills.map(id => new Types.ObjectId(id)) };
@@ -487,6 +489,10 @@ export class JobService implements IJobService {
         // workmode
         if (filters?.workMode) {
             filter["payment.type"] = filters.workMode;
+        }
+        // hours per day filter
+        if (filters?.hoursPerDay !== undefined) {
+            filter.hoursPerDay = { $lte: filters.hoursPerDay };
         }
         if (filters?.skills && filters.skills.length > 0) {
             filter.skills = { $all: filters.skills.map(id => new Types.ObjectId(id)) };
