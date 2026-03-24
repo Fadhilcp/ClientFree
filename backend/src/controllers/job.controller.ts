@@ -150,6 +150,10 @@ export class JobController {
                 ? Number(req.query.budgetMax)
                 : undefined;
 
+            const hoursPerDay = req.query.hoursPerDay
+                ? Number(req.query.hoursPerDay)
+                : undefined;
+
             const workMode = req.query.workMode as "fixed" | "hourly" | undefined;
             const skills = req.query.skills 
                 ? Array.isArray(req.query.skills) 
@@ -159,14 +163,15 @@ export class JobController {
 
             if (
                 (budgetMin !== undefined && Number.isNaN(budgetMin)) ||
-                (budgetMax !== undefined && Number.isNaN(budgetMax))
+                (budgetMax !== undefined && Number.isNaN(budgetMax)) ||
+                (hoursPerDay !== undefined && Number.isNaN(hoursPerDay))
             ) {
                 throw createHttpError(HttpStatus.BAD_REQUEST, "Invalid budget values");
             }
 
             const { jobs, nextCursor }= await this._jobService.getClientJobs(
                 clientId, status, search, limit, cursor,
-                { category, location, budgetMin, budgetMax, workMode, skills },
+                { category, location, budgetMin, budgetMax, workMode, skills, hoursPerDay },
                 sort
             );
 
@@ -233,6 +238,10 @@ export class JobController {
                 ? Number(req.query.budgetMax)
                 : undefined;
 
+            const hoursPerDay = req.query.hoursPerDay
+                ? Number(req.query.hoursPerDay)
+                : undefined;
+
             const workMode = req.query.workMode as "fixed" | "hourly" | undefined;
             const skills = req.query.skills
                 ? Array.isArray(req.query.skills)
@@ -259,7 +268,8 @@ export class JobController {
                     budgetMin,
                     budgetMax,
                     workMode, 
-                    skills
+                    skills,
+                    hoursPerDay
                 },
                 sort
             );

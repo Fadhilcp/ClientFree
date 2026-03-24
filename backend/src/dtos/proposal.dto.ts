@@ -56,6 +56,7 @@ export interface ProposalDTO {
 
 export type IProposalStatus =
   | "NONE"
+  | "WITHDRAWN"
   | "SUBMITTED"
   | "INVITED"
   | "UPGRADE_PENDING";

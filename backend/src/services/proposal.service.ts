@@ -69,11 +69,19 @@ export class ProposalService implements IProposalService {
         }
         // check the freelancer already submitted or not
         const existing = await this._proposalRepository.findOne({ jobId, freelancerId });
+
         if (existing) {
-            if(existing.upgradeStatus !== "pending") {
-                throw createHttpError(HttpStatus.CONFLICT, "Proposal already submitted");
+            if (existing.status === "withdrawn") {
+                throw createHttpError(
+                    HttpStatus.CONFLICT,
+                    "You have withdrawn your proposal and cannot submit again."
+                );
             }
-            return await this._retryUpgrade(existing, freelancerId, payload);
+            if (existing.upgradeStatus === "pending") {
+                return await this._retryUpgrade(existing, freelancerId, payload);
+            }
+
+            throw createHttpError(HttpStatus.CONFLICT, "Proposal already submitted");
         }
 
         const workloadWarning = await this._checkFreelancerWorkload(freelancerId);
@@ -818,6 +826,14 @@ export class ProposalService implements IProposalService {
             return {
                 status: "NONE",
                 message: "You have not submitted a proposal for this job.",
+            };
+        }
+
+        if (proposal.status === "withdrawn") {
+            return {
+                status: "WITHDRAWN",
+                message: "You have withdrawn your proposal and cannot submit again.",
+                proposalId: proposal._id.toString(),
             };
         }
 
