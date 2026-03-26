@@ -82,54 +82,55 @@ class SubscriptionService {
     }
     async upgradeSubscription(userId, planId, billingInterval) {
         const activeSub = await this._subscriptionRepository.findOne({
-            userId: userId,
+            userId,
             status: "active",
         });
         if (!activeSub)
             throw (0, httpError_util_1.createHttpError)(404, "No active subscription");
         const newPlan = await this._planRepository.findById(planId);
-        if (!newPlan || !newPlan.active)
+        if (!newPlan || !newPlan.active) {
             throw (0, httpError_util_1.createHttpError)(404, "Plan not available");
-        // Prevent same plan upgrade
+        }
         const isSamePlan = String(activeSub.planId) === String(newPlan._id);
         const isSameInterval = activeSub.billingInterval === billingInterval;
         if (isSamePlan && isSameInterval) {
-            throw (0, httpError_util_1.createHttpError)(400, "Already on this plan with the same billing interval");
+            throw (0, httpError_util_1.createHttpError)(400, "Already on this plan");
         }
-        if (!activeSub.subscriptionId)
-            return {};
-        const stripeSub = await stripe_config_1.stripe.subscriptions.retrieve(activeSub.subscriptionId);
-        const item = stripeSub.items.data[0];
-        if (!item)
-            throw new Error("Stripe subscription item missing");
-        const newPriceId = billingInterval === "monthly"
-            ? newPlan.stripePriceIdMonthly
-            : newPlan.stripePriceIdYearly;
-        if (!newPriceId?.startsWith("price_"))
-            throw (0, httpError_util_1.createHttpError)(500, "Stripe price ID not configured");
-        const updated = await stripe_config_1.stripe.subscriptions.update(stripeSub.id, {
-            items: [{ id: item.id, price: newPriceId }],
-            proration_behavior: "create_prorations",
-            payment_behavior: "pending_if_incomplete",
-            expand: ["latest_invoice"],
-        });
-        const invoice = updated.latest_invoice;
-        if (!invoice)
-            return {};
-        await stripe_config_1.stripe.invoices.update(invoice.id, {
+        const amount = billingInterval === "monthly"
+            ? newPlan.priceMonthly
+            : newPlan.priceYearly;
+        const MIN_AMOUNT_INR = 50;
+        if (amount < MIN_AMOUNT_INR) {
+            throw (0, httpError_util_1.createHttpError)(400, `Minimum charge must be at least ₹${MIN_AMOUNT_INR}`);
+        }
+        const session = await stripe_config_1.stripe.checkout.sessions.create({
+            mode: "payment",
+            customer: activeSub.customerId,
+            line_items: [
+                {
+                    price_data: {
+                        currency: "inr",
+                        product_data: {
+                            name: `Upgrade to ${newPlan.planName}`,
+                        },
+                        unit_amount: amount * 100,
+                    },
+                    quantity: 1,
+                },
+            ],
+            success_url: `${env_config_1.env.FRONTEND_URL}/billing/success`,
+            cancel_url: `${env_config_1.env.FRONTEND_URL}/billing/cancel`,
             metadata: {
-                upgradeFrom: activeSub.planId.toString(),
-                upgradeTo: newPlan._id.toString(),
                 userId,
-                billingInterval: billingInterval,
+                upgradeTo: newPlan._id.toString(),
+                billingInterval,
+                isUpgrade: "true",
             },
         });
-        if (invoice.status !== "paid") {
-            return {
-                paymentUrl: invoice.hosted_invoice_url ?? undefined,
-            };
-        }
-        return {};
+        await this._subscriptionRepository.updateOne({ _id: activeSub._id }, {
+            upgradeStatus: "pending",
+        });
+        return { paymentUrl: session.url };
     }
     async cancelSubscription(userId) {
         const subscription = await this._subscriptionRepository.findOne({
@@ -175,6 +176,8 @@ class SubscriptionService {
             planName: plan.planName,
             userType: plan.userType,
             features: plan.features,
+            status: subscription.status,
+            upgradeStatus: subscription.upgradeStatus,
             expiryDate: subscription.expiryDate,
             billingInterval: subscription.billingInterval,
         };
@@ -204,6 +207,7 @@ class SubscriptionService {
                 select: "planName userType priceMonthly priceYearly features",
             },
         });
+        console.log("🚀 ~ SubscriptionService ~ getMySubscriptions ~ result:", result);
         return {
             ...result,
             data: result.data.map(userSubscriptions_mapper_1.mapUserSubscriptions),

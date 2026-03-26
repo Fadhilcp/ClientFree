@@ -81,7 +81,7 @@ class AuthService {
             email: pendingUser.email,
             password: pendingUser.password,
             role: pendingUser.role,
-            provider: "local",
+            provider: pendingUser.provider,
         });
         let wallet;
         try {

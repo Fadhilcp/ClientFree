@@ -21,6 +21,11 @@ const subscriptionSchema = new mongoose_1.Schema({
         enum: ["pending", "active", "expired", "cancelled"],
         default: "pending",
     },
+    upgradeStatus: {
+        type: String,
+        enum: ["none", "pending"],
+        default: "none",
+    },
     gateway: {
         type: String,
         enum: ["razorpay", "stripe", "manual"],

@@ -8,6 +8,9 @@ exports.createJobSchema = zod_1.z.object({
     subcategory: zod_1.z.string().min(1),
     skills: zod_1.z.array(zod_1.z.string()).optional(),
     duration: zod_1.z.string().min(1),
+    hoursPerDay: zod_1.z.preprocess((val) => Number(val), zod_1.z.number()
+        .min(1, "Minimum 1 hour required")
+        .max(24, "Hours cannot exceed 24")),
     payment: zod_1.z.object({
         budget: zod_1.z.preprocess((val) => Number(val), zod_1.z.number().positive()),
         type: zod_1.z.enum(["fixed", "hourly"])

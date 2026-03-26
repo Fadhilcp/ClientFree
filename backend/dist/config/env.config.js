@@ -29,6 +29,15 @@ exports.env = {
     get CORS_CREDENTIALS() {
         return process.env.CORS_CREDENTIALS;
     },
+    get COOKIE_SECURE() {
+        return process.env.COOKIE_SECURE === "true";
+    },
+    get COOKIE_SAMESITE() {
+        return process.env.COOKIE_SAMESITE;
+    },
+    get REFRESH_COOKIE_MAX_AGE() {
+        return Number(process.env.REFRESH_COOKIE_MAX_AGE);
+    },
     get SENDER_EMAIL() {
         return process.env.SENDER_EMAIL;
     },

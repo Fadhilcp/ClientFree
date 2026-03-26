@@ -24,6 +24,7 @@ class JobMapper {
                 : { id: s.toString(), name: "" }) ?? [],
             isVerified: clientDoc.isVerified ?? false,
             duration: job.duration,
+            hoursPerDay: job.hoursPerDay,
             payment: job.payment
                 ? {
                     budget: job.payment.budget,

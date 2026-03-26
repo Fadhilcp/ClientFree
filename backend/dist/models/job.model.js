@@ -12,6 +12,11 @@ const JobSchema = new mongoose_1.Schema({
     subcategory: String,
     skills: [{ type: mongoose_1.Schema.Types.ObjectId, ref: "Skill" }],
     duration: String,
+    hoursPerDay: {
+        type: Number,
+        min: 1,
+        max: 24
+    },
     payment: {
         budget: Number,
         type: { type: String, enum: ["fixed", "hourly"] }

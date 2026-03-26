@@ -16,6 +16,7 @@ function mapUserSubscriptions(subscription) {
         userType: planObj?.userType ?? "freelancer",
         billingInterval: subscription.billingInterval,
         status: subscription.status,
+        upgradeStatus: subscription.upgradeStatus,
         amount,
         currency: "INR",
         startDate: subscription.startDate ?? null,

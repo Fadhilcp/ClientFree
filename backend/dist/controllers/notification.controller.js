@@ -12,11 +12,12 @@ class NotificationController {
     ;
     async create(req, res, next) {
         try {
-            // const userId = req.user?._id;
-            // if(!userId) throw createHttpError(HttpStatus.UNAUTHORIZED, HttpResponse.UNAUTHORIZED);
+            const userId = req.user?._id;
+            if (!userId)
+                throw (0, httpError_util_1.createHttpError)(status_constants_1.HttpStatus.UNAUTHORIZED, responseMessage_constant_1.HttpResponse.UNAUTHORIZED);
             const notification = await this._notificationService.createNotification({
                 ...req.body,
-                createdBy: '69443da6b922675b3edcb6b9',
+                createdBy: userId,
             });
             (0, response_util_1.sendResponse)(res, status_constants_1.HttpStatus.CREATED, { notification });
         }

@@ -108,6 +108,9 @@ class JobService {
         if (filters?.workMode) {
             filter["payment.type"] = filters.workMode;
         }
+        if (filters?.hoursPerDay !== undefined) {
+            filter.hoursPerDay = { $lte: filters.hoursPerDay };
+        }
         // Skills
         if (filters?.skills && filters.skills.length > 0) {
             filter.skills = { $all: filters.skills.map(id => new mongoose_1.Types.ObjectId(id)) };
@@ -193,6 +196,10 @@ class JobService {
         // workmode
         if (filters?.workMode) {
             filter["payment.type"] = filters.workMode;
+        }
+        // house per day 
+        if (filters?.hoursPerDay !== undefined) {
+            filter.hoursPerDay = { $lte: filters.hoursPerDay };
         }
         // location filter (city or country)
         if (filters?.location?.trim()) {
@@ -313,6 +320,10 @@ class JobService {
         if (filters?.workMode) {
             jobFilter["job.payment.type"] = filters.workMode;
         }
+        // hours per day 
+        if (filters?.hoursPerDay !== undefined) {
+            jobFilter["job.hoursPerDay"] = { $lte: filters.hoursPerDay };
+        }
         // Skills
         if (filters?.skills && filters.skills.length > 0) {
             jobFilter["job.skills"] = { $all: filters.skills.map(id => new mongoose_1.Types.ObjectId(id)) };
@@ -391,6 +402,10 @@ class JobService {
         // workmode
         if (filters?.workMode) {
             filter["payment.type"] = filters.workMode;
+        }
+        // hours per day filter
+        if (filters?.hoursPerDay !== undefined) {
+            filter.hoursPerDay = { $lte: filters.hoursPerDay };
         }
         if (filters?.skills && filters.skills.length > 0) {
             filter.skills = { $all: filters.skills.map(id => new mongoose_1.Types.ObjectId(id)) };
