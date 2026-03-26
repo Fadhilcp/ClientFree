@@ -10,7 +10,7 @@ import { env } from "../config/env.config";
 import { HttpResponse } from "../constants/responseMessage.constant";
 import { PaginatedResult } from "../types/pagination";
 import { IUserRepository } from "../repositories/interfaces/IUserRepository";
-import { ClientSession, FilterQuery } from "mongoose";
+import { ClientSession, FilterQuery, Types } from "mongoose";
 import { IDatabaseSessionProvider } from "../repositories/db/session-provider.interface";
 import { PLAN_LIMITS } from "../constants/planLimits";
 import { stripe } from "../config/stripe.config";
@@ -108,78 +108,80 @@ export class SubscriptionService implements ISubscriptionService {
         return { checkoutUrl: session.url! };
     }
 
-    async upgradeSubscription(userId: string, planId: string, billingInterval: "monthly" | "yearly")
-    : Promise<{ paymentUrl?: string }> {
+    async upgradeSubscription(
+        userId: string, planId: string, billingInterval: "monthly" | "yearly"
+    ): Promise<{ paymentUrl?: string }> {
 
         const activeSub = await this._subscriptionRepository.findOne({
-            userId: userId,
+            userId,
             status: "active",
         });
 
-        if (!activeSub)
-            throw createHttpError(404, "No active subscription");
+        if (!activeSub) throw createHttpError(404, "No active subscription");
 
         const newPlan = await this._planRepository.findById(planId);
-        if (!newPlan || !newPlan.active)
+        if (!newPlan || !newPlan.active) {
             throw createHttpError(404, "Plan not available");
+        }
 
-        // Prevent same plan upgrade
         const isSamePlan =
             String(activeSub.planId) === String(newPlan._id);
 
-            const isSameInterval =
+        const isSameInterval =
             activeSub.billingInterval === billingInterval;
 
         if (isSamePlan && isSameInterval) {
-            throw createHttpError(
-                400,
-                "Already on this plan with the same billing interval"
-            );
+            throw createHttpError(400, "Already on this plan");
         }
 
-        if(!activeSub.subscriptionId) return {};
-
-        const stripeSub = await stripe.subscriptions.retrieve(
-            activeSub.subscriptionId
-        );
-
-        const item = stripeSub.items.data[0];
-        if (!item) throw new Error("Stripe subscription item missing");
-
-        const newPriceId =
+        const amount =
             billingInterval === "monthly"
-                ? newPlan.stripePriceIdMonthly
-                : newPlan.stripePriceIdYearly;
+                ? newPlan.priceMonthly
+                : newPlan.priceYearly;
 
-        if (!newPriceId?.startsWith("price_"))
-            throw createHttpError(500, "Stripe price ID not configured");
+        const MIN_AMOUNT_INR = 50;
 
-        const updated = await stripe.subscriptions.update(stripeSub.id, {
-            items: [{ id: item.id, price: newPriceId }],
-            proration_behavior: "create_prorations",
-            payment_behavior: "pending_if_incomplete",
-            expand: ["latest_invoice"],
-        });
+        if (amount < MIN_AMOUNT_INR) {
+            throw createHttpError(400,`Minimum charge must be at least ₹${MIN_AMOUNT_INR}`);
+        }
 
-        const invoice = updated.latest_invoice as Stripe.Invoice | null;
-        
-        if (!invoice) return {};
+        const session = await stripe.checkout.sessions.create({
+            mode: "payment", 
 
-        await stripe.invoices.update(invoice.id, {
+            customer: activeSub.customerId,
+
+            line_items: [
+                {
+                    price_data: {
+                        currency: "inr",
+                        product_data: {
+                            name: `Upgrade to ${newPlan.planName}`,
+                        },
+                        unit_amount: amount * 100,
+                    },
+                    quantity: 1,
+                },
+            ],
+
+            success_url: `${env.FRONTEND_URL}/billing/success`,
+            cancel_url: `${env.FRONTEND_URL}/billing/cancel`,
+
             metadata: {
-                upgradeFrom: activeSub.planId.toString(),
-                upgradeTo: newPlan._id.toString(),
                 userId,
-                billingInterval: billingInterval,
+                upgradeTo: newPlan._id.toString(),
+                billingInterval,
+                isUpgrade: "true",
             },
         });
 
-        if (invoice.status !== "paid") {
-            return {
-                paymentUrl: invoice.hosted_invoice_url ?? undefined,
-            };
-        }
-        return {};
+        await this._subscriptionRepository.updateOne(
+            { _id: activeSub._id },
+            {
+                upgradeStatus: "pending",
+            }
+        );
+
+        return { paymentUrl: session.url! };
     }
 
     async cancelSubscription(userId: string): Promise<{ message: string; }> {
@@ -240,6 +242,8 @@ export class SubscriptionService implements ISubscriptionService {
             planName: plan.planName,
             userType: plan.userType,
             features: plan.features,
+            status: subscription.status,
+            upgradeStatus: subscription.upgradeStatus,
             expiryDate: subscription.expiryDate,
             billingInterval: subscription.billingInterval,
         };
@@ -287,6 +291,7 @@ export class SubscriptionService implements ISubscriptionService {
                 },
             }
         );
+        console.log("🚀 ~ SubscriptionService ~ getMySubscriptions ~ result:", result)
 
         return {
             ...result,

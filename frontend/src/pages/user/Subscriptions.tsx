@@ -88,10 +88,14 @@ const Subscriptions: React.FC = () => {
         return;
       }
 
-      if (
+      const isSamePlan =
         activeSubscription?.planId === planId &&
-        activeSubscription?.billingInterval === billingInterval
-      ) {
+        activeSubscription?.billingInterval === billingInterval;
+
+      const isUpgradePending =
+        activeSubscription?.upgradeStatus === "pending";
+
+      if (isSamePlan && !isUpgradePending) {
         notify.info("You are already on this plan");
         return;
       }
@@ -172,7 +176,7 @@ const Subscriptions: React.FC = () => {
                 const isActive =
                   activeSubscription && 
                   activeSubscription.planId === plan.id && 
-                  billingInterval === activeSubscription.billingInterval;
+                  billingInterval === activeSubscription.billingInterval
 
                 return (
                   <SubscriptionCard

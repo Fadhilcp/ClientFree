@@ -6,6 +6,7 @@ export const mapSubscription = (doc: ISubscriptionDocument): SubscriptionDto => 
   userId: doc.userId?.toString() ?? null,
   planId: doc.planId?.toString() ?? null,
   status: doc.status,
+  upgradeStatus: doc.upgradeStatus,
   startDate: doc.startDate ?? null,
   expiryDate: doc.expiryDate ?? null,
   autoRenew: doc.autoRenew,

@@ -5,6 +5,7 @@ export interface SubscriptionDto {
   userId: string | null;
   planId: string | null;
   status: 'pending' | 'active' | 'expired' | 'cancelled';
+  upgradeStatus: 'none' | 'pending';
   startDate: Date | null;
   expiryDate: Date | null;
   autoRenew: boolean;
@@ -22,6 +23,8 @@ export interface getActiveFeaturesDto {
   planName: string;
   userType: string;
   features: PlanFeatures;
+  status: 'pending' | 'active' | 'expired' | 'cancelled';
+  upgradeStatus: 'none' | 'pending';
   expiryDate: Date;
   billingInterval: "monthly" | "yearly"
 };

@@ -16,7 +16,6 @@ const LIMIT = 20;
 
 const BrowseJobsPage: React.FC = () => {
   const [jobs, setJobs] = useState<JobListDTO[]>([]);
-  console.log("🚀 ~ BrowseJobsPage ~ jobs:", jobs)
   const [loading, setLoading] = useState(false);
 
   const isInitialLoading = loading && jobs.length === 0;

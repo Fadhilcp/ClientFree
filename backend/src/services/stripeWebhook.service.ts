@@ -40,6 +40,12 @@ export class StripeWebhookService implements IStripeWebhookService {
                 );
                 break;
 
+            case "checkout.session.expired":
+                await this._handleUpgradeCancel(
+                    event.data.object as Stripe.Checkout.Session
+                );
+                break;
+
             case "customer.subscription.updated":
                 await this._handleSubscriptionUpdated(
                     event.data.object as Stripe.Subscription
@@ -52,11 +58,11 @@ export class StripeWebhookService implements IStripeWebhookService {
                 );
                 break;
 
-            case "invoice.paid":
-                await this._handleUpgradeInvoice(
-                    event.data.object as Stripe.Invoice
-                );
-                break;
+            // case "invoice.paid":
+            //     await this._handleUpgradeInvoice(
+            //         event.data.object as Stripe.Invoice
+            //     );
+            //     break;
 
             // Milestones 
             case "payment_intent.succeeded": 
@@ -80,7 +86,59 @@ export class StripeWebhookService implements IStripeWebhookService {
         }
     }
 
+    private async _handleUpgradeCancel(session: Stripe.Checkout.Session) {
+
+        const isUpgrade = session.metadata?.isUpgrade === "true";
+        if (!isUpgrade) return;
+
+        const userId = session.metadata?.userId;
+        if (!userId) return;
+
+        await this._subscriptionRepository.updateOne(
+            { userId, status: "active" },
+            {
+                upgradeStatus: "none",//to rollback
+                updatedAt: new Date(),
+            }
+        );
+    }
+
+    private async _handleUpgradeCheckout(session: Stripe.Checkout.Session) {
+
+        const userId = session.metadata?.userId;
+        const upgradeTo = session.metadata?.upgradeTo;
+        const billingInterval = session.metadata?.billingInterval;
+
+        if (!userId || !upgradeTo || !billingInterval) return;
+
+        const subscription = await this._subscriptionRepository.findOne({
+            userId,
+            status: "active",
+        });
+
+        if (!subscription) return;
+
+        await this._subscriptionRepository.updateOne(
+            { _id: subscription._id },
+            {
+                planId: upgradeTo,
+                billingInterval,
+                upgradeStatus: "none",
+                updatedAt: new Date(),
+            }
+        );
+
+        await this._applyPlanToUser(userId, upgradeTo);
+    }
+
     private async _handleCheckoutCompleted(session: Stripe.Checkout.Session): Promise<void> {
+        const isUpgrade = session.metadata?.isUpgrade === "true";
+
+        if (isUpgrade) {
+            await this._handleUpgradeCheckout(session);
+            return;
+        }
+
         if (!session.subscription || !session.invoice) return;
 
         const localSubscription = await this._subscriptionRepository.findOne({
@@ -173,53 +231,20 @@ export class StripeWebhookService implements IStripeWebhookService {
         const localSubscription = await this._subscriptionRepository.findOne({
             subscriptionId: stripeSub.id,
         });
+
         if (!localSubscription) return;
 
         const item = stripeSub.items.data[0];
-        if (!item?.price) return;
-
-        const priceId = item.price.id;
-        const interval = item.price.recurring?.interval; // "month" | "year"
-
-        if (!interval) return;
-
-        const billingInterval =
-            interval === "month" ? "monthly" : "yearly";
-
-        const plan = await this._planRepository.findOne({
-            $or: [
-                { stripePriceIdMonthly: priceId },
-                { stripePriceIdYearly: priceId },
-            ],
-        });
-
-        if (!plan) {
-            return;
-        }
-
-        const planChanged =
-            String(localSubscription.planId) !== String(plan._id);
-
-        const intervalChanged =
-            localSubscription.billingInterval !== billingInterval;
+        if (!item) return;
 
         await this._subscriptionRepository.updateOne(
             { _id: localSubscription._id },
             {
-                planId: plan._id,
-                billingInterval,
                 expiryDate: new Date(item.current_period_end * 1000),
                 autoRenew: !stripeSub.cancel_at_period_end,
                 updatedAt: new Date(),
             }
         );
-
-        if (planChanged || intervalChanged) {
-            await this._applyPlanToUser(
-            localSubscription.userId.toString(),
-            plan._id.toString()
-            );
-        }
     }
 
     private async _handleSubscriptionDeleted(subscription: Stripe.Subscription): Promise<void> {
@@ -229,7 +254,7 @@ export class StripeWebhookService implements IStripeWebhookService {
         });
 
         if (!localSubscription) return;
-
+        
         await this._subscriptionRepository.updateOne(
             { _id: localSubscription._id },
             {
@@ -249,48 +274,91 @@ export class StripeWebhookService implements IStripeWebhookService {
         });
     }
 
-    private async _handleUpgradeInvoice(invoice: Stripe.Invoice): Promise<void> {
-        if (invoice.billing_reason !== "subscription_update") return;
-        if (invoice.status !== "paid") return;
+    
+    // private async _handleUpgradeInvoice(invoice: Stripe.Invoice): Promise<void> {
+    //     const reason = invoice.billing_reason;
 
-        const exists = await this._paymentRepository.findOne({
-            providerPaymentId: invoice.id,
-        });
+    //     if (!reason) return;
 
-        if (exists) return;
+    //     // Only handle upgrades
+    //     if (!["subscription_update", "subscription_create"].includes(reason)) {
+    //         return;
+    //     }
+        
+    //     if (
+    //         invoice.status !== "paid" ||
+    //         invoice.amount_paid === 0
+    //     ) {
+    //         return;
+    //     }
 
-        await this._paymentRepository.create({
-            type: "subscription",
-            status: "completed",
-            amount: invoice.total / 100,
-            currency: invoice.currency.toUpperCase(),
-            provider: "stripe",
-            method: "stripe",
-            providerPaymentId: invoice.id,
-            referenceId: invoice.id,
-            userId: invoice.metadata?.userId,
-            paymentDate: new Date(),
-        });
-    }
+    //     if (invoice.amount_paid <= 0) {
+    //         return;
+    //     }
+    //     const exists = await this._paymentRepository.findOne({
+    //         providerPaymentId: invoice.id,
+    //     });
+
+    //     if (exists) return;
+
+    //     const userId = invoice.metadata?.userId;
+    //     const upgradeTo = invoice.metadata?.upgradeTo;
+    //     const billingInterval = invoice.metadata?.billingInterval;
+
+    //     if (!userId || !upgradeTo || !billingInterval) {
+    //         return;
+    //     }
+
+    //     await this._paymentRepository.create({
+    //         type: "subscription",
+    //         status: "completed",
+    //         amount: invoice.total / 100,
+    //         currency: invoice.currency.toUpperCase(),
+    //         provider: "stripe",
+    //         method: "stripe",
+    //         providerPaymentId: invoice.id,
+    //         referenceId: invoice.id,
+    //         userId,
+    //         paymentDate: new Date(),
+    //     });
+
+    //     const subscription = await this._subscriptionRepository.findOne({
+    //         userId,
+    //         status: "active",
+    //     });
+
+    //     if (!subscription) return;
+
+    //     await this._subscriptionRepository.updateOne(
+    //         { _id: subscription._id },
+    //         {
+    //             planId: upgradeTo,
+    //             billingInterval,
+    //             upgradeStatus: "none",
+    //             updatedAt: new Date(),
+    //         }
+    //     );
+
+    //     await this._applyPlanToUser(userId, upgradeTo);
+    // }
 
     private async _applyPlanToUser(userId: string, planId: string) {
-
+        
         const plan = await this._planRepository.findById(planId);
         if (!plan) return;
-
+        
         await this._userRepository.findByIdAndUpdate(userId, {
             isVerified: Boolean(plan.features.VerifiedBadge),
             limits: {
-            invitesRemaining: plan.features.UnlimitedInvites
-                ? 999999
-                : PLAN_LIMITS.FREE.invites,
-            proposalsRemaining: plan.features.UnlimitedProposals
-                ? 999999
-                : PLAN_LIMITS.FREE.proposals,
+                invitesRemaining: plan.features.UnlimitedInvites
+                    ? 999999
+                    : PLAN_LIMITS.FREE.invites,
+                proposalsRemaining: plan.features.UnlimitedProposals
+                    ? 999999
+                    : PLAN_LIMITS.FREE.proposals,
             },
         });
     }
-
 
 
     private async _handleMilestoneSuccess(intent: Stripe.PaymentIntent): Promise<void> {

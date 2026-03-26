@@ -8,6 +8,7 @@ export interface UserSubscriptionsDTO {
 
   billingInterval: "monthly" | "yearly";
   status: "pending" | "active" | "cancelled" | "expired";
+  upgradeStatus: "none" | "pending";
 
   amount: number;
   currency: string;

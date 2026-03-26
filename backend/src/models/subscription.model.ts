@@ -24,6 +24,12 @@ const subscriptionSchema = new Schema({
       default: "pending",
     },
 
+    upgradeStatus: {
+      type: String,
+      enum: ["none", "pending"],
+      default: "none",
+    },
+
     gateway: {
       type: String,
       enum: ["razorpay", "stripe", "manual"],

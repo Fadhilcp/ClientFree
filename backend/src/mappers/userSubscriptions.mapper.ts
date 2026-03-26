@@ -25,6 +25,7 @@ export function mapUserSubscriptions(
 
         billingInterval: subscription.billingInterval,
         status: subscription.status,
+        upgradeStatus: subscription.upgradeStatus,
 
         amount,
         currency: "INR",

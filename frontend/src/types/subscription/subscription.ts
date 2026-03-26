@@ -5,6 +5,7 @@ export interface SubscriptionInfo {
     subscriptionId: string;
     planName: string;
     userType: "client" | "freelancer";
+    upgradeStatus: "none" | "pending";
     features: PlanFeatures;
     expiryDate: string;
     billingInterval: "monthly" | "yearly"
