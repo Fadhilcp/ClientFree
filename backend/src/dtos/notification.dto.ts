@@ -1,4 +1,4 @@
-import { UserRole } from "constants/user.constants";
+import { UserRole } from "../constants/user.constants";
 import { NotificationCategory, NotificationScope, NotificationSendAs } from "../types/notification.type";
 import { Types } from "mongoose";
 

@@ -1,4 +1,4 @@
-import { EMPTY_SUMMARY } from "constants/report-summary-empty";
+import { EMPTY_SUMMARY } from "../constants/report-summary-empty";
 import { WalletTransactionDTO } from "./walletTransaction.dto";
 
 export interface WalletDTO {

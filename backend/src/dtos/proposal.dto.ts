@@ -1,4 +1,4 @@
-import { ProposalStatus } from "types/proposalInvitation.type";
+import { ProposalStatus } from "../types/proposalInvitation.type";
 
 export interface ProposalDTO {
   id: string;

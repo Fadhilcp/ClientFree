@@ -1,4 +1,4 @@
-import { GetWithdrawalsResponse } from "dtos/payment.dto";
+import { GetWithdrawalsResponse } from "../../dtos/payment.dto";
 import { AdminDisputeDto, AdminDisputeListDto } from "../../dtos/adminDispute.dto";
 import { AdminPaymentDto } from "../../dtos/adminPayment.dto";
 import { AdminWithdrawalDTO } from "../../dtos/adminWithdrawal.dto";
