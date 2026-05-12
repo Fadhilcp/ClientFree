@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import { useSearchParams } from 'react-router-dom';
 import { filtersToSearchParams } from '../../utils/filtersToSearchParams';
-import { JOB_CATEGORIES } from '../../constants/jobCategories';
 import { skillService } from '../../services/skill.service';
 import { notify } from '../../utils/toastService';
 import SkillsSelect from '../user/profileModal/SkillSelect';
 import type { JobSort } from '../../types/filter.type';
+import { useJobConfig } from '../../hooks/useJobCategories';
 
 type FilterKey =
   | "category"
@@ -68,6 +68,8 @@ const FiilterBox: React.FC<FilterBoxProps> = ({ enabledFilters = [] }) => {
 
     const [availableSkills, setAvailableSkills] = useState<any[]>([]);
     const [loadingSkills, setLoadingSkills] = useState(false);
+
+    const { categories } = useJobConfig();
 
     const fetchSkills = async () => {
       setLoadingSkills(true);
@@ -146,7 +148,7 @@ const FiilterBox: React.FC<FilterBoxProps> = ({ enabledFilters = [] }) => {
                 <select value={category} onChange={(e) => setCategory(e.target.value)}
                 className="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 bg-white dark:text-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
                   <option value="all">All</option>
-                  {JOB_CATEGORIES.map((category) => (
+                  {categories.map((category) => (
                     <option key={category} value={category}>
                       {category}
                     </option>

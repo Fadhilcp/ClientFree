@@ -76,6 +76,7 @@ export interface JobForm {
   subcategory: string;
   skills: string[];
   duration: string;
+  hoursPerDay: string | number;
   paymentBudget: string;
   paymentType: "fixed" | "hourly";
   description: string;

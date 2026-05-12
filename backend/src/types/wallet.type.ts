@@ -23,8 +23,6 @@ export interface IWalletDocument extends IWallet, Document {
     updatedAt?: Date;
 }
 
-
-
 export interface FinancialReportSummary {
   freelancer: {
     totalEarned: number;

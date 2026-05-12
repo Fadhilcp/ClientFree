@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Select, { type StylesConfig, type MultiValue, type GroupBase } from "react-select";
 import { type SkillItem } from "../../../types/skill.types";
+import { useTheme } from "next-themes";
 
 interface SkillsSelectProps {
   title?: string;
@@ -17,16 +18,9 @@ const SkillsSelect: React.FC<SkillsSelectProps> = ({
   onChange,
   options,
 }) => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  // for dark mode
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    setIsDarkMode(mediaQuery.matches);
+  const { resolvedTheme } = useTheme();
 
-    const handleChange = (e: MediaQueryListEvent) => setIsDarkMode(e.matches);
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
+  const isDarkMode = resolvedTheme === "dark";
 
   const skillOptions = options.map((skill) => ({
     label: skill.name,

@@ -6,7 +6,7 @@ const ClientHero: React.FC = () => {
     const navigate = useNavigate();
   return (
     <>
-        <h1 className="text-3xl md:text-4xl lg:text-5xl mb-20 font-extrabold text-gray-900 dark:text-white leading-tight">
+        <h1 className="text-3xl md:text-4xl lg:text-5xl mb-6 font-extrabold text-gray-900 dark:text-white leading-tight">
         Let’s find the right <span className="text-indigo-600 dark:text-indigo-500">freelancer</span> for your project
         </h1>
 
@@ -31,7 +31,7 @@ const ClientHero: React.FC = () => {
                 Find skilled freelancers across every industry and hire with complete confidence.
             </span>
             <span className="block mt-2 text-1xl">
-                With secure escrow payments, built-in chat and video calls, and transparent reviews, you can manage your project from start to finish—all in one place.
+                With secure escrow payments, built-in chat and video calls, and transparent reviews, you can manage your project from start to finish all in one place.
             </span>
         </h2>  
     </>

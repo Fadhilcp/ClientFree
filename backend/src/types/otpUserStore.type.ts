@@ -1,5 +1,5 @@
 import { UserRole } from "../constants/user.constants";
-import { ObjectId, Document } from "mongoose";
+import { Document, Types } from "mongoose";
 
 export interface IOtpUserStore {
   username?: string;
@@ -16,5 +16,5 @@ export interface IOtpUserStore {
 }
 
 export interface IOtpUserStoreDocument extends IOtpUserStore, Document {
-  _id: ObjectId;
+  _id: Types.ObjectId;
 }

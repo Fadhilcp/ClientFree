@@ -23,6 +23,7 @@ import { UserRole } from "../constants/user.constants";
 import { INotificationService } from "./interface/INotificationService";
 import { JobFilters, JobSort } from "../types/filter.type";
 import { buildJobSort } from "../helpers/buildJobSort";
+import { JOB_CATEGORIES, JOB_SUBCATEGORIES } from "../constants/jobCategories";
 
 export class JobService implements IJobService {
 
@@ -642,6 +643,13 @@ export class JobService implements IJobService {
 
             return 'Job cancelled and escrow refunded successfully';
         });
+    }
+
+    async getJobCategories(): Promise<{ categories: string[]; subcategories: string[] }> {
+        return {
+            categories: JOB_CATEGORIES,
+            subcategories: JOB_SUBCATEGORIES,
+        }
     }
 
 }

@@ -47,17 +47,23 @@ const Subscriptions: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    planService.getActivePlans(user?.role || '')
-      .then((res) => {
-        if (res.data.success) {
-          setPlans(res.data.plans);
+    const fetchPlans = async () => {
+      try {
+        const response = await planService.getActivePlans(user?.role || "");
+
+        if (response.data.success) {
+          setPlans(response.data.plans || []);
         }
+      } catch (err: any) {
+        notify.error(
+          err.response?.data?.error || "Failed to fetch plans"
+        );
+      } finally {
         setLoading(false);
-      })
-      .catch((err) => {
-        notify.error(err.response?.data?.error ||'Failed to fetch plans');
-        setLoading(false);
-      });
+      }
+    };
+    
+    fetchPlans();
   }, []);
 
   const handleSubscribe = async (planId: string, billingInterval: 'monthly' | 'yearly') => {
@@ -169,6 +175,12 @@ const Subscriptions: React.FC = () => {
         <div className="border border-gray-200 dark:border-gray-700 rounded-2xl shadow-lg p-6">
           {loading ? (
             <Loader/>
+          ) : plans.length === 0 ? (
+            <div className="text-center py-10">
+              <p className="text-gray-500 dark:text-gray-400 text-lg">
+                No subscription plans available right now.
+              </p>
+            </div>
           ) : (
           <div className="flex justify-center">
             <div className={`grid gap-4 ${plans.length === 1 ? 'grid-cols-1' : plans.length === 2 ? 'grid-cols-2' : 'sm:grid-cols-2 lg:grid-cols-3'}`}>

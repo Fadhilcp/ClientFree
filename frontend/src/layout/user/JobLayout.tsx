@@ -2,10 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "../../components/ui/SideBar";
 import Button from "../../components/ui/Button";
-import UserModal from "../../components/ui/Modal/UserModal";
 import { skillService } from "../../services/skill.service";
 import { notify } from "../../utils/toastService";
-import SkillsSelect from "../../components/user/profileModal/SkillSelect";
 import Loader from "../../components/ui/Loader/Loader";
 import { type JobDetailDTO, type JobForm } from "../../types/job/job.dto";
 import { jobService } from "../../services/job.service";
@@ -13,11 +11,9 @@ import { validateJobForm } from "../../utils/validators/jobForm";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../store/store";
 import { refreshJobs } from "../../features/jobSlice";
-import { JOB_CATEGORIES } from "../../constants/jobCategories";
-import { COUNTRIES } from "../../constants/countries";
-import InputSection from "../../components/ui/InputSection";
-import CountrySelect from "../../components/user/CountrySelect";
 import FiilterBox from "../../components/ui/FiilterBox";
+import JobPostForm from "../../components/user/job/JobPostForm";
+import { aiService } from "../../services/ai.service";
 
 const clientMenuItems = [
   { label: "Active Jobs", path: "/my-jobs/active-jobs" },
@@ -33,59 +29,6 @@ const freelancerMenuItems = [
   { label: "Task List", path: "/my-jobs/tasks" },
 ];
 
-const jobFields = [
-  { name: "title", label: "Job Title", placeholder: "Enter job title" },
-  { name: "paymentBudget", label: "Budget", placeholder: "Enter budget" },
-  { name: "hoursPerDay", label: "Hours Per Day", placeholder: "Example: 2" },
-];
-
-const jobDropdowns = [
-  {
-    name: "visibility",
-    label: "Visibility",
-    options: ["public", "private"],
-  },
-  {
-    name: "category",
-    label: "Category",
-    options: [...JOB_CATEGORIES],
-  },
-  {
-    name: "subcategory",
-    label: "Subcategory",
-    options: [
-      "MERN Stack",
-      "React",
-      "Node.js",
-      "Flutter",
-      "UI/UX",
-      "General",
-    ],
-  },
-  {
-    name: "paymentType",
-    label: "Payment Type",
-    options: ["fixed", "hourly"],
-  },
-  {
-    name: "locationType",
-    label: "Location Preference",
-    options: ["specific", "worldwide"],
-  },
-];
-
-const jobTextAreas = [
-  {
-    name: "description",
-    label: "Job Description",
-    placeholder: "Describe the job requirements...",
-    rows: 5,
-  },
-];
-
-const userDateFields = [
-  { name: "duration", label: "Duration" }
-];
 
 const JobLayout: React.FC = () => {
 
@@ -146,30 +89,6 @@ const JobLayout: React.FC = () => {
       fetchSkills();
     }, [isModalOpen]);
     
-    const handleChange = (field: keyof JobForm, value: string) => {
-      if (field === "locationType") {
-        if (value === "worldwide") {
-          setFormData(prev => ({
-            ...prev,
-            locationType: "worldwide",
-            locationCity: "",
-            locationCountry: ""
-          }));
-        } else {
-          setFormData(prev => ({
-            ...prev,
-            locationType: "specific"
-          }));
-        }
-        return;
-      }
-      setFormData((prev) => ({ ...prev, [field]: value }));
-    };
-
-    const computedFields = [
-      ...jobFields,
-    ];
-
     const startEditJob = (job: JobDetailDTO) => {
       setIsEditing(true);
       setEditingJobId(job.id);
@@ -278,68 +197,67 @@ const JobLayout: React.FC = () => {
       setIsModalOpen(false);
     };
 
+    const [isAiLoading, setIsAiLoading] = useState(false);
+    const handleAiSuggest = async () => {
+      if (!formData.title) {
+          return notify.info("Please enter a job title first so AI can help.");
+        }
+
+        setIsAiLoading(true);
+        try {
+          const response = await aiService.getJobSuggestions(formData.title);
+          
+          if (response.data.success) {
+            const {
+              suggestedTitle,
+              description, 
+              category,
+              subcategory,
+              duration,
+              hoursPerDay,
+              paymentBudget,
+              paymentType
+            } = response.data.suggestions;
+            
+            // Update form data
+            setFormData((prev) => ({
+              ...prev,
+              title: suggestedTitle || prev.title,
+              description: description,
+              paymentBudget: paymentBudget,
+              paymentType: paymentType,
+              category: category,
+              subcategory: subcategory,
+              duration: duration,
+              hoursPerDay: hoursPerDay,
+            }));
+            
+            notify.success("AI suggestions applied!");
+          }
+        } catch (error: any) {
+          notify.error("AI was unable to generate suggestions.");
+        } finally {
+          setIsAiLoading(false);
+        }
+    };
+
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-white dark:bg-gray-900">
       { loading && <Loader/> }
-
+      {/* job post form - only for client */}
       {user?.role === "client" && (
-        <>
-          <UserModal<JobForm>
-            isOpen={isModalOpen}
-            onClose={resetForm}
-            onSubmit={handleSubmit}
-            formData={formData}
-            onChange={handleChange}
-            title="Post Job"
-            fields={computedFields}
-            dropdowns={jobDropdowns}
-            textAreas={jobTextAreas}
-            dateFields={userDateFields}
-            errors={errors}
-          >
-            <SkillsSelect
-              title="Skills(Optional)"
-              value={formData.skills}
-              error={errors.skills}
-              onChange={(skills) => setFormData({ ...formData, skills })}
-              options={availableSkills}
-            />
 
-            {/* City Input */}
-            {formData.locationType === "specific" && (
-              <InputSection<JobForm>
-                name="City"
-                value={formData["locationCity"]}
-                onChange={(val: string) => handleChange("locationCity", val)}
-                placeholder="City"
-                type="text"
-                label="City"
-                error={errors?.locationCity}
-              />
-            )}
-
-            {formData.locationType === "specific" && (
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Country
-                </label>
-
-                <CountrySelect 
-                formData={formData} 
-                handleChange={(key, value) => handleChange(key, value)}
-                options={COUNTRIES}
-                />
-
-              {errors.locationCountry && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.locationCountry}
-                </p>
-              )}
-              </div>
-            )}
-
-          </UserModal>
-        </>
+        <JobPostForm
+          isOpen={isModalOpen}
+          onClose={resetForm}
+          onSubmit={handleSubmit}
+          formData={formData}
+          setFormData={setFormData}
+          errors={errors}
+          availableSkills={availableSkills}
+          isAiLoading={isAiLoading}
+          onAiSuggest={handleAiSuggest}
+        />
       )}
 
       {/* The layout start from here */}

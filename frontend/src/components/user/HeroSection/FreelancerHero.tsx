@@ -6,7 +6,7 @@ const FreelancerHero: React.FC = () => {
     const navigate = useNavigate();
   return (
     <>
-        <h1 className="text-3xl md:text-4xl lg:text-5xl mb-20 font-extrabold text-gray-900 dark:text-white leading-tight">
+        <h1 className="text-3xl md:text-4xl lg:text-5xl mb-6 font-extrabold text-gray-900 dark:text-white leading-tight">
         Find projects that match your <span className="text-indigo-600 dark:text-indigo-500">skills</span>
         </h1>
 

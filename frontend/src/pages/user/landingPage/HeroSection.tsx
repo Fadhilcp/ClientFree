@@ -9,13 +9,13 @@ const HeroSection: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           
           {/* Left Side - Heading and Introduction */}
-          <div className="space-y-6 lg:w-2xl xl:w-3xl">
+          <div className="space-y-6 lg:w-2xl xl:w-3xl z-1">
             <p className="font-bold text-gray-900 dark:text-white">
               BUILD Your CAREER with FREEDOM
             </p>
 
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight">
-              Be a <span className="text-indigo-600">Freelancer</span>, Work Smarter & Grow Faster.
+              Be a <span className="text-indigo-600 dark:text-indigo-500">Freelancer</span>, Work Smarter & Grow Faster.
             </h1>
 
             <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
@@ -50,15 +50,21 @@ const HeroSection: React.FC = () => {
           </div>
 
           {/* Right Side - Image */}
-          <div className="w-full lg:ml-4 xl:ml-5">
-            <img
-              src="/images/hero-illustration.png"
-              alt="Hero Illustration"
-              className="w-full h-auto object-cover rounded-xl"
-            />
-          </div>
+          <div className="flex justify-center items-center lg:justify-end lg:pr-8">
+                <div className="relative max-w-md p-6 rounded-2xl bg-white/5 dark:bg-white/10 backdrop-blur-sm border border-white/10 shadow-2xl overflow-hidden group">
+                    {/* Subtle glow effect behind image on hover */}
+                    <div className="absolute -inset-2 bg-indigo-500/5 rounded-full blur-2xl group-hover:bg-indigo-500/10 transition-colors duration-500" />
+                    
+                    <img
+                        src="https://illustrations.popsy.co/amber/work-from-home.svg"
+                        alt="Freelancer"
+                        className="relative w-full h-auto object-contain dark:brightness-110 dark:contrast-125 dark:drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-transform duration-500 group-hover:scale-105"
+                    />
+                </div>
+            </div>
         </div>
       </div>
+    
     </section>
   );
 };

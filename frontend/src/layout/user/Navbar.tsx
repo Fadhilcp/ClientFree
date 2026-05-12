@@ -5,6 +5,7 @@ import Logo from "../../components/ui/Navbar/Logo";
 import NavbarIcons from "../../components/ui/Navbar/NavbarIcons";
 import NavLinks from "../../components/ui/Navbar/NavLinks";
 import MobileSidebar from "../../components/ui/Navbar/MobileSidebar";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 interface NavbarProps {
   role: "landing" | "freelancer" | "client";
@@ -67,6 +68,7 @@ const Navbar: React.FC<NavbarProps> = ({ role }) => {
 
             {/* Right-side buttons */}
             <div className="flex items-center lg:order-2 space-x-2">
+              <ThemeToggle/>
               {role !== "landing" ? (
 
                 <NavbarIcons/>

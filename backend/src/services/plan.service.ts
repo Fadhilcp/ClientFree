@@ -15,12 +15,11 @@ export class PlanService implements IPlanService {
     constructor(private _planRepository: IPlanRepository) {}
 
     async getActive(userType?: string): Promise<PlanDetailUserDTO[]> {
+
         const filter = userType ? { userType, active: true} : { active: true };
+        
         const plans = await this._planRepository.find(filter);
 
-        if(!plans.length){
-            throw createHttpError(HttpStatus.NOT_FOUND, HttpResponse.NO_PLANS);
-        }
         return plans.map(plan => mapPlan(plan, true, false))
     }
 

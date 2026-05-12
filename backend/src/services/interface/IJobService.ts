@@ -39,4 +39,5 @@ export interface IJobService {
     addJobInterest(freelancerId: string, jobId: string): Promise<void>;
     removeJobInterest(freelancerId: string, jobId: string): Promise<void>;
     cancelJob(jobId: string, user: AuthPayload): Promise<string>;
+    getJobCategories(): Promise<{ categories: string[]; subcategories: string[] }>;
 }

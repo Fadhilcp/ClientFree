@@ -54,3 +54,14 @@ export interface IJob {
 export interface IJobDocument extends IJob, Document {
   _id: Types.ObjectId;
 }
+
+export type JobPostSuggestion = {
+  suggestedTitle: string;
+  description: string;
+  category: string;
+  subcategory: string;
+  duration: string;
+  hoursPerDay: string;
+  paymentBudget: string;
+  paymentType: "fixed" | "hourly";
+};

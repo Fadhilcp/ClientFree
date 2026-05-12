@@ -16,7 +16,7 @@ export interface ISubscription {
 }
 
 export interface ISubscriptionDocument extends ISubscription,Document{
-  _id: Types.ObjectId | string;
+  _id: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }

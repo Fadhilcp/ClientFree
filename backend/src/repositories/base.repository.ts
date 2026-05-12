@@ -9,7 +9,8 @@ import {
     ObjectId,
     SortOrder,
     PopulateOptions,
-    ClientSession
+    ClientSession,
+    Query
 } from "mongoose";
 import { IBaseRepository } from "./interfaces/IBaseRepository";
 
@@ -93,7 +94,7 @@ export class BaseRepository<T extends Document> implements IBaseRepository<T>{
         const limit = options.limit || 10;
         const skip = (page - 1) * limit;
 
-        let query = this.model.find(filter).skip(skip).limit(limit);
+        let query: Query<T[], T> = this.model.find(filter).skip(skip).limit(limit);
 
         if (options.sort) query = query.sort(options.sort);
         if (options.select) query = query.select(options.select);

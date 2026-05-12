@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { useTheme } from "next-themes";
+import React from "react";
 import Select, { type StylesConfig } from "react-select";
 
 interface Option {
@@ -13,16 +14,9 @@ interface CountrySelectProps {
 }
 
 const CountrySelect: React.FC<CountrySelectProps> = ({ formData, handleChange, options }) => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const { resolvedTheme } = useTheme();
 
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    setIsDarkMode(mediaQuery.matches);
-
-    const handleChange = (e: MediaQueryListEvent) => setIsDarkMode(e.matches);
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
+  const isDarkMode = resolvedTheme === "dark";
 
   const styles: StylesConfig<Option, false> = {
     control: (base, state) => ({

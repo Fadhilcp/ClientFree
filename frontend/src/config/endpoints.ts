@@ -84,6 +84,7 @@ export const endPoints = {
         ADD_INTERESTED: (jobId: string) => `/jobs/${jobId}/interest`,
         REMOVE_INTERESTED: (jobId: string) => `/jobs/${jobId}/interest`,
         CANCEL_JOB: (jobId: string) => `/jobs/${jobId}/cancel`,
+        CATEGORIES: `/jobs/job-categories`,
     },
     PROPOSAL: {
         CREATE: "/proposal",                          // POST
@@ -215,5 +216,8 @@ export const endPoints = {
         GET_USER_REVIEW: (userId: string, role: string, page: number, limit: number) => 
             `/reviews/user/${userId}?role=${role}&page=${page ?? 1}&limit=${limit ?? 10}`,
         HAS_REVIEWED: (jobId: string) => `/reviews/job/${jobId}/has-reviewed`,
+    },
+    AI: {
+        JOB_SUGGESTIONS: `/ai/suggest-job`,
     }
 }

@@ -374,4 +374,14 @@ export class JobController {
             next(error);
         }
     }
+
+    async getJobCategories(req: Request, res: Response, next: NextFunction){
+        try {
+            const { categories, subcategories } = await this._jobService.getJobCategories();
+
+            sendResponse(res, HttpStatus.OK, { categories, subcategories }, "Job categories fetched successfully" );
+        } catch (error) {
+            next();
+        }
+    }
 }

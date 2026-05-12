@@ -85,7 +85,7 @@ export class AuthService implements IAuthService {
             provider: "local",
         });
 
-        await this._otpUserStoreRepository.delete(pendingUser._id);
+        await this._otpUserStoreRepository.delete(pendingUser._id.toString());
 
          const payload: AuthPayload = {
             _id: createdUser._id.toString(),

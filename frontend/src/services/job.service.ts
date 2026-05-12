@@ -74,6 +74,10 @@ class JobService {
     cancelJob(jobId: string) {
         return axios.patch(endPoints.JOB.CANCEL_JOB(jobId));
     }
+
+    getJobCategories(){
+        return axios.get(endPoints.JOB.CATEGORIES);
+    }
 }
 
 export const jobService = new JobService();
