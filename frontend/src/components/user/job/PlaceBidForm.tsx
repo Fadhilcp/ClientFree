@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import InputSection from "../../ui/InputSection";
 import TextAreaSection from "../../ui/TextAreaSection";
-import Button from "../../ui/Button";
+import Button from "../../ui/Button/Button";
 import { proposalService } from "../../../services/proposal.service";
 import { notify } from "../../../utils/toastService";
 import type { IProposal, IProposalForm } from "../../../types/job/proposal.type";

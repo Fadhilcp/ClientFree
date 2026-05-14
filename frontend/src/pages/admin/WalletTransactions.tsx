@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import ReusableTable, { type Column } from '../../components/ui/Table';
 import Loader from '../../components/ui/Loader/Loader';
-import Button from '../../components/ui/Button';
+import Button from '../../components/ui/Button/Button';
 import { notify } from '../../utils/toastService';
 
 import { walletService } from '../../services/wallet.service';

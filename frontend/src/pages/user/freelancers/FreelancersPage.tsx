@@ -11,7 +11,7 @@ import { jobService } from "../../../services/job.service";
 import { proposalService } from "../../../services/proposal.service";
 import { notify } from "../../../utils/toastService";
 import UserModal from "../../../components/ui/Modal/UserModal";
-import Button from "../../../components/ui/Button";
+import Button from "../../../components/ui/Button/Button";
 import { matchService } from "../../../services/match.service";
 import BestMatchModal from "../../../components/ui/Modal/BestMatchModal";
 import { chatService } from "../../../services/chat.service";

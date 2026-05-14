@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import Button from "../../components/ui/Button";
+import Button from "../../components/ui/Button/Button";
 import InfoCard from "../../components/ui/Card/InfoCard";
 import ProfileImage from "../../components/user/profile/ProfileImage";
 import { paymentService } from "../../services/payment.service";

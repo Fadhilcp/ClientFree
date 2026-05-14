@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import SearchFilter from '../../components/admin/SearchFilter';
 import ReusableTable from '../../components/ui/Table';
 import Pagination from '../../components/ui/Pagination';
-import Button from '../../components/ui/Button';
+import Button from '../../components/ui/Button/Button';
 import Loader from '../../components/ui/Loader/Loader';
 
 import { notify } from '../../utils/toastService';

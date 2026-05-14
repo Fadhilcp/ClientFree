@@ -6,7 +6,7 @@ import Loader from "../../../components/ui/Loader/Loader";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { jobService } from "../../../services/job.service";
 import { notify } from "../../../utils/toastService";
-import Button from "../../../components/ui/Button";
+import Button from "../../../components/ui/Button/Button";
 import { matchService } from "../../../services/match.service";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../../store/store";

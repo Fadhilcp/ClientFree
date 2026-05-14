@@ -13,9 +13,6 @@ class PlanService {
     async getActive(userType) {
         const filter = userType ? { userType, active: true } : { active: true };
         const plans = await this._planRepository.find(filter);
-        if (!plans.length) {
-            throw (0, httpError_util_1.createHttpError)(status_constants_1.HttpStatus.NOT_FOUND, responseMessage_constant_1.HttpResponse.NO_PLANS);
-        }
         return plans.map(plan => (0, plan_mapper_1.mapPlan)(plan, true, false));
     }
     async getPlans(search, status, page, limit) {

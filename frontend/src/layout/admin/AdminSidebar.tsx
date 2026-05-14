@@ -104,7 +104,7 @@ const AdminSidebar: React.FC = () => {
                 <li key={item.path}>
                   <Link
                     to={item.path}
-                    className="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-200 focus:outline-none focus:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:bg-gray-700 dark:text-gray-100"
+                    className="flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg bg-gray-100 hover:bg-gray-200 focus:outline-none focus:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:bg-gray-700 dark:text-gray-100"
                   >
                     {item.icon}
                     {item.label}

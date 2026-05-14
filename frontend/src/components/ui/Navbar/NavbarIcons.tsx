@@ -74,7 +74,6 @@ const NavbarIcons: React.FC = () => {
       </button>
       <NotificationDropdown
         isOpen={isNotificationOpen}
-        onClose={() => setIsNotificationOpen(false)}
       />
 
       {/* Message */}

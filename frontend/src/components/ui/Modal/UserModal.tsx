@@ -1,7 +1,7 @@
 import React from "react";
 import InputSection from "../InputSection";
 import DropdownSection from "../DropdownSection";
-import Button from "../Button";
+import Button from "../Button/Button";
 
 interface UserModalProps<T extends Record<string, string>> {
   isOpen: boolean;

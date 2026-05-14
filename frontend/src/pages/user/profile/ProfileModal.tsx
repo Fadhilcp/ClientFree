@@ -3,7 +3,7 @@ import { InputSection } from "../../../components/user/profileModal/InputSection
 import { TextareaSection } from "../../../components/user/profileModal/TextareaSection";
 import { SelectSection } from "../../../components/user/profileModal/SelectSection";
 import { ExternalLinks } from "../../../components/user/profileModal/ExternalLinks";
-import Button from "../../../components/ui/Button";
+import Button from "../../../components/ui/Button/Button";
 import SkillsSelect from "../../../components/user/profileModal/SkillSelect";
 import { notify } from "../../../utils/toastService";
 import { validateProfileForm } from "../../../utils/validators/profileForm";

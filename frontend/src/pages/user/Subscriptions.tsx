@@ -6,7 +6,7 @@ import type { RootState } from '../../store/store';
 import { notify } from '../../utils/toastService';
 import { planService } from '../../services/plan.service';
 import { subscriptionService } from '../../services/subscription.service';
-import Button from '../../components/ui/Button';
+import Button from '../../components/ui/Button/Button';
 import type { SubscriptionInfo } from '../../types/subscription/subscription';
 
 interface RawPlan {
@@ -74,7 +74,7 @@ const Subscriptions: React.FC = () => {
 
     const hasActiveSub = Boolean(activeSubscription);
 
-    try {
+    try { 
       if(!hasActiveSub) {
         const response = await subscriptionService.create({
           userId: user.id,

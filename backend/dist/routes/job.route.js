@@ -37,6 +37,7 @@ jobRouter.use(authMiddleware_1.authMiddleware, verifyUserNotBanned_middleware_1.
 jobRouter.post('/', jobController.createJob.bind(jobController));
 jobRouter.get('/', jobController.getAll.bind(jobController));
 jobRouter.get('/client/me', jobController.getClientJobs.bind(jobController));
+jobRouter.get('/job-categories', jobController.getJobCategories.bind(jobController));
 jobRouter.get('/interested', jobController.getInterestedJobs.bind(jobController));
 jobRouter.post('/:jobId/interest', jobController.addJobInterest.bind(jobController));
 jobRouter.delete('/:jobId/interest', jobController.removeJobInterest.bind(jobController));

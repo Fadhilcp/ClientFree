@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Button from "../../components/ui/Button";
+import Button from "../../components/ui/Button/Button";
 import { useNavigate } from "react-router-dom";
 import Logo from "../../components/ui/Navbar/Logo";
 import NavbarIcons from "../../components/ui/Navbar/NavbarIcons";

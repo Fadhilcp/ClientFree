@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "../../components/ui/SideBar";
-import Button from "../../components/ui/Button";
+import Button from "../../components/ui/Button/Button";
 import { skillService } from "../../services/skill.service";
 import { notify } from "../../utils/toastService";
 import Loader from "../../components/ui/Loader/Loader";

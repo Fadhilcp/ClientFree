@@ -64,7 +64,7 @@ class AuthService {
             role: pendingUser.role,
             provider: "local",
         });
-        await this._otpUserStoreRepository.delete(pendingUser._id);
+        await this._otpUserStoreRepository.delete(pendingUser._id.toString());
         const payload = {
             _id: createdUser._id.toString(),
             email: createdUser.email,

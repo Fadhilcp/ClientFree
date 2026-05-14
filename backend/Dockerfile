@@ -5,7 +5,7 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install
+RUN npm ci
 
 COPY . .
 
@@ -20,10 +20,12 @@ ENV NODE_ENV=production
 
 COPY package*.json ./
 
-RUN npm install --only=production
+RUN npm ci --omit=dev
 
 COPY --from=builder /app/dist ./dist
 
+USER node
+
 EXPOSE 3000
 
-CMD [ "node", "dist/server.js" ]
+CMD ["node", "dist/server.js"]

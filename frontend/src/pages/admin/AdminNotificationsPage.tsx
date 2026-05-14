@@ -4,7 +4,7 @@ import ConfirmationModal from "../../components/ui/Modal/ConfirmationModal";
 import AdminModal from "../../components/ui/Modal/AdminModal";
 import ReusableTable from "../../components/ui/Table";
 import Pagination from "../../components/ui/Pagination";
-import Button from "../../components/ui/Button";
+import Button from "../../components/ui/Button/Button";
 
 import { notificationService } from "../../services/notification.service";
 import type {
@@ -17,6 +17,7 @@ import UserSearchSelect from "../../components/user/UserSearchSelect";
 import TextAreaSection from "../../components/ui/TextAreaSection";
 import SearchFilter from "../../components/admin/SearchFilter";
 import Loader from "../../components/ui/Loader/Loader";
+import AdminButton from "@/components/ui/Button/AdminButton";
 
 export interface Column<T> {
   key: keyof T;
@@ -255,14 +256,18 @@ const AdminNotificationsPage: React.FC = () => {
       header: "Actions",
       render: (_: any, row: AdminNotification) => (
         <>
-            <div className="gap-2">
-                <Button label='Edit' onClick={() => handleEdit(row)}
-                className="mx-1 px-3 py-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-transparent dark:bg-transparent border border-indigo-600 dark:border-indigo-400 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900"/>
-                <Button label='Delete' onClick={() => {
+            <div className="flex justify-center gap-2">
+                <AdminButton label='Edit' onClick={() => handleEdit(row)}
+                className="text-indigo-600 dark:text-indigo-400
+                  border border-indigo-600 dark:border-indigo-400
+                  bg-transparent hover:bg-indigo-50 dark:hover:bg-indigo-900"/>
+                <AdminButton label='Delete' onClick={() => {
                     setDeleteId(row.id);
                     setConfirmModal(true);
                 }}
-                className="mx-1 px-3 py-1 text-xs font-medium text-red-600 dark:text-red-400 border bg-transparent dark:bg-transparent border-red-600 dark:border-red-400 rounded hover:bg-red-50 dark:hover:bg-red-900"/>
+                className="text-red-600 dark:text-red-400
+                  border border-red-600 dark:border-red-400
+                  bg-transparent hover:bg-red-50 dark:hover:bg-red-900"/>
             </div>
         </>
       ),

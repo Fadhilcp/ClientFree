@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import Button from "../../../components/ui/Button";
+import Button from "../../../components/ui/Button/Button";
 import ProfileImage from "../../../components/user/profile/ProfileImage";
 import type { ActionItem } from "../../../components/ui/Card/Card";
 import { paymentService } from "../../../services/payment.service";

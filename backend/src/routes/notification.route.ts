@@ -23,9 +23,9 @@ const notificationService = new NotificationService(
 
 const notificationController = new NotificationController(notificationService);
 
-notificationRouter.post("/",notificationController.create.bind(notificationController));
 notificationRouter.use(authMiddleware, verifyUserNotBanned);
 
+notificationRouter.post("/",notificationController.create.bind(notificationController));
 notificationRouter.get("/unread-count",notificationController.countUnread.bind(notificationController));
 notificationRouter.patch("/read-all",notificationController.markAllAsRead.bind(notificationController));
 notificationRouter.get("/me",notificationController.getMyNotifications.bind(notificationController));

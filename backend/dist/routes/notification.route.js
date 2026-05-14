@@ -16,8 +16,8 @@ const notificationRecipientRepository = new notificationRecipient_repository_1.N
 const userRepository = new user_repository_1.UserRepository();
 const notificationService = new notification_service_1.NotificationService(notificationRepository, notificationRecipientRepository, userRepository);
 const notificationController = new notification_controller_1.NotificationController(notificationService);
-notificationRouter.post("/", notificationController.create.bind(notificationController));
 notificationRouter.use(authMiddleware_1.authMiddleware, verifyUserNotBanned_middleware_1.verifyUserNotBanned);
+notificationRouter.post("/", notificationController.create.bind(notificationController));
 notificationRouter.get("/unread-count", notificationController.countUnread.bind(notificationController));
 notificationRouter.patch("/read-all", notificationController.markAllAsRead.bind(notificationController));
 notificationRouter.get("/me", notificationController.getMyNotifications.bind(notificationController));

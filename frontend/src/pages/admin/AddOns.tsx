@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import SearchFilter from '../../components/admin/SearchFilter';
 import ReusableTable from '../../components/ui/Table';
 import FilterTabs from '../../components/admin/FilterTabs';
-import Button from '../../components/ui/Button';
+import Button from '../../components/ui/Button/Button';
 import AdminModal from '../../components/ui/Modal/AdminModal';
 import { notify } from '../../utils/toastService';
 import Pagination from '../../components/ui/Pagination';
@@ -11,6 +11,7 @@ import ConfirmationModal from '../../components/ui/Modal/ConfirmationModal';
 import { capitalize } from '../../utils/formatters';
 import { addOnService } from '../../services/addOns.service';
 import type { AddOn, AddOnForm } from '../../types/admin/addOn.type';
+import AdminButton from '@/components/ui/Button/AdminButton';
 
 export interface Column<T> {
   key: keyof T;
@@ -232,22 +233,24 @@ const AddOns = () => {
       key: 'id',
       header: 'Actions',
       render: (_, row) => (
-        <div className="gap-2">
-          <Button
+        <div className="flex justify-center gap-2">
+          <AdminButton
             label="Edit"
             onClick={() => handleEdit(row)}
-            className="mx-1 px-3 py-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 
-            bg-transparent border border-indigo-600 dark:border-indigo-400 rounded hover:bg-indigo-50 dark:bg-transparent
-            dark:hover:bg-indigo-900"
+            className="text-indigo-600 dark:text-indigo-400
+                border border-indigo-600 dark:border-indigo-400
+                bg-transparent
+                hover:bg-indigo-50 dark:hover:bg-indigo-900"
           />
-          <Button
+          <AdminButton
             label="Delete"
             onClick={() => {
               setDeleteId(row.id);
               setConfirmModal(true);
             }}
-            className="mx-1 px-3 py-1 text-xs font-medium text-red-600 dark:text-red-400 border bg-transparent 
-            border-red-600 dark:border-red-400 rounded hover:bg-red-50 dark:bg-transparent dark:hover:bg-red-900"
+            className="text-red-600 dark:text-red-400
+              border border-red-600 dark:border-red-400
+              bg-transparent hover:bg-red-50 dark:hover:bg-red-900"
           />
         </div>
       ),

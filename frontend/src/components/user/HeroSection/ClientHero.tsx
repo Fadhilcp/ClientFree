@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import Button from '../../ui/Button';
+import Button from '../../ui/Button/Button';
 
 const ClientHero: React.FC = () => {
     const navigate = useNavigate();

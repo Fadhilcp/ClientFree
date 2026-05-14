@@ -297,5 +297,14 @@ class JobController {
             next(error);
         }
     }
+    async getJobCategories(req, res, next) {
+        try {
+            const { categories, subcategories } = await this._jobService.getJobCategories();
+            (0, response_util_1.sendResponse)(res, status_constants_1.HttpStatus.OK, { categories, subcategories }, "Job categories fetched successfully");
+        }
+        catch (error) {
+            next();
+        }
+    }
 }
 exports.JobController = JobController;

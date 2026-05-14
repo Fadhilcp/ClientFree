@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const ai_service_1 = require("../services/ai.service");
+const ai_controller_1 = require("../controllers/ai.controller");
+const authMiddleware_1 = require("../middlewares/authMiddleware");
+const verifyUserNotBanned_middleware_1 = require("../middlewares/verifyUserNotBanned.middleware");
+const aiRouter = (0, express_1.Router)();
+const aiService = new ai_service_1.AiService();
+const aiController = new ai_controller_1.AiController(aiService);
+aiRouter.use(authMiddleware_1.authMiddleware, verifyUserNotBanned_middleware_1.verifyUserNotBanned);
+aiRouter.post('/suggest-job', aiController.getJobSuggestions.bind(aiController));
+exports.default = aiRouter;

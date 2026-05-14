@@ -9,6 +9,7 @@ const responseMessage_constant_1 = require("../constants/responseMessage.constan
 const job_schema_1 = require("../schema/job.schema");
 const user_constants_1 = require("../constants/user.constants");
 const buildJobSort_1 = require("../helpers/buildJobSort");
+const jobCategories_1 = require("../constants/jobCategories");
 class JobService {
     constructor(_jobRepository, _proposalRepository, _jobAssignmentRepository, _userRepository, _clarificationBoardRepository, _paymentRepository, _walletRepository, _walletTransactionRepository, _sessionProvider, _notificationService) {
         this._jobRepository = _jobRepository;
@@ -506,6 +507,12 @@ class JobService {
             await job.save({ session });
             return 'Job cancelled and escrow refunded successfully';
         });
+    }
+    async getJobCategories() {
+        return {
+            categories: jobCategories_1.JOB_CATEGORIES,
+            subcategories: jobCategories_1.JOB_SUBCATEGORIES,
+        };
     }
 }
 exports.JobService = JobService;

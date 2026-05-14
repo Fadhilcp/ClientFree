@@ -417,7 +417,7 @@ export class PaymentService implements IPaymentService {
         const query: FilterQuery<IPaymentDocument> = {
           isDeleted: false,
         };
-
+        
         if (search) {
           query.$or = [
             { providerPaymentId: { $regex: search, $options: "i" } },

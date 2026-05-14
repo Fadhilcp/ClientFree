@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Button from "../../ui/Button";
+import Button from "../../ui/Button/Button";
 import TextAreaSection from "../../ui/TextAreaSection";
 import { clarificationService } from "../../../services/clarification.service";
 import { notify } from "../../../utils/toastService";

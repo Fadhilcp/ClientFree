@@ -1,7 +1,7 @@
 import React from "react";
 import { type IProposal } from "../../../types/job/proposal.type";
 import UserInfo from "../../user/UserInfo";
-import Button from "../Button";
+import Button from "../Button/Button";
 import { useNavigate } from "react-router-dom";
 
 interface ProposalDetailModalProps {

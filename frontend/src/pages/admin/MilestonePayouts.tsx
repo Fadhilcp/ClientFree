@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import SearchFilter from '../../components/admin/SearchFilter';
 import ReusableTable from '../../components/ui/Table';
 import FilterTabs from '../../components/admin/FilterTabs';
-import Button from '../../components/ui/Button';
+import Button from '../../components/ui/Button/Button';
 
 import { notify } from '../../utils/toastService';
 import Pagination from '../../components/ui/Pagination';
@@ -13,6 +13,7 @@ import { paymentService } from '../../services/payment.service';
 import type { AdminApprovedMilestoneDto } from '../../types/admin/ApprovedMilestone.type';
 import Loader from '../../components/ui/Loader/Loader';
 import { useNavigate } from 'react-router-dom';
+import AdminButton from '@/components/ui/Button/AdminButton';
 
 export interface Column<T> {
   key: keyof T;
@@ -120,21 +121,22 @@ const MilestonePayouts = () => {
         <span>
           {
             row.status === 'approved' ? (
-              <Button
+              <AdminButton
                 label="Release"
                 onClick={() => handleReleaseClick(row)}
-                className="mx-1 px-3 py-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 
-                  bg-transparent border border-indigo-600 dark:border-indigo-400 rounded 
-                  hover:bg-indigo-50 dark:bg-transparent dark:hover:bg-indigo-900"
+                className="text-indigo-600 dark:text-indigo-400
+                border border-indigo-600 dark:border-indigo-400
+                bg-transparent
+                hover:bg-indigo-50 dark:hover:bg-indigo-900"
               />
             ) : null
           }
           <Button
             label="View"
             onClick={() => handleViewDetail(row)}
-            className="mx-1 px-3 py-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 
-              bg-transparent border border-indigo-600 dark:border-indigo-400 rounded 
-              hover:bg-indigo-50 dark:bg-transparent dark:hover:bg-indigo-900"
+            className="text-indigo-600 dark:text-indigo-400
+              border border-indigo-600 dark:border-indigo-400
+              bg-transparent hover:bg-indigo-50 dark:hover:bg-indigo-900"
           />
         </span>
     },

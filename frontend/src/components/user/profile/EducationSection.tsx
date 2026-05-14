@@ -1,5 +1,5 @@
 import type { Education, EducationError } from "../../../types/profileModal.types";
-import Button from "../../ui/Button";
+import Button from "../../ui/Button/Button";
 import { InputSection } from "../profileModal/InputSection";
 
 interface EducationSectionProps {

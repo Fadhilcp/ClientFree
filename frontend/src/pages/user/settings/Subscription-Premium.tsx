@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { subscriptionService } from "../../../services/subscription.service";
 import { notify } from "../../../utils/toastService";
 import Loader from "../../../components/ui/Loader/Loader";
-import Button from "../../../components/ui/Button";
+import Button from "../../../components/ui/Button/Button";
 import { useDispatch } from "react-redux";
 import { setSubscription } from "../../../features/authSlice";
 import ListWithHeader from "../../../components/user/ListWithHeader";

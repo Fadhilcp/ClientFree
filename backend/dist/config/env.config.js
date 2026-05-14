@@ -125,5 +125,9 @@ exports.env = {
     },
     get STRIPE_WEBHOOK_SECRET() {
         return process.env.STRIPE_WEBHOOK_SECRET;
+    },
+    // gemini
+    get GEMINI_API_KEY() {
+        return process.env.GEMINI_API_KEY;
     }
 };

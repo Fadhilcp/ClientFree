@@ -1,6 +1,6 @@
 import React from 'react';
 import InputSection from '../InputSection';
-import Button from '../Button';
+import Button from '../Button/Button';
 import DropdownSection from '../DropdownSection';
 
 interface AdminModalProps<T extends Record<string, any>> {

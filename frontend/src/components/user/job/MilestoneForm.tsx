@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import InputSection from "../../ui/InputSection";
 import TextAreaSection from "../../ui/TextAreaSection";
-import Button from "../../ui/Button";
+import Button from "../../ui/Button/Button";
 import type { MilestoneDto } from "../../../types/job/assignment.type";
 import { jobAssignmentService } from "../../../services/jobAssignments.service";
 import SubmitModal from "./SubmitModal";

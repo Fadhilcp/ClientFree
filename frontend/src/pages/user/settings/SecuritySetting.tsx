@@ -1,6 +1,6 @@
 import SettingSection from "../../../components/user/settings/SettingSection";
 import InputSection from "../../../components/ui/InputSection";
-import Button from "../../../components/ui/Button";
+import Button from "../../../components/ui/Button/Button";
 import { useState } from "react";
 import { validateConfirmPassword, validatePassword } from "../../../utils/validators/profileForm";
 import { authService } from "../../../services/auth.service";

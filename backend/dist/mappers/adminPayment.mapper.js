@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.mapAdminPayment = mapAdminPayment;
 function mapAdminPayment(payment) {
     const userDoc = payment.userId;
+    console.log("🚀 ~ mapAdminPayment ~ payment:", payment);
+    console.log("🚀 ~ mapAdminPayment ~ userDoc:", userDoc);
     const userId = userDoc?._id?.toString() ??
         (typeof payment.userId === "string"
             ? payment.userId

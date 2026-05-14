@@ -1,6 +1,6 @@
 import React from "react";
 import ProfileImage from "./profile/ProfileImage";
-import Button from "../ui/Button";
+import Button from "../ui/Button/Button";
 import type { FreelancerProfileDto } from "../../types/user/freelancerProfile.dto";
 import type { ClientProfileDto } from "../../types/user/clientProfile.dto";
 

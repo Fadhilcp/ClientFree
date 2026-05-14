@@ -5,7 +5,7 @@ import type { AssignmentDto } from "../../../types/job/assignment.type";
 import type { JobDetailDTO } from "../../../types/job/job.dto";
 import type { SkillItem } from "../../../types/skill.types";
 import { notify } from "../../../utils/toastService";
-import Button from "../../ui/Button";
+import Button from "../../ui/Button/Button";
 import Card, { type ActionItem } from "../../ui/Card/Card";
 import CreateReviewSection from "../reviews/CreateReviewSection";
 import ClarificationBoard from "./ClarificationBoard";

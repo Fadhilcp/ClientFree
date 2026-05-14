@@ -9,11 +9,12 @@ import { planService } from '../../services/plan.service';
 import { subscriptionService } from '../../services/subscription.service';
 import Pagination from '../../components/ui/Pagination';
 import AdminModal from '../../components/ui/Modal/AdminModal';
-import Button from '../../components/ui/Button';
+import Button from '../../components/ui/Button/Button';
 import type { FeatureKey } from '../../constants/planFeatures';
 import FeatureToggles from '../../components/admin/features/FeatureToggle';
 import { formatDate } from '../../utils/formatters';
 import Loader from '../../components/ui/Loader/Loader';
+import AdminButton from '@/components/ui/Button/AdminButton';
 
 export interface Column<T> {
   key: keyof T;
@@ -294,9 +295,11 @@ const [formData, setFormData] = useState<PlanForm>({
       key: 'id',
       header: 'Actions',
       render: (_, row) => (
-        <div className=" gap-2">
-          <Button label='Edit' onClick={() => handleEdit(row)}
-          className="mx-1 px-3 py-1 text-xs font-medium text-indigo-600 dark:bg-transparent dark:text-indigo-400 bg-transparent border border-indigo-600 dark:border-indigo-400 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900"/>
+        <div className="gap-2">
+          <AdminButton label='Edit' onClick={() => handleEdit(row)}
+          className="text-indigo-600 dark:text-indigo-400
+                border border-indigo-600 dark:border-indigo-400
+                bg-transparent hover:bg-indigo-50 dark:hover:bg-indigo-900"/>
         </div>
       ),
     },
