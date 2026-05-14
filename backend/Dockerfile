@@ -24,6 +24,8 @@ RUN npm ci --omit=dev
 
 COPY --from=builder /app/dist ./dist
 
+RUN mkdir -p logs && chown -R node:node /app
+
 USER node
 
 EXPOSE 3000
