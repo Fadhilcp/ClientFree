@@ -4,6 +4,8 @@ import { IUserDocument } from "../types/user.type";
 
 export function mapAdminPayment(payment: IPaymentDocument): AdminPaymentDto {
   const userDoc = payment.userId as unknown as Partial<IUserDocument>;
+  console.log("🚀 ~ mapAdminPayment ~ payment:", payment)
+  console.log("🚀 ~ mapAdminPayment ~ userDoc:", userDoc)
 
   const userId =
     userDoc?._id?.toString() ??

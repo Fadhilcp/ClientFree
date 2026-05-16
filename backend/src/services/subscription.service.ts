@@ -291,6 +291,7 @@ export class SubscriptionService implements ISubscriptionService {
                 },
             }
         );
+        console.log("🚀 ~ SubscriptionService ~ getMySubscriptions ~ result:", result)
 
         return {
             ...result,

@@ -6,6 +6,7 @@ type ToasterProps = React.ComponentProps<typeof Sonner>
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { resolvedTheme } = useTheme()
+  console.log("🚀 ~ Toaster ~ resolvedTheme:", resolvedTheme)
 
   return (
     <Sonner

@@ -26,6 +26,7 @@ const JobDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState("details");
   const [job, setJob] = useState<JobDetailDTO | null>(null);
+  console.log("🚀 ~ JobDetailPage ~ job:", job)
   const [loading, setLoading] = useState(true);
   
   const [jobAssignments, setJobAssignments] = useState<AssignmentDto[]>([]);
