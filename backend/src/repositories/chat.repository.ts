@@ -69,6 +69,8 @@ export class ChatRepository
             },
         });
 
+        console.log('pipeline.push in ChatRepository');
+
         return this.model.aggregate(pipeline);
     }
 
