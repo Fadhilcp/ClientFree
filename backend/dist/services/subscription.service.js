@@ -207,7 +207,7 @@ class SubscriptionService {
                 select: "planName userType priceMonthly priceYearly features",
             },
         });
-        console.log("🚀 ~ SubscriptionService ~ getMySubscriptions ~ result:", result);
+
         return {
             ...result,
             data: result.data.map(userSubscriptions_mapper_1.mapUserSubscriptions),

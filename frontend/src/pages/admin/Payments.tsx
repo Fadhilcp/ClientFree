@@ -59,7 +59,6 @@ const Payments = () => {
         setTotalPages(totalPages);
       }
     } catch (err: any) {
-      console.log("🚀 ~ fetchPayments ~ err:", err)
       notify.error(err.response?.data?.error || "Failed to load payments");
     } finally {
       setLoading(false);

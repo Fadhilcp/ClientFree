@@ -8,7 +8,7 @@ class AiService {
     ;
     async generateJobSuggestion(title) {
         const result = await (0, generateJobPost_1.generateJobPost)(title, [...jobCategories_1.JOB_CATEGORIES], [...jobCategories_1.JOB_SUBCATEGORIES]);
-        console.log("🚀 ~ AiService ~ generateJobSuggestion ~ result:", result);
+
         const cleaned = result
             .replace(/```json/g, "")
             .replace(/```/g, "")
