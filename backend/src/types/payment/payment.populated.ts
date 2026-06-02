@@ -52,3 +52,8 @@ export type PopulatedPayment = Omit<
     email: string;
   };
 };
+
+export type IPopulatedPaymentDocument = Omit<IPaymentDocument, 'clientId' | 'freelancerId'> & {
+    clientId: { _id: string; username: string } | null;
+    freelancerId: { _id: string; username: string } | null;
+};

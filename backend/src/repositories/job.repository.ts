@@ -73,4 +73,10 @@ export class JobRepository
         .limit(limit)
         .exec();
     }
+
+    async countByStatus(
+        status: "active" | "completed" | "open" | "cancelled"
+    ): Promise<number> {
+        return this.model.countDocuments({ status, isDeleted: false });
+    }
 }

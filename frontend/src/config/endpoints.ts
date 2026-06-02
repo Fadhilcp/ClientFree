@@ -178,6 +178,7 @@ export const endPoints = {
     },
     DASHBOARD: {
         GET_PAYMENTS_OVERVIEW: '/dashboard/payments-overview',
+        GET_ADMIN_STATS: '/dashboard/admin/stats',
     },
     MATCH: {
         GET_BEST_JOBS: (search: string, cursor?: string, limit?: number) =>

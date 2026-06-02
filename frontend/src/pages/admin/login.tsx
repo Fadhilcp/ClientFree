@@ -53,7 +53,7 @@ const AdminLogin: React.FC = () => {
             dispatch(setCredentials({user,token}))
     
             notify.success('Admin logged')
-            navigate('/admin/users');
+            navigate('/admin/dashboard');
           
         } catch (error : any) {
           notify.error(error.response?.data?.error || 'Login failed')

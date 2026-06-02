@@ -23,6 +23,11 @@ interface SidebarItem {
 
 const sidebarItems: SidebarItem[] = [
   {
+    label: 'Dashboard',
+    path: '/admin/dashboard',
+    icon: <FontAwesomeIcon icon={faUsers} className="size-4" />,
+  },
+  {
     label: 'Users',
     path: '/admin/users',
     icon: <FontAwesomeIcon icon={faUsers} className="size-4" />,

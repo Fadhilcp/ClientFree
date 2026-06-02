@@ -1,6 +1,7 @@
 import { ClientSession, FilterQuery, ObjectId } from "mongoose";
 import { IUser, IUserDocument } from "../../types/user.type";
 import { IBaseRepository } from "./IBaseRepository";
+import { UserGrowthGraphPointDTO } from "../../dtos/adminDashboard.dto";
 
 export interface IUserRepository extends IBaseRepository<IUserDocument>{
     findByEmail(email : string) : Promise<IUserDocument | null>;
@@ -24,4 +25,9 @@ export interface IUserRepository extends IBaseRepository<IUserDocument>{
         limit: number
     ): Promise<Pick<IUserDocument, "_id" | "username" | "email">[]>;
     findByIds(userIds: string[]): Promise<Pick<IUserDocument, "_id" | "username" | "email">[]>;
+
+    countByRole(role: "client" | "freelancer"): Promise<number>;
+    countNewThisMonth(): Promise<number>;
+    getUserGrowthGraph(monthsBack?: number): Promise<UserGrowthGraphPointDTO[]>;
+    getRecentUsers(limit?: number): Promise<IUserDocument[]>;
 }

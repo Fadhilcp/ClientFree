@@ -3,7 +3,7 @@ import { BaseRepository } from "./base.repository";
 import paymentModel from "../models/payment.model";
 import { IPaymentRepository } from "./interfaces/IPaymentRepository";
 import { FilterQuery, ObjectId } from "mongoose";
-import { PopulatedPayment } from "../types/payment/payment.populated";
+import { IPopulatedPaymentDocument, PopulatedPayment } from "../types/payment/payment.populated";
 
 export class PaymentRepository 
    extends BaseRepository<IPaymentDocument>
@@ -29,5 +29,16 @@ export class PaymentRepository
         .populate("userId")
         .populate("jobId")
         .exec() as Promise<PopulatedPayment | null>;
+    }
+
+    async getRecentPayments(limit = 10): Promise<IPopulatedPaymentDocument[]> {
+        const payments = await this.model
+            .find({ isDeleted: false })
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .populate<{ clientId: { _id: string; username: string } | null }>("clientId", "username")
+            .populate<{ freelancerId: { _id: string; username: string } | null }>("freelancerId", "username");
+
+        return payments;
     }
 }

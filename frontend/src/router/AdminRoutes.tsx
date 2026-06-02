@@ -21,6 +21,7 @@ const EscrowMilestones = lazy(() => import("../pages/admin/EscrowMilestones"));
 const Wallets = lazy(() => import("../pages/admin/Wallets"));
 const WalletTransactionsPage = lazy(() => import("../pages/admin/WalletTransactions"));
 const AdminNotificationsPage = lazy(() => import("../pages/admin/AdminNotificationsPage"));
+const AdminDashboard = lazy(() => import("../pages/admin/AdminDashboard"));
 const NotFoundPage = lazy(() => import("../pages/user/NotFoundPage"));
 
 const AdminRoutes: React.FC = () => {
@@ -33,6 +34,11 @@ const AdminRoutes: React.FC = () => {
           </NoAuthProtectedRoute>
         }/>
         <Route element={<AdminLayout/>}>
+            <Route path="dashboard" element={
+              <AuthProtectedRoute allowedRoles={['admin']}>
+                <AdminDashboard/>
+              </AuthProtectedRoute>
+            }/>
             <Route path="users" element={
               <AuthProtectedRoute allowedRoles={['admin']}>
                 <Users/>

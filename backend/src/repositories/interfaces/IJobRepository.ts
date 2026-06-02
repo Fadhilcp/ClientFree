@@ -10,4 +10,6 @@ export interface IJobRepository extends IBaseRepository<IJobDocument>{
         limit: number,
         sort: Record<string, 1 | -1>
     ): Promise<IJobDocument[]>
+
+    countByStatus(status: "active" | "completed" | "open" | "cancelled"): Promise<number>;
 };

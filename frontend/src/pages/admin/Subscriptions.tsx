@@ -166,8 +166,21 @@ const [formData, setFormData] = useState<PlanForm>({
     const newErrors: Record<string, string> = {};
     
     if (!formData.planName.trim()) newErrors.planName = 'Plan name is required.';
-    if (!formData.priceMonthly || isNaN(Number(formData.priceMonthly))) newErrors.priceMonthly = 'Monthly price must be a number.';
-    if (!formData.priceYearly || isNaN(Number(formData.priceYearly))) newErrors.priceYearly = 'Yearly price must be a number.';
+    
+    const monthlyPrice = Number(formData.priceMonthly);
+    if (!formData.priceMonthly || isNaN(monthlyPrice)) {
+      newErrors.priceMonthly = 'Monthly price must be a number.';
+    } else if (monthlyPrice < 0) {
+      newErrors.priceMonthly = 'Monthly price cannot be a negative value.';
+    }
+
+    const yearlyPrice = Number(formData.priceYearly);
+    if (!formData.priceYearly || isNaN(yearlyPrice)) {
+      newErrors.priceYearly = 'Yearly price must be a number.';
+    } else if (yearlyPrice < 0) {
+      newErrors.priceYearly = 'Yearly price cannot be a negative value.';
+    }
+
     if (!['active', 'inactive'].includes(formData.status)) newErrors.status = 'Invalid status.';
     if (!['client', 'freelancer'].includes(formData.userType)) newErrors.userType = 'Invalid user type.';
 

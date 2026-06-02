@@ -17,7 +17,7 @@ const NoAuthProtectedRoute: React.FC<NoAuthProtectedRouteProps> = ({ children })
 
     if (token && user) {
       if (user.role === "admin") {
-        navigate("/admin/users", { replace: true });
+        navigate("/admin/dashboard", { replace: true });
       } else {
         navigate("/home", { replace: true });
       }

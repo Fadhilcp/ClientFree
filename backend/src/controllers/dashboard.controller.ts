@@ -6,12 +6,14 @@ import { IDashBoardOverviewService } from "../services/interface/IDashboardServi
 import { createHttpError } from "../utils/httpError.util";
 import { sendResponse } from "../utils/response.util";
 import { UserRole } from "../constants/user.constants";
+import { IAdminDashboardService } from "../services/interface/IAdminDashboardService";
 
 export class DashBoardController {
 
     constructor(
         private _clientDashboardService: IDashBoardOverviewService<ClientPaymentOverviewDTO>,
         private _freelancerDashboardService: IDashBoardOverviewService<FreelancerPaymentOverviewDTO>,
+        private _adminDashboardService: IAdminDashboardService,
     ){};
 
     async getClientPaymentOverview(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -26,6 +28,20 @@ export class DashBoardController {
             const overview = await service.getPaymentOverview(userId);
 
             sendResponse(res, HttpStatus.OK, { overview });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getAdminDashboardStats(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            if (req.user?.role !== UserRole.ADMIN) {
+                throw createHttpError(HttpStatus.FORBIDDEN, HttpResponse.ACCESS_DENIED);
+            }
+
+            const stats = await this._adminDashboardService.getDashboardStats();
+
+            sendResponse(res, HttpStatus.OK, { stats });
         } catch (error) {
             next(error);
         }
