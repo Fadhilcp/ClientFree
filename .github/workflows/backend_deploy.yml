@@ -45,6 +45,7 @@ jobs:
             # Run the new container
             docker run -d \
               --name clientfree_backend \
+              --env-file /home/ubuntu/.env \
               -p 3000:3000 \
               --restart unless-stopped \
               ${{ secrets.DOCKER_USERNAME }}/fad-dev:latest
