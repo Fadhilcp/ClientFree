@@ -9,7 +9,6 @@ export class AiService implements IAiService {
     async generateJobSuggestion(title: string): Promise<JobPostSuggestion> {
 
         const result = await generateJobPost(title, [...JOB_CATEGORIES], [...JOB_SUBCATEGORIES]);
-        console.log("🚀 ~ AiService ~ generateJobSuggestion ~ result:", result)
 
         const cleaned = result
             .replace(/```json/g, "")
