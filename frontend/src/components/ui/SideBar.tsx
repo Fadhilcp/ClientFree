@@ -65,8 +65,8 @@ const Sidebar: React.FC<SidebarProps> = ({ title = "Menu", items }) => {
         </ul>
       </div>
 
-      {/* Dropdown for mobile */}
-      <div className="md:hidden w-full p-4 sticky top-0 bg-white dark:bg-gray-900 z-10">
+      {/* Dropdown for mobile (Added relative z-30 on container and z-40 on dropdown list) */}
+      <div className="md:hidden w-full p-4 sticky top-0 bg-white dark:bg-gray-900 z-30 relative">
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setOpen(!open)}
@@ -85,7 +85,7 @@ const Sidebar: React.FC<SidebarProps> = ({ title = "Menu", items }) => {
           </button>
 
           {open && (
-            <ul className="absolute mt-2 w-full rounded-md shadow-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 z-20">
+            <ul className="absolute left-0 top-full mt-2 w-full rounded-md shadow-xl bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 z-40 overflow-hidden">
               {items.map((item) => (
                 <li
                   key={item.path}
@@ -96,7 +96,7 @@ const Sidebar: React.FC<SidebarProps> = ({ title = "Menu", items }) => {
                   className={`px-3 py-2 text-sm cursor-pointer transition-colors 
                     ${
                       location.pathname === item.path
-                        ? "bg-indigo-100 text-indigo-600 dark:bg-indigo-500 dark:text-white"
+                        ? "bg-indigo-100 text-indigo-600 dark:bg-indigo-500 dark:text-white font-medium"
                         : "hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200"
                     }`}
                 >

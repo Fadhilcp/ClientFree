@@ -8,33 +8,34 @@ interface BaseLayoutProps {
 }
 
 const BaseLayout: React.FC<BaseLayoutProps> = ({ menuItems, filterBox }) => {
-
   const [showMobileFilter, setShowMobileFilter] = useState(false);
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-white dark:bg-gray-900">
-      {/* Sidebar */}
-      <div className="border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 md:sticky md:top-0 md:h-screen">
+      
+      <div className="relative z-30 md:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 md:sticky md:top-0 md:h-screen md:overflow-y-auto no-scrollbar">
         <Sidebar items={menuItems} />
       </div>
 
       {/* Main content */}
-      <main className="flex-1 px-4 sm:px-4 md:p-8 overflow-y-auto text-gray-800 dark:text-gray-200">
-      {filterBox && (
-        <div className="md:hidden mb-4 flex justify-end">
-          <button
-            onClick={() => setShowMobileFilter(true)}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm
-                       rounded-md bg-white dark:bg-gray-800"
-          >
-            <i className="fa-solid fa-filter text-indigo-500" />
-            Filters
-          </button>
-        </div>
-      )}
+      <main className="flex-1 px-4 sm:px-4 md:px-6 md:py-6 overflow-y-auto text-gray-800 dark:text-gray-200 relative z-10">
+        {filterBox && (
+          <div className="md:hidden mb-4 flex justify-end">
+            <button
+              onClick={() => setShowMobileFilter(true)}
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm
+                         rounded-md bg-white dark:bg-gray-800"
+            >
+              <i className="fa-solid fa-filter text-indigo-500" />
+              Filters
+            </button>
+          </div>
+        )}
 
         <Outlet />
       </main>
+
+      {/* Mobile Filter Modal */}
       {filterBox && (
         <div
           className={`fixed inset-0 z-50 md:hidden transition-opacity duration-300 ${
@@ -70,12 +71,11 @@ const BaseLayout: React.FC<BaseLayoutProps> = ({ menuItems, filterBox }) => {
         </div>
       )}
 
-
       {/* Filter box */}
       {filterBox && (
         <aside
-          className="hidden md:block border-gray-200 dark:border-gray-700
-                    bg-gray-50 dark:bg-gray-900 md:sticky md:top-0 md:h-screen p-6"
+          className="hidden md:block md:border-l border-gray-200 dark:border-gray-700
+                    bg-gray-50 dark:bg-gray-900 md:sticky md:top-0 md:h-screen p-6 overflow-y-auto no-scrollbar pb-24"
         >
           {filterBox}
         </aside>

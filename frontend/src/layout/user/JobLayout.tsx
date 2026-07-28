@@ -240,13 +240,13 @@ const JobLayout: React.FC = () => {
           setIsAiLoading(false);
         }
     };
-
+    
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-white dark:bg-gray-900">
       { loading && <Loader/> }
+      
       {/* job post form - only for client */}
       {user?.role === "client" && (
-
         <JobPostForm
           isOpen={isModalOpen}
           onClose={resetForm}
@@ -260,9 +260,8 @@ const JobLayout: React.FC = () => {
         />
       )}
 
-      {/* The layout start from here */}
-      {/* Left column */}
-      <div className="flex flex-col">
+      {/* LEFT COLUMN: Changed overflow-y-auto to md:overflow-y-auto */}
+      <div className="flex flex-col relative z-30 md:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 md:sticky md:top-0 md:h-screen md:overflow-y-auto no-scrollbar">
         {/* Button above sidebar */}
         {user?.role === "client" && (
           <div className="px-4 py-4 bg-white dark:bg-gray-900">
@@ -273,18 +272,18 @@ const JobLayout: React.FC = () => {
             />
           </div>
         )}
-          {/* Sidebar itself */}
-          <Sidebar items={user?.role === "client" ? clientMenuItems : freelancerMenuItems} />
+        {/* Sidebar itself */}
+        <Sidebar items={user?.role === "client" ? clientMenuItems : freelancerMenuItems} />
       </div>
 
       {/* Main content */}
-      <main className="flex-1 px-4 sm:px-4 md:p-6 overflow-y-auto text-gray-800 dark:text-gray-200">
+      <main className="flex-1 px-4 sm:px-4 md:px-6 md:py-6 overflow-y-auto bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 relative z-10">
         {!hideFilterBox && (
           <div className="md:hidden mb-4 flex justify-end">
             <button
               onClick={() => setShowMobileFilter(true)}
               className="w-full flex items-center gap-2 px-3 py-2 text-sm
-                        rounded-md bg-white dark:bg-gray-800"
+                         rounded-md bg-white dark:bg-gray-800"
             >
               <i className="fa-solid fa-filter text-indigo-500" />
               Filters
@@ -295,6 +294,7 @@ const JobLayout: React.FC = () => {
         <Outlet context={{ startEditJob }} />
       </main>
 
+      {/* Mobile Filter Modal */}
       {!hideFilterBox && (
         <div
           className={`fixed inset-0 z-50 md:hidden transition-opacity duration-300 ${
@@ -302,10 +302,7 @@ const JobLayout: React.FC = () => {
           }`}
           onClick={() => setShowMobileFilter(false)}
         >
-          {/* Backdrop */}
           <div className="absolute inset-0 bg-black/40" />
-
-          {/* Sliding panel */}
           <div
             className={`absolute right-0 top-0 h-full w-full max-w-xs no-scrollbar
                         bg-white dark:bg-gray-900 p-4 overflow-y-auto
@@ -313,7 +310,6 @@ const JobLayout: React.FC = () => {
                         ${showMobileFilter ? "translate-x-0" : "translate-x-full"}`}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal header */}
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-indigo-600 dark:text-indigo-400">
                 Filters
@@ -325,7 +321,6 @@ const JobLayout: React.FC = () => {
                 <i className="fa-solid fa-xmark text-gray-600 dark:text-gray-300" />
               </button>
             </div>
-
             <FiilterBox
               enabledFilters={["category", "budgetMin", "budgetMax", "location", "workMode", "skills", "sort", "hoursPerDay"]}
             />
@@ -335,7 +330,7 @@ const JobLayout: React.FC = () => {
 
       {/* RIGHT FILTER BOX */}
       {!hideFilterBox && (
-        <aside className="hidden md:block border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 sticky top-0 h-screen p-6">
+        <aside className="hidden md:block md:border-l border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 md:sticky md:top-0 md:h-screen p-6 overflow-y-auto no-scrollbar pb-24">
           <FiilterBox
             enabledFilters={["category", "budgetMin", "budgetMax", "location", "workMode", "skills", "sort", "hoursPerDay"]}
           />

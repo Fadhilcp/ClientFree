@@ -12,14 +12,12 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen }) =
   const navigate = useNavigate();
   const { markRead, markAllRead, latestNotifications } = useNotifications();
 
-
-
   if (!isOpen) return null;
 
   return (
     <div
       ref={dropdownRef}
-      className="absolute right-0 top-full mt-3 w-[380px] max-h-[520px] 
+      className="absolute right-0 top-full mt-3 w-[300px] sm:w-[380px] max-h-[80vh] sm:max-h-[520px] 
                  bg-white dark:bg-slate-900 rounded-2xl shadow-2xl 
                  border border-slate-200 dark:border-slate-800 
                  flex flex-col z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200"
@@ -39,7 +37,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen }) =
       </div>
 
       {/* Notifications List */}
-      <div className="overflow-y-auto flex-1 no-scrollbar max-h-[400px]">
+      <div className="overflow-y-auto flex-1 no-scrollbar max-h-[60vh] sm:max-h-[400px]">
         {latestNotifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
             <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded-full mb-3">
@@ -60,7 +58,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen }) =
               >
                 <div className="flex gap-3">
                   {/* Status Dot & Icon */}
-                  <div className="relative">
+                  <div className="relative shrink-0">
                     <div className="bg-slate-100 dark:bg-slate-800 p-2 rounded-lg group-hover:bg-white dark:group-hover:bg-slate-700 transition">
                       <Mail size={16} className="text-slate-600 dark:text-slate-400" />
                     </div>
@@ -70,8 +68,8 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen }) =
                   </div>
 
                   {/* Content */}
-                  <div className="flex-1">
-                    <h3 className={`text-sm leading-none ${!n.isRead ? "font-bold text-slate-900 dark:text-slate-100" : "font-medium text-slate-700 dark:text-slate-300"}`}>
+                  <div className="flex-1 min-w-0">
+                    <h3 className={`text-sm leading-none truncate ${!n.isRead ? "font-bold text-slate-900 dark:text-slate-100" : "font-medium text-slate-700 dark:text-slate-300"}`}>
                       {n.subject}
                     </h3>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 line-clamp-2">
@@ -93,7 +91,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen }) =
         onClick={() => {
           navigate("/notifications");
         }}
-        className="p-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 group cursor-pointer"
+        className="p-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 group cursor-pointer shrink-0"
       >
         <button className="w-full flex items-center justify-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition">
           View all Notifications
