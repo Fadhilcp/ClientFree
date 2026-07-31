@@ -48,6 +48,11 @@ Clientfree is built on a complete **MERN stack**, written entirely in **TypeScri
 * **Authentication:** JWT, Google OAuth
 * **AI Integrations:** Google Gemini (for job form generation)
 
+## ⚙️ DevOps & Deployment
+
+* **Containerization:** The backend infrastructure is fully containerized using **Docker**, ensuring consistency across development, testing, and production environments.
+* **CI/CD Pipeline:** Automated workflows are managed via **GitHub Actions**. The pipeline handles code linting, building, and seamless deployments to the production server upon merging to the main branch.
+
 ## 🚀 Getting Started
 
 Follow these steps to set up the project locally.
@@ -177,14 +182,5 @@ VITE_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
 
 ```
 
----
-
-## 📄 License
-
-This project is licensed under the [MIT License](https://www.google.com/search?q=LICENSE).
-
-```
-
-<FollowUp label="Want a docker-compose setup for the databases?" query="Write a docker-compose.yml file to easily spin up MongoDB and Redis for local development for this project."/>
-
-```
+---## 📄 License
+This project is licensed under the [MIT License](LICENSE).
