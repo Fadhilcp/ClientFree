@@ -182,5 +182,9 @@ VITE_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
 
 ```
 
----## 📄 License
+---
+
+## 📄 License
 This project is licensed under the [MIT License](LICENSE).
+
+```
