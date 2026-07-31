@@ -1,45 +1,52 @@
 # Clientfree 🚀
 
-Clientfree is a comprehensive freelance marketplace platform that connects clients with skilled freelancers. It features a robust bidding system, milestone-based payments, real-time chat, and an administrative dashboard to manage escrow and platform operations.
+Clientfree is a comprehensive freelance marketplace platform that connects clients with skilled freelancers. It features a robust bidding system, milestone-based payments, real-time communication, and an administrative dashboard to manage escrow and platform operations.
 
 ## ✨ Core Features
 
 The platform operates across three primary roles: **Client**, **Freelancer**, and **Admin**.
 
 ### 💼 For Clients
-* **Job Posting:** Create and publish detailed job requirements.
+
+* **AI-Powered Job Posting:** Create and publish detailed job requirements effortlessly using the Gemini API to auto-fill job forms and descriptions.
 * **Hiring & Management:** Review bids, hire freelancers, and manage ongoing projects.
-* **Milestone Tracking:** Break down large projects into manageable tasks with specific budgets attached to each milestone.
+* **Milestone Tracking:** Break down large projects into manageable tasks with specific budgets attached to each milestone, ensuring trust and transparency between both parties.
 * **Task Approval:** Review submitted work and approve milestones for payment release.
 
 ### 🧑‍💻 For Freelancers
+
 * **Job Discovery:** Browse and filter available job postings.
 * **Bidding System:** Apply for jobs with customized proposals. Includes an **optional bid upgrade** to highlight proposals and stand out to clients.
 * **Task Submission:** Submit completed work directly through the client's established milestones.
 
 ### 🛡️ For Admins (Escrow & Moderation)
+
 * **Payment Release:** Act as an escrow agent. Once a client approves a milestone, the admin safely releases the funds to the freelancer.
-* **Platform Management:** Oversee jobs, disputes, and subscription management.
+* **Platform Management:** Oversee user management, control the platform's skill catalog, and manage subscription tiers.
+* **Dispute Resolution:** Step in to mediate and resolve disputes raised by either clients or freelancers.
+* **Push Notifications:** Send live announcements and notifications globally or to specific users.
 
 ### 🔄 Shared Features
-* **Real-time Chat:** Seamless communication between clients and hired freelancers.
-* **Subscription Management:** Tiered access or premium features for users.
-* **Secure Payments:** Integrated with Stripe and Razorpay for secure transactions.
+
+* **Real-time Chat & Video:** Seamless communication between clients and hired freelancers through integrated live text chat and WebRTC video calls.
+* **Live Notifications:** Instant, real-time alerts for messages, bids, payments, and system updates.
+* **Flexible Subscriptions:** Dynamic subscription management allowing for highly flexible feature access and pricing amounts.
+* **Secure Payments:** Integrated with **both Stripe and Razorpay** to provide versatile, secure global and local transaction options.
 
 ---
 
 ## 🛠️ Tech Stack & Integrations
 
-Based on the environment configuration, Clientfree utilizes:
-* **Frontend:** Vite (React/Vue/Svelte)
-* **Backend:** Node.js / Express
+Clientfree is built on a complete **MERN stack**, written entirely in **TypeScript** across both the frontend and backend to ensure type safety and scalable architecture.
+
+* **Frontend:** React (via Vite) with TypeScript
+* **Backend:** Node.js & Express with TypeScript
 * **Database & Caching:** MongoDB, Redis
+* **Real-Time & Communication:** Socket.io (live notifications/chat), WebRTC (video calls)
 * **Cloud Storage:** AWS S3, Cloudinary
 * **Payments:** Stripe, Razorpay
 * **Authentication:** JWT, Google OAuth
-* **AI Integrations:** OpenAI, Google Gemini
-
----
+* **AI Integrations:** Google Gemini (for job form generation)
 
 ## 🚀 Getting Started
 
