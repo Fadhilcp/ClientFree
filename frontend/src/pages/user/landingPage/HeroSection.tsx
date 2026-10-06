@@ -1,7 +1,9 @@
 import React from 'react';
 import Button from '../../../components/ui/Button/Button';
+import { useNavigate } from 'react-router-dom';
 
 const HeroSection: React.FC = () => {
+  const navigate = useNavigate();
   return (
     <section className="bg-white dark:bg-gray-900 min-h-screen pt-6 md:pt-4 lg:pt-1 overflow-x-hidden">
 
@@ -37,31 +39,31 @@ const HeroSection: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-2 mt-6">
               <Button
                 label="Get Started"
-                onClick={() => {}}
+                onClick={() => navigate("/login")}
                 className="px-6 py-3 bg-indigo-500 text-white font-semibold"
               />
               <Button
                 label="Explore Marketplace"
                 variant="secondary"
-                onClick={() => {}}
+                onClick={() => navigate("/login")}
                 className="px-6 py-3 font-semibold"
               />
             </div>
           </div>
 
           {/* Right Side - Image */}
-          <div className="flex justify-center items-center lg:justify-end lg:pr-8">
-                <div className="relative max-w-md p-6 rounded-2xl bg-white/5 dark:bg-white/10 backdrop-blur-sm border border-white/10 shadow-2xl overflow-hidden group">
-                    {/* Subtle glow effect behind image on hover */}
-                    <div className="absolute -inset-2 bg-indigo-500/5 rounded-full blur-2xl group-hover:bg-indigo-500/10 transition-colors duration-500" />
-                    
-                    <img
-                        src="https://illustrations.popsy.co/amber/work-from-home.svg"
-                        alt="Freelancer"
-                        className="relative w-full h-auto object-contain dark:brightness-110 dark:contrast-125 dark:drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-transform duration-500 group-hover:scale-105"
-                    />
-                </div>
-            </div>
+          <div className="flex justify-center items-center lg:justify-end lg:pr-8 w-full">
+              <div className="relative w-full max-w-md lg:max-w-lg p-6 rounded-2xl bg-white/5 dark:bg-white/10 backdrop-blur-sm border border-white/10 shadow-2xl overflow-hidden group">
+                  
+                  <div className="absolute -inset-3 bg-indigo-500/5 rounded-full blur-3xl group-hover:bg-indigo-500/10 transition-colors duration-500" />
+                  
+                  <img
+                      src="/freelance-marketplace.svg"
+                      alt="Freelancer"
+                      className="relative w-full h-auto object-contain dark:brightness-110 dark:contrast-125 dark:drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-transform duration-500 group-hover:scale-105"
+                  />
+              </div>
+          </div>
         </div>
       </div>
     
